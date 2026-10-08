@@ -7,4 +7,308 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// NOTE: Models will be defined when connecting to database
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model bot_prompts {
+  id          Int      @id @default(autoincrement()) @db.UnsignedInt
+  context_key String   @unique(map: "context_key") @db.VarChar(50)
+  content     String   @db.Text
+  is_active   Boolean? @default(true)
+}
+
+model cart_items {
+  id               BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  cart_id          BigInt           @db.UnsignedBigInt
+  variant_id       BigInt           @db.UnsignedBigInt
+  quantity         Int
+  shopping_carts   shopping_carts   @relation(fields: [cart_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "cart_items_ibfk_1")
+  product_variants product_variants @relation(fields: [variant_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "cart_items_ibfk_2")
+
+  @@index([cart_id], map: "cart_id")
+  @@index([variant_id], map: "variant_id")
+}
+
+model categories {
+  id               Int          @id @default(autoincrement()) @db.UnsignedInt
+  parent_id        Int?         @db.UnsignedInt
+  name             String       @db.VarChar(100)
+  slug             String       @unique(map: "slug") @db.VarChar(150)
+  image_url        String?      @db.VarChar(255)
+  status           Boolean?     @default(true)
+  categories       categories?  @relation("categoriesTocategories", fields: [parent_id], references: [id], onUpdate: Restrict, map: "categories_ibfk_1")
+  other_categories categories[] @relation("categoriesTocategories")
+  products         products[]
+
+  @@index([parent_id], map: "parent_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model chat_messages {
+  id            BigInt                    @id @default(autoincrement()) @db.UnsignedBigInt
+  session_id    BigInt                    @db.UnsignedBigInt
+  sender_type   chat_messages_sender_type
+  sender_id     BigInt?                   @db.UnsignedBigInt
+  content       String                    @db.Text
+  created_at    DateTime?                 @default(now()) @db.DateTime(0)
+  chat_sessions chat_sessions             @relation(fields: [session_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "chat_messages_ibfk_1")
+  users         users?                    @relation(fields: [sender_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "chat_messages_ibfk_2")
+
+  @@index([sender_id], map: "sender_id")
+  @@index([session_id], map: "session_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model chat_sessions {
+  id            BigInt                @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id       BigInt?               @db.UnsignedBigInt
+  guest_id      String?               @db.VarChar(255)
+  status        chat_sessions_status? @default(bot_handling)
+  started_at    DateTime?             @default(now()) @db.DateTime(0)
+  ended_at      DateTime?             @db.DateTime(0)
+  chat_messages chat_messages[]
+  users         users?                @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "chat_sessions_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model coupons {
+  id                  Int                   @id @default(autoincrement()) @db.UnsignedInt
+  code                String                @unique(map: "code") @db.VarChar(50)
+  discount_type       coupons_discount_type
+  discount_value      Decimal               @db.Decimal(15, 2)
+  min_order_value     Decimal?              @default(0.00) @db.Decimal(15, 2)
+  max_discount_amount Decimal?              @db.Decimal(15, 2)
+  start_date          DateTime              @db.DateTime(0)
+  end_date            DateTime              @db.DateTime(0)
+  usage_limit         Int?
+  used_count          Int?                  @default(0)
+  status              Boolean?              @default(true)
+  orders              orders[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model order_items {
+  id               BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  order_id         BigInt            @db.UnsignedBigInt
+  product_id       BigInt?           @db.UnsignedBigInt
+  variant_id       BigInt?           @db.UnsignedBigInt
+  product_name     String            @db.VarChar(255)
+  variant_name     String?           @db.VarChar(255)
+  sku              String            @db.VarChar(50)
+  quantity         Int
+  unit_price       Decimal           @db.Decimal(15, 2)
+  total_price      Decimal           @db.Decimal(15, 2)
+  orders           orders            @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "order_items_ibfk_1")
+  products         products?         @relation(fields: [product_id], references: [id], onUpdate: Restrict, map: "order_items_ibfk_2")
+  product_variants product_variants? @relation(fields: [variant_id], references: [id], onUpdate: Restrict, map: "order_items_ibfk_3")
+
+  @@index([order_id], map: "order_id")
+  @@index([product_id], map: "product_id")
+  @@index([variant_id], map: "variant_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model orders {
+  id               BigInt                 @id @default(autoincrement()) @db.UnsignedBigInt
+  order_code       String                 @unique(map: "order_code") @db.VarChar(50)
+  user_id          BigInt                 @db.UnsignedBigInt
+  coupon_id        Int?                   @db.UnsignedInt
+  shipping_address String                 @db.Text
+  shipping_fee     Decimal?               @default(0.00) @db.Decimal(15, 2)
+  subtotal_amount  Decimal                @db.Decimal(15, 2)
+  discount_amount  Decimal?               @default(0.00) @db.Decimal(15, 2)
+  total_amount     Decimal                @db.Decimal(15, 2)
+  payment_method   String                 @db.VarChar(50)
+  payment_status   orders_payment_status? @default(pending)
+  order_status     orders_order_status?   @default(pending)
+  seller_note      String?                @db.Text
+  customer_note    String?                @db.Text
+  created_at       DateTime?              @default(now()) @db.DateTime(0)
+  updated_at       DateTime?              @default(now()) @db.DateTime(0)
+  order_items      order_items[]
+  users            users                  @relation(fields: [user_id], references: [id], onUpdate: Restrict, map: "orders_ibfk_1")
+  coupons          coupons?               @relation(fields: [coupon_id], references: [id], onUpdate: Restrict, map: "orders_ibfk_2")
+  reviews          reviews[]
+
+  @@index([coupon_id], map: "coupon_id")
+  @@index([user_id], map: "user_id")
+}
+
+model product_images {
+  id               BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  product_id       BigInt            @db.UnsignedBigInt
+  variant_id       BigInt?           @db.UnsignedBigInt
+  image_url        String            @db.VarChar(255)
+  is_thumbnail     Boolean?          @default(false)
+  sort_order       Int?              @default(0)
+  products         products          @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "product_images_ibfk_1")
+  product_variants product_variants? @relation(fields: [variant_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "product_images_ibfk_2")
+
+  @@index([product_id], map: "product_id")
+  @@index([variant_id], map: "variant_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model product_variants {
+  id               BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  product_id       BigInt           @db.UnsignedBigInt
+  sku              String           @unique(map: "sku") @db.VarChar(50)
+  color            String?          @db.VarChar(50)
+  material         String?          @db.VarChar(50)
+  price            Decimal          @db.Decimal(15, 2)
+  compare_at_price Decimal?         @db.Decimal(15, 2)
+  stock_quantity   Int?             @default(0)
+  weight_gram      Int?
+  dimensions       String?          @db.VarChar(50)
+  cart_items       cart_items[]
+  order_items      order_items[]
+  product_images   product_images[]
+  products         products         @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "product_variants_ibfk_1")
+
+  @@index([product_id], map: "product_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model products {
+  id                BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
+  category_id       Int                @db.UnsignedInt
+  name              String             @db.VarChar(255)
+  slug              String             @unique(map: "slug") @db.VarChar(255)
+  short_description String?            @db.Text
+  content           String?            @db.LongText
+  brand             String?            @db.VarChar(100)
+  view_count        Int?               @default(0)
+  status            Boolean?           @default(true)
+  created_at        DateTime?          @default(now()) @db.DateTime(0)
+  updated_at        DateTime?          @default(now()) @db.DateTime(0)
+  deleted_at        DateTime?          @db.DateTime(0)
+  order_items       order_items[]
+  product_images    product_images[]
+  product_variants  product_variants[]
+  categories        categories         @relation(fields: [category_id], references: [id], onUpdate: Restrict, map: "products_ibfk_1")
+  reviews           reviews[]
+
+  @@index([category_id], map: "category_id")
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model reviews {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  product_id BigInt    @db.UnsignedBigInt
+  user_id    BigInt    @db.UnsignedBigInt
+  order_id   BigInt    @db.UnsignedBigInt
+  rating     Int       @db.TinyInt
+  content    String?   @db.Text
+  status     Boolean?  @default(true)
+  created_at DateTime? @default(now()) @db.DateTime(0)
+  products   products  @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "reviews_ibfk_1")
+  users      users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "reviews_ibfk_2")
+  orders     orders    @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "reviews_ibfk_3")
+
+  @@index([order_id], map: "order_id")
+  @@index([product_id], map: "product_id")
+  @@index([user_id], map: "user_id")
+}
+
+model roles {
+  id          Int     @id @default(autoincrement()) @db.UnsignedInt
+  name        String  @unique(map: "name") @db.VarChar(50)
+  description String? @db.VarChar(255)
+  users       users[]
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model shopping_carts {
+  id         BigInt       @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id    BigInt?      @db.UnsignedBigInt
+  session_id String?      @db.VarChar(255)
+  created_at DateTime?    @default(now()) @db.DateTime(0)
+  updated_at DateTime?    @default(now()) @db.DateTime(0)
+  cart_items cart_items[]
+  users      users?       @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "shopping_carts_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model system_logs {
+  id          BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id     BigInt    @db.UnsignedBigInt
+  action      String    @db.VarChar(100)
+  description String?   @db.Text
+  ip_address  String?   @db.VarChar(45)
+  created_at  DateTime? @default(now()) @db.DateTime(0)
+  users       users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "system_logs_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model user_addresses {
+  id               BigInt   @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id          BigInt   @db.UnsignedBigInt
+  receiver_name    String   @db.VarChar(100)
+  receiver_phone   String   @db.VarChar(20)
+  province         String   @db.VarChar(100)
+  district         String   @db.VarChar(100)
+  ward             String   @db.VarChar(100)
+  specific_address String   @db.VarChar(255)
+  is_default       Boolean? @default(false)
+  users            users    @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "user_addresses_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+/// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
+model users {
+  id             BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
+  role_id        Int              @db.UnsignedInt
+  email          String           @unique(map: "email") @db.VarChar(100)
+  password_hash  String           @db.VarChar(255)
+  full_name      String           @db.VarChar(100)
+  phone          String?          @unique(map: "phone") @db.VarChar(20)
+  avatar_url     String?          @db.VarChar(255)
+  status         Boolean?         @default(true)
+  created_at     DateTime?        @default(now()) @db.DateTime(0)
+  updated_at     DateTime?        @default(now()) @db.DateTime(0)
+  deleted_at     DateTime?        @db.DateTime(0)
+  chat_messages  chat_messages[]
+  chat_sessions  chat_sessions[]
+  orders         orders[]
+  reviews        reviews[]
+  shopping_carts shopping_carts[]
+  system_logs    system_logs[]
+  user_addresses user_addresses[]
+  roles          roles            @relation(fields: [role_id], references: [id], onUpdate: Restrict, map: "users_ibfk_1")
+
+  @@index([role_id], map: "role_id")
+}
+
+enum chat_messages_sender_type {
+  customer
+  ai_bot
+  seller
+}
+
+enum coupons_discount_type {
+  percent
+  fixed_amount
+}
+
+enum chat_sessions_status {
+  bot_handling
+  human_requested
+  human_handling
+  closed
+}
+
+enum orders_payment_status {
+  pending
+  paid
+  refunded
+}
+
+enum orders_order_status {
+  pending
+  confirmed
+  shipping
+  completed
+  cancelled
+}
