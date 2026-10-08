@@ -1,113 +1,112 @@
-# Ná»™i Tháº¥t â€” Website BÃ¡n Ná»™i Tháº¥t (Monorepo)
+# Nội Thất — Website Bán Nội Thất (Monorepo)
 
-Website thÆ°Æ¡ng máº¡i Ä‘iá»‡n tá»­ ná»™i tháº¥t káº¿t há»£p trá»£ lÃ½ tÆ° váº¥n phong thá»§y theo cung má»‡nh, xÃ¢y dá»±ng trÃªn kiáº¿n trÃºc Monorepo phÃ¢n tÃ¡ch **Frontend** vÃ  **Backend**.
+Website thương mại điện tử nội thất kết hợp trợ lý tư vấn phong thủy theo cung mệnh, xây dựng trên kiến trúc Monorepo phân tách **Frontend** và **Backend**.
 
 ---
 
-## 1. CÃ´ng nghá»‡ sá»­ dá»¥ng (Tech Stack)
+## 1. Công nghệ sử dụng (Tech Stack)
 
-| Táº§ng | CÃ´ng nghá»‡ | Chi tiáº¿t |
+| Tầng | Công nghệ | Chi tiết |
 | :--- | :--- | :--- |
-| **Frontend** | Astro 7, React 19, Vite | Tá»‘i Æ°u SEO, tá»‘c Ä‘á»™ hiá»ƒn thá»‹, component React tÆ°Æ¡ng tÃ¡c |
-| **Styling** | Tailwind CSS v4 | Thiáº¿t káº¿ tá»‘i giáº£n, sang trá»ng (walnut/sand/clay), responsive |
-| **Backend** | Node.js, Express.js (TypeScript) | RESTful API, cáº¥u trÃºc controllers/services/routes rÃµ rÃ ng |
-| **ORM & Database**| Prisma ORM, MySQL | Quáº£n lÃ½ dá»¯ liá»‡u quan há»‡, type-safe query |
-| **AI Integration** | Google Gemini API | TÆ° váº¥n phong thá»§y bÃ i trÃ­ ná»™i tháº¥t |
+| **Frontend** | Astro 7, React 19, Vite | Tối ưu SEO, tốc độ hiển thị, component React tương tác |
+| **Styling** | Tailwind CSS v4 | Thiết kế tối giản, sang trọng (walnut/sand/clay), responsive |
+| **Backend** | Node.js, Express.js (TypeScript) | RESTful API, cấu trúc controllers/services/routes rõ ràng |
+| **ORM & Database** | Prisma ORM, MySQL | Quản lý dữ liệu quan hệ, type-safe query |
+| **AI Integration** | Google Gemini API | Tư vấn phong thủy bài trí nội thất |
 
 ---
 
-## 2. Cáº¥u trÃºc thÆ° má»¥c
+## 2. Cấu trúc thư mục
 
 ```text
 noi-that/
-â”œâ”€â”€ frontend/                   # á»¨ng dá»¥ng giao diá»‡n Astro + React + Tailwind
-â”‚   â”œâ”€â”€ public/                 # áº¢nh, favicon, tÃ i nguyÃªn tÄ©nh
-â”‚   â”œâ”€â”€ src/
-â”‚   â”‚   â”œâ”€â”€ components/         # Header, Footer, ProductCard (Astro & React)
-â”‚   â”‚   â”œâ”€â”€ data/               # Nguá»“n dá»¯ liá»‡u máº«u (products.ts, product-details.ts)
-â”‚   â”‚   â”œâ”€â”€ layouts/            # BaseLayout, AdminLayout
-â”‚   â”‚   â”œâ”€â”€ pages/              # CÃ¡c route website (/san-pham, /gio-hang, /thanh-toan, /phong-thuy, /admin)
-â”‚   â”‚   â”œâ”€â”€ scripts/            # cart.ts, validate.ts, phong-thuy.ts
-â”‚   â”‚   â”œâ”€â”€ services/           # api.ts (hÃ m gá»i backend API)
-â”‚   â”‚   â”œâ”€â”€ styles/             # global.css (Tailwind design tokens)
-â”‚   â”‚   â””â”€â”€ types/              # Äá»‹nh nghÄ©a interface TypeScript dÃ¹ng chung
-â”‚   â”œâ”€â”€ astro.config.mjs
-â”‚   â”œâ”€â”€ tsconfig.json
-â”‚   â”œâ”€â”€ .env.example
-â”‚   â””â”€â”€ package.json
-â”‚
-â”œâ”€â”€ backend/                    # MÃ¡y chá»§ RESTful API Express + TypeScript
-â”‚   â”œâ”€â”€ prisma/
-â”‚   â”‚   â”œâ”€â”€ schema.prisma       # Cáº¥u hÃ¬nh káº¿t ná»‘i MySQL vÃ  Prisma model
-â”‚   â”‚   â””â”€â”€ seed.ts             # Script náº¡p dá»¯ liá»‡u ban Ä‘áº§u
-â”‚   â”œâ”€â”€ src/
-â”‚   â”‚   â”œâ”€â”€ config/             # env.ts, prisma.ts, gemini.ts
-â”‚   â”‚   â”œâ”€â”€ controllers/        # Äiá»u hÆ°á»›ng xá»­ lÃ½ logic nghiá»‡p vá»¥
-â”‚   â”‚   â”œâ”€â”€ middlewares/        # Xá»­ lÃ½ lá»—i, 404, CORS
-â”‚   â”‚   â”œâ”€â”€ routes/             # Äá»‹nh tuyáº¿n API (/api/health, products, orders...)
-â”‚   â”‚   â”œâ”€â”€ services/           # Xá»­ lÃ½ nghiá»‡p vá»¥ chÃ­nh
-â”‚   â”‚   â”œâ”€â”€ types/              # Kiá»ƒu dá»¯ liá»‡u phÃ­a backend
-â”‚   â”‚   â”œâ”€â”€ app.ts              # Khá»Ÿi táº¡o Express app
-â”‚   â”‚   â””â”€â”€ server.ts           # Äiá»ƒm khá»Ÿi cháº¡y mÃ¡y chá»§
-â”‚   â”œâ”€â”€ .env.example
-â”‚   â”œâ”€â”€ tsconfig.json
-â”‚   â””â”€â”€ package.json
-â”‚
-â”œâ”€â”€ database/                   # CÆ¡ sá»Ÿ dá»¯ liá»‡u
-â”‚   â””â”€â”€ web_ban_noi_that.sql    # File script SQL táº¡o báº£ng vÃ  náº¡p dá»¯ liá»‡u
-â”‚
-â”œâ”€â”€ .gitignore
-â”œâ”€â”€ package.json                # Scripts tiá»‡n Ã­ch cháº¡y tá»« thÆ° má»¥c gá»‘c
-â”œâ”€â”€ AGENTS.md
-â”œâ”€â”€ CLAUDE.md
-â””â”€â”€ README.md
+├── frontend/                   # Ứng dụng giao diện Astro + React + Tailwind
+│   ├── public/                 # Ảnh, favicon, tài nguyên tĩnh
+│   ├── src/
+│   │   ├── components/         # Header, Footer, ProductCard (Astro & React)
+│   │   ├── data/               # Nguồn dữ liệu mẫu (products.ts, product-details.ts)
+│   │   ├── layouts/            # BaseLayout, AdminLayout
+│   │   ├── pages/              # Các route website (/san-pham, /gio-hang, /thanh-toan, /phong-thuy, /admin)
+│   │   ├── scripts/            # cart.ts, validate.ts, phong-thuy.ts
+│   │   ├── services/           # api.ts (hàm gọi backend API)
+│   │   ├── styles/             # global.css (Tailwind design tokens)
+│   │   └── types/              # Định nghĩa interface TypeScript dùng chung
+│   ├── astro.config.mjs
+│   ├── tsconfig.json
+│   ├── .env.example
+│   └── package.json
+│
+├── backend/                    # Máy chủ RESTful API Express + TypeScript
+│   ├── prisma/
+│   │   ├── schema.prisma       # Cấu hình kết nối MySQL và Prisma model
+│   │   └── seed.ts             # Script nạp dữ liệu ban đầu
+│   ├── src/
+│   │   ├── config/             # env.ts, prisma.ts, gemini.ts
+│   │   ├── controllers/        # Điều hướng xử lý logic nghiệp vụ
+│   │   ├── middlewares/        # Xử lý lỗi, 404, CORS
+│   │   ├── routes/             # Định tuyến API (/api/health, products, orders...)
+│   │   ├── services/           # Xử lý nghiệp vụ chính
+│   │   ├── types/              # Kiểu dữ liệu phía backend
+│   │   ├── app.ts              # Khởi tạo Express app
+│   │   └── server.ts           # Điểm khởi chạy máy chủ
+│   ├── .env.example
+│   ├── tsconfig.json
+│   └── package.json
+│
+├── database/                   # Cơ sở dữ liệu
+│   └── web_ban_noi_that.sql    # File script SQL tạo bảng và nạp dữ liệu
+│
+├── .gitignore
+├── package.json                # Scripts tiện ích chạy từ thư mục gốc
+├── AGENTS.md
+├── CLAUDE.md
+└── README.md
 ```
 
 ---
 
-## 3. HÆ°á»›ng dáº«n cÃ i Ä‘áº·t & Cháº¡y dá»± Ã¡n
+## 3. Hướng dẫn cài đặt & Chạy dự án
 
-### YÃªu cáº§u mÃ´i trÆ°á»ng
+### Yêu cầu môi trường
 - **Node.js**: `>= 22.12.0`
 - **npm**
-- **MySQL Server** (XAMPP, MySQL Workbench, hoáº·c Docker)
+- **MySQL Server** (XAMPP, MySQL Workbench, hoặc Docker)
 
-### BÆ°á»›c 1: Khá»Ÿi táº¡o CÆ¡ sá»Ÿ dá»¯ liá»‡u
-1. Má»Ÿ MySQL client (phpMyAdmin hoáº·c MySQL Workbench).
-2. Táº¡o cÆ¡ sá»Ÿ dá»¯ liá»‡u má»›i (vÃ­ dá»¥: `noi_that_db`).
-3. Import file `database/web_ban_noi_that.sql` vÃ o cÆ¡ sá»Ÿ dá»¯ liá»‡u vá»«a táº¡o.
+### Bước 1: Khởi tạo Cơ sở dữ liệu
+1. Mở MySQL client (phpMyAdmin hoặc MySQL Workbench).
+2. Tạo cơ sở dữ liệu mới (ví dụ: `noi_that_db`).
+3. Import file `database/web_ban_noi_that.sql` vào cơ sở dữ liệu vừa tạo.
 
-### BÆ°á»›c 2: CÃ i Ä‘áº·t thÆ° viá»‡n
-Táº¡i thÆ° má»¥c gá»‘c cá»§a dá»± Ã¡n, cháº¡y:
+### Bước 2: Cài đặt thư viện
+Tại thư mục gốc của dự án, chạy:
 ```sh
 npm run install:all
 ```
-*(Hoáº·c cháº¡y `npm install` riÃªng trong tá»«ng thÆ° má»¥c `frontend` vÃ  `backend`)*
 
-### BÆ°á»›c 3: Cáº¥u hÃ¬nh biáº¿n mÃ´i trÆ°á»ng
-- Táº¡i `backend/`: Copy `.env.example` thÃ nh `.env` vÃ  cáº­p nháº­t thÃ´ng tin:
+### Bước 3: Cấu hình biến môi trường
+- Tại `backend/`: Copy `.env.example` thành `.env` và cập nhật thông tin:
   ```env
   PORT=4000
   CORS_ORIGIN=http://localhost:4321
   DATABASE_URL="mysql://root:password@localhost:3306/noi_that_db"
   GEMINI_API_KEY="khoa_gemini_cua_ban"
   ```
-- Táº¡i `frontend/`: Copy `.env.example` thÃ nh `.env`:
+- Tại `frontend/`: Copy `.env.example` thành `.env`:
   ```env
   PUBLIC_API_URL=http://localhost:4000/api
   ```
 
-### BÆ°á»›c 4: Khá»Ÿi cháº¡y dá»± Ã¡n
+### Bước 4: Khởi chạy dự án
 
-Tá»« thÆ° má»¥c gá»‘c:
-- **Cháº¡y Backend**:
+Từ thư mục gốc:
+- **Chạy Backend**:
   ```sh
   npm run dev:be
-  # Backend cháº¡y táº¡i: http://localhost:4000
-  # Kiá»ƒm tra sá»©c khá»e: http://localhost:4000/api/health
+  # Backend chạy tại: http://localhost:4000
+  # Kiểm tra sức khỏe: http://localhost:4000/api/health
   ```
-- **Cháº¡y Frontend**:
+- **Chạy Frontend**:
   ```sh
   npm run dev:fe
-  # Frontend cháº¡y táº¡i: http://localhost:4321
+  # Frontend chạy tại: http://localhost:4321
   ```
