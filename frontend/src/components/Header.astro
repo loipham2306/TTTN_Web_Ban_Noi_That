@@ -1,4 +1,4 @@
----
+﻿---
 interface MenuLink {
   label: string;
   href: string;
@@ -12,79 +12,79 @@ interface MenuItem {
 
 const menu: MenuItem[] = [
   {
-    label: 'Phòng khách',
+    label: 'PhÃ²ng khÃ¡ch',
     children: [
       { label: 'Sofa', href: '/san-pham?danh-muc=sofa' },
-      { label: 'Ghế thư giãn', href: '/san-pham?danh-muc=ghe' },
-      { label: 'Bàn trà', href: '/san-pham?danh-muc=trang-tri' },
-      { label: 'Kệ tivi', href: '/san-pham?danh-muc=tu-ke' },
+      { label: 'Gháº¿ thÆ° giÃ£n', href: '/san-pham?danh-muc=ghe' },
+      { label: 'BÃ n trÃ ', href: '/san-pham?danh-muc=trang-tri' },
+      { label: 'Ká»‡ tivi', href: '/san-pham?danh-muc=tu-ke' },
     ],
   },
   {
-    label: 'Phòng ăn',
+    label: 'PhÃ²ng Äƒn',
     children: [
-      { label: 'Bàn ăn', href: '/san-pham?danh-muc=ban-an' },
-      { label: 'Ghế ăn', href: '/san-pham?danh-muc=ghe' },
-      { label: 'Đèn thả trần', href: '/san-pham?danh-muc=den' },
+      { label: 'BÃ n Äƒn', href: '/san-pham?danh-muc=ban-an' },
+      { label: 'Gháº¿ Äƒn', href: '/san-pham?danh-muc=ghe' },
+      { label: 'ÄÃ¨n tháº£ tráº§n', href: '/san-pham?danh-muc=den' },
     ],
   },
   {
-    label: 'Phòng ngủ',
+    label: 'PhÃ²ng ngá»§',
     children: [
-      { label: 'Giường ngủ', href: '/san-pham?danh-muc=giuong' },
-      { label: 'Tủ quần áo', href: '/san-pham?danh-muc=tu-ke' },
-      { label: 'Gương trang trí', href: '/san-pham?danh-muc=trang-tri' },
+      { label: 'GiÆ°á»ng ngá»§', href: '/san-pham?danh-muc=giuong' },
+      { label: 'Tá»§ quáº§n Ã¡o', href: '/san-pham?danh-muc=tu-ke' },
+      { label: 'GÆ°Æ¡ng trang trÃ­', href: '/san-pham?danh-muc=trang-tri' },
     ],
   },
   {
-    label: 'Làm việc',
+    label: 'LÃ m viá»‡c',
     children: [
-      { label: 'Ghế công thái học', href: '/san-pham?danh-muc=ghe' },
-      { label: 'Kệ sách', href: '/san-pham?danh-muc=tu-ke' },
-      { label: 'Đèn bàn', href: '/san-pham?danh-muc=den' },
+      { label: 'Gháº¿ cÃ´ng thÃ¡i há»c', href: '/san-pham?danh-muc=ghe' },
+      { label: 'Ká»‡ sÃ¡ch', href: '/san-pham?danh-muc=tu-ke' },
+      { label: 'ÄÃ¨n bÃ n', href: '/san-pham?danh-muc=den' },
     ],
   },
   {
-    label: 'Ngoài trời',
+    label: 'NgoÃ i trá»i',
     children: [
-      { label: 'Ghế gỗ teak', href: '/san-pham?khong-gian=ngoai-troi' },
-      { label: 'Toàn bộ ngoài trời', href: '/san-pham?khong-gian=ngoai-troi' },
+      { label: 'Gháº¿ gá»— teak', href: '/san-pham?khong-gian=ngoai-troi' },
+      { label: 'ToÃ n bá»™ ngoÃ i trá»i', href: '/san-pham?khong-gian=ngoai-troi' },
     ],
   },
   {
-    label: 'Chiếu sáng',
+    label: 'Chiáº¿u sÃ¡ng',
     children: [
-      { label: 'Đèn sàn', href: '/san-pham?danh-muc=den' },
-      { label: 'Đèn thả trần', href: '/san-pham?danh-muc=den' },
-      { label: 'Đèn bàn', href: '/san-pham?danh-muc=den' },
+      { label: 'ÄÃ¨n sÃ n', href: '/san-pham?danh-muc=den' },
+      { label: 'ÄÃ¨n tháº£ tráº§n', href: '/san-pham?danh-muc=den' },
+      { label: 'ÄÃ¨n bÃ n', href: '/san-pham?danh-muc=den' },
     ],
   },
   {
-    label: 'Trang trí',
+    label: 'Trang trÃ­',
     children: [
-      { label: 'Bàn trà', href: '/san-pham?danh-muc=trang-tri' },
-      { label: 'Gương', href: '/san-pham?danh-muc=trang-tri' },
-      { label: 'Đồ trang trí', href: '/san-pham?danh-muc=trang-tri' },
+      { label: 'BÃ n trÃ ', href: '/san-pham?danh-muc=trang-tri' },
+      { label: 'GÆ°Æ¡ng', href: '/san-pham?danh-muc=trang-tri' },
+      { label: 'Äá»“ trang trÃ­', href: '/san-pham?danh-muc=trang-tri' },
     ],
   },
-  { label: 'Hàng mới về', href: '/san-pham' },
+  { label: 'HÃ ng má»›i vá»', href: '/san-pham' },
   {
-    label: 'Phong thủy',
+    label: 'Phong thá»§y',
     children: [
-      { label: 'Tư vấn theo năm sinh', href: '/phong-thuy' },
-      { label: 'Hướng và màu sắc hợp', href: '/phong-thuy' },
-      { label: 'Bài trí theo loại phòng', href: '/phong-thuy' },
+      { label: 'TÆ° váº¥n theo nÄƒm sinh', href: '/phong-thuy' },
+      { label: 'HÆ°á»›ng vÃ  mÃ u sáº¯c há»£p', href: '/phong-thuy' },
+      { label: 'BÃ i trÃ­ theo loáº¡i phÃ²ng', href: '/phong-thuy' },
     ],
   },
 ];
 
 const secondary: MenuLink[] = [
   { label: 'Showroom', href: '/#showroom' },
-  { label: 'Chương trình đối tác', href: '/#doi-tac' },
-  { label: 'Không gian thực tế', href: '/#du-an' },
-  { label: 'Câu chuyện thương hiệu', href: '/#cau-chuyen' },
-  { label: 'Tài khoản của tôi', href: '/dang-nhap' },
-  { label: 'Đăng nhập / Đăng ký', href: '/dang-nhap' },
+  { label: 'ChÆ°Æ¡ng trÃ¬nh Ä‘á»‘i tÃ¡c', href: '/#doi-tac' },
+  { label: 'KhÃ´ng gian thá»±c táº¿', href: '/#du-an' },
+  { label: 'CÃ¢u chuyá»‡n thÆ°Æ¡ng hiá»‡u', href: '/#cau-chuyen' },
+  { label: 'TÃ i khoáº£n cá»§a tÃ´i', href: '/dang-nhap' },
+  { label: 'ÄÄƒng nháº­p / ÄÄƒng kÃ½', href: '/dang-nhap' },
 ];
 
 const isHome = Astro.url.pathname === '/';
@@ -101,17 +101,17 @@ const isHome = Astro.url.pathname === '/';
         id="menu-btn"
         type="button"
         class="inline-flex h-10 w-10 items-center justify-center transition-opacity hover:opacity-60"
-        aria-label="Mở menu"
+        aria-label="Má»Ÿ menu"
         aria-expanded="false"
         aria-controls="menu-panel"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-6 w-6">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-6 w-6 shrink-0">
           <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round" />
         </svg>
       </button>
 
       <a href="/" class="logo-mark text-lg font-semibold uppercase tracking-[0.32em] sm:text-2xl">
-        Nội Thất
+        Ná»™i Tháº¥t
       </a>
     </div>
 
@@ -119,9 +119,9 @@ const isHome = Astro.url.pathname === '/';
       <a
         href="/dang-nhap"
         class="inline-flex h-10 w-10 items-center justify-center transition-opacity hover:opacity-60"
-        aria-label="Tài khoản"
+        aria-label="TÃ i khoáº£n"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-[22px] w-[22px]">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-[22px] w-[22px] shrink-0">
           <circle cx="12" cy="8" r="3.5" />
           <path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5" stroke-linecap="round" />
         </svg>
@@ -130,9 +130,9 @@ const isHome = Astro.url.pathname === '/';
       <a
         href="/gio-hang"
         class="relative inline-flex h-10 w-10 items-center justify-center transition-opacity hover:opacity-60"
-        aria-label="Giỏ hàng"
+        aria-label="Giá» hÃ ng"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-[22px] w-[22px]">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-[22px] w-[22px] shrink-0">
           <path d="M5 8h14l-1.2 12H6.2L5 8Z" stroke-linejoin="round" />
           <path d="M9 8V6.5a3 3 0 0 1 6 0V8" stroke-linecap="round" />
         </svg>
@@ -146,23 +146,23 @@ const isHome = Astro.url.pathname === '/';
   </div>
 </header>
 
-{/* Bảng menu trượt */}
+{/* Báº£ng menu trÆ°á»£t */}
 <div id="menu-panel" class="pointer-events-none fixed inset-0 z-[60] opacity-0 transition-opacity duration-300">
   <div id="menu-backdrop" class="absolute inset-0 bg-walnut-900/40" aria-hidden="true"></div>
 
   <aside
     class="absolute left-0 top-0 flex h-full w-full max-w-sm flex-col bg-sand-50 px-6 py-6 text-walnut-900 shadow-2xl"
-    aria-label="Menu chính"
+    aria-label="Menu chÃ­nh"
   >
     <div class="flex shrink-0 items-center justify-between">
-      <span class="text-lg font-semibold uppercase tracking-[0.32em]">Nội Thất</span>
+      <span class="text-lg font-semibold uppercase tracking-[0.32em]">Ná»™i Tháº¥t</span>
       <button
         id="menu-close"
         type="button"
         class="inline-flex h-10 w-10 items-center justify-center transition-opacity hover:opacity-60"
-        aria-label="Đóng menu"
+        aria-label="ÄÃ³ng menu"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5 shrink-0">
           <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" />
         </svg>
       </button>
@@ -172,19 +172,19 @@ const isHome = Astro.url.pathname === '/';
       <input
         type="search"
         name="q"
-        placeholder="Tìm sản phẩm"
-        aria-label="Tìm sản phẩm"
+        placeholder="TÃ¬m sáº£n pháº©m"
+        aria-label="TÃ¬m sáº£n pháº©m"
         class="w-full bg-transparent text-sm outline-none placeholder:text-walnut-800/60"
       />
-      <button type="submit" aria-label="Tìm" class="text-walnut-800 transition-colors hover:text-clay-600">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5">
+      <button type="submit" aria-label="TÃ¬m" class="text-walnut-800 transition-colors hover:text-clay-600">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5 shrink-0">
           <circle cx="11" cy="11" r="6" />
           <path d="M15.5 15.5 20 20" stroke-linecap="round" />
         </svg>
       </button>
     </form>
 
-    <nav class="mt-6 flex-1 overflow-y-auto" aria-label="Danh mục">
+    <nav class="mt-6 flex-1 overflow-y-auto" aria-label="Danh má»¥c">
       <ul class="flex flex-col">
         {menu.map((item) => (
           <li class="border-b border-walnut-900/10">
@@ -228,7 +228,7 @@ const isHome = Astro.url.pathname === '/';
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
   }
 
-  /* Trang chủ: header trong suốt nằm trên hero */
+  /* Trang chá»§: header trong suá»‘t náº±m trÃªn hero */
   #site-header[data-overlay='true'] {
     color: #ffffff;
     background-color: transparent;
@@ -242,9 +242,9 @@ const isHome = Astro.url.pathname === '/';
     backdrop-filter: blur(10px);
   }
 
-  /* Panel trượt: dùng transform của chính component, KHÔNG dùng utility translate của Tailwind.
-     Tailwind v4 dịch chuyển bằng thuộc tính `translate`, còn đây là `transform` — hai thuộc tính
-     khác nhau nên nếu trộn vào nhau panel sẽ không bao giờ trượt vào. */
+  /* Panel trÆ°á»£t: dÃ¹ng transform cá»§a chÃ­nh component, KHÃ”NG dÃ¹ng utility translate cá»§a Tailwind.
+     Tailwind v4 dá»‹ch chuyá»ƒn báº±ng thuá»™c tÃ­nh `translate`, cÃ²n Ä‘Ã¢y lÃ  `transform` â€” hai thuá»™c tÃ­nh
+     khÃ¡c nhau nÃªn náº¿u trá»™n vÃ o nhau panel sáº½ khÃ´ng bao giá» trÆ°á»£t vÃ o. */
   #menu-panel > aside {
     transform: translateX(-100%);
     transition: transform 0.3s ease;
