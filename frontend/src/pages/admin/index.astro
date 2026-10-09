@@ -1,76 +1,94 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
-import { products, categories, formatVnd } from '../../data/products';
+import { products as initialProducts, categories, spaces, formatVnd } from '../../data/products';
+import { productDetails } from '../../data/product-details';
 
-const tonKho: Record<string, string> = {
+const tonKhoDefault: Record<string, string> = {
   'ghe-ngoai-troi-go-teak': 'het-hang',
   'guong-trang-tri-vien-vang': 'nhap',
   'den-ban-gom': 'het-hang',
 };
 
-const NHAN: Record<string, { label: string; cls: string }> = {
-  'con-hang': { label: 'Đang bán', cls: 'bg-olive-700/20 text-walnut-900' },
-  'het-hang': { label: 'Hết hàng', cls: 'bg-danger-600/10 text-danger-600' },
-  'nhap': { label: 'Nháp', cls: 'bg-walnut-900/10 text-walnut-800' },
-};
-
-const rows = products.map((product) => ({
+const rows = initialProducts.map((product) => ({
   ...product,
-  status: tonKho[product.slug] ?? 'con-hang',
+  status: tonKhoDefault[product.slug] ?? 'con-hang',
+  detail: productDetails[product.slug] ?? {
+    description: 'Sản phẩm thủ công cao cấp.',
+    dimensions: 'Kích thước tiêu chuẩn',
+    warranty: '12 tháng',
+  },
 }));
+
+const NHAN: Record<string, { label: string; cls: string }> = {
+  'con-hang': { label: 'Đang bán', cls: 'bg-olive-700/20 text-emerald-800 border border-emerald-300' },
+  'het-hang': { label: 'Hết hàng', cls: 'bg-danger-600/10 text-danger-600 border border-red-200' },
+  'nhap': { label: 'Nháp', cls: 'bg-walnut-900/10 text-walnut-800 border border-walnut-900/20' },
+};
 
 const perPage = 10;
 
 const stats = [
-  { label: 'Tổng sản phẩm', value: String(rows.length) },
-  { label: 'Đang bán', value: String(rows.filter((row) => row.status === 'con-hang').length) },
-  { label: 'Hết hàng', value: String(rows.filter((row) => row.status === 'het-hang').length) },
-  { label: 'Danh mục', value: String(categories.length) },
+  { label: 'Tổng sản phẩm', value: String(rows.length), desc: 'Đã cập nhật từ CSDL' },
+  { label: 'Đang bán', value: String(rows.filter((row) => row.status === 'con-hang').length), desc: 'Sẵn sàng giao ngay' },
+  { label: 'Hết hàng', value: String(rows.filter((row) => row.status === 'het-hang').length), desc: 'Cần bổ sung kho' },
+  { label: 'Danh mục', value: String(categories.length), desc: 'Đa dạng không gian' },
 ];
 ---
 
 <AdminLayout title="Quản trị · Sản phẩm | Nội Thất">
 
+  <!-- PAGE HEADER -->
   <header class="flex flex-wrap items-end justify-between gap-4 border-b border-walnut-900/10 pb-6">
     <div>
-      <p class="text-[11px] uppercase tracking-[0.25em] text-walnut-800">Bảng quản trị</p>
-      <h1 class="mt-2 font-display text-2xl tracking-tight sm:text-3xl">Sản phẩm</h1>
-      <p class="mt-2 text-sm text-walnut-800">Quản lý danh mục sản phẩm đang bán trên cửa hàng.</p>
+      <p class="text-[11px] uppercase tracking-[0.25em] text-walnut-800">Bảng điều khiển</p>
+      <h1 class="mt-2 font-display text-2xl tracking-tight sm:text-3xl text-walnut-900">Quản Lý Sản Phẩm</h1>
+      <p class="mt-1 text-sm text-walnut-800">Thêm, sửa giá, cập nhật kho và quản lý toàn bộ danh mục đồ nội thất.</p>
     </div>
+
     <button
       type="button"
-      disabled
-      title="Chưa nối API"
-      class="cursor-not-allowed bg-clay-600/40 px-6 py-3 text-xs uppercase tracking-[0.2em] text-sand-50"
+      id="btn-open-add-modal"
+      class="inline-flex items-center gap-2 bg-clay-600 px-6 py-3 text-xs uppercase tracking-[0.2em] text-sand-50 transition-all hover:bg-clay-500 shadow-sm cursor-pointer"
     >
-      Thêm sản phẩm
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+      </svg>
+      <span>Thêm sản phẩm</span>
     </button>
   </header>
 
-  <section class="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+  <!-- STATS CARDS -->
+  <section class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
     {stats.map((item) => (
-      <div class="border border-walnut-900/10 bg-sand-50 p-5">
+      <div class="border border-walnut-900/10 bg-sand-50 p-5 transition-shadow hover:shadow-sm">
         <p class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">{item.label}</p>
         <p class="mt-2 font-display text-3xl tracking-tight text-walnut-900">{item.value}</p>
+        <p class="mt-1 text-xs text-walnut-800/70">{item.desc}</p>
       </div>
     ))}
   </section>
 
-  <section id="danh-sach-san-pham" class="mt-10 scroll-mt-6">
+  <!-- PRODUCT LIST & FILTERS -->
+  <section id="danh-sach-san-pham" class="mt-8">
 
-    <div class="flex flex-wrap items-center gap-3">
-      <input
-        data-adm-search
-        type="search"
-        placeholder="Tìm theo tên sản phẩm"
-        aria-label="Tìm theo tên sản phẩm"
-        class="w-full max-w-xs border border-walnut-900/20 bg-sand-50 px-4 py-2.5 text-sm outline-none transition-colors placeholder:text-walnut-800/50 focus:border-clay-600"
-      />
+    <div class="flex flex-wrap items-center gap-3 bg-sand-50 p-4 border border-walnut-900/10">
+      <div class="relative w-full max-w-xs">
+        <input
+          data-adm-search
+          type="search"
+          placeholder="Tìm theo tên sản phẩm..."
+          aria-label="Tìm theo tên sản phẩm"
+          class="w-full border border-walnut-900/20 bg-sand-100/50 pl-9 pr-4 py-2.5 text-sm outline-none transition-colors placeholder:text-walnut-800/50 focus:border-clay-600 focus:bg-sand-50"
+        />
+        <svg class="absolute left-3 top-3 h-4 w-4 text-walnut-800/50 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
 
       <select
         data-adm-category
         aria-label="Lọc theo danh mục"
-        class="border border-walnut-900/20 bg-sand-50 px-3 py-2.5 text-sm text-walnut-900 outline-none transition-colors focus:border-clay-600"
+        class="border border-walnut-900/20 bg-sand-50 px-3 py-2.5 text-sm text-walnut-900 outline-none transition-colors focus:border-clay-600 cursor-pointer"
       >
         <option value="">Tất cả danh mục</option>
         {categories.map((item) => <option value={item.key}>{item.label}</option>)}
@@ -79,7 +97,7 @@ const stats = [
       <select
         data-adm-status
         aria-label="Lọc theo trạng thái"
-        class="border border-walnut-900/20 bg-sand-50 px-3 py-2.5 text-sm text-walnut-900 outline-none transition-colors focus:border-clay-600"
+        class="border border-walnut-900/20 bg-sand-50 px-3 py-2.5 text-sm text-walnut-900 outline-none transition-colors focus:border-clay-600 cursor-pointer"
       >
         <option value="">Tất cả trạng thái</option>
         <option value="con-hang">Đang bán</option>
@@ -90,25 +108,26 @@ const stats = [
       <button
         type="button"
         data-adm-reset
-        class="text-xs uppercase tracking-[0.2em] text-walnut-800 underline underline-offset-4 transition-colors hover:text-clay-600"
+        class="text-xs uppercase tracking-[0.18em] text-walnut-800 underline underline-offset-4 transition-colors hover:text-clay-600 cursor-pointer"
       >
         Xoá lọc
       </button>
 
-      <p data-adm-count class="ml-auto text-xs uppercase tracking-[0.15em] text-walnut-800"></p>
+      <p data-adm-count class="ml-auto text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium"></p>
     </div>
 
-    <div class="mt-5 overflow-x-auto border border-walnut-900/10 bg-sand-50">
-      <table class="w-full min-w-[46rem] border-collapse text-left">
+    <!-- TABLE -->
+    <div class="mt-4 overflow-x-auto border border-walnut-900/10 bg-sand-50 shadow-sm">
+      <table class="w-full min-w-[50rem] border-collapse text-left">
         <thead>
-          <tr class="border-b border-walnut-900/15 text-[11px] uppercase tracking-[0.18em] text-walnut-800">
-            <th scope="col" class="px-4 py-3 font-medium">Ảnh</th>
-            <th scope="col" class="px-4 py-3 font-medium">Sản phẩm</th>
-            <th scope="col" class="px-4 py-3 font-medium">Danh mục</th>
-            <th scope="col" class="px-4 py-3 font-medium">Không gian</th>
-            <th scope="col" class="px-4 py-3 font-medium">Giá</th>
-            <th scope="col" class="px-4 py-3 font-medium">Trạng thái</th>
-            <th scope="col" class="px-4 py-3 font-medium">Thao tác</th>
+          <tr class="border-b border-walnut-900/15 bg-sand-100/50 text-[11px] uppercase tracking-[0.18em] text-walnut-800">
+            <th scope="col" class="px-4 py-3.5 font-medium">Ảnh</th>
+            <th scope="col" class="px-4 py-3.5 font-medium">Tên Sản phẩm</th>
+            <th scope="col" class="px-4 py-3.5 font-medium">Danh mục</th>
+            <th scope="col" class="px-4 py-3.5 font-medium">Không gian</th>
+            <th scope="col" class="px-4 py-3.5 font-medium">Đơn giá</th>
+            <th scope="col" class="px-4 py-3.5 font-medium">Trạng thái</th>
+            <th scope="col" class="px-4 py-3.5 font-medium text-right">Thao tác</th>
           </tr>
         </thead>
 
@@ -116,30 +135,53 @@ const stats = [
           {rows.map((row) => (
             <tr
               data-row
+              data-slug={row.slug}
               data-name={row.name}
               data-category={row.category}
+              data-space={row.space}
+              data-price={row.price}
+              data-material={row.material}
               data-status={row.status}
-              class="border-b border-walnut-900/10 last:border-b-0"
+              data-desc={row.detail.description}
+              data-dimensions={row.detail.dimensions}
+              data-warranty={row.detail.warranty}
+              class="border-b border-walnut-900/10 last:border-b-0 hover:bg-sand-100/30 transition-colors"
             >
-              <td class="px-4 py-3 align-middle">
-                <span class="block h-12 w-10 bg-sand-200"></span>
+              <td class="px-4 py-3.5 align-middle">
+                <div class="h-12 w-12 rounded bg-sand-200 border border-walnut-900/10 flex items-center justify-center text-[10px] text-walnut-800/60 font-semibold uppercase">
+                  {row.slug.slice(0, 3)}
+                </div>
               </td>
-              <td class="px-4 py-3 align-middle">
-                <p class="text-sm text-walnut-900">{row.name}</p>
-                <p class="mt-0.5 text-xs text-walnut-800">/{row.slug}</p>
+              <td class="px-4 py-3.5 align-middle">
+                <p class="text-sm font-medium text-walnut-900">{row.name}</p>
+                <p class="mt-0.5 text-xs text-walnut-800/70">/{row.slug}</p>
               </td>
-              <td class="px-4 py-3 align-middle text-sm text-walnut-800">{row.categoryLabel}</td>
-              <td class="px-4 py-3 align-middle text-sm text-walnut-800">{row.spaceLabel}</td>
-              <td class="whitespace-nowrap px-4 py-3 align-middle text-sm text-walnut-900">{formatVnd(row.price)}</td>
-              <td class="px-4 py-3 align-middle">
-                <span class={`inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] ${NHAN[row.status].cls}`}>
+              <td class="px-4 py-3.5 align-middle text-sm text-walnut-800">{row.categoryLabel}</td>
+              <td class="px-4 py-3.5 align-middle text-sm text-walnut-800">{row.spaceLabel}</td>
+              <td class="whitespace-nowrap px-4 py-3.5 align-middle text-sm font-medium text-walnut-900">{formatVnd(row.price)}</td>
+              <td class="px-4 py-3.5 align-middle">
+                <button
+                  type="button"
+                  data-btn-toggle-status
+                  title="Nhấp để đổi trạng thái"
+                  class={`inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer ${NHAN[row.status].cls}`}
+                >
                   {NHAN[row.status].label}
-                </span>
+                </button>
               </td>
-              <td class="px-4 py-3 align-middle">
-                <div class="flex items-center gap-4 whitespace-nowrap text-xs uppercase tracking-[0.15em]">
-                  <a href={`/san-pham/${row.slug}`} class="text-walnut-900 underline underline-offset-4 transition-colors hover:text-clay-600">Xem</a>
-                  <button type="button" disabled title="Chưa nối API" class="cursor-not-allowed text-walnut-800/50 underline underline-offset-4">Sửa</button>
+              <td class="px-4 py-3.5 align-middle text-right">
+                <div class="flex items-center justify-end gap-3 whitespace-nowrap text-xs uppercase tracking-[0.15em]">
+                  <a href={`/san-pham/${row.slug}`} target="_blank" class="text-walnut-800 hover:text-clay-600 transition-colors" title="Xem trên web">
+                    Xem
+                  </a>
+                  <span class="text-walnut-900/20">|</span>
+                  <button type="button" data-btn-edit class="text-clay-600 hover:underline cursor-pointer font-medium">
+                    Sửa
+                  </button>
+                  <span class="text-walnut-900/20">|</span>
+                  <button type="button" data-btn-delete class="text-danger-600 hover:underline cursor-pointer font-medium">
+                    Xóa
+                  </button>
                 </div>
               </td>
             </tr>
@@ -148,110 +190,215 @@ const stats = [
       </table>
     </div>
 
-    <p data-adm-empty class="mt-10 hidden text-center text-sm text-walnut-800">Không có sản phẩm nào khớp bộ lọc.</p>
-
-    <nav data-adm-pagination aria-label="Phân trang" class="mt-6 flex flex-wrap items-center justify-center gap-2"></nav>
-
-    <p class="mt-8 text-xs leading-relaxed text-walnut-800">
-      Bản demo giao diện — dữ liệu đọc từ <span class="text-walnut-900">src/data/products.ts</span>. Các thao tác thêm, sửa, xoá sẽ được nối API ở bước sau.
+    <p data-adm-empty class="mt-8 hidden text-center text-sm text-walnut-800 py-10 bg-sand-50 border border-walnut-900/10">
+      Không tìm thấy sản phẩm nào khớp với bộ lọc tìm kiếm.
     </p>
+
+    <!-- PAGINATION -->
+    <nav data-adm-pagination aria-label="Phân trang" class="mt-6 flex flex-wrap items-center justify-center gap-2"></nav>
   </section>
+
+  <!-- MODAL: THÊM / SỬA SẢN PHẨM -->
+  <div id="product-modal" class="fixed inset-0 z-50 hidden bg-walnut-900/60 backdrop-blur-sm overflow-y-auto p-4 flex items-center justify-center">
+    <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-2xl p-6 sm:p-8 shadow-xl relative my-8">
+      <div class="flex items-center justify-between border-b border-walnut-900/10 pb-4">
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.2em] text-walnut-800">Quản trị kho hàng</p>
+          <h2 id="modal-title" class="text-xl font-display text-walnut-900 mt-1">Thêm sản phẩm mới</h2>
+        </div>
+        <button type="button" id="btn-close-modal" class="text-walnut-800 hover:text-danger-600 p-1 cursor-pointer" aria-label="Đóng modal">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="product-form" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <input type="hidden" id="form-mode" value="add" />
+        <input type="hidden" id="form-original-slug" value="" />
+
+        <div class="sm:col-span-2">
+          <label for="prod-name" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Tên sản phẩm *</label>
+          <input type="text" id="prod-name" required placeholder="Ví dụ: Sofa da Ý Milano" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50" />
+        </div>
+
+        <div>
+          <label for="prod-slug" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Slug đường dẫn *</label>
+          <input type="text" id="prod-slug" required placeholder="sofa-da-y-milano" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50" />
+        </div>
+
+        <div>
+          <label for="prod-price" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Đơn giá (VNĐ) *</label>
+          <input type="number" id="prod-price" required min="100000" step="100000" placeholder="15000000" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50" />
+        </div>
+
+        <div>
+          <label for="prod-category" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Danh mục *</label>
+          <select id="prod-category" required class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 cursor-pointer">
+            {categories.map((c) => <option value={c.key}>{c.label}</option>)}
+          </select>
+        </div>
+
+        <div>
+          <label for="prod-space" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Không gian *</label>
+          <select id="prod-space" required class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 cursor-pointer">
+            {spaces.map((s) => <option value={s.key}>{s.label}</option>)}
+          </select>
+        </div>
+
+        <div>
+          <label for="prod-material" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Chất liệu *</label>
+          <input type="text" id="prod-material" required placeholder="Gỗ sồi, Da bò..." class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50" />
+        </div>
+
+        <div>
+          <label for="prod-status" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Trạng thái kho</label>
+          <select id="prod-status" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 cursor-pointer">
+            <option value="con-hang">Đang bán</option>
+            <option value="het-hang">Hết hàng</option>
+            <option value="nhap">Nháp</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="prod-dimensions" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Kích thước</label>
+          <input type="text" id="prod-dimensions" placeholder="200 × 90 × 75 cm" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50" />
+        </div>
+
+        <div>
+          <label for="prod-warranty" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Thời gian bảo hành</label>
+          <input type="text" id="prod-warranty" placeholder="24 tháng" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50" />
+        </div>
+
+        <div class="sm:col-span-2">
+          <label for="prod-desc" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Mô tả sản phẩm</label>
+          <textarea id="prod-desc" rows="3" placeholder="Chi tiết chế tác, đệm mút, chất liệu..." class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50"></textarea>
+        </div>
+
+        <div class="sm:col-span-2 flex items-center justify-end gap-3 border-t border-walnut-900/10 pt-4 mt-2">
+          <button type="button" id="btn-cancel-modal" class="border border-walnut-900/20 px-5 py-2.5 text-xs uppercase tracking-[0.15em] text-walnut-800 hover:border-walnut-900 cursor-pointer">
+            Hủy
+          </button>
+          <button type="submit" class="bg-clay-600 px-6 py-2.5 text-xs uppercase tracking-[0.15em] text-sand-50 hover:bg-clay-500 shadow-sm cursor-pointer">
+            Lưu sản phẩm
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 hidden bg-walnut-900 text-sand-50 px-5 py-3 rounded shadow-lg text-xs uppercase tracking-[0.15em] flex items-center gap-3">
+    <svg class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    </svg>
+    <span id="toast-msg">Thao tác thành công!</span>
+  </div>
 
 </AdminLayout>
 
-
 <script>
+  // DOM Elements
   const body = document.querySelector<HTMLElement>('[data-adm-body]');
+  const searchEl = document.querySelector<HTMLInputElement>('[data-adm-search]');
+  const categoryEl = document.querySelector<HTMLSelectElement>('[data-adm-category]');
+  const statusEl = document.querySelector<HTMLSelectElement>('[data-adm-status]');
+  const resetEl = document.querySelector<HTMLButtonElement>('[data-adm-reset]');
+  const countEl = document.querySelector<HTMLElement>('[data-adm-count]');
+  const emptyEl = document.querySelector<HTMLElement>('[data-adm-empty]');
+  const paginationEl = document.querySelector<HTMLElement>('[data-adm-pagination]');
+
+  // Modal Elements
+  const modal = document.getElementById('product-modal') as HTMLElement;
+  const modalTitle = document.getElementById('modal-title') as HTMLElement;
+  const form = document.getElementById('product-form') as HTMLFormElement;
+  const btnOpenAdd = document.getElementById('btn-open-add-modal') as HTMLButtonElement;
+  const btnCloseModal = document.getElementById('btn-close-modal') as HTMLButtonElement;
+  const btnCancelModal = document.getElementById('btn-cancel-modal') as HTMLButtonElement;
+  const toast = document.getElementById('toast') as HTMLElement;
+  const toastMsg = document.getElementById('toast-msg') as HTMLElement;
+
+  const showToast = (msg: string) => {
+    if (!toast || !toastMsg) return;
+    toastMsg.textContent = msg;
+    toast.classList.remove('hidden');
+    setTimeout(() => toast.classList.add('hidden'), 3000);
+  };
+
+  const formatVndClient = (val: number) => val.toLocaleString('vi-VN') + '₫';
 
   if (body) {
-    const rows = Array.from(body.querySelectorAll<HTMLTableRowElement>('[data-row]'));
+    let rows = Array.from(body.querySelectorAll<HTMLTableRowElement>('[data-row]'));
     const pageSize = Number(body.dataset.pageSize) || 10;
-    const searchEl = document.querySelector<HTMLInputElement>('[data-adm-search]');
-    const categoryEl = document.querySelector<HTMLSelectElement>('[data-adm-category]');
-    const statusEl = document.querySelector<HTMLSelectElement>('[data-adm-status]');
-    const resetEl = document.querySelector<HTMLButtonElement>('[data-adm-reset]');
-    const countEl = document.querySelector<HTMLElement>('[data-adm-count]');
-    const emptyEl = document.querySelector<HTMLElement>('[data-adm-empty]');
-    const paginationEl = document.querySelector<HTMLElement>('[data-adm-pagination]');
-
-    const BASE_BTN = 'h-9 min-w-9 border px-3 text-sm transition-colors';
-    const IDLE_BTN = BASE_BTN + ' border-walnut-900/20 bg-sand-50 text-walnut-900 hover:border-walnut-900';
-    const ACTIVE_BTN = BASE_BTN + ' border-walnut-900 bg-walnut-900 text-sand-50';
-    const OFF_BTN = BASE_BTN + ' border-walnut-900/10 bg-sand-50 text-walnut-900/30';
-
     let page = 1;
 
-    const matches = (row: HTMLTableRowElement) => {
-      const keyword = (searchEl?.value ?? '').trim().toLowerCase();
-      const category = categoryEl?.value ?? '';
-      const status = statusEl?.value ?? '';
-
-      if (keyword && !String(row.dataset.name ?? '').toLowerCase().includes(keyword)) return false;
-      if (category && row.dataset.category !== category) return false;
-      if (status && row.dataset.status !== status) return false;
-      return true;
-    };
-
-    const makeBtn = (label: string, target: number, active: boolean, disabled: boolean) => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.textContent = label;
-      btn.className = active ? ACTIVE_BTN : disabled ? OFF_BTN : IDLE_BTN;
-      btn.disabled = active || disabled;
-      btn.addEventListener('click', () => {
-        page = target;
-        render();
-      });
-      return btn;
-    };
-
-    const renderPagination = (totalPages: number) => {
-      if (!paginationEl) return;
-      paginationEl.textContent = '';
-      if (totalPages <= 1) return;
-
-      paginationEl.appendChild(makeBtn('Trước', page - 1, false, page === 1));
-      for (let i = 1; i <= totalPages; i++) {
-        paginationEl.appendChild(makeBtn(String(i), i, i === page, false));
-      }
-      paginationEl.appendChild(makeBtn('Sau', page + 1, false, page === totalPages));
-    };
-
     const render = () => {
-      const filtered = rows.filter(matches);
-      const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+      const q = (searchEl?.value ?? '').trim().toLowerCase();
+      const cat = categoryEl?.value ?? '';
+      const st = statusEl?.value ?? '';
+
+      const matched = rows.filter((r) => {
+        const name = (r.dataset.name ?? '').toLowerCase();
+        const rowCat = r.dataset.category ?? '';
+        const rowSt = r.dataset.status ?? '';
+
+        if (q && !name.includes(q)) return false;
+        if (cat && rowCat !== cat) return false;
+        if (st && rowSt !== st) return false;
+        return true;
+      });
+
+      const total = matched.length;
+      const totalPages = Math.max(1, Math.ceil(total / pageSize));
       if (page > totalPages) page = totalPages;
 
       const start = (page - 1) * pageSize;
-      const pageRows = filtered.slice(start, start + pageSize);
+      const end = start + pageSize;
 
-      rows.forEach((row) => row.classList.add('hidden'));
-      pageRows.forEach((row) => row.classList.remove('hidden'));
+      rows.forEach((r) => (r.style.display = 'none'));
+      matched.slice(start, end).forEach((r) => (r.style.display = ''));
 
-      if (countEl) {
-        countEl.textContent = filtered.length
-          ? 'Hiển thị ' + (start + 1) + '–' + (start + pageRows.length) + ' trên ' + filtered.length + ' sản phẩm'
-          : 'Không có sản phẩm';
-      }
-
-      if (emptyEl) emptyEl.classList.toggle('hidden', filtered.length !== 0);
+      if (countEl) countEl.textContent = `${total} sản phẩm`;
+      if (emptyEl) emptyEl.classList.toggle('hidden', total > 0);
 
       renderPagination(totalPages);
     };
 
-    searchEl?.addEventListener('input', () => {
-      page = 1;
-      render();
-    });
-    categoryEl?.addEventListener('change', () => {
-      page = 1;
-      render();
-    });
-    statusEl?.addEventListener('change', () => {
-      page = 1;
+    const renderPagination = (totalPages: number) => {
+      if (!paginationEl) return;
+      if (totalPages <= 1) {
+        paginationEl.innerHTML = '';
+        return;
+      }
+
+      let html = '';
+      for (let i = 1; i <= totalPages; i++) {
+        const isActive = i === page;
+        html += `
+          <button
+            type="button"
+            data-page="${i}"
+            class="h-8 min-w-8 px-2.5 text-xs transition-colors cursor-pointer border ${
+              isActive
+                ? 'border-walnut-900 bg-walnut-900 text-sand-50 font-semibold'
+                : 'border-walnut-900/20 bg-sand-50 text-walnut-900 hover:border-walnut-900'
+            }"
+          >${i}</button>
+        `;
+      }
+      paginationEl.innerHTML = html;
+    };
+
+    paginationEl?.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-page]');
+      if (!btn) return;
+      page = Number(btn.dataset.page) || 1;
       render();
     });
 
+    searchEl?.addEventListener('input', () => { page = 1; render(); });
+    categoryEl?.addEventListener('change', () => { page = 1; render(); });
+    statusEl?.addEventListener('change', () => { page = 1; render(); });
     resetEl?.addEventListener('click', () => {
       if (searchEl) searchEl.value = '';
       if (categoryEl) categoryEl.value = '';
@@ -260,6 +407,205 @@ const stats = [
       render();
     });
 
+    // TABLE ACTIONS: TOGGLE STATUS, EDIT, DELETE
+    body.addEventListener('click', (e) => {
+      const target = e.target as HTMLElement;
+      const row = target.closest<HTMLTableRowElement>('[data-row]');
+      if (!row) return;
+
+      // Toggle status
+      if (target.closest('[data-btn-toggle-status]')) {
+        const currentSt = row.dataset.status || 'con-hang';
+        const nextSt = currentSt === 'con-hang' ? 'het-hang' : currentSt === 'het-hang' ? 'nhap' : 'con-hang';
+        row.dataset.status = nextSt;
+
+        const btn = row.querySelector('[data-btn-toggle-status]') as HTMLButtonElement;
+        if (nextSt === 'con-hang') {
+          btn.className = 'inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer bg-olive-700/20 text-emerald-800 border border-emerald-300';
+          btn.textContent = 'Đang bán';
+        } else if (nextSt === 'het-hang') {
+          btn.className = 'inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer bg-danger-600/10 text-danger-600 border border-red-200';
+          btn.textContent = 'Hết hàng';
+        } else {
+          btn.className = 'inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer bg-walnut-900/10 text-walnut-800 border border-walnut-900/20';
+          btn.textContent = 'Nháp';
+        }
+        showToast(`Đã cập nhật trạng thái: ${btn.textContent}`);
+        render();
+      }
+
+      // Delete action
+      if (target.closest('[data-btn-delete]')) {
+        const prodName = row.dataset.name || 'sản phẩm này';
+        if (confirm(`Bạn có chắc chắn muốn xóa sản phẩm "${prodName}" không?`)) {
+          row.remove();
+          rows = Array.from(body.querySelectorAll<HTMLTableRowElement>('[data-row]'));
+          showToast(`Đã xóa sản phẩm "${prodName}" thành công!`);
+          render();
+        }
+      }
+
+      // Edit action
+      if (target.closest('[data-btn-edit]')) {
+        modalTitle.textContent = 'Chỉnh sửa sản phẩm';
+        (document.getElementById('form-mode') as HTMLInputElement).value = 'edit';
+        (document.getElementById('form-original-slug') as HTMLInputElement).value = row.dataset.slug || '';
+        (document.getElementById('prod-name') as HTMLInputElement).value = row.dataset.name || '';
+        (document.getElementById('prod-slug') as HTMLInputElement).value = row.dataset.slug || '';
+        (document.getElementById('prod-price') as HTMLInputElement).value = row.dataset.price || '0';
+        (document.getElementById('prod-category') as HTMLSelectElement).value = row.dataset.category || 'sofa';
+        (document.getElementById('prod-space') as HTMLSelectElement).value = row.dataset.space || 'phong-khach';
+        (document.getElementById('prod-material') as HTMLInputElement).value = row.dataset.material || '';
+        (document.getElementById('prod-status') as HTMLSelectElement).value = row.dataset.status || 'con-hang';
+        (document.getElementById('prod-dimensions') as HTMLInputElement).value = row.dataset.dimensions || '';
+        (document.getElementById('prod-warranty') as HTMLInputElement).value = row.dataset.warranty || '';
+        (document.getElementById('prod-desc') as HTMLTextAreaElement).value = row.dataset.desc || '';
+
+        modal.classList.remove('hidden');
+      }
+    });
+
+    // OPEN ADD MODAL
+    btnOpenAdd?.addEventListener('click', () => {
+      form.reset();
+      modalTitle.textContent = 'Thêm sản phẩm mới';
+      (document.getElementById('form-mode') as HTMLInputElement).value = 'add';
+      (document.getElementById('form-original-slug') as HTMLInputElement).value = '';
+      modal.classList.remove('hidden');
+    });
+
+    const closeModal = () => modal.classList.add('hidden');
+    btnCloseModal?.addEventListener('click', closeModal);
+    btnCancelModal?.addEventListener('click', closeModal);
+
+    // AUTO SLUG FROM NAME
+    const nameInput = document.getElementById('prod-name') as HTMLInputElement;
+    const slugInput = document.getElementById('prod-slug') as HTMLInputElement;
+    nameInput?.addEventListener('input', () => {
+      const mode = (document.getElementById('form-mode') as HTMLInputElement).value;
+      if (mode === 'add') {
+        const slug = nameInput.value
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[đĐ]/g, 'd')
+          .replace(/[^a-z0-9\s-]/g, '')
+          .trim()
+          .replace(/\s+/g, '-');
+        slugInput.value = slug;
+      }
+    });
+
+    // SUBMIT FORM
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const mode = (document.getElementById('form-mode') as HTMLInputElement).value;
+      const origSlug = (document.getElementById('form-original-slug') as HTMLInputElement).value;
+
+      const name = (document.getElementById('prod-name') as HTMLInputElement).value.trim();
+      const slug = (document.getElementById('prod-slug') as HTMLInputElement).value.trim();
+      const price = Number((document.getElementById('prod-price') as HTMLInputElement).value) || 0;
+      const catSelect = document.getElementById('prod-category') as HTMLSelectElement;
+      const cat = catSelect.value;
+      const catLabel = catSelect.options[catSelect.selectedIndex].text;
+      const spaceSelect = document.getElementById('prod-space') as HTMLSelectElement;
+      const space = spaceSelect.value;
+      const spaceLabel = spaceSelect.options[spaceSelect.selectedIndex].text;
+      const material = (document.getElementById('prod-material') as HTMLInputElement).value.trim();
+      const status = (document.getElementById('prod-status') as HTMLSelectElement).value;
+      const dimensions = (document.getElementById('prod-dimensions') as HTMLInputElement).value.trim();
+      const warranty = (document.getElementById('prod-warranty') as HTMLInputElement).value.trim();
+      const desc = (document.getElementById('prod-desc') as HTMLTextAreaElement).value.trim();
+
+      if (mode === 'edit') {
+        const targetRow = rows.find((r) => r.dataset.slug === origSlug);
+        if (targetRow) {
+          targetRow.dataset.name = name;
+          targetRow.dataset.slug = slug;
+          targetRow.dataset.price = String(price);
+          targetRow.dataset.category = cat;
+          targetRow.dataset.space = space;
+          targetRow.dataset.material = material;
+          targetRow.dataset.status = status;
+          targetRow.dataset.dimensions = dimensions;
+          targetRow.dataset.warranty = warranty;
+          targetRow.dataset.desc = desc;
+
+          targetRow.querySelector('td:nth-child(2) p:first-child')!.textContent = name;
+          targetRow.querySelector('td:nth-child(2) p:last-child')!.textContent = '/' + slug;
+          targetRow.querySelector('td:nth-child(3)')!.textContent = catLabel;
+          targetRow.querySelector('td:nth-child(4)')!.textContent = spaceLabel;
+          targetRow.querySelector('td:nth-child(5)')!.textContent = formatVndClient(price);
+
+          const statusBtn = targetRow.querySelector('[data-btn-toggle-status]') as HTMLButtonElement;
+          statusBtn.textContent = status === 'con-hang' ? 'Đang bán' : status === 'het-hang' ? 'Hết hàng' : 'Nháp';
+          statusBtn.className = `inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer ${
+            status === 'con-hang' ? 'bg-olive-700/20 text-emerald-800 border border-emerald-300' : status === 'het-hang' ? 'bg-danger-600/10 text-danger-600 border border-red-200' : 'bg-walnut-900/10 text-walnut-800 border border-walnut-900/20'
+          }`;
+
+          showToast(`Đã cập nhật sản phẩm "${name}" thành công!`);
+        }
+      } else {
+        // ADD NEW ROW
+        const tr = document.createElement('tr');
+        tr.className = 'border-b border-walnut-900/10 last:border-b-0 hover:bg-sand-100/30 transition-colors';
+        tr.dataset.row = '';
+        tr.dataset.slug = slug;
+        tr.dataset.name = name;
+        tr.dataset.category = cat;
+        tr.dataset.space = space;
+        tr.dataset.price = String(price);
+        tr.dataset.material = material;
+        tr.dataset.status = status;
+        tr.dataset.dimensions = dimensions;
+        tr.dataset.warranty = warranty;
+        tr.dataset.desc = desc;
+
+        tr.innerHTML = `
+          <td class="px-4 py-3.5 align-middle">
+            <div class="h-12 w-12 rounded bg-sand-200 border border-walnut-900/10 flex items-center justify-center text-[10px] text-walnut-800/60 font-semibold uppercase">
+              ${slug.slice(0, 3)}
+            </div>
+          </td>
+          <td class="px-4 py-3.5 align-middle">
+            <p class="text-sm font-medium text-walnut-900">${name}</p>
+            <p class="mt-0.5 text-xs text-walnut-800/70">/${slug}</p>
+          </td>
+          <td class="px-4 py-3.5 align-middle text-sm text-walnut-800">${catLabel}</td>
+          <td class="px-4 py-3.5 align-middle text-sm text-walnut-800">${spaceLabel}</td>
+          <td class="whitespace-nowrap px-4 py-3.5 align-middle text-sm font-medium text-walnut-900">${formatVndClient(price)}</td>
+          <td class="px-4 py-3.5 align-middle">
+            <button
+              type="button"
+              data-btn-toggle-status
+              class="inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer ${
+                status === 'con-hang' ? 'bg-olive-700/20 text-emerald-800 border border-emerald-300' : status === 'het-hang' ? 'bg-danger-600/10 text-danger-600 border border-red-200' : 'bg-walnut-900/10 text-walnut-800 border border-walnut-900/20'
+              }"
+            >
+              ${status === 'con-hang' ? 'Đang bán' : status === 'het-hang' ? 'Hết hàng' : 'Nháp'}
+            </button>
+          </td>
+          <td class="px-4 py-3.5 align-middle text-right">
+            <div class="flex items-center justify-end gap-3 whitespace-nowrap text-xs uppercase tracking-[0.15em]">
+              <a href="/san-pham/${slug}" target="_blank" class="text-walnut-800 hover:text-clay-600 transition-colors">Xem</a>
+              <span class="text-walnut-900/20">|</span>
+              <button type="button" data-btn-edit class="text-clay-600 hover:underline cursor-pointer font-medium">Sửa</button>
+              <span class="text-walnut-900/20">|</span>
+              <button type="button" data-btn-delete class="text-danger-600 hover:underline cursor-pointer font-medium">Xóa</button>
+            </div>
+          </td>
+        `;
+
+        body.prepend(tr);
+        rows = Array.from(body.querySelectorAll<HTMLTableRowElement>('[data-row]'));
+        showToast(`Đã thêm mới sản phẩm "${name}" thành công!`);
+      }
+
+      closeModal();
+      render();
+    });
+
+    // Initial render
     render();
   }
 </script>

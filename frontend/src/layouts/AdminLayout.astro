@@ -4,7 +4,7 @@ import '../styles/global.css';
 interface NavItem {
   label: string;
   href: string;
-  ready: boolean;
+  icon: string;
 }
 
 interface Props {
@@ -12,54 +12,130 @@ interface Props {
 }
 
 const { title } = Astro.props;
+const currentPath = Astro.url.pathname;
 
 const nav: NavItem[] = [
-  { label: 'Tổng quan', href: '/admin', ready: true },
-  { label: 'Sản phẩm', href: '/admin#danh-sach-san-pham', ready: true },
-  { label: 'Đơn hàng', href: '/admin', ready: false },
-  { label: 'Khách hàng', href: '/admin', ready: false },
-  { label: 'Phong thủy', href: '/phong-thuy', ready: true },
-  { label: 'Cài đặt', href: '/admin', ready: false },
+  { label: 'Tổng quan & Sản phẩm', href: '/admin', icon: 'M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z' },
+  { label: 'Đơn hàng & Vận chuyển', href: '/admin/don-hang', icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
+  { label: 'Lịch sử AI Phong thủy', href: '/admin/phong-thuy', icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z' },
 ];
 ---
 <!doctype html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8" />
-<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="robots" content="noindex" />
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" />
-<title>{title}</title>
+  <meta charset="UTF-8" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" />
+  <title>{title}</title>
 </head>
-<body class="min-h-screen bg-sand-100 text-walnut-900">
-<div class="flex min-h-screen flex-col lg:flex-row">
+<body class="min-h-screen bg-sand-100 text-walnut-900 flex flex-col">
+  <div class="flex min-h-screen flex-col lg:flex-row">
 
-  <aside class="shrink-0 bg-walnut-900 px-5 py-5 text-sand-50 lg:sticky lg:top-0 lg:h-screen lg:w-64">
-    <p class="text-base font-semibold uppercase tracking-[0.3em]">Nội Thất</p>
-    <p class="mt-1 text-[10px] uppercase tracking-[0.25em] text-sand-200">Bảng quản trị</p>
+    <!-- SIDEBAR -->
+    <aside class="shrink-0 bg-walnut-900 px-5 py-6 text-sand-50 lg:sticky lg:top-0 lg:h-screen lg:w-64 flex flex-col justify-between">
+      <div>
+        <div class="flex items-center justify-between">
+          <div>
+            <a href="/admin" class="text-base font-semibold uppercase tracking-[0.3em] text-sand-50 hover:text-sand-200 transition-colors">Nội Thất</a>
+            <p class="mt-1 text-[10px] uppercase tracking-[0.25em] text-sand-200/80">Bảng Quản Trị</p>
+          </div>
+          <span class="inline-flex items-center rounded-full bg-olive-700/40 px-2 py-0.5 text-[10px] font-medium text-emerald-300">
+            Online
+          </span>
+        </div>
 
-    <nav class="mt-6 flex gap-2 overflow-x-auto pb-1 text-sm lg:mt-10 lg:flex-col lg:gap-1 lg:overflow-visible lg:pb-0" aria-label="Điều hướng quản trị">
-      {nav.map((item) => (
-        item.ready ? (
-          <a href={item.href} class="whitespace-nowrap rounded px-3 py-2 transition-colors hover:bg-sand-50/10">{item.label}</a>
-        ) : (
-          <span class="whitespace-nowrap rounded px-3 py-2 text-sand-50/40" title="Sắp có">{item.label}</span>
-        )
-      ))}
-    </nav>
+        <nav class="mt-8 flex gap-2 overflow-x-auto pb-1 text-sm lg:mt-10 lg:flex-col lg:gap-1.5 lg:overflow-visible lg:pb-0" aria-label="Điều hướng quản trị">
+          {nav.map((item) => {
+            const isActive = currentPath === item.href || (item.href !== '/admin' && currentPath.startsWith(item.href));
+            return (
+              <a
+                href={item.href}
+                class:list={[
+                  'flex items-center gap-3 whitespace-nowrap rounded px-3.5 py-2.5 text-xs uppercase tracking-[0.15em] transition-all',
+                  isActive
+                    ? 'bg-sand-50 text-walnut-900 font-semibold shadow-sm'
+                    : 'text-sand-200 hover:bg-sand-50/10 hover:text-sand-50'
+                ]}
+              >
+                <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d={item.icon} />
+                </svg>
+                <span>{item.label}</span>
+              </a>
+            );
+          })}
+        </nav>
+      </div>
 
-    <a href="/" class="mt-8 hidden text-xs uppercase tracking-[0.2em] text-sand-200 underline underline-offset-4 transition-colors hover:text-sand-50 lg:inline-block">
-      Về trang bán hàng
-    </a>
-  </aside>
+      <div class="border-t border-sand-50/10 pt-5 mt-6 lg:mt-0">
+        <a
+          href="/"
+          class="flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-sand-200 underline underline-offset-4 transition-colors hover:text-sand-50"
+        >
+          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          <span>Về trang bán hàng</span>
+        </a>
+        <p class="mt-3 text-[11px] text-sand-200/50">Phiên bản Admin v1.2</p>
+      </div>
+    </aside>
 
-  <main class="min-w-0 flex-1 px-4 py-6 sm:px-8 sm:py-10">
-    <slot />
-  </main>
+    <!-- MAIN WRAPPER -->
+    <div class="flex min-w-0 flex-1 flex-col justify-between">
 
-</div>
+      <!-- HEADER ADMIN -->
+      <header class="border-b border-walnut-900/10 bg-sand-50/80 px-4 py-4 sm:px-8 backdrop-blur sticky top-0 z-20 flex items-center justify-between">
+        <div class="flex items-center gap-2 text-xs uppercase tracking-[0.15em] text-walnut-800">
+          <a href="/admin" class="hover:text-clay-600 transition-colors">Admin</a>
+          <span>/</span>
+          <span class="text-walnut-900 font-medium">
+            {currentPath.includes('don-hang') ? 'Đơn hàng & Vận chuyển' : currentPath.includes('phong-thuy') ? 'Lịch sử AI Phong thủy' : 'Tổng quan & Sản phẩm'}
+          </span>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2.5">
+            <div class="h-8 w-8 rounded-full bg-walnut-900 text-sand-50 flex items-center justify-center text-xs font-semibold">
+              AD
+            </div>
+            <div class="hidden sm:block text-left">
+              <p class="text-xs font-semibold text-walnut-900">Quản Trị Viên</p>
+              <p class="text-[10px] text-walnut-800">admin@noithat.vn</p>
+            </div>
+          </div>
+          <a
+            href="/"
+            target="_blank"
+            class="hidden md:inline-flex items-center gap-1.5 border border-walnut-900/20 bg-sand-50 px-3 py-1.5 text-[11px] uppercase tracking-[0.15em] text-walnut-900 transition-colors hover:border-walnut-900"
+          >
+            <span>Cửa hàng</span>
+            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+        </div>
+      </header>
+
+      <!-- CONTENT BODY -->
+      <main class="min-w-0 flex-1 px-4 py-6 sm:px-8 sm:py-8">
+        <slot />
+      </main>
+
+      <!-- FOOTER ADMIN -->
+      <footer class="border-t border-walnut-900/10 bg-sand-50/60 px-4 py-5 sm:px-8 text-center sm:flex sm:items-center sm:justify-between text-xs text-walnut-800">
+        <p>© 2026 Nội Thất Studio — Hệ thống quản trị thương mại điện tử.</p>
+        <p class="mt-2 sm:mt-0 text-[11px] text-walnut-800/70">
+          Trạng thái CSDL: <span class="font-medium text-emerald-700">Đã kết nối XAMPP MySQL (3306)</span>
+        </p>
+      </footer>
+
+    </div>
+
+  </div>
 </body>
 </html>

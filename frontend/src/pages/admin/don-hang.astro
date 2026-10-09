@@ -1,0 +1,584 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { formatVnd } from '../../data/products';
+
+interface OrderItem {
+  name: string;
+  price: number;
+  qty: number;
+  sku: string;
+}
+
+interface OrderRecord {
+  id: string;
+  orderCode: string;
+  customerName: string;
+  phone: string;
+  email: string;
+  address: string;
+  province: string;
+  district: string;
+  note: string;
+  shippingMethod: 'standard' | 'express';
+  shippingMethodLabel: string;
+  shippingFee: number;
+  paymentMethod: 'cod' | 'bank';
+  paymentMethodLabel: string;
+  paymentStatus: 'unpaid' | 'paid';
+  orderStatus: 'cho-xac-nhan' | 'dang-chuan-bi' | 'dang-giao' | 'hoan-thanh' | 'da-huy';
+  trackingCode?: string;
+  carrier?: string;
+  createdAt: string;
+  items: OrderItem[];
+  subtotal: number;
+  total: number;
+}
+
+const mockOrders: OrderRecord[] = [
+  {
+    id: '1',
+    orderCode: 'NT-202610-001',
+    customerName: 'Nguyễn Văn Hùng',
+    phone: '0912345678',
+    email: 'hung.nguyen@gmail.com',
+    address: 'Số 45 Đường Lê Lợi, Phường Bến Nghé',
+    district: 'Quận 1',
+    province: 'TP. Hồ Chí Minh',
+    note: 'Giao trong giờ hành chính giúp tôi.',
+    shippingMethod: 'express',
+    shippingMethodLabel: 'Giao hàng hỏa tốc (24h)',
+    shippingFee: 70000,
+    paymentMethod: 'cod',
+    paymentMethodLabel: 'Thanh toán khi nhận hàng (COD)',
+    paymentStatus: 'unpaid',
+    orderStatus: 'dang-giao',
+    trackingCode: 'VAB-SHIP-88912',
+    carrier: 'Giao Hàng Tiết Kiệm (GHTK)',
+    createdAt: '08/10/2026 09:30',
+    subtotal: 58900000,
+    total: 58970000,
+    items: [
+      { name: 'Sofa da Ý Milano', sku: 'SKU-SOFA-MILANO', price: 58900000, qty: 1 }
+    ]
+  },
+  {
+    id: '2',
+    orderCode: 'NT-202610-002',
+    customerName: 'Trần Thị Thu Trang',
+    phone: '0988776655',
+    email: 'thutrang.tran@gmail.com',
+    address: 'Toà S2.05 Vinhomes Ocean Park, Đa Tốn',
+    district: 'Gia Lâm',
+    province: 'Hà Nội',
+    note: 'Gọi trước khi giao 30 phút.',
+    shippingMethod: 'standard',
+    shippingMethodLabel: 'Giao hàng tiêu chuẩn (3-5 ngày)',
+    shippingFee: 35000,
+    paymentMethod: 'bank',
+    paymentMethodLabel: 'Chuyển khoản ngân hàng',
+    paymentStatus: 'paid',
+    orderStatus: 'cho-xac-nhan',
+    createdAt: '08/10/2026 14:15',
+    subtotal: 36700000,
+    total: 36735000,
+    items: [
+      { name: 'Bàn ăn đá marble Carrara', sku: 'SKU-BAN-MARBLE', price: 32500000, qty: 1 },
+      { name: 'Ghế ăn da bọc Ý', sku: 'SKU-GHE-DA-Y', price: 4200000, qty: 1 }
+    ]
+  },
+  {
+    id: '3',
+    orderCode: 'NT-202610-003',
+    customerName: 'Phạm Đức Anh',
+    phone: '0933112233',
+    email: 'ducanh.pham@gmail.com',
+    address: 'Khu đô thị Hòa Xuân, Cẩm Lệ',
+    district: 'Cẩm Lệ',
+    province: 'Đà Nẵng',
+    note: '',
+    shippingMethod: 'standard',
+    shippingMethodLabel: 'Giao hàng tiêu chuẩn (3-5 ngày)',
+    shippingFee: 35000,
+    paymentMethod: 'bank',
+    paymentMethodLabel: 'Chuyển khoản ngân hàng',
+    paymentStatus: 'paid',
+    orderStatus: 'hoan-thanh',
+    trackingCode: 'VT-SHIP-11029',
+    carrier: 'Viettel Post',
+    createdAt: '07/10/2026 10:00',
+    subtotal: 26500000,
+    total: 26535000,
+    items: [
+      { name: 'Sofa vải linen Oslo', sku: 'SKU-SOFA-OSLO', price: 26500000, qty: 1 }
+    ]
+  },
+  {
+    id: '4',
+    orderCode: 'NT-202610-004',
+    customerName: 'Lê Hoàng Nam',
+    phone: '0909456789',
+    email: 'hoangnam.le@gmail.com',
+    address: '128 Đường Nguyễn Văn Cừ, An Khánh',
+    district: 'Ninh Kiều',
+    province: 'Cần Thơ',
+    note: 'Kiểm tra hàng trước khi nhận.',
+    shippingMethod: 'standard',
+    shippingMethodLabel: 'Giao hàng tiêu chuẩn (3-5 ngày)',
+    shippingFee: 35000,
+    paymentMethod: 'cod',
+    paymentMethodLabel: 'Thanh toán khi nhận hàng (COD)',
+    paymentStatus: 'unpaid',
+    orderStatus: 'dang-chuan-bi',
+    createdAt: '08/10/2026 16:45',
+    subtotal: 9800000,
+    total: 9835000,
+    items: [
+      { name: 'Kệ tivi treo tường', sku: 'SKU-KE-TIVI', price: 9800000, qty: 1 }
+    ]
+  }
+];
+
+const STATUS_BADGE: Record<string, { label: string; cls: string }> = {
+  'cho-xac-nhan': { label: 'Chờ xác nhận', cls: 'bg-amber-100 text-amber-900 border border-amber-300' },
+  'dang-chuan-bi': { label: 'Đang chuẩn bị', cls: 'bg-blue-100 text-blue-900 border border-blue-300' },
+  'dang-giao': { label: 'Đang giao hàng', cls: 'bg-purple-100 text-purple-900 border border-purple-300' },
+  'hoan-thanh': { label: 'Đã hoàn thành', cls: 'bg-emerald-100 text-emerald-900 border border-emerald-300' },
+  'da-huy': { label: 'Đã hủy', cls: 'bg-red-100 text-red-900 border border-red-300' },
+};
+
+const totalRevenue = mockOrders
+  .filter((o) => o.orderStatus !== 'da-huy')
+  .reduce((acc, curr) => acc + curr.total, 0);
+---
+
+<AdminLayout title="Quản trị · Đơn hàng & Vận chuyển | Nội Thất">
+
+  <!-- PAGE HEADER -->
+  <header class="flex flex-wrap items-end justify-between gap-4 border-b border-walnut-900/10 pb-6">
+    <div>
+      <p class="text-[11px] uppercase tracking-[0.25em] text-walnut-800">Bảng điều khiển</p>
+      <h1 class="mt-2 font-display text-2xl tracking-tight sm:text-3xl text-walnut-900">Quản Lý Đơn Hàng & Vận Chuyển</h1>
+      <p class="mt-1 text-sm text-walnut-800">Theo dõi đơn đặt mua, phân loại phương thức ship và cập nhật tiến độ giao hàng.</p>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <span class="inline-flex items-center gap-2 border border-walnut-900/20 bg-sand-50 px-4 py-2.5 text-xs text-walnut-900">
+        <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span>Bộ vận đơn nội bộ: Hoạt động</span>
+      </span>
+    </div>
+  </header>
+
+  <!-- STATS -->
+  <section class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div class="border border-walnut-900/10 bg-sand-50 p-5">
+      <p class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Tổng doanh thu</p>
+      <p class="mt-2 font-display text-2xl sm:text-3xl tracking-tight text-walnut-900">{formatVnd(totalRevenue)}</p>
+      <p class="mt-1 text-xs text-walnut-800/70">Tính trên các đơn hợp lệ</p>
+    </div>
+    <div class="border border-walnut-900/10 bg-sand-50 p-5">
+      <p class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Tổng số đơn</p>
+      <p class="mt-2 font-display text-2xl sm:text-3xl tracking-tight text-walnut-900">{mockOrders.length} đơn</p>
+      <p class="mt-1 text-xs text-walnut-800/70">Trong tuần hiện tại</p>
+    </div>
+    <div class="border border-walnut-900/10 bg-sand-50 p-5">
+      <p class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Đơn chờ xử lý</p>
+      <p class="mt-2 font-display text-2xl sm:text-3xl tracking-tight text-amber-700">
+        {mockOrders.filter((o) => o.orderStatus === 'cho-xac-nhan' || o.orderStatus === 'dang-chuan-bi').length} đơn
+      </p>
+      <p class="mt-1 text-xs text-walnut-800/70">Cần xác nhận & đóng gói</p>
+    </div>
+    <div class="border border-walnut-900/10 bg-sand-50 p-5">
+      <p class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Đang vận chuyển (Ship)</p>
+      <p class="mt-2 font-display text-2xl sm:text-3xl tracking-tight text-purple-700">
+        {mockOrders.filter((o) => o.orderStatus === 'dang-giao').length} đơn
+      </p>
+      <p class="mt-1 text-xs text-walnut-800/70">Shipper đang giao hàng</p>
+    </div>
+  </section>
+
+  <!-- FILTER & SEARCH -->
+  <section class="mt-8">
+    <div class="flex flex-wrap items-center gap-3 bg-sand-50 p-4 border border-walnut-900/10">
+      <div class="relative w-full max-w-xs">
+        <input
+          id="order-search"
+          type="search"
+          placeholder="Tìm theo mã đơn hoặc tên khách..."
+          class="w-full border border-walnut-900/20 bg-sand-100/50 pl-9 pr-4 py-2.5 text-sm outline-none transition-colors placeholder:text-walnut-800/50 focus:border-clay-600 focus:bg-sand-50"
+        />
+        <svg class="absolute left-3 top-3 h-4 w-4 text-walnut-800/50 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
+
+      <select
+        id="order-status-filter"
+        class="border border-walnut-900/20 bg-sand-50 px-3 py-2.5 text-sm text-walnut-900 outline-none transition-colors focus:border-clay-600 cursor-pointer"
+      >
+        <option value="">Tất cả trạng thái</option>
+        <option value="cho-xac-nhan">Chờ xác nhận</option>
+        <option value="dang-chuan-bi">Đang chuẩn bị</option>
+        <option value="dang-giao">Đang giao hàng</option>
+        <option value="hoan-thanh">Đã hoàn thành</option>
+        <option value="da-huy">Đã hủy</option>
+      </select>
+
+      <select
+        id="order-ship-filter"
+        class="border border-walnut-900/20 bg-sand-50 px-3 py-2.5 text-sm text-walnut-900 outline-none transition-colors focus:border-clay-600 cursor-pointer"
+      >
+        <option value="">Tất cả phương thức ship</option>
+        <option value="standard">Tiêu chuẩn (3-5 ngày)</option>
+        <option value="express">Hỏa tốc (24h)</option>
+      </select>
+
+      <button
+        type="button"
+        id="btn-order-reset"
+        class="text-xs uppercase tracking-[0.18em] text-walnut-800 underline underline-offset-4 transition-colors hover:text-clay-600 cursor-pointer"
+      >
+        Xoá lọc
+      </button>
+
+      <p id="order-count-label" class="ml-auto text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium"></p>
+    </div>
+
+    <!-- TABLE -->
+    <div class="mt-4 overflow-x-auto border border-walnut-900/10 bg-sand-50 shadow-sm">
+      <table class="w-full min-w-[55rem] border-collapse text-left">
+        <thead>
+          <tr class="border-b border-walnut-900/15 bg-sand-100/50 text-[11px] uppercase tracking-[0.18em] text-walnut-800">
+            <th scope="col" class="px-4 py-3.5 font-medium">Mã đơn hàng</th>
+            <th scope="col" class="px-4 py-3.5 font-medium">Khách hàng</th>
+            <th scope="col" class="px-4 py-3.5 font-medium">Gói Vận chuyển (Ship)</th>
+            <th scope="col" class="px-4 py-3.5 font-medium">Thanh toán</th>
+            <th scope="col" class="px-4 py-3.5 font-medium">Tổng tiền</th>
+            <th scope="col" class="px-4 py-3.5 font-medium">Trạng thái</th>
+            <th scope="col" class="px-4 py-3.5 font-medium text-right">Chi tiết</th>
+          </tr>
+        </thead>
+
+        <tbody id="order-table-body">
+          {mockOrders.map((order) => (
+            <tr
+              data-order-row
+              data-id={order.id}
+              data-code={order.orderCode}
+              data-name={order.customerName}
+              data-phone={order.phone}
+              data-email={order.email}
+              data-address={order.address}
+              data-district={order.district}
+              data-province={order.province}
+              data-note={order.note}
+              data-ship-method={order.shippingMethod}
+              data-ship-label={order.shippingMethodLabel}
+              data-ship-fee={order.shippingFee}
+              data-pay-method={order.paymentMethodLabel}
+              data-pay-status={order.paymentStatus}
+              data-status={order.orderStatus}
+              data-carrier={order.carrier ?? 'Đang điều phối'}
+              data-tracking={order.trackingCode ?? 'Chưa tạo'}
+              data-time={order.createdAt}
+              data-total={order.total}
+              data-subtotal={order.subtotal}
+              data-items={JSON.stringify(order.items)}
+              class="border-b border-walnut-900/10 last:border-b-0 hover:bg-sand-100/30 transition-colors"
+            >
+              <td class="px-4 py-3.5 align-middle">
+                <span class="font-medium text-sm text-walnut-900 block">{order.orderCode}</span>
+                <span class="text-[11px] text-walnut-800/60 block">{order.createdAt}</span>
+              </td>
+              <td class="px-4 py-3.5 align-middle">
+                <p class="text-sm font-medium text-walnut-900">{order.customerName}</p>
+                <p class="text-xs text-walnut-800/70">{order.phone} · {order.province}</p>
+              </td>
+              <td class="px-4 py-3.5 align-middle">
+                <p class="text-xs text-walnut-900 font-medium">{order.shippingMethodLabel}</p>
+                <p class="text-[11px] text-walnut-800/70">Phí ship: {formatVnd(order.shippingFee)}</p>
+              </td>
+              <td class="px-4 py-3.5 align-middle">
+                <p class="text-xs text-walnut-900">{order.paymentMethod === 'cod' ? 'COD' : 'Chuyển khoản'}</p>
+                <span class={`inline-block px-1.5 py-0.5 text-[9px] uppercase tracking-[0.1em] rounded ${
+                  order.paymentStatus === 'paid' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                }`}>
+                  {order.paymentStatus === 'paid' ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                </span>
+              </td>
+              <td class="whitespace-nowrap px-4 py-3.5 align-middle text-sm font-semibold text-walnut-900">
+                {formatVnd(order.total)}
+              </td>
+              <td class="px-4 py-3.5 align-middle">
+                <span data-status-badge class={`inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded ${STATUS_BADGE[order.orderStatus].cls}`}>
+                  {STATUS_BADGE[order.orderStatus].label}
+                </span>
+              </td>
+              <td class="px-4 py-3.5 align-middle text-right">
+                <button
+                  type="button"
+                  data-btn-view-order
+                  class="bg-walnut-900 text-sand-50 px-3.5 py-1.5 text-xs uppercase tracking-[0.15em] hover:bg-clay-600 transition-colors cursor-pointer"
+                >
+                  Xem & Cập nhật
+                </button>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <p id="order-empty-label" class="mt-8 hidden text-center text-sm text-walnut-800 py-10 bg-sand-50 border border-walnut-900/10">
+      Không tìm thấy đơn hàng nào khớp với tìm kiếm.
+    </p>
+  </section>
+
+  <!-- MODAL: CHI TIẾT ĐƠN HÀNG & CẬP NHẬT SHIP -->
+  <div id="order-detail-modal" class="fixed inset-0 z-50 hidden bg-walnut-900/60 backdrop-blur-sm overflow-y-auto p-4 flex items-center justify-center">
+    <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-3xl p-6 sm:p-8 shadow-xl relative my-8">
+      <div class="flex items-center justify-between border-b border-walnut-900/10 pb-4">
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.2em] text-walnut-800">Chi tiết đơn hàng</p>
+          <h2 id="modal-order-code" class="text-xl font-display text-walnut-900 mt-1">NT-202610-001</h2>
+        </div>
+        <button type="button" id="btn-close-order-modal" class="text-walnut-800 hover:text-danger-600 p-1 cursor-pointer">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- CUSTOMER & SHIPPING INFO -->
+        <div class="bg-sand-100/50 p-4 border border-walnut-900/10 text-xs">
+          <p class="font-semibold text-walnut-900 uppercase tracking-[0.15em] mb-2 border-b border-walnut-900/10 pb-1.5">Thông tin nhận hàng</p>
+          <p><span class="text-walnut-800/70">Người nhận:</span> <strong id="modal-cust-name" class="text-walnut-900 font-medium"></strong></p>
+          <p class="mt-1"><span class="text-walnut-800/70">Số điện thoại:</span> <strong id="modal-cust-phone" class="text-walnut-900 font-medium"></strong></p>
+          <p class="mt-1"><span class="text-walnut-800/70">Email:</span> <span id="modal-cust-email" class="text-walnut-900"></span></p>
+          <p class="mt-1"><span class="text-walnut-800/70">Địa chỉ:</span> <span id="modal-cust-address" class="text-walnut-900"></span></p>
+          <p class="mt-1"><span class="text-walnut-800/70">Ghi chú:</span> <span id="modal-cust-note" class="italic text-walnut-800"></span></p>
+        </div>
+
+        <!-- SHIPPING STATUS & CARRIER -->
+        <div class="bg-sand-100/50 p-4 border border-walnut-900/10 text-xs flex flex-col justify-between">
+          <div>
+            <p class="font-semibold text-walnut-900 uppercase tracking-[0.15em] mb-2 border-b border-walnut-900/10 pb-1.5">Trạng thái vận đơn (Ship)</p>
+            <p><span class="text-walnut-800/70">Gói vận chuyển:</span> <strong id="modal-ship-method" class="text-walnut-900 font-medium"></strong></p>
+            <p class="mt-1"><span class="text-walnut-800/70">Cước phí ship:</span> <span id="modal-ship-fee" class="text-walnut-900 font-medium"></span></p>
+            <p class="mt-1"><span class="text-walnut-800/70">Đơn vị vận chuyển:</span> <span id="modal-carrier" class="text-walnut-900 font-medium"></span></p>
+            <p class="mt-1"><span class="text-walnut-800/70">Mã vận đơn:</span> <span id="modal-tracking" class="font-mono bg-sand-200 px-1.5 py-0.5 rounded text-walnut-900"></span></p>
+          </div>
+
+          <div class="mt-3 pt-3 border-t border-walnut-900/10">
+            <label for="update-order-status" class="block font-semibold uppercase tracking-[0.15em] text-walnut-800 mb-1">Cập nhật tiến độ đơn:</label>
+            <select id="update-order-status" class="w-full border border-walnut-900/20 bg-sand-50 px-3 py-2 text-xs outline-none focus:border-clay-600 cursor-pointer font-medium">
+              <option value="cho-xac-nhan">Chờ xác nhận</option>
+              <option value="dang-chuan-bi">Đang chuẩn bị hàng</option>
+              <option value="dang-giao">Đang giao hàng (Shipper)</option>
+              <option value="hoan-thanh">Đã hoàn thành</option>
+              <option value="da-huy">Đã hủy đơn</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ITEMS LIST -->
+      <div class="mt-6">
+        <p class="text-xs uppercase tracking-[0.15em] font-semibold text-walnut-900 mb-2">Các món hàng đã mua</p>
+        <div class="border border-walnut-900/10 bg-sand-50 overflow-x-auto">
+          <table class="w-full text-xs text-left">
+            <thead>
+              <tr class="border-b border-walnut-900/10 bg-sand-100/50 text-[10px] uppercase tracking-[0.15em] text-walnut-800">
+                <th class="p-3">Sản phẩm</th>
+                <th class="p-3">Mã SKU</th>
+                <th class="p-3 text-right">Đơn giá</th>
+                <th class="p-3 text-center">SL</th>
+                <th class="p-3 text-right">Thành tiền</th>
+              </tr>
+            </thead>
+            <tbody id="modal-items-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="mt-4 flex flex-col items-end gap-1.5 text-xs text-walnut-800 border-t border-walnut-900/10 pt-3">
+          <p>Tiền hàng: <span id="modal-subtotal" class="font-medium text-walnut-900"></span></p>
+          <p>Phí ship: <span id="modal-fee" class="font-medium text-walnut-900"></span></p>
+          <p class="text-sm font-bold text-walnut-900">Tổng thanh toán: <span id="modal-total" class="text-clay-600"></span></p>
+        </div>
+      </div>
+
+      <div class="mt-6 flex items-center justify-end gap-3 border-t border-walnut-900/10 pt-4">
+        <button type="button" id="btn-cancel-order-modal" class="border border-walnut-900/20 px-5 py-2.5 text-xs uppercase tracking-[0.15em] text-walnut-800 hover:border-walnut-900 cursor-pointer">
+          Đóng
+        </button>
+        <button type="button" id="btn-save-order-status" class="bg-clay-600 px-6 py-2.5 text-xs uppercase tracking-[0.15em] text-sand-50 hover:bg-clay-500 shadow-sm cursor-pointer">
+          Lưu cập nhật
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="order-toast" class="fixed bottom-6 right-6 z-50 hidden bg-walnut-900 text-sand-50 px-5 py-3 rounded shadow-lg text-xs uppercase tracking-[0.15em] flex items-center gap-3">
+    <svg class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    </svg>
+    <span id="order-toast-msg">Đã cập nhật trạng thái đơn hàng!</span>
+  </div>
+
+</AdminLayout>
+
+<script>
+  const searchInput = document.getElementById('order-search') as HTMLInputElement;
+  const statusFilter = document.getElementById('order-status-filter') as HTMLSelectElement;
+  const shipFilter = document.getElementById('order-ship-filter') as HTMLSelectElement;
+  const resetBtn = document.getElementById('btn-order-reset') as HTMLButtonElement;
+  const countLabel = document.getElementById('order-count-label') as HTMLElement;
+  const emptyLabel = document.getElementById('order-empty-label') as HTMLElement;
+  const tableBody = document.getElementById('order-table-body') as HTMLElement;
+
+  // Modal
+  const modal = document.getElementById('order-detail-modal') as HTMLElement;
+  const btnClose = document.getElementById('btn-close-order-modal') as HTMLButtonElement;
+  const btnCancel = document.getElementById('btn-cancel-order-modal') as HTMLButtonElement;
+  const btnSaveStatus = document.getElementById('btn-save-order-status') as HTMLButtonElement;
+  const statusSelect = document.getElementById('update-order-status') as HTMLSelectElement;
+
+  const toast = document.getElementById('order-toast') as HTMLElement;
+  const toastMsg = document.getElementById('order-toast-msg') as HTMLElement;
+
+  const showToast = (msg: string) => {
+    if (!toast || !toastMsg) return;
+    toastMsg.textContent = msg;
+    toast.classList.remove('hidden');
+    setTimeout(() => toast.classList.add('hidden'), 3000);
+  };
+
+  const formatVndClient = (val: number) => val.toLocaleString('vi-VN') + '₫';
+
+  let currentActiveRow: HTMLTableRowElement | null = null;
+
+  if (tableBody) {
+    const rows = Array.from(tableBody.querySelectorAll<HTMLTableRowElement>('[data-order-row]'));
+
+    const render = () => {
+      const q = (searchInput?.value ?? '').trim().toLowerCase();
+      const st = statusFilter?.value ?? '';
+      const sh = shipFilter?.value ?? '';
+
+      let visibleCount = 0;
+
+      rows.forEach((row) => {
+        const code = (row.dataset.code ?? '').toLowerCase();
+        const name = (row.dataset.name ?? '').toLowerCase();
+        const rowSt = row.dataset.status ?? '';
+        const rowSh = row.dataset.shipMethod ?? '';
+
+        const matchQ = !q || code.includes(q) || name.includes(q);
+        const matchSt = !st || rowSt === st;
+        const matchSh = !sh || rowSh === sh;
+
+        if (matchQ && matchSt && matchSh) {
+          row.style.display = '';
+          visibleCount++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      if (countLabel) countLabel.textContent = `${visibleCount} đơn hàng`;
+      if (emptyLabel) emptyLabel.classList.toggle('hidden', visibleCount > 0);
+    };
+
+    searchInput?.addEventListener('input', render);
+    statusFilter?.addEventListener('change', render);
+    shipFilter?.addEventListener('change', render);
+    resetBtn?.addEventListener('click', () => {
+      if (searchInput) searchInput.value = '';
+      if (statusFilter) statusFilter.value = '';
+      if (shipFilter) shipFilter.value = '';
+      render();
+    });
+
+    // OPEN ORDER DETAIL
+    tableBody.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest('[data-btn-view-order]');
+      if (!btn) return;
+      const row = btn.closest<HTMLTableRowElement>('[data-order-row]');
+      if (!row) return;
+
+      currentActiveRow = row;
+
+      document.getElementById('modal-order-code')!.textContent = row.dataset.code || '';
+      document.getElementById('modal-cust-name')!.textContent = row.dataset.name || '';
+      document.getElementById('modal-cust-phone')!.textContent = row.dataset.phone || '';
+      document.getElementById('modal-cust-email')!.textContent = row.dataset.email || 'Chưa cập nhật';
+      document.getElementById('modal-cust-address')!.textContent = `${row.dataset.address}, ${row.dataset.district}, ${row.dataset.province}`;
+      document.getElementById('modal-cust-note')!.textContent = row.dataset.note || 'Không có';
+
+      document.getElementById('modal-ship-method')!.textContent = row.dataset.shipLabel || '';
+      document.getElementById('modal-ship-fee')!.textContent = formatVndClient(Number(row.dataset.shipFee) || 0);
+      document.getElementById('modal-carrier')!.textContent = row.dataset.carrier || '';
+      document.getElementById('modal-tracking')!.textContent = row.dataset.tracking || '';
+
+      statusSelect.value = row.dataset.status || 'cho-xac-nhan';
+
+      // Items
+      const items = JSON.parse(row.dataset.items || '[]');
+      const tbody = document.getElementById('modal-items-tbody')!;
+      tbody.innerHTML = items.map((it: any) => `
+        <tr class="border-b border-walnut-900/10">
+          <td class="p-3 font-medium text-walnut-900">${it.name}</td>
+          <td class="p-3 font-mono text-[11px] text-walnut-800/70">${it.sku}</td>
+          <td class="p-3 text-right">${formatVndClient(it.price)}</td>
+          <td class="p-3 text-center">${it.qty}</td>
+          <td class="p-3 text-right font-medium">${formatVndClient(it.price * it.qty)}</td>
+        </tr>
+      `).join('');
+
+      document.getElementById('modal-subtotal')!.textContent = formatVndClient(Number(row.dataset.subtotal) || 0);
+      document.getElementById('modal-fee')!.textContent = formatVndClient(Number(row.dataset.shipFee) || 0);
+      document.getElementById('modal-total')!.textContent = formatVndClient(Number(row.dataset.total) || 0);
+
+      modal.classList.remove('hidden');
+    });
+
+    const closeModal = () => modal.classList.add('hidden');
+    btnClose?.addEventListener('click', closeModal);
+    btnCancel?.addEventListener('click', closeModal);
+
+    // SAVE ORDER STATUS
+    btnSaveStatus?.addEventListener('click', () => {
+      if (!currentActiveRow) return;
+      const newSt = statusSelect.value;
+      currentActiveRow.dataset.status = newSt;
+
+      const badge = currentActiveRow.querySelector('[data-status-badge]') as HTMLElement;
+      if (badge) {
+        const labels: Record<string, string> = {
+          'cho-xac-nhan': 'Chờ xác nhận',
+          'dang-chuan-bi': 'Đang chuẩn bị',
+          'dang-giao': 'Đang giao hàng',
+          'hoan-thanh': 'Đã hoàn thành',
+          'da-huy': 'Đã hủy',
+        };
+        const clses: Record<string, string> = {
+          'cho-xac-nhan': 'bg-amber-100 text-amber-900 border border-amber-300',
+          'dang-chuan-bi': 'bg-blue-100 text-blue-900 border border-blue-300',
+          'dang-giao': 'bg-purple-100 text-purple-900 border border-purple-300',
+          'hoan-thanh': 'bg-emerald-100 text-emerald-900 border border-emerald-300',
+          'da-huy': 'bg-red-100 text-red-900 border border-red-300',
+        };
+        badge.textContent = labels[newSt] || newSt;
+        badge.className = `inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded ${clses[newSt]}`;
+      }
+
+      showToast(`Đã cập nhật trạng thái đơn ${currentActiveRow.dataset.code}!`);
+      closeModal();
+      render();
+    });
+
+    render();
+  }
+</script>
