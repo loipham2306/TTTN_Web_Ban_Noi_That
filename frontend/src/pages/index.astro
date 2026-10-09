@@ -4,150 +4,165 @@ import ProductCard from '../components/ProductCard.astro';
 import { products } from '../data/products';
 
 const spaces = [
-{ name: 'Phòng khách', href: '/phong-khach' },
-{ name: 'Phòng ăn', href: '/phong-an' },
-{ name: 'Phòng ngủ', href: '/phong-ngu' },
-{ name: 'Làm việc', href: '/lam-viec' },
-{ name: 'Chiếu sáng', href: '/chieu-sang' },
-{ name: 'Ngoài trời', href: '/ngoai-troi' },
+  { name: 'Phòng khách', href: '/san-pham?khong-gian=phong-khach' },
+  { name: 'Phòng ăn', href: '/san-pham?khong-gian=phong-an' },
+  { name: 'Phòng ngủ', href: '/san-pham?khong-gian=phong-ngu' },
+  { name: 'Làm việc', href: '/san-pham?khong-gian=lam-viec' },
+  { name: 'Chiếu sáng', href: '/san-pham?khong-gian=chieu-sang' },
+  { name: 'Ngoài trời', href: '/san-pham?khong-gian=ngoai-troi' },
 ];
 
 const projects = ['Căn hộ trung tâm', 'Nhà phố hiện đại', 'Biệt thự ven sông', 'Khách sạn boutique'];
 
 const featured = products.slice(0, 4);
 ---
-<BaseLayout title="Nội Thất - Trang chủ">
+<BaseLayout title="Nội Thất Cao Cấp - Trang chủ">
 
-{/* HERO */}
-<section class="relative">
-  <div class="relative flex min-h-screen items-center justify-center bg-walnut-900">
-    <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(255,255,255,0.09),transparent_62%)]"></div>
-    <div class="relative flex flex-col items-center px-6 text-center">
-      <p class="text-[11px] uppercase tracking-[0.5em] text-sand-50/70">Bộ sưu tập 2026</p>
-      <h1 class="mt-6 font-sans text-5xl font-medium uppercase tracking-[0.2em] text-sand-50 sm:text-7xl lg:text-8xl">
-        Nội Thất
-      </h1>
-      <p class="mt-8 max-w-xl text-sm leading-relaxed text-sand-50/70">
-        Nội thất thiết kế cho không gian sống đẳng cấp — tuyển chọn từ những thương hiệu và xưởng chế tác hàng đầu.
-      </p>
-      <a href="/san-pham" class="mt-10 inline-block border border-sand-50/70 px-8 py-3 text-[11px] uppercase tracking-[0.25em] text-sand-50 transition-colors hover:bg-sand-50 hover:text-walnut-900">
-        Khám phá
+  {/* HERO */}
+  <section class="relative">
+    <div class="relative flex min-h-screen items-center justify-center bg-walnut-900">
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(255,255,255,0.09),transparent_62%)]"></div>
+      <div class="relative flex flex-col items-center px-6 text-center">
+        <p class="text-[11px] uppercase tracking-[0.5em] text-sand-50/70">Bộ sưu tập 2026</p>
+        <h1 class="mt-6 font-display text-5xl font-medium uppercase tracking-[0.2em] text-sand-50 sm:text-7xl lg:text-8xl">
+          NỘI THẤT
+        </h1>
+        <p class="mt-8 max-w-xl text-sm leading-relaxed text-sand-50/70">
+          Nội thất thiết kế cho không gian sống đẳng cấp — tuyển chọn từ những thương hiệu và xưởng chế tác hàng đầu.
+        </p>
+        <a href="/san-pham" class="mt-10 inline-block border border-sand-50/70 px-8 py-3 text-[11px] uppercase tracking-[0.25em] text-sand-50 transition-colors hover:bg-sand-50 hover:text-walnut-900 rounded-sm">
+          Khám phá ngay
+        </a>
+      </div>
+
+      <a href="#mua-theo-khong-gian" class="absolute bottom-7 flex flex-col items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-sand-50/70 transition-opacity hover:opacity-100">
+        Cuộn xuống
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="h-5 w-5 animate-bounce shrink-0">
+          <path d="M12 5v14M6 13l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
       </a>
     </div>
+  </section>
 
-    <a href="#mua-theo-khong-gian" class="absolute bottom-7 flex flex-col items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-sand-50/70 transition-opacity hover:opacity-100">
-      Scroll
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="h-5 w-5 animate-bounce">
-        <path d="M12 5v14M6 13l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+  {/* MUA THEO KHÔNG GIAN */}
+  <section id="mua-theo-khong-gian" class="mx-auto max-w-7xl px-4 py-16 sm:py-24 scroll-mt-24">
+    <p class="text-center text-xs uppercase tracking-[0.3em] text-walnut-800">Mua theo không gian</p>
+    <h2 class="mt-3 text-center font-display text-2xl tracking-tight sm:text-3xl text-walnut-900">Không gian nào bạn đang hoàn thiện?</h2>
+    <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {spaces.map((s) => (
+        <a href={s.href} class="group relative block overflow-hidden rounded border border-walnut-900/10 shadow-sm">
+          <span class="block aspect-[4/3] w-full bg-sand-200 transition duration-500 group-hover:scale-[1.03]"></span>
+          <span class="absolute inset-0 flex items-center justify-center">
+            <span class="bg-sand-50/95 px-6 py-2.5 text-xs font-medium uppercase tracking-[0.2em] text-walnut-900 shadow-sm backdrop-blur rounded-sm group-hover:bg-walnut-900 group-hover:text-sand-50 transition-colors">
+              {s.name}
+            </span>
+          </span>
+        </a>
+      ))}
+    </div>
+  </section>
+
+  {/* SẢN PHẨM NỔI BẬT */}
+  <section class="bg-sand-100">
+    <div class="mx-auto max-w-7xl px-4 py-16 sm:py-24">
+      <div class="flex items-end justify-between gap-4">
+        <div>
+          <p class="text-xs uppercase tracking-[0.25em] text-walnut-800/80">Bộ sưu tập tiêu biểu</p>
+          <h2 class="mt-1 font-display text-2xl tracking-tight sm:text-3xl text-walnut-900">Sản phẩm nổi bật</h2>
+        </div>
+        <a href="/san-pham" class="text-xs uppercase tracking-[0.2em] text-walnut-800 transition hover:text-clay-600 font-medium">
+          Xem tất cả →
+        </a>
+      </div>
+      <div class="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        {featured.map((product) => <ProductCard product={product} />)}
+      </div>
+    </div>
+  </section>
+
+  {/* CÂU CHUYỆN THƯƠNG HIỆU */}
+  <section id="cau-chuyen" class="mx-auto grid max-w-7xl scroll-mt-20 items-center gap-10 px-4 py-16 sm:py-24 lg:grid-cols-2">
+    <div class="aspect-[4/3] w-full bg-sand-200 lg:aspect-[4/5] rounded border border-walnut-900/10 flex items-center justify-center text-walnut-900/20">
+      <svg width="64" height="64" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
       </svg>
-    </a>
-  </div>
-</section>
+    </div>
+    <div>
+      <p class="text-xs uppercase tracking-[0.3em] text-walnut-800">Câu chuyện thương hiệu</p>
+      <h2 class="mt-4 font-display text-2xl leading-snug tracking-tight sm:text-3xl text-walnut-900">
+        Mỗi sản phẩm là một cam kết về chất lượng và thẩm mỹ
+      </h2>
+      <p class="mt-5 max-w-md text-sm leading-relaxed text-walnut-800">
+        Chúng tôi làm việc trực tiếp với các xưởng chế tác thủ công, chọn lọc những thiết kế bền vững và trường tồn theo thời gian.
+      </p>
+      <a href="/san-pham" class="mt-8 inline-block border-b-2 border-walnut-900 pb-1 text-xs uppercase tracking-[0.2em] text-walnut-900 transition hover:border-clay-600 hover:text-clay-600 font-semibold">
+        Tìm hiểu thêm
+      </a>
+    </div>
+  </section>
 
-{/* MUA THEO KHÔNG GIAN */}
-<section id="mua-theo-khong-gian" class="mx-auto max-w-7xl px-4 py-16 sm:py-24 scroll-mt-24">
-<p class="text-center text-xs uppercase tracking-[0.3em] text-walnut-800">Mua theo không gian</p>
-<h2 class="mt-3 text-center font-display text-2xl tracking-tight sm:text-3xl">Không gian nào bạn đang hoàn thiện?</h2>
-<div class="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-{spaces.map((s) => (
-<a href={s.href} class="group relative block overflow-hidden">
-<span class="block aspect-[4/3] w-full bg-sand-200 transition duration-500 group-hover:scale-[1.03]"></span>
-<span class="absolute inset-0 flex items-center justify-center">
-<span class="bg-sand-50/90 px-5 py-2 text-xs uppercase tracking-[0.2em] text-walnut-900 backdrop-blur">{s.name}</span>
-</span>
-</a>
-))}
-</div>
-</section>
+  {/* DỰ ÁN & KHÔNG GIAN THỰC TẾ */}
+  <section id="du-an" class="scroll-mt-20 bg-walnut-900 text-sand-50">
+    <div class="mx-auto max-w-7xl px-4 py-16 sm:py-24">
+      <p class="text-xs uppercase tracking-[0.3em] text-sand-200/70">Không gian thực tế</p>
+      <h2 class="mt-3 font-display text-2xl tracking-tight sm:text-3xl text-sand-50">Được bài trí cùng chúng tôi</h2>
+      <div class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {projects.map((p) => (
+          <div class="group block overflow-hidden rounded bg-white/5 border border-white/10 p-4 transition-all hover:bg-white/10">
+            <span class="block aspect-square w-full bg-white/10 rounded mb-3"></span>
+            <span class="block text-xs uppercase tracking-[0.2em] text-sand-200 font-medium">{p}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
 
-{/* SẢN PHẨM NỔI BẬT */}
-<section class="bg-sand-100">
-<div class="mx-auto max-w-7xl px-4 py-16 sm:py-24">
-<div class="flex items-end justify-between gap-4">
-<h2 class="font-display text-2xl tracking-tight sm:text-3xl">Sản phẩm nổi bật</h2>
-<a href="/san-pham" class="text-xs uppercase tracking-[0.2em] text-walnut-800 transition hover:text-clay-600">Xem tất cả</a>
-</div>
-<div class="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
-{featured.map((product) => <ProductCard product={product} />)}
-</div>
-</div>
-</section>
+  {/* ĐỐI TÁC + NHẬN TIN */}
+  <section id="doi-tac" class="mx-auto max-w-7xl scroll-mt-20 px-4 py-16 sm:py-24">
+    <div class="grid gap-6 lg:grid-cols-2">
+      <div class="border border-walnut-900/10 bg-sand-50 p-8 sm:p-12 rounded shadow-sm">
+        <p class="text-xs uppercase tracking-[0.3em] text-walnut-800">Dành cho đối tác</p>
+        <h2 class="mt-4 font-display text-2xl tracking-tight text-walnut-900">Kiến trúc sư và nhà thiết kế</h2>
+        <p class="mt-4 text-sm leading-relaxed text-walnut-800">Chính sách giá ưu đãi và hỗ trợ riêng cho các dự án nội thất chuyên nghiệp.</p>
+        <a href="/san-pham" class="mt-8 inline-block bg-clay-600 px-7 py-3 text-xs uppercase tracking-[0.2em] text-sand-50 transition hover:bg-clay-500 rounded-sm">
+          Đăng ký đối tác
+        </a>
+      </div>
+      <div class="border border-walnut-900/10 bg-sand-50 p-8 sm:p-12 rounded shadow-sm">
+        <p class="text-xs uppercase tracking-[0.3em] text-walnut-800">Nhận bản tin</p>
+        <h2 class="mt-4 font-display text-2xl tracking-tight text-walnut-900">Bộ sưu tập mới và ưu đãi</h2>
+        <form class="mt-8 flex flex-col gap-3 sm:flex-row" onsubmit="event.preventDefault(); alert('Cảm ơn bạn đã đăng ký nhận tin!');">
+          <input type="email" required placeholder="Nhập địa chỉ email của bạn" class="w-full border-b border-walnut-900/30 bg-transparent px-1 py-3 text-sm outline-none transition focus:border-clay-600" />
+          <button type="submit" class="border border-walnut-900 px-7 py-3 text-xs uppercase tracking-[0.2em] text-walnut-900 transition hover:bg-walnut-900 hover:text-sand-50 rounded-sm cursor-pointer">
+            Gửi
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
 
-{/* CÂU CHUYỆN THƯƠNG HIỆU */}
-<section id="cau-chuyen" class="mx-auto grid max-w-7xl scroll-mt-20 items-center gap-10 px-4 py-16 sm:py-24 lg:grid-cols-2">
-<div class="aspect-[4/3] w-full bg-sand-200 lg:aspect-[4/5]"></div>
-<div>
-<p class="text-xs uppercase tracking-[0.3em] text-walnut-800">Câu chuyện thương hiệu</p>
-<h2 class="mt-4 font-display text-2xl leading-snug tracking-tight sm:text-3xl">
-Mỗi sản phẩm là một cam kết về chất lượng và thẩm mỹ
-</h2>
-<p class="mt-5 max-w-md text-sm leading-relaxed text-walnut-800">
-Chúng tôi làm việc trực tiếp với các xưởng chế tác, chọn lọc những thiết kế bền vững và trường tồn theo thời gian.
-</p>
-<a href="/gioi-thieu" class="mt-8 inline-block border-b border-walnut-900 pb-1 text-xs uppercase tracking-[0.2em] text-walnut-900 transition hover:border-clay-600 hover:text-clay-600">
-Tìm hiểu thêm
-</a>
-</div>
-</section>
-
-{/* DỰ ÁN — NỀN TỐI */}
-<section id="du-an" class="scroll-mt-20 bg-walnut-900 text-sand-50">
-<div class="mx-auto max-w-7xl px-4 py-16 sm:py-24">
-<p class="text-xs uppercase tracking-[0.3em] text-sand-200">Không gian thực tế</p>
-<h2 class="mt-3 font-display text-2xl tracking-tight sm:text-3xl">Được bài trí cùng chúng tôi</h2>
-<div class="mt-10 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-{projects.map((p) => (
-<a href="/du-an" class="group block">
-<span class="block aspect-square w-full bg-white/10"></span>
-<span class="mt-3 block text-xs uppercase tracking-[0.2em] text-sand-200">{p}</span>
-</a>
-))}
-</div>
-</div>
-</section>
-
-{/* ĐỐI TÁC + NHẬN TIN */}
-<section id="doi-tac" class="mx-auto max-w-7xl scroll-mt-20 px-4 py-16 sm:py-24">
-<div class="grid gap-6 lg:grid-cols-2">
-<div class="border border-walnut-900/10 p-8 sm:p-12">
-<p class="text-xs uppercase tracking-[0.3em] text-walnut-800">Dành cho đối tác</p>
-<h2 class="mt-4 font-display text-2xl tracking-tight">Kiến trúc sư và nhà thiết kế</h2>
-<p class="mt-4 text-sm leading-relaxed text-walnut-800">Chính sách giá ưu đãi và hỗ trợ riêng cho dự án chuyên nghiệp.</p>
-<a href="/doi-tac" class="mt-8 inline-block bg-clay-600 px-7 py-3 text-xs uppercase tracking-[0.2em] text-sand-50 transition hover:bg-clay-500">Đăng ký đối tác</a>
-</div>
-<div class="border border-walnut-900/10 p-8 sm:p-12">
-<p class="text-xs uppercase tracking-[0.3em] text-walnut-800">Nhận tin</p>
-<h2 class="mt-4 font-display text-2xl tracking-tight">Bộ sưu tập mới và ưu đãi</h2>
-<form class="mt-8 flex flex-col gap-3 sm:flex-row">
-<input type="email" placeholder="Email của bạn" class="w-full border-b border-walnut-900/30 bg-transparent px-1 py-3 text-sm outline-none transition focus:border-clay-600" />
-<button type="button" class="border border-walnut-900 px-7 py-3 text-xs uppercase tracking-[0.2em] text-walnut-900 transition hover:bg-walnut-900 hover:text-sand-50">Gửi</button>
-</form>
-</div>
-</div>
-</section>
-
-{/* SHOWROOM */}
-<section id="showroom" class="scroll-mt-20 bg-black text-sand-50">
-<div class="mx-auto grid max-w-7xl gap-8 px-4 py-14 lg:grid-cols-2 lg:items-center">
-<div>
-<p class="text-xs uppercase tracking-[0.3em] text-sand-200">Ghé showroom</p>
-<p class="mt-2 font-display text-xl sm:text-2xl">615 Âu Cơ, TP. HCM</p>
-<div class="mt-6 flex flex-wrap gap-3">
-<a href="tel:1900636884" class="border border-sand-50/30 px-6 py-3 text-xs uppercase tracking-[0.2em] transition hover:border-sand-50">Hotline</a>
-<a href="#" class="border border-sand-50/30 px-6 py-3 text-xs uppercase tracking-[0.2em] transition hover:border-sand-50">Zalo</a>
-<a href="#" class="border border-sand-50/30 px-6 py-3 text-xs uppercase tracking-[0.2em] transition hover:border-sand-50">Messenger</a>
-</div>
-</div>
-<div class="overflow-hidden rounded-lg">
-<iframe
-title="Bản đồ showroom 615 Âu Cơ"
-src="https://maps.google.com/maps?q=615%20%C3%82u%20C%C6%A1&z=16&output=embed"
-class="h-72 w-full border-0 lg:h-80"
-loading="lazy"
-referrerpolicy="no-referrer-when-downgrade"
-></iframe>
-</div>
-</div>
-</section>
+  {/* SHOWROOM */}
+  <section id="showroom" class="scroll-mt-20 bg-black text-sand-50">
+    <div class="mx-auto grid max-w-7xl gap-8 px-4 py-14 lg:grid-cols-2 lg:items-center">
+      <div>
+        <p class="text-xs uppercase tracking-[0.3em] text-sand-200/70">Ghé thăm showroom</p>
+        <p class="mt-2 font-display text-xl sm:text-2xl text-sand-50">615 Âu Cơ, TP. Hồ Chí Minh</p>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <a href="tel:1900636884" class="border border-sand-50/30 px-6 py-2.5 text-xs uppercase tracking-[0.2em] transition hover:border-sand-50 rounded-sm">Hotline</a>
+          <a href="#" class="border border-sand-50/30 px-6 py-2.5 text-xs uppercase tracking-[0.2em] transition hover:border-sand-50 rounded-sm">Zalo</a>
+          <a href="#" class="border border-sand-50/30 px-6 py-2.5 text-xs uppercase tracking-[0.2em] transition hover:border-sand-50 rounded-sm">Messenger</a>
+        </div>
+      </div>
+      <div class="overflow-hidden rounded-lg">
+        <iframe
+          title="Bản đồ showroom 615 Âu Cơ"
+          src="https://maps.google.com/maps?q=615%20%C3%82u%20C%C6%A1&z=16&output=embed"
+          class="h-72 w-full border-0 lg:h-80"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+        ></iframe>
+      </div>
+    </div>
+  </section>
 
 </BaseLayout>

@@ -31,8 +31,8 @@ export const spaces: { key: string; label: string }[] = [
 
 export const priceRanges: { key: string; label: string }[] = [
   { key: '0-10000000', label: 'Dưới 10 triệu' },
-  { key: '10000000-20000000', label: '10 – 20 triệu' },
-  { key: '20000000-50000000', label: '20 – 50 triệu' },
+  { key: '10000000-20000000', label: '10 - 20 triệu' },
+  { key: '20000000-50000000', label: '20 - 50 triệu' },
   { key: '50000000-', label: 'Trên 50 triệu' },
 ];
 
@@ -60,4 +60,4 @@ export const products: Product[] = [
   { slug: 'guong-trang-tri-vien-vang', name: 'Gương trang trí viền mạ vàng', category: 'trang-tri', categoryLabel: 'Trang trí', space: 'phong-ngu', spaceLabel: 'Phòng ngủ', price: 3100000, material: 'Hợp kim mạ' },
 ];
 
-export const formatVnd = (value: number): string => value.toLocaleString('vi-VN') + '₫';
+export const formatVnd = (value: number): string => Number(value || 0).toLocaleString('vi-VN') + ' đ';
