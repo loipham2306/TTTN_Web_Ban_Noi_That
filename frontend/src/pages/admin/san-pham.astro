@@ -28,21 +28,21 @@ const NHAN: Record<string, { label: string; cls: string }> = {
 const perPage = 10;
 
 const stats = [
-  { label: 'Tổng sản phẩm', value: String(rows.length), desc: 'Đã cập nhật từ CSDL' },
+  { label: 'Tổng sản phẩm', value: String(rows.length), desc: 'Đã đồng bộ từ CSDL MySQL' },
   { label: 'Đang bán', value: String(rows.filter((row) => row.status === 'con-hang').length), desc: 'Sẵn sàng giao ngay' },
   { label: 'Hết hàng', value: String(rows.filter((row) => row.status === 'het-hang').length), desc: 'Cần bổ sung kho' },
-  { label: 'Danh mục', value: String(categories.length), desc: 'Đa dạng không gian' },
+  { label: 'Danh mục', value: String(categories.length), desc: 'Đa dạng không gian nội thất' },
 ];
 ---
 
-<AdminLayout title="Quản trị · Sản phẩm | Nội Thất">
+<AdminLayout title="Quản Lý Sản Phẩm - Kho Hàng | Nội Thất">
 
   <!-- PAGE HEADER -->
   <header class="flex flex-wrap items-end justify-between gap-4 border-b border-walnut-900/10 pb-6">
     <div>
       <p class="text-[11px] uppercase tracking-[0.25em] text-walnut-800">Bảng điều khiển</p>
       <h1 class="mt-2 font-display text-2xl tracking-tight sm:text-3xl text-walnut-900">Quản Lý Sản Phẩm</h1>
-      <p class="mt-1 text-sm text-walnut-800">Thêm, sửa giá, cập nhật kho và quản lý toàn bộ danh mục đồ nội thất.</p>
+      <p class="mt-1 text-sm text-walnut-800">Thêm, sửa giá, tải lên hình ảnh sản phẩm và cập nhật trạng thái kho hàng.</p>
     </div>
 
     <button
@@ -110,7 +110,7 @@ const stats = [
         data-adm-reset
         class="text-xs uppercase tracking-[0.18em] text-walnut-800 underline underline-offset-4 transition-colors hover:text-clay-600 cursor-pointer"
       >
-        Xoá lọc
+        Xóa lọc
       </button>
 
       <p data-adm-count class="ml-auto text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium"></p>
@@ -148,39 +148,61 @@ const stats = [
               class="border-b border-walnut-900/10 last:border-b-0 hover:bg-sand-100/30 transition-colors"
             >
               <td class="px-4 py-3.5 align-middle">
-                <div class="h-12 w-12 rounded bg-sand-200 border border-walnut-900/10 flex items-center justify-center text-[10px] text-walnut-800/60 font-semibold uppercase">
-                  {row.slug.slice(0, 3)}
-                </div>
+                <img
+                  src={row.image}
+                  alt={row.name}
+                  class="h-12 w-12 rounded object-cover border border-walnut-900/10"
+                  loading="lazy"
+                />
               </td>
               <td class="px-4 py-3.5 align-middle">
                 <p class="text-sm font-medium text-walnut-900">{row.name}</p>
                 <p class="mt-0.5 text-xs text-walnut-800/70">/{row.slug}</p>
               </td>
-              <td class="px-4 py-3.5 align-middle text-sm text-walnut-800">{row.categoryLabel}</td>
-              <td class="px-4 py-3.5 align-middle text-sm text-walnut-800">{row.spaceLabel}</td>
-              <td class="whitespace-nowrap px-4 py-3.5 align-middle text-sm font-medium text-walnut-900">{formatVnd(row.price)}</td>
+              <td class="px-4 py-3.5 align-middle text-sm text-walnut-800">
+                {categories.find((c) => c.key === row.category)?.label}
+              </td>
+              <td class="px-4 py-3.5 align-middle text-sm text-walnut-800">
+                {spaces.find((s) => s.key === row.space)?.label}
+              </td>
+              <td class="px-4 py-3.5 align-middle text-sm font-semibold text-clay-600">
+                {formatVnd(row.price)}
+              </td>
               <td class="px-4 py-3.5 align-middle">
                 <button
                   type="button"
                   data-btn-toggle-status
+                  data-current-status={row.status}
+                  class:list={[
+                    'inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer',
+                    NHAN[row.status]?.cls
+                  ]}
                   title="Nhấp để đổi trạng thái"
-                  class={`inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer ${NHAN[row.status].cls}`}
                 >
-                  {NHAN[row.status].label}
+                  {NHAN[row.status]?.label}
                 </button>
               </td>
               <td class="px-4 py-3.5 align-middle text-right">
-                <div class="flex items-center justify-end gap-3 whitespace-nowrap text-xs uppercase tracking-[0.15em]">
-                  <a href={`/san-pham/${row.slug}`} target="_blank" class="text-walnut-800 hover:text-clay-600 transition-colors" title="Xem trên web">
-                    Xem
-                  </a>
-                  <span class="text-walnut-900/20">|</span>
-                  <button type="button" data-btn-edit class="text-clay-600 hover:underline cursor-pointer font-medium">
-                    Sửa
+                <div class="inline-flex items-center gap-2">
+                  <button
+                    type="button"
+                    data-btn-edit
+                    class="p-1.5 text-walnut-800 hover:text-clay-600 transition-colors cursor-pointer"
+                    title="Chỉnh sửa sản phẩm"
+                  >
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
                   </button>
-                  <span class="text-walnut-900/20">|</span>
-                  <button type="button" data-btn-delete class="text-danger-600 hover:underline cursor-pointer font-medium">
-                    Xóa
+                  <button
+                    type="button"
+                    data-btn-delete
+                    class="p-1.5 text-walnut-800 hover:text-danger-600 transition-colors cursor-pointer"
+                    title="Xóa sản phẩm"
+                  >
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
                   </button>
                 </div>
               </td>
@@ -198,9 +220,9 @@ const stats = [
     <nav data-adm-pagination aria-label="Phân trang" class="mt-6 flex flex-wrap items-center justify-center gap-2"></nav>
   </section>
 
-  <!-- MODAL: THÊM / SỬA SẢN PHẨM -->
+  <!-- MODAL: THÊM / SỬA SẢN PHẨM (KÈM BỎ ẢNH VÀO NHƯ ẢNH 2) -->
   <div id="product-modal" class="fixed inset-0 z-50 hidden bg-walnut-900/60 backdrop-blur-sm overflow-y-auto p-4 flex items-center justify-center">
-    <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-2xl p-6 sm:p-8 shadow-xl relative my-8">
+    <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-2xl p-6 sm:p-8 shadow-xl relative my-8 max-h-[92vh] overflow-y-auto">
       <div class="flex items-center justify-between border-b border-walnut-900/10 pb-4">
         <div>
           <p class="text-[10px] uppercase tracking-[0.2em] text-walnut-800">Quản trị kho hàng</p>
@@ -225,6 +247,7 @@ const stats = [
         <div>
           <label for="prod-slug" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Slug đường dẫn *</label>
           <input type="text" id="prod-slug" required placeholder="sofa-da-y-milano" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50" />
+          <p class="mt-1 text-[11px] text-walnut-800/60">Tự động sinh từ tên sản phẩm để làm link URL.</p>
         </div>
 
         <div>
@@ -272,7 +295,64 @@ const stats = [
 
         <div class="sm:col-span-2">
           <label for="prod-desc" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Mô tả sản phẩm</label>
-          <textarea id="prod-desc" rows="3" placeholder="Chi tiết chế tác, đệm mút, chất liệu..." class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50"></textarea>
+          <textarea id="prod-desc" rows="2" placeholder="Chi tiết chế tác, đệm mút, chất liệu..." class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50"></textarea>
+        </div>
+
+        <!-- KHU VỰC HÌNH ẢNH SẢN PHẨM (CHÍNH XÁC NHƯ ẢNH MẪU 2) -->
+        <div class="sm:col-span-2 border-t border-walnut-900/10 pt-4 mt-1">
+          <div class="flex items-center gap-2 mb-3">
+            <svg class="h-4 w-4 text-clay-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span class="text-xs font-bold uppercase tracking-wider text-walnut-900">Hình ảnh</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- CỘT 1: ẢNH CHÍNH SẢN PHẨM -->
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-walnut-800 mb-1.5">Ảnh chính sản phẩm</label>
+              <input 
+                type="file" 
+                id="prod-main-img-file" 
+                accept="image/*"
+                class="block w-full text-xs text-walnut-800 file:mr-2 file:py-1.5 file:px-3 file:border file:border-walnut-900/20 file:text-xs file:bg-sand-100 file:text-walnut-900 hover:file:bg-sand-200 rounded border border-walnut-900/20 bg-sand-100/40 p-1 cursor-pointer"
+              />
+              
+              <!-- Khung nét đứt bấm để chọn ảnh hoặc hiển thị preview ảnh chính -->
+              <div 
+                id="main-dropzone" 
+                class="mt-2.5 border-2 border-dashed border-walnut-900/25 rounded p-3 text-center hover:border-clay-600 hover:bg-sand-100/50 transition-colors cursor-pointer flex flex-col items-center justify-center min-h-[110px] relative"
+              >
+                <div id="main-dropzone-placeholder" class="flex flex-col items-center gap-1.5 text-walnut-800/60">
+                  <svg class="h-6 w-6 text-walnut-800/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span class="text-xs font-medium text-walnut-800">📷 Chọn ảnh chính</span>
+                </div>
+                <img id="main-dropzone-preview" src="" alt="Xem trước ảnh chính" class="hidden max-h-24 w-auto object-cover rounded shadow-sm border border-walnut-900/10" />
+              </div>
+            </div>
+
+            <!-- CỘT 2: ẢNH CHI TIẾT (TỐI ĐA 3 ẢNH) -->
+            <div>
+              <label class="block text-[11px] font-bold uppercase tracking-wider text-walnut-800 mb-1.5">Ảnh chi tiết (Tối đa 3 ảnh)</label>
+              <input 
+                type="file" 
+                id="prod-detail-img-file" 
+                accept="image/*" 
+                multiple
+                class="block w-full text-xs text-walnut-800 file:mr-2 file:py-1.5 file:px-3 file:border file:border-walnut-900/20 file:text-xs file:bg-sand-100 file:text-walnut-900 hover:file:bg-sand-200 rounded border border-walnut-900/20 bg-sand-100/40 p-1 cursor-pointer"
+              />
+
+              <!-- Preview các ảnh chi tiết -->
+              <div id="detail-previews-container" class="mt-2.5 grid grid-cols-3 gap-2 min-h-[110px] items-center border border-walnut-900/15 rounded p-2 bg-sand-50">
+                <p id="detail-previews-empty" class="col-span-3 text-center text-xs text-walnut-800/50 py-6">
+                  Chưa có ảnh chi tiết nào được chọn
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div class="sm:col-span-2 flex items-center justify-end gap-3 border-t border-walnut-900/10 pt-4 mt-2">
@@ -288,56 +368,135 @@ const stats = [
   </div>
 
   <!-- TOAST NOTIFICATION -->
-  <div id="toast" class="fixed bottom-6 right-6 z-50 hidden bg-walnut-900 text-sand-50 px-5 py-3 rounded shadow-lg text-xs uppercase tracking-[0.15em] flex items-center gap-3">
-    <svg class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-    </svg>
-    <span id="toast-msg">Thao tác thành công!</span>
+  <div id="admin-toast" class="fixed bottom-6 right-6 z-50 hidden translate-y-4 rounded bg-walnut-900 px-5 py-3 text-xs uppercase tracking-[0.15em] text-sand-50 shadow-lg transition-all duration-300">
+    <span id="toast-message">Đã cập nhật sản phẩm thành công!</span>
+  </div>
+
+  <!-- MODAL CONFIRM DELETE -->
+  <div id="delete-modal" class="fixed inset-0 z-50 hidden bg-walnut-900/60 backdrop-blur-sm p-4 flex items-center justify-center">
+    <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-sm p-6 shadow-xl text-center">
+      <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-danger-600/10 text-danger-600">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      </div>
+      <h3 class="mt-4 font-display text-lg text-walnut-900">Xác nhận xóa sản phẩm</h3>
+      <p id="delete-item-name" class="mt-2 text-xs text-walnut-800/80">Bạn có chắc chắn muốn xóa sản phẩm này không?</p>
+      <div class="mt-6 flex justify-center gap-3">
+        <button type="button" id="btn-cancel-delete" class="border border-walnut-900/20 px-4 py-2 text-xs uppercase tracking-[0.15em] text-walnut-800 hover:border-walnut-900 cursor-pointer">
+          Hủy bỏ
+        </button>
+        <button type="button" id="btn-confirm-delete" class="bg-danger-600 px-4 py-2 text-xs uppercase tracking-[0.15em] text-sand-50 hover:bg-danger-500 shadow-sm cursor-pointer">
+          Xác nhận xóa
+        </button>
+      </div>
+    </div>
   </div>
 
 </AdminLayout>
 
 <script>
-  // DOM Elements
-  const body = document.querySelector<HTMLElement>('[data-adm-body]');
-  const searchEl = document.querySelector<HTMLInputElement>('[data-adm-search]');
-  const categoryEl = document.querySelector<HTMLSelectElement>('[data-adm-category]');
-  const statusEl = document.querySelector<HTMLSelectElement>('[data-adm-status]');
-  const resetEl = document.querySelector<HTMLButtonElement>('[data-adm-reset]');
-  const countEl = document.querySelector<HTMLElement>('[data-adm-count]');
-  const emptyEl = document.querySelector<HTMLElement>('[data-adm-empty]');
-  const paginationEl = document.querySelector<HTMLElement>('[data-adm-pagination]');
+  function formatVndClient(amount: number): string {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount);
+  }
 
-  // Modal Elements
-  const modal = document.getElementById('product-modal') as HTMLElement;
-  const modalTitle = document.getElementById('modal-title') as HTMLElement;
-  const form = document.getElementById('product-form') as HTMLFormElement;
-  const btnOpenAdd = document.getElementById('btn-open-add-modal') as HTMLButtonElement;
-  const btnCloseModal = document.getElementById('btn-close-modal') as HTMLButtonElement;
-  const btnCancelModal = document.getElementById('btn-cancel-modal') as HTMLButtonElement;
-  const toast = document.getElementById('toast') as HTMLElement;
-  const toastMsg = document.getElementById('toast-msg') as HTMLElement;
+  document.addEventListener('DOMContentLoaded', () => {
+    const tableBody = document.querySelector('[data-adm-body]') as HTMLElement | null;
+    if (!tableBody) return;
 
-  const showToast = (msg: string) => {
-    if (!toast || !toastMsg) return;
-    toastMsg.textContent = msg;
-    toast.classList.remove('hidden');
-    setTimeout(() => toast.classList.add('hidden'), 3000);
-  };
+    let rows = Array.from(tableBody.querySelectorAll<HTMLTableRowElement>('[data-row]'));
+    const searchInput = document.querySelector('[data-adm-search]') as HTMLInputElement | null;
+    const catSelect = document.querySelector('[data-adm-category]') as HTMLSelectElement | null;
+    const statusSelect = document.querySelector('[data-adm-status]') as HTMLSelectElement | null;
+    const resetBtn = document.querySelector('[data-adm-reset]') as HTMLButtonElement | null;
+    const countEl = document.querySelector('[data-adm-count]') as HTMLElement | null;
+    const emptyEl = document.querySelector('[data-adm-empty]') as HTMLElement | null;
+    const paginationEl = document.querySelector('[data-adm-pagination]') as HTMLElement | null;
 
-  const formatVndClient = (val: number) => val.toLocaleString('vi-VN') + '₫';
+    const pageSize = Number(tableBody.dataset.pageSize) || 10;
+    let currentPage = 1;
+    let filteredRows = [...rows];
 
-  if (body) {
-    let rows = Array.from(body.querySelectorAll<HTMLTableRowElement>('[data-row]'));
-    const pageSize = Number(body.dataset.pageSize) || 10;
-    let page = 1;
+    // MODAL ELEMENTS
+    const modal = document.getElementById('product-modal') as HTMLElement;
+    const modalTitle = document.getElementById('modal-title') as HTMLElement;
+    const form = document.getElementById('product-form') as HTMLFormElement;
+    const btnOpenAdd = document.getElementById('btn-open-add-modal') as HTMLButtonElement;
+    const btnCloseModal = document.getElementById('btn-close-modal') as HTMLButtonElement;
+    const btnCancelModal = document.getElementById('btn-cancel-modal') as HTMLButtonElement;
 
+    // IMAGE UPLOAD ELEMENTS
+    const mainImgFileInput = document.getElementById('prod-main-img-file') as HTMLInputElement;
+    const mainDropzone = document.getElementById('main-dropzone') as HTMLElement;
+    const mainPlaceholder = document.getElementById('main-dropzone-placeholder') as HTMLElement;
+    const mainPreview = document.getElementById('main-dropzone-preview') as HTMLImageElement;
+    const detailImgFileInput = document.getElementById('prod-detail-img-file') as HTMLInputElement;
+    const detailContainer = document.getElementById('detail-previews-container') as HTMLElement;
+    const detailEmpty = document.getElementById('detail-previews-empty') as HTMLElement;
+
+    let currentUploadedMainUrl = '';
+
+    // Click dropzone triggers file input
+    mainDropzone?.addEventListener('click', () => {
+      mainImgFileInput?.click();
+    });
+
+    // Handle Main Image Selection
+    mainImgFileInput?.addEventListener('change', (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        currentUploadedMainUrl = URL.createObjectURL(file);
+        mainPreview.src = currentUploadedMainUrl;
+        mainPreview.classList.remove('hidden');
+        mainPlaceholder.classList.add('hidden');
+      }
+    });
+
+    // Handle Detail Images Selection
+    detailImgFileInput?.addEventListener('change', (e) => {
+      const files = (e.target as HTMLInputElement).files;
+      if (files && files.length > 0) {
+        detailContainer.innerHTML = '';
+        const maxFiles = Math.min(files.length, 3);
+        for (let i = 0; i < maxFiles; i++) {
+          const file = files[i];
+          const imgUrl = URL.createObjectURL(file);
+          const thumb = document.createElement('div');
+          thumb.className = 'relative h-20 rounded border border-walnut-900/15 overflow-hidden group';
+          thumb.innerHTML = `<img src="${imgUrl}" alt="Ảnh chi tiết" class="w-full h-full object-cover" />`;
+          detailContainer.appendChild(thumb);
+        }
+      } else {
+        detailContainer.innerHTML = '';
+        detailContainer.appendChild(detailEmpty);
+      }
+    });
+
+    // TOAST HELPER
+    const toast = document.getElementById('admin-toast') as HTMLElement;
+    const toastMessage = document.getElementById('toast-message') as HTMLElement;
+    let toastTimeout: any;
+
+    const showToast = (msg: string) => {
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastMessage.textContent = msg;
+      toast.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-4');
+      });
+      toastTimeout = setTimeout(() => {
+        toast.classList.add('translate-y-4');
+        setTimeout(() => toast.classList.add('hidden'), 300);
+      }, 3000);
+    };
+
+    // RENDER FILTER & PAGINATION
     const render = () => {
-      const q = (searchEl?.value ?? '').trim().toLowerCase();
-      const cat = categoryEl?.value ?? '';
-      const st = statusEl?.value ?? '';
+      const q = (searchInput?.value ?? '').trim().toLowerCase();
+      const cat = catSelect?.value ?? '';
+      const st = statusSelect?.value ?? '';
 
-      const matched = rows.filter((r) => {
+      filteredRows = rows.filter((r) => {
         const name = (r.dataset.name ?? '').toLowerCase();
         const rowCat = r.dataset.category ?? '';
         const rowSt = r.dataset.status ?? '';
@@ -348,121 +507,52 @@ const stats = [
         return true;
       });
 
-      const total = matched.length;
+      const total = filteredRows.length;
       const totalPages = Math.max(1, Math.ceil(total / pageSize));
-      if (page > totalPages) page = totalPages;
+      if (currentPage > totalPages) currentPage = totalPages;
 
-      const start = (page - 1) * pageSize;
+      const start = (currentPage - 1) * pageSize;
       const end = start + pageSize;
+      const pageRows = filteredRows.slice(start, end);
 
-      rows.forEach((r) => (r.style.display = 'none'));
-      matched.slice(start, end).forEach((r) => (r.style.display = ''));
+      tableBody.innerHTML = '';
+      pageRows.forEach((r) => tableBody.appendChild(r));
 
-      if (countEl) countEl.textContent = `${total} sản phẩm`;
+      if (countEl) countEl.textContent = `Hiển thị ${total} sản phẩm`;
       if (emptyEl) emptyEl.classList.toggle('hidden', total > 0);
 
-      renderPagination(totalPages);
-    };
-
-    const renderPagination = (totalPages: number) => {
-      if (!paginationEl) return;
-      if (totalPages <= 1) {
+      if (paginationEl) {
         paginationEl.innerHTML = '';
-        return;
+        if (totalPages > 1) {
+          for (let p = 1; p <= totalPages; p++) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = String(p);
+            btn.className = `px-3 py-1.5 text-xs font-semibold cursor-pointer border transition-colors ${
+              p === currentPage
+                ? 'bg-clay-600 text-sand-50 border-clay-600'
+                : 'bg-sand-50 text-walnut-900 border-walnut-900/15 hover:border-walnut-900'
+            }`;
+            btn.addEventListener('click', () => {
+              currentPage = p;
+              render();
+            });
+            paginationEl.appendChild(btn);
+          }
+        }
       }
-
-      let html = '';
-      for (let i = 1; i <= totalPages; i++) {
-        const isActive = i === page;
-        html += `
-          <button
-            type="button"
-            data-page="${i}"
-            class="h-8 min-w-8 px-2.5 text-xs transition-colors cursor-pointer border ${
-              isActive
-                ? 'border-walnut-900 bg-walnut-900 text-sand-50 font-semibold'
-                : 'border-walnut-900/20 bg-sand-50 text-walnut-900 hover:border-walnut-900'
-            }"
-          >${i}</button>
-        `;
-      }
-      paginationEl.innerHTML = html;
     };
 
-    paginationEl?.addEventListener('click', (e) => {
-      const btn = (e.target as HTMLElement).closest<HTMLButtonElement>('[data-page]');
-      if (!btn) return;
-      page = Number(btn.dataset.page) || 1;
+    // EVENTS FILTER
+    searchInput?.addEventListener('input', () => { currentPage = 1; render(); });
+    catSelect?.addEventListener('change', () => { currentPage = 1; render(); });
+    statusSelect?.addEventListener('change', () => { currentPage = 1; render(); });
+    resetBtn?.addEventListener('click', () => {
+      if (searchInput) searchInput.value = '';
+      if (catSelect) catSelect.value = '';
+      if (statusSelect) statusSelect.value = '';
+      currentPage = 1;
       render();
-    });
-
-    searchEl?.addEventListener('input', () => { page = 1; render(); });
-    categoryEl?.addEventListener('change', () => { page = 1; render(); });
-    statusEl?.addEventListener('change', () => { page = 1; render(); });
-    resetEl?.addEventListener('click', () => {
-      if (searchEl) searchEl.value = '';
-      if (categoryEl) categoryEl.value = '';
-      if (statusEl) statusEl.value = '';
-      page = 1;
-      render();
-    });
-
-    // TABLE ACTIONS: TOGGLE STATUS, EDIT, DELETE
-    body.addEventListener('click', (e) => {
-      const target = e.target as HTMLElement;
-      const row = target.closest<HTMLTableRowElement>('[data-row]');
-      if (!row) return;
-
-      // Toggle status
-      if (target.closest('[data-btn-toggle-status]')) {
-        const currentSt = row.dataset.status || 'con-hang';
-        const nextSt = currentSt === 'con-hang' ? 'het-hang' : currentSt === 'het-hang' ? 'nhap' : 'con-hang';
-        row.dataset.status = nextSt;
-
-        const btn = row.querySelector('[data-btn-toggle-status]') as HTMLButtonElement;
-        if (nextSt === 'con-hang') {
-          btn.className = 'inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer bg-olive-700/20 text-emerald-800 border border-emerald-300';
-          btn.textContent = 'Đang bán';
-        } else if (nextSt === 'het-hang') {
-          btn.className = 'inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer bg-danger-600/10 text-danger-600 border border-red-200';
-          btn.textContent = 'Hết hàng';
-        } else {
-          btn.className = 'inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer bg-walnut-900/10 text-walnut-800 border border-walnut-900/20';
-          btn.textContent = 'Nháp';
-        }
-        showToast(`Đã cập nhật trạng thái: ${btn.textContent}`);
-        render();
-      }
-
-      // Delete action
-      if (target.closest('[data-btn-delete]')) {
-        const prodName = row.dataset.name || 'sản phẩm này';
-        if (confirm(`Bạn có chắc chắn muốn xóa sản phẩm "${prodName}" không?`)) {
-          row.remove();
-          rows = Array.from(body.querySelectorAll<HTMLTableRowElement>('[data-row]'));
-          showToast(`Đã xóa sản phẩm "${prodName}" thành công!`);
-          render();
-        }
-      }
-
-      // Edit action
-      if (target.closest('[data-btn-edit]')) {
-        modalTitle.textContent = 'Chỉnh sửa sản phẩm';
-        (document.getElementById('form-mode') as HTMLInputElement).value = 'edit';
-        (document.getElementById('form-original-slug') as HTMLInputElement).value = row.dataset.slug || '';
-        (document.getElementById('prod-name') as HTMLInputElement).value = row.dataset.name || '';
-        (document.getElementById('prod-slug') as HTMLInputElement).value = row.dataset.slug || '';
-        (document.getElementById('prod-price') as HTMLInputElement).value = row.dataset.price || '0';
-        (document.getElementById('prod-category') as HTMLSelectElement).value = row.dataset.category || 'sofa';
-        (document.getElementById('prod-space') as HTMLSelectElement).value = row.dataset.space || 'phong-khach';
-        (document.getElementById('prod-material') as HTMLInputElement).value = row.dataset.material || '';
-        (document.getElementById('prod-status') as HTMLSelectElement).value = row.dataset.status || 'con-hang';
-        (document.getElementById('prod-dimensions') as HTMLInputElement).value = row.dataset.dimensions || '';
-        (document.getElementById('prod-warranty') as HTMLInputElement).value = row.dataset.warranty || '';
-        (document.getElementById('prod-desc') as HTMLTextAreaElement).value = row.dataset.desc || '';
-
-        modal.classList.remove('hidden');
-      }
     });
 
     // OPEN ADD MODAL
@@ -471,6 +561,15 @@ const stats = [
       modalTitle.textContent = 'Thêm sản phẩm mới';
       (document.getElementById('form-mode') as HTMLInputElement).value = 'add';
       (document.getElementById('form-original-slug') as HTMLInputElement).value = '';
+      
+      // Reset image preview
+      currentUploadedMainUrl = '';
+      mainPreview.src = '';
+      mainPreview.classList.add('hidden');
+      mainPlaceholder.classList.remove('hidden');
+      detailContainer.innerHTML = '';
+      detailContainer.appendChild(detailEmpty);
+
       modal.classList.remove('hidden');
     });
 
@@ -496,7 +595,7 @@ const stats = [
       }
     });
 
-    // SUBMIT FORM
+    // SUBMIT FORM (ADD / EDIT)
     form?.addEventListener('submit', (e) => {
       e.preventDefault();
       const mode = (document.getElementById('form-mode') as HTMLInputElement).value;
@@ -505,17 +604,19 @@ const stats = [
       const name = (document.getElementById('prod-name') as HTMLInputElement).value.trim();
       const slug = (document.getElementById('prod-slug') as HTMLInputElement).value.trim();
       const price = Number((document.getElementById('prod-price') as HTMLInputElement).value) || 0;
-      const catSelect = document.getElementById('prod-category') as HTMLSelectElement;
-      const cat = catSelect.value;
-      const catLabel = catSelect.options[catSelect.selectedIndex].text;
-      const spaceSelect = document.getElementById('prod-space') as HTMLSelectElement;
-      const space = spaceSelect.value;
-      const spaceLabel = spaceSelect.options[spaceSelect.selectedIndex].text;
+      const catSelectEl = document.getElementById('prod-category') as HTMLSelectElement;
+      const cat = catSelectEl.value;
+      const catLabel = catSelectEl.options[catSelectEl.selectedIndex].text;
+      const spaceSelectEl = document.getElementById('prod-space') as HTMLSelectElement;
+      const space = spaceSelectEl.value;
+      const spaceLabel = spaceSelectEl.options[spaceSelectEl.selectedIndex].text;
       const material = (document.getElementById('prod-material') as HTMLInputElement).value.trim();
       const status = (document.getElementById('prod-status') as HTMLSelectElement).value;
       const dimensions = (document.getElementById('prod-dimensions') as HTMLInputElement).value.trim();
       const warranty = (document.getElementById('prod-warranty') as HTMLInputElement).value.trim();
       const desc = (document.getElementById('prod-desc') as HTMLTextAreaElement).value.trim();
+
+      const mainImgSrc = currentUploadedMainUrl || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80';
 
       if (mode === 'edit') {
         const targetRow = rows.find((r) => r.dataset.slug === origSlug);
@@ -530,6 +631,11 @@ const stats = [
           targetRow.dataset.dimensions = dimensions;
           targetRow.dataset.warranty = warranty;
           targetRow.dataset.desc = desc;
+
+          if (currentUploadedMainUrl) {
+            const imgEl = targetRow.querySelector('img');
+            if (imgEl) imgEl.src = currentUploadedMainUrl;
+          }
 
           targetRow.querySelector('td:nth-child(2) p:first-child')!.textContent = name;
           targetRow.querySelector('td:nth-child(2) p:last-child')!.textContent = '/' + slug;
@@ -563,9 +669,7 @@ const stats = [
 
         tr.innerHTML = `
           <td class="px-4 py-3.5 align-middle">
-            <div class="h-12 w-12 rounded bg-sand-200 border border-walnut-900/10 flex items-center justify-center text-[10px] text-walnut-800/60 font-semibold uppercase">
-              ${slug.slice(0, 3)}
-            </div>
+            <img src="${mainImgSrc}" alt="${name}" class="h-12 w-12 rounded object-cover border border-walnut-900/10" loading="lazy" />
           </td>
           <td class="px-4 py-3.5 align-middle">
             <p class="text-sm font-medium text-walnut-900">${name}</p>
@@ -573,39 +677,132 @@ const stats = [
           </td>
           <td class="px-4 py-3.5 align-middle text-sm text-walnut-800">${catLabel}</td>
           <td class="px-4 py-3.5 align-middle text-sm text-walnut-800">${spaceLabel}</td>
-          <td class="whitespace-nowrap px-4 py-3.5 align-middle text-sm font-medium text-walnut-900">${formatVndClient(price)}</td>
+          <td class="px-4 py-3.5 align-middle text-sm font-semibold text-clay-600">${formatVndClient(price)}</td>
           <td class="px-4 py-3.5 align-middle">
-            <button
-              type="button"
-              data-btn-toggle-status
-              class="inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer ${
-                status === 'con-hang' ? 'bg-olive-700/20 text-emerald-800 border border-emerald-300' : status === 'het-hang' ? 'bg-danger-600/10 text-danger-600 border border-red-200' : 'bg-walnut-900/10 text-walnut-800 border border-walnut-900/20'
-              }"
-            >
+            <button type="button" data-btn-toggle-status class="inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer ${
+              status === 'con-hang' ? 'bg-olive-700/20 text-emerald-800 border border-emerald-300' : status === 'het-hang' ? 'bg-danger-600/10 text-danger-600 border border-red-200' : 'bg-walnut-900/10 text-walnut-800 border border-walnut-900/20'
+            }">
               ${status === 'con-hang' ? 'Đang bán' : status === 'het-hang' ? 'Hết hàng' : 'Nháp'}
             </button>
           </td>
           <td class="px-4 py-3.5 align-middle text-right">
-            <div class="flex items-center justify-end gap-3 whitespace-nowrap text-xs uppercase tracking-[0.15em]">
-              <a href="/san-pham/${slug}" target="_blank" class="text-walnut-800 hover:text-clay-600 transition-colors">Xem</a>
-              <span class="text-walnut-900/20">|</span>
-              <button type="button" data-btn-edit class="text-clay-600 hover:underline cursor-pointer font-medium">Sửa</button>
-              <span class="text-walnut-900/20">|</span>
-              <button type="button" data-btn-delete class="text-danger-600 hover:underline cursor-pointer font-medium">Xóa</button>
+            <div class="inline-flex items-center gap-2">
+              <button type="button" data-btn-edit class="p-1.5 text-walnut-800 hover:text-clay-600 transition-colors cursor-pointer" title="Chỉnh sửa sản phẩm">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+              <button type="button" data-btn-delete class="p-1.5 text-walnut-800 hover:text-danger-600 transition-colors cursor-pointer" title="Xóa sản phẩm">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
             </div>
           </td>
         `;
 
-        body.prepend(tr);
-        rows = Array.from(body.querySelectorAll<HTMLTableRowElement>('[data-row]'));
-        showToast(`Đã thêm mới sản phẩm "${name}" thành công!`);
+        attachRowEvents(tr);
+        rows.unshift(tr);
+        showToast(`Đã thêm sản phẩm "${name}" thành công!`);
       }
 
       closeModal();
       render();
     });
 
-    // Initial render
+    // ATTACH ROW EVENTS (EDIT, DELETE, TOGGLE)
+    const attachRowEvents = (rowEl: HTMLTableRowElement) => {
+      // TOGGLE STATUS
+      const toggleBtn = rowEl.querySelector('[data-btn-toggle-status]') as HTMLButtonElement | null;
+      toggleBtn?.addEventListener('click', () => {
+        const cur = rowEl.dataset.status ?? 'con-hang';
+        const next = cur === 'con-hang' ? 'het-hang' : cur === 'het-hang' ? 'nhap' : 'con-hang';
+        rowEl.dataset.status = next;
+        toggleBtn.textContent = next === 'con-hang' ? 'Đang bán' : next === 'het-hang' ? 'Hết hàng' : 'Nháp';
+        toggleBtn.className = `inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer ${
+          next === 'con-hang' ? 'bg-olive-700/20 text-emerald-800 border border-emerald-300' : next === 'het-hang' ? 'bg-danger-600/10 text-danger-600 border border-red-200' : 'bg-walnut-900/10 text-walnut-800 border border-walnut-900/20'
+        }`;
+        showToast(`Đã đổi trạng thái sang "${toggleBtn.textContent}"`);
+      });
+
+      // EDIT
+      const editBtn = rowEl.querySelector('[data-btn-edit]') as HTMLButtonElement | null;
+      editBtn?.addEventListener('click', () => {
+        form.reset();
+        modalTitle.textContent = 'Chỉnh sửa sản phẩm';
+        (document.getElementById('form-mode') as HTMLInputElement).value = 'edit';
+        (document.getElementById('form-original-slug') as HTMLInputElement).value = rowEl.dataset.slug ?? '';
+
+        (document.getElementById('prod-name') as HTMLInputElement).value = rowEl.dataset.name ?? '';
+        (document.getElementById('prod-slug') as HTMLInputElement).value = rowEl.dataset.slug ?? '';
+        (document.getElementById('prod-price') as HTMLInputElement).value = rowEl.dataset.price ?? '';
+        (document.getElementById('prod-category') as HTMLSelectElement).value = rowEl.dataset.category ?? '';
+        (document.getElementById('prod-space') as HTMLSelectElement).value = rowEl.dataset.space ?? '';
+        (document.getElementById('prod-material') as HTMLInputElement).value = rowEl.dataset.material ?? '';
+        (document.getElementById('prod-status') as HTMLSelectElement).value = rowEl.dataset.status ?? 'con-hang';
+        (document.getElementById('prod-dimensions') as HTMLInputElement).value = rowEl.dataset.dimensions ?? '';
+        (document.getElementById('prod-warranty') as HTMLInputElement).value = rowEl.dataset.warranty ?? '';
+        (document.getElementById('prod-desc') as HTMLTextAreaElement).value = rowEl.dataset.desc ?? '';
+
+        // Pre-fill image preview
+        const currentImg = rowEl.querySelector('img')?.src;
+        if (currentImg) {
+          currentUploadedMainUrl = currentImg;
+          mainPreview.src = currentImg;
+          mainPreview.classList.remove('hidden');
+          mainPlaceholder.classList.add('hidden');
+        } else {
+          currentUploadedMainUrl = '';
+          mainPreview.src = '';
+          mainPreview.classList.add('hidden');
+          mainPlaceholder.classList.remove('hidden');
+        }
+
+        detailContainer.innerHTML = '';
+        detailContainer.appendChild(detailEmpty);
+
+        modal.classList.remove('hidden');
+      });
+
+      // DELETE
+      const deleteBtn = rowEl.querySelector('[data-btn-delete]') as HTMLButtonElement | null;
+      deleteBtn?.addEventListener('click', () => {
+        const slug = rowEl.dataset.slug;
+        const name = rowEl.dataset.name ?? 'sản phẩm này';
+        targetSlugToDelete = slug || null;
+        deleteItemNameEl.textContent = `Bạn có chắc chắn muốn xóa "${name}" không? Thao tác này không thể hoàn tác.`;
+        deleteModal.classList.remove('hidden');
+      });
+    };
+
+    // DELETE MODAL LOGIC
+    const deleteModal = document.getElementById('delete-modal') as HTMLElement;
+    const deleteItemNameEl = document.getElementById('delete-item-name') as HTMLElement;
+    const btnCancelDelete = document.getElementById('btn-cancel-delete') as HTMLButtonElement;
+    const btnConfirmDelete = document.getElementById('btn-confirm-delete') as HTMLButtonElement;
+    let targetSlugToDelete: string | null = null;
+
+    btnCancelDelete?.addEventListener('click', () => {
+      deleteModal.classList.add('hidden');
+      targetSlugToDelete = null;
+    });
+
+    btnConfirmDelete?.addEventListener('click', () => {
+      if (!targetSlugToDelete) return;
+      const idx = rows.findIndex((r) => r.dataset.slug === targetSlugToDelete);
+      if (idx !== -1) {
+        const removed = rows.splice(idx, 1)[0];
+        showToast(`Đã xóa "${removed.dataset.name}" khỏi danh sách!`);
+        deleteModal.classList.add('hidden');
+        targetSlugToDelete = null;
+        render();
+      }
+    });
+
+    // ATTACH TO INITIAL ROWS
+    rows.forEach(attachRowEvents);
+
+    // FIRST RENDER
     render();
-  }
+  });
 </script>
