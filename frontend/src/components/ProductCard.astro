@@ -1,6 +1,6 @@
----
+﻿---
 import type { Product } from '../data/products';
-import { formatVnd } from '../data/products';
+import { formatVnd } from '../scripts/cart';
 
 interface Props {
   product: Product;
@@ -10,26 +10,74 @@ const { product } = Astro.props;
 ---
 
 <article
-  class="group"
+  class="group relative flex flex-col justify-between"
   data-product={product.slug}
   data-name={product.name}
   data-category={product.category}
   data-space={product.space}
   data-price={product.price}
 >
-  <a href={`/san-pham/${product.slug}`} class="block">
-    <span class="relative block aspect-[3/4] w-full overflow-hidden bg-sand-200 transition duration-500 group-hover:opacity-90">
+  <a href={`/san-pham/${product.slug}`} class="block relative">
+    <div class="relative block aspect-[3/4] w-full overflow-hidden bg-sand-200 transition duration-500 group-hover:opacity-95 rounded-sm">
+      <div class="flex h-full w-full items-center justify-center bg-sand-200 text-walnut-900/30">
+        <svg class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
+
       {product.isNew && (
-        <span class="absolute left-3 top-3 bg-sand-50/90 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-walnut-900">
+        <span class="absolute left-3 top-3 bg-sand-50/90 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-walnut-900 shadow-sm font-medium">
           Mới
         </span>
       )}
-    </span>
+
+      <!-- Quick Add to Cart button on hover -->
+      <button
+        type="button"
+        data-quick-add
+        data-slug={product.slug}
+        data-name={product.name}
+        data-price={product.price}
+        data-category={product.categoryLabel}
+        class="absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-full bg-walnut-900 text-sand-50 opacity-0 shadow-lg transition-all duration-300 hover:bg-clay-600 hover:scale-110 active:scale-95 group-hover:opacity-100 z-10"
+        title="Thêm vào giỏ hàng"
+        aria-label="Thêm vào giỏ hàng"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5">
+          <path d="M5 8h14l-1.2 12H6.2L5 8Z" stroke-linejoin="round" />
+          <path d="M9 8V6.5a3 3 0 0 1 6 0V8" stroke-linecap="round" />
+          <path d="M12 11v6m-3-3h6" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
 
     <div class="mt-4">
-      <p class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">{product.categoryLabel}</p>
-      <h3 class="mt-1 text-sm text-walnut-900">{product.name}</h3>
-      <p class="mt-1 text-sm text-walnut-900">{formatVnd(product.price)}</p>
+      <p class="text-[11px] uppercase tracking-[0.2em] text-walnut-800/80">{product.categoryLabel}</p>
+      <h3 class="mt-1 text-sm font-medium text-walnut-900 transition-colors group-hover:text-clay-600 line-clamp-1">{product.name}</h3>
+      <p class="mt-1 text-sm font-semibold text-walnut-900">{formatVnd(product.price)}</p>
     </div>
   </a>
 </article>
+
+<script>
+  import { addToCart, showCartToast } from '../scripts/cart';
+
+  document.querySelectorAll<HTMLButtonElement>('[data-quick-add]').forEach((btn) => {
+    // Avoid double attaching
+    if (btn.dataset.initialized) return;
+    btn.dataset.initialized = 'true';
+
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const slug = btn.dataset.slug || '';
+      const name = btn.dataset.name || '';
+      const price = Number(btn.dataset.price || 0);
+      const category = btn.dataset.category || '';
+
+      addToCart({ slug, name, price, category }, 1);
+      showCartToast(`Đã thêm "${name}" vào giỏ hàng!`);
+    });
+  });
+</script>

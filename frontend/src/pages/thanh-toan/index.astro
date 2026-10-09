@@ -1,19 +1,21 @@
----
+﻿---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
 const provinces = [
-  'TP. Hồ Chí Minh',
   'Hà Nội',
+  'TP. Hồ Chí Minh',
   'Đà Nẵng',
+  'Hải Phòng',
   'Cần Thơ',
   'Bình Dương',
   'Đồng Nai',
   'Khánh Hòa',
+  'Quảng Ninh',
   'Tỉnh/thành khác',
 ];
 ---
 
-<BaseLayout title="Thanh toán | Nội Thất" description="Hoàn tất đơn hàng: địa chỉ giao hàng, phương thức thanh toán và xác nhận.">
+<BaseLayout title="Thanh toán & Đặt hàng | Nội Thất" description="Hoàn tất đơn hàng: thông tin giao hàng, phương thức thanh toán và xác nhận đặt hàng.">
 
   <div class="border-b border-walnut-900/10 bg-sand-100">
     <div class="mx-auto max-w-7xl px-4 py-8 sm:py-12">
@@ -22,176 +24,204 @@ const provinces = [
         <span class="mx-2">/</span>
         <a href="/gio-hang" class="transition-colors hover:text-clay-600">Giỏ hàng</a>
         <span class="mx-2">/</span>
-        <span class="text-walnut-900">Thanh toán</span>
+        <span class="text-walnut-900">Đặt hàng</span>
       </nav>
-      <h1 class="mt-4 font-display text-3xl tracking-tight sm:text-4xl">Thanh toán</h1>
+      <h1 class="mt-4 font-display text-3xl tracking-tight sm:text-4xl text-walnut-900">Tiến hành đặt hàng</h1>
     </div>
   </div>
 
   <section class="mx-auto max-w-7xl px-4 py-10 sm:py-14">
     <div data-checkout-root>
 
-      <div data-checkout-empty class="hidden border border-walnut-900/10 px-6 py-20 text-center">
-        <p class="font-display text-xl">Chưa có sản phẩm để thanh toán</p>
-        <p class="mt-3 text-sm text-walnut-800">Giỏ hàng của bạn đang trống. Hãy chọn sản phẩm trước khi đặt hàng.</p>
-        <a href="/san-pham" class="mt-8 inline-block border border-walnut-900 px-8 py-3 text-xs uppercase tracking-[0.2em] text-walnut-900 transition-colors hover:bg-walnut-900 hover:text-sand-50">
-          Chọn sản phẩm
+      <!-- EMPTY STATE -->
+      <div data-checkout-empty class="hidden border border-walnut-900/10 bg-sand-50/50 rounded-lg px-6 py-20 text-center">
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-sand-200/80 text-walnut-800">
+          <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+        </div>
+        <p class="mt-5 font-display text-2xl text-walnut-900">Chưa có sản phẩm để thanh toán</p>
+        <p class="mt-2 text-sm text-walnut-800">Giỏ hàng của bạn đang trống. Hãy chọn sản phẩm yêu thích trước khi đặt hàng nhé.</p>
+        <a href="/san-pham" class="mt-8 inline-block bg-walnut-900 px-8 py-3.5 text-xs uppercase tracking-[0.2em] text-sand-50 transition-colors hover:bg-clay-600 rounded-sm">
+          Khám phá sản phẩm
         </a>
       </div>
 
+      <!-- CHECKOUT CONTENT -->
       <div data-checkout-content class="hidden">
 
+        <!-- STEPS NAV -->
         <ol data-checkout-steps class="flex flex-wrap gap-x-8 gap-y-2 border-b border-walnut-900/10 pb-5 text-[11px] uppercase tracking-[0.2em]">
-          <li data-step-label="0" class="text-walnut-900">1 — Địa chỉ giao hàng</li>
+          <li data-step-label="0" class="text-walnut-900 font-semibold">1 — Địa chỉ nhận hàng</li>
           <li data-step-label="1" class="text-walnut-800">2 — Phương thức thanh toán</li>
-          <li data-step-label="2" class="text-walnut-800">3 — Xác nhận đơn hàng</li>
+          <li data-step-label="2" class="text-walnut-800">3 — Xác nhận & Đặt hàng</li>
         </ol>
 
-        <div data-checkout-grid class="mt-10 grid gap-10 lg:grid-cols-[1fr_20rem] lg:gap-16">
+        <div data-checkout-grid class="mt-10 grid gap-10 lg:grid-cols-[1fr_22rem] lg:gap-16">
 
           <div>
+            <!-- STEP 1: ADDRESS FORM -->
             <form data-address-form data-step-panel="0" novalidate class="grid gap-5 sm:grid-cols-2">
               <div>
-                <label for="ck-name" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Họ và tên</label>
-                <input id="ck-name" name="fullname" type="text" autocomplete="name" class="mt-2 w-full border border-walnut-900/20 bg-transparent px-4 py-3 text-sm outline-none transition-colors focus:border-clay-600" />
-                <p data-error-for="fullname" class="mt-2 hidden text-xs text-danger-600"></p>
+                <label for="ck-name" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Họ và tên <span class="text-red-500">*</span></label>
+                <input id="ck-name" name="fullname" type="text" autocomplete="name" required placeholder="Nguyễn Văn A" class="mt-2 w-full border border-walnut-900/20 bg-white px-4 py-3 text-sm rounded outline-none transition-colors focus:border-clay-600" />
+                <p data-error-for="fullname" class="mt-1.5 hidden text-xs text-red-600"></p>
               </div>
 
               <div>
-                <label for="ck-phone" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Số điện thoại</label>
-                <input id="ck-phone" name="phone" type="tel" autocomplete="tel" class="mt-2 w-full border border-walnut-900/20 bg-transparent px-4 py-3 text-sm outline-none transition-colors focus:border-clay-600" />
-                <p data-error-for="phone" class="mt-2 hidden text-xs text-danger-600"></p>
+                <label for="ck-phone" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Số điện thoại <span class="text-red-500">*</span></label>
+                <input id="ck-phone" name="phone" type="tel" autocomplete="tel" required placeholder="0912345678" class="mt-2 w-full border border-walnut-900/20 bg-white px-4 py-3 text-sm rounded outline-none transition-colors focus:border-clay-600" />
+                <p data-error-for="phone" class="mt-1.5 hidden text-xs text-red-600"></p>
               </div>
 
               <div class="sm:col-span-2">
-                <label for="ck-email" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Email</label>
-                <input id="ck-email" name="email" type="email" autocomplete="email" class="mt-2 w-full border border-walnut-900/20 bg-transparent px-4 py-3 text-sm outline-none transition-colors focus:border-clay-600" />
-                <p data-error-for="email" class="mt-2 hidden text-xs text-danger-600"></p>
+                <label for="ck-email" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Email nhận thông báo</label>
+                <input id="ck-email" name="email" type="email" autocomplete="email" placeholder="email@vidu.com" class="mt-2 w-full border border-walnut-900/20 bg-white px-4 py-3 text-sm rounded outline-none transition-colors focus:border-clay-600" />
+                <p data-error-for="email" class="mt-1.5 hidden text-xs text-red-600"></p>
               </div>
 
               <div>
-                <label for="ck-province" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Tỉnh / Thành phố</label>
-                <select id="ck-province" name="province" class="mt-2 w-full border border-walnut-900/20 bg-transparent px-4 py-3 text-sm text-walnut-900 outline-none transition-colors focus:border-clay-600">
-                  <option value="">— Chọn tỉnh/thành —</option>
+                <label for="ck-province" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Tỉnh / Thành phố <span class="text-red-500">*</span></label>
+                <select id="ck-province" name="province" required class="mt-2 w-full border border-walnut-900/20 bg-white px-4 py-3 text-sm text-walnut-900 rounded outline-none transition-colors focus:border-clay-600">
+                  <option value="">-- Chọn tỉnh/thành --</option>
                   {provinces.map((province) => <option value={province}>{province}</option>)}
                 </select>
-                <p data-error-for="province" class="mt-2 hidden text-xs text-danger-600"></p>
+                <p data-error-for="province" class="mt-1.5 hidden text-xs text-red-600"></p>
               </div>
 
               <div>
-                <label for="ck-district" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Quận / Huyện</label>
-                <input id="ck-district" name="district" type="text" class="mt-2 w-full border border-walnut-900/20 bg-transparent px-4 py-3 text-sm outline-none transition-colors focus:border-clay-600" />
-                <p data-error-for="district" class="mt-2 hidden text-xs text-danger-600"></p>
+                <label for="ck-district" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Quận / Huyện <span class="text-red-500">*</span></label>
+                <input id="ck-district" name="district" type="text" required placeholder="Quận Ba Đình" class="mt-2 w-full border border-walnut-900/20 bg-white px-4 py-3 text-sm rounded outline-none transition-colors focus:border-clay-600" />
+                <p data-error-for="district" class="mt-1.5 hidden text-xs text-red-600"></p>
               </div>
 
               <div class="sm:col-span-2">
-                <label for="ck-address" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Địa chỉ chi tiết</label>
-                <input id="ck-address" name="address" type="text" autocomplete="street-address" placeholder="Số nhà, tên đường" class="mt-2 w-full border border-walnut-900/20 bg-transparent px-4 py-3 text-sm outline-none transition-colors placeholder:text-walnut-800/50 focus:border-clay-600" />
-                <p data-error-for="address" class="mt-2 hidden text-xs text-danger-600"></p>
+                <label for="ck-address" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Địa chỉ cụ thể <span class="text-red-500">*</span></label>
+                <input id="ck-address" name="address" type="text" autocomplete="street-address" required placeholder="Số nhà, tên đường, phường/xã" class="mt-2 w-full border border-walnut-900/20 bg-white px-4 py-3 text-sm rounded outline-none transition-colors placeholder:text-walnut-800/50 focus:border-clay-600" />
+                <p data-error-for="address" class="mt-1.5 hidden text-xs text-red-600"></p>
               </div>
 
               <div class="sm:col-span-2">
-                <label for="ck-note" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Ghi chú (không bắt buộc)</label>
-                <textarea id="ck-note" name="note" rows="3" class="mt-2 w-full border border-walnut-900/20 bg-transparent px-4 py-3 text-sm outline-none transition-colors focus:border-clay-600"></textarea>
+                <label for="ck-note" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Ghi chú đơn hàng (nếu có)</label>
+                <textarea id="ck-note" name="note" rows="3" placeholder="Ghi chú về thời gian nhận hàng, tầng chung cư..." class="mt-2 w-full border border-walnut-900/20 bg-white px-4 py-3 text-sm rounded outline-none transition-colors focus:border-clay-600"></textarea>
               </div>
 
               <div class="sm:col-span-2">
-                <button type="submit" class="bg-clay-600 px-8 py-4 text-xs uppercase tracking-[0.2em] text-sand-50 transition-colors hover:bg-clay-500">
-                  Tiếp tục
+                <button type="submit" class="bg-clay-600 px-8 py-4 text-xs font-medium uppercase tracking-[0.2em] text-sand-50 transition-all hover:bg-clay-500 rounded-sm shadow-sm active:scale-95">
+                  Tiếp tục chọn thanh toán →
                 </button>
               </div>
             </form>
 
+            <!-- STEP 2: PAYMENT METHOD -->
             <div data-step-panel="1" class="hidden">
-              <p class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Chọn phương thức thanh toán</p>
+              <p class="text-xs uppercase tracking-[0.2em] text-walnut-800 font-semibold">Chọn phương thức thanh toán</p>
 
-              <label class="mt-5 flex cursor-pointer gap-4 border border-walnut-900/15 p-5 transition-colors hover:border-walnut-900/40">
-                <input type="radio" name="payment" value="cod" checked data-payment class="mt-1 h-4 w-4 accent-[#333333]" />
+              <label class="mt-5 flex cursor-pointer gap-4 border border-walnut-900/20 bg-sand-50/50 p-5 rounded transition-all hover:border-walnut-900">
+                <input type="radio" name="payment" value="cod" checked data-payment class="mt-1 h-4 w-4 accent-[#b45309]" />
                 <span>
-                  <span class="block text-sm text-walnut-900">Thanh toán khi nhận hàng (COD)</span>
-                  <span class="mt-1 block text-xs leading-relaxed text-walnut-800">Kiểm tra hàng trước khi thanh toán cho nhân viên giao hàng.</span>
+                  <span class="block text-sm font-semibold text-walnut-900">Thanh toán khi nhận hàng (COD)</span>
+                  <span class="mt-1 block text-xs leading-relaxed text-walnut-800">Kiểm tra sản phẩm cẩn thận trước khi thanh toán tiền mặt cho nhân viên giao hàng.</span>
                 </span>
               </label>
 
-              <label class="mt-3 flex cursor-pointer gap-4 border border-walnut-900/15 p-5 transition-colors hover:border-walnut-900/40">
-                <input type="radio" name="payment" value="bank" data-payment class="mt-1 h-4 w-4 accent-[#333333]" />
+              <label class="mt-3 flex cursor-pointer gap-4 border border-walnut-900/20 bg-sand-50/50 p-5 rounded transition-all hover:border-walnut-900">
+                <input type="radio" name="payment" value="bank" data-payment class="mt-1 h-4 w-4 accent-[#b45309]" />
                 <span>
-                  <span class="block text-sm text-walnut-900">Chuyển khoản ngân hàng</span>
-                  <span class="mt-1 block text-xs leading-relaxed text-walnut-800">Thông tin tài khoản sẽ được gửi sau khi đơn hàng được xác nhận.</span>
+                  <span class="block text-sm font-semibold text-walnut-900">Chuyển khoản ngân hàng</span>
+                  <span class="mt-1 block text-xs leading-relaxed text-walnut-800">Thông tin số tài khoản và cú pháp chuyển khoản sẽ được cung cấp ngay sau khi xác nhận đơn.</span>
                 </span>
               </label>
-
-              <p class="mt-5 text-xs leading-relaxed text-walnut-800">Thanh toán online bằng thẻ hoặc ví điện tử sẽ được bổ sung ở giai đoạn sau.</p>
 
               <div class="mt-8 flex flex-wrap gap-3">
-                <button type="button" data-step-back="0" class="border border-walnut-900/20 px-8 py-4 text-xs uppercase tracking-[0.2em] text-walnut-900 transition-colors hover:border-walnut-900">Quay lại</button>
-                <button type="button" data-step-next class="bg-clay-600 px-8 py-4 text-xs uppercase tracking-[0.2em] text-sand-50 transition-colors hover:bg-clay-500">Tiếp tục</button>
+                <button type="button" data-step-back="0" class="border border-walnut-900/30 px-8 py-3.5 text-xs uppercase tracking-[0.2em] text-walnut-900 transition-colors hover:border-walnut-900 rounded-sm">
+                  ← Quay lại
+                </button>
+                <button type="button" data-step-next class="bg-clay-600 px-8 py-3.5 text-xs font-medium uppercase tracking-[0.2em] text-sand-50 transition-all hover:bg-clay-500 rounded-sm shadow-sm active:scale-95">
+                  Kiểm tra đơn hàng →
+                </button>
               </div>
             </div>
 
+            <!-- STEP 3: REVIEW & CONFIRM -->
             <div data-step-panel="2" class="hidden">
-              <p class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Kiểm tra lại thông tin</p>
+              <p class="text-xs uppercase tracking-[0.2em] text-walnut-800 font-semibold">Xác nhận thông tin đặt hàng</p>
 
-              <dl class="mt-6 flex flex-col gap-7 text-sm">
+              <dl class="mt-6 flex flex-col gap-6 text-sm rounded border border-walnut-900/10 bg-sand-50/40 p-6">
                 <div>
-                  <dt class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Địa chỉ giao hàng</dt>
-                  <dd data-review-address class="mt-2 flex flex-col gap-1 leading-relaxed text-walnut-900"></dd>
+                  <dt class="text-[11px] uppercase tracking-[0.2em] text-walnut-800/80 font-medium">Địa chỉ người nhận</dt>
+                  <dd data-review-address class="mt-2 flex flex-col gap-1 leading-relaxed text-walnut-900 font-medium"></dd>
                 </div>
                 <div>
-                  <dt class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Phương thức thanh toán</dt>
-                  <dd data-review-payment class="mt-2 text-walnut-900"></dd>
+                  <dt class="text-[11px] uppercase tracking-[0.2em] text-walnut-800/80 font-medium">Phương thức thanh toán</dt>
+                  <dd data-review-payment class="mt-2 text-walnut-900 font-medium"></dd>
                 </div>
                 <div>
-                  <dt class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Sản phẩm</dt>
+                  <dt class="text-[11px] uppercase tracking-[0.2em] text-walnut-800/80 font-medium">Chi tiết sản phẩm</dt>
                   <dd data-review-items class="mt-2"></dd>
                 </div>
               </dl>
 
+              <div id="checkout-error-msg" class="mt-4 hidden p-4 rounded bg-red-50 border border-red-200 text-xs text-red-700"></div>
+
               <div class="mt-8 flex flex-wrap gap-3">
-                <button type="button" data-step-back="1" class="border border-walnut-900/20 px-8 py-4 text-xs uppercase tracking-[0.2em] text-walnut-900 transition-colors hover:border-walnut-900">Quay lại</button>
-                <button type="button" data-place-order class="bg-clay-600 px-8 py-4 text-xs uppercase tracking-[0.2em] text-sand-50 transition-colors hover:bg-clay-500">Đặt hàng</button>
+                <button type="button" data-step-back="1" class="border border-walnut-900/30 px-8 py-4 text-xs uppercase tracking-[0.2em] text-walnut-900 transition-colors hover:border-walnut-900 rounded-sm">
+                  ← Quay lại
+                </button>
+                <button type="button" data-place-order class="bg-clay-600 px-10 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-sand-50 transition-all hover:bg-clay-500 rounded-sm shadow-md active:scale-95 cursor-pointer">
+                  Hoàn tất đặt hàng
+                </button>
               </div>
             </div>
           </div>
 
-          <aside class="h-fit border border-walnut-900/10 p-6">
-            <h2 class="text-[11px] uppercase tracking-[0.25em] text-walnut-900">Đơn hàng của bạn</h2>
+          <!-- ASIDE SUMMARY -->
+          <aside class="h-fit rounded-lg border border-walnut-900/10 bg-sand-50 p-6 shadow-sm">
+            <h2 class="text-xs uppercase tracking-[0.25em] text-walnut-900 font-semibold">Đơn hàng của bạn</h2>
 
-            <div data-checkout-items class="mt-5"></div>
+            <div data-checkout-items class="mt-5 max-h-80 overflow-y-auto"></div>
 
-            <dl class="mt-5 flex flex-col gap-3 text-sm">
+            <dl class="mt-5 flex flex-col gap-3 text-sm border-t border-walnut-900/10 pt-4">
               <div class="flex items-center justify-between">
                 <dt class="text-walnut-800">Tạm tính</dt>
-                <dd data-checkout-subtotal class="text-walnut-900">0₫</dd>
+                <dd data-checkout-subtotal class="font-medium text-walnut-900">0 đ</dd>
               </div>
               <div class="flex items-center justify-between">
                 <dt class="text-walnut-800">Phí vận chuyển</dt>
-                <dd class="text-walnut-900">Miễn phí</dd>
+                <dd data-checkout-shipping class="text-walnut-900 font-medium">Miễn phí</dd>
               </div>
             </dl>
 
             <div class="mt-5 flex items-center justify-between border-t border-walnut-900/10 pt-5">
-              <span class="text-sm text-walnut-900">Tổng cộng</span>
-              <span data-checkout-total class="text-lg text-walnut-900">0₫</span>
+              <span class="text-sm font-semibold text-walnut-900">Tổng thanh toán</span>
+              <span data-checkout-total class="font-display text-2xl font-bold text-clay-600">0 đ</span>
             </div>
 
-            <a href="/gio-hang" class="mt-6 block text-center text-xs uppercase tracking-[0.2em] text-walnut-800 underline underline-offset-4 transition-colors hover:text-clay-600">Sửa giỏ hàng</a>
+            <a href="/gio-hang" class="mt-6 block text-center text-xs uppercase tracking-[0.15em] text-walnut-800 underline underline-offset-4 transition-colors hover:text-clay-600">
+              Quay lại giỏ hàng
+            </a>
           </aside>
 
         </div>
 
-        <div data-checkout-success class="hidden border border-walnut-900/10 p-8 sm:p-12">
-          <p class="text-[11px] uppercase tracking-[0.25em] text-walnut-800">Đặt hàng thành công</p>
-          <h2 class="mt-3 font-display text-2xl tracking-tight sm:text-3xl">Cảm ơn bạn đã đặt hàng</h2>
-          <p class="mt-5 text-sm leading-relaxed text-walnut-800">
-            Mã đơn hàng của bạn là <span data-order-code class="text-walnut-900">—</span>. Nhân viên sẽ liên hệ xác nhận trong thời gian sớm nhất.
+        <!-- SUCCESS SCREEN -->
+        <div data-checkout-success class="hidden rounded-lg border border-walnut-900/10 bg-sand-50 p-8 sm:p-12 shadow-sm text-center max-w-2xl mx-auto">
+          <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <p class="mt-4 text-xs uppercase tracking-[0.25em] text-emerald-700 font-semibold">Đặt hàng thành công</p>
+          <h2 class="mt-2 font-display text-3xl tracking-tight text-walnut-900">Cảm ơn bạn đã tin tưởng Nội Thất</h2>
+          <p class="mt-4 text-sm leading-relaxed text-walnut-800">
+            Mã đơn hàng của bạn là <strong data-order-code class="text-clay-600 text-base font-bold tracking-wider">NT-XXXXXX</strong>.
           </p>
-          <p class="mt-3 text-xs leading-relaxed text-walnut-800">
-            Bản demo chưa gửi đơn lên máy chủ nên mã đơn chỉ mang tính minh hoạ — giỏ hàng đã được xoá và không có thông tin nào rời khỏi trình duyệt.
+          <p class="mt-2 text-xs leading-relaxed text-walnut-800">
+            Đơn hàng đã được ghi nhận vào hệ thống quản lý. Nhân viên của chúng tôi sẽ liên hệ số điện thoại của bạn để xác nhận lịch giao hàng trong thời gian sớm nhất.
           </p>
-          <div class="mt-8 flex flex-wrap gap-3">
-            <a href="/san-pham" class="bg-clay-600 px-8 py-3 text-xs uppercase tracking-[0.2em] text-sand-50 transition-colors hover:bg-clay-500">Tiếp tục mua sắm</a>
-            <a href="/" class="border border-walnut-900 px-8 py-3 text-xs uppercase tracking-[0.2em] text-walnut-900 transition-colors hover:bg-walnut-900 hover:text-sand-50">Về trang chủ</a>
+          <div class="mt-8 flex justify-center flex-wrap gap-4">
+            <a href="/san-pham" class="bg-clay-600 px-8 py-3.5 text-xs uppercase tracking-[0.2em] text-sand-50 transition-colors hover:bg-clay-500 rounded-sm">Tiếp tục mua sắm</a>
+            <a href="/" class="border border-walnut-900 px-8 py-3.5 text-xs uppercase tracking-[0.2em] text-walnut-900 transition-colors hover:bg-walnut-900 hover:text-sand-50 rounded-sm">Về trang chủ</a>
           </div>
         </div>
 
@@ -218,11 +248,14 @@ const provinces = [
     const form = root.querySelector<HTMLFormElement>('[data-address-form]');
     const itemsEl = root.querySelector<HTMLElement>('[data-checkout-items]');
     const subtotalEl = root.querySelector<HTMLElement>('[data-checkout-subtotal]');
+    const shippingEl = root.querySelector<HTMLElement>('[data-checkout-shipping]');
     const totalEl = root.querySelector<HTMLElement>('[data-checkout-total]');
     const reviewAddressEl = root.querySelector<HTMLElement>('[data-review-address]');
     const reviewPaymentEl = root.querySelector<HTMLElement>('[data-review-payment]');
     const reviewItemsEl = root.querySelector<HTMLElement>('[data-review-items]');
     const orderCodeEl = root.querySelector<HTMLElement>('[data-order-code]');
+    const errorBox = root.querySelector<HTMLElement>('#checkout-error-msg');
+    const placeOrderBtn = root.querySelector<HTMLButtonElement>('[data-place-order]');
     const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-step-panel]'));
     const labels = Array.from(root.querySelectorAll<HTMLElement>('[data-step-label]'));
 
@@ -235,24 +268,35 @@ const provinces = [
 
     const buildRow = (item: CartItem) => {
       const row = document.createElement('div');
-      row.className = 'flex items-start justify-between gap-4 border-b border-walnut-900/10 py-3 text-sm';
+      row.className = 'flex items-center justify-between gap-3 border-b border-walnut-900/10 py-3 text-sm';
 
       const left = document.createElement('div');
-      left.className = 'min-w-0';
+      left.className = 'flex items-center gap-3 min-w-0';
 
+      if (item.thumbnail) {
+        const img = document.createElement('img');
+        img.src = item.thumbnail;
+        img.alt = item.name;
+        img.className = 'h-10 w-10 shrink-0 rounded object-cover border border-walnut-900/10';
+        left.appendChild(img);
+      }
+
+      const textCol = document.createElement('div');
+      textCol.className = 'min-w-0';
       const name = document.createElement('p');
-      name.className = 'text-walnut-900';
+      name.className = 'text-walnut-900 font-medium truncate text-xs sm:text-sm';
       name.textContent = item.name;
 
       const meta = document.createElement('p');
-      meta.className = 'mt-1 text-xs text-walnut-800';
+      meta.className = 'mt-0.5 text-[11px] text-walnut-800';
       meta.textContent = item.qty + ' × ' + formatVnd(item.price);
 
-      left.appendChild(name);
-      left.appendChild(meta);
+      textCol.appendChild(name);
+      textCol.appendChild(meta);
+      left.appendChild(textCol);
 
       const line = document.createElement('p');
-      line.className = 'whitespace-nowrap text-walnut-900';
+      line.className = 'whitespace-nowrap font-semibold text-walnut-900 text-xs sm:text-sm';
       line.textContent = formatVnd(item.price * item.qty);
 
       row.appendChild(left);
@@ -269,8 +313,12 @@ const provinces = [
       }
 
       const subtotal = totalPrice(items);
+      const shippingFee = subtotal >= 2000000 ? 0 : (items.length > 0 ? 50000 : 0);
+      const grandTotal = subtotal + shippingFee;
+
       if (subtotalEl) subtotalEl.textContent = formatVnd(subtotal);
-      if (totalEl) totalEl.textContent = formatVnd(subtotal);
+      if (shippingEl) shippingEl.textContent = shippingFee === 0 ? 'Miễn phí' : formatVnd(shippingFee);
+      if (totalEl) totalEl.textContent = formatVnd(grandTotal);
     };
 
     const renderReview = () => {
@@ -282,12 +330,12 @@ const provinces = [
       if (reviewAddressEl) {
         reviewAddressEl.textContent = '';
         const lines = [
-          value('fullname') + ' · ' + value('phone'),
-          value('email'),
-          [value('address'), value('district'), value('province')].filter(Boolean).join(', '),
+          `Người nhận: ${value('fullname')} - ${value('phone')}`,
+          value('email') ? `Email: ${value('email')}` : '',
+          `Địa chỉ: ${[value('address'), value('district'), value('province')].filter(Boolean).join(', ')}`,
         ];
         const note = value('note');
-        if (note) lines.push('Ghi chú: ' + note);
+        if (note) lines.push(`Ghi chú: ${note}`);
 
         lines.filter(Boolean).forEach((line) => {
           const p = document.createElement('p');
@@ -308,19 +356,80 @@ const provinces = [
       panels.forEach((panel, i) => panel.classList.toggle('hidden', i !== index));
       labels.forEach((label, i) => {
         label.classList.toggle('text-walnut-900', i === index);
+        label.classList.toggle('font-semibold', i === index);
         label.classList.toggle('text-walnut-800', i !== index);
       });
       if (index === 2) renderReview();
       root.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
 
-    const placeOrder = () => {
-      if (orderCodeEl) orderCodeEl.textContent = 'NT-' + String(Date.now()).slice(-6);
-      clearCart();
-      gridEl?.classList.add('hidden');
-      stepsEl?.classList.add('hidden');
-      successEl?.classList.remove('hidden');
-      root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const placeOrder = async () => {
+      if (!form) return;
+      const data = new FormData(form);
+      const value = (key: string) => String(data.get(key) ?? '').trim();
+
+      const items = readCart();
+      if (items.length === 0) {
+        alert('Giỏ hàng của bạn đang trống.');
+        return;
+      }
+
+      if (placeOrderBtn) {
+        placeOrderBtn.disabled = true;
+        placeOrderBtn.textContent = 'Đang xử lý đặt hàng...';
+      }
+      if (errorBox) errorBox.classList.add('hidden');
+
+      try {
+        const payload = {
+          fullname: value('fullname'),
+          phone: value('phone'),
+          email: value('email') || undefined,
+          province: value('province'),
+          district: value('district'),
+          address: value('address'),
+          note: value('note') || undefined,
+          payment_method: payment,
+          items: items.map((i) => ({
+            slug: i.slug,
+            name: i.name,
+            price: i.price,
+            qty: i.qty,
+          })),
+        };
+
+        const res = await fetch('http://localhost:4000/api/orders', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const json = await res.json();
+
+        if (res.ok && json.success) {
+          const code = json.data?.orderCode || ('NT-' + String(Date.now()).slice(-6));
+          if (orderCodeEl) orderCodeEl.textContent = code;
+          clearCart();
+          gridEl?.classList.add('hidden');
+          stepsEl?.classList.add('hidden');
+          successEl?.classList.remove('hidden');
+          root.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } else {
+          throw new Error(json.message || 'Không thể tạo đơn hàng trên máy chủ.');
+        }
+      } catch (err: any) {
+        console.error('Lỗi khi đặt hàng:', err);
+        if (errorBox) {
+          errorBox.textContent = 'Lỗi đặt hàng: ' + (err.message || 'Không thể kết nối đến máy chủ.');
+          errorBox.classList.remove('hidden');
+        }
+        if (placeOrderBtn) {
+          placeOrderBtn.disabled = false;
+          placeOrderBtn.textContent = 'Hoàn tất đặt hàng';
+        }
+      }
     };
 
     const refresh = () => {
@@ -335,8 +444,7 @@ const provinces = [
         form,
         {
           fullname: [required('Vui lòng nhập họ và tên.'), minLength(2, 'Họ và tên cần ít nhất 2 ký tự.')],
-          phone: [required('Vui lòng nhập số điện thoại.'), phone('Số điện thoại chưa hợp lệ (ví dụ 0912345678).')],
-          email: [required('Vui lòng nhập email.'), email('Email chưa đúng định dạng.')],
+          phone: [required('Vui lòng nhập số điện thoại.'), phone('Số điện thoại chưa hợp lệ (ví dụ: 0912345678).')],
           province: [required('Vui lòng chọn tỉnh/thành.')],
           district: [required('Vui lòng nhập quận/huyện.')],
           address: [required('Vui lòng nhập địa chỉ chi tiết.')],
@@ -359,7 +467,7 @@ const provinces = [
       btn.addEventListener('click', () => goTo(Number(btn.dataset.stepBack ?? 0)));
     });
 
-    root.querySelector<HTMLButtonElement>('[data-place-order]')?.addEventListener('click', placeOrder);
+    placeOrderBtn?.addEventListener('click', placeOrder);
 
     refresh();
     goTo(0);

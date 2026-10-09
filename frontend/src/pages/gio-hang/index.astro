@@ -1,4 +1,4 @@
----
+﻿---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 
@@ -11,24 +11,31 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         <span class="mx-2">/</span>
         <span class="text-walnut-900">Giỏ hàng</span>
       </nav>
-      <h1 class="mt-4 font-display text-3xl tracking-tight sm:text-4xl">Giỏ hàng</h1>
-      <p class="mt-3 text-sm text-walnut-800"><span data-cart-count-label>0</span> sản phẩm trong giỏ</p>
+      <h1 class="mt-4 font-display text-3xl tracking-tight sm:text-4xl text-walnut-900">Giỏ hàng của bạn</h1>
+      <p class="mt-3 text-sm text-walnut-800"><span data-cart-count-label>0</span> sản phẩm đang có trong giỏ hàng</p>
     </div>
   </div>
 
   <section class="mx-auto max-w-7xl px-4 py-10 sm:py-14">
     <div data-cart-root>
 
-      <div data-cart-empty class="hidden border border-walnut-900/10 px-6 py-20 text-center">
-        <p class="font-display text-xl">Giỏ hàng của bạn đang trống</p>
-        <p class="mt-3 text-sm text-walnut-800">Hãy chọn vài món ưng ý trước khi quay lại đây nhé.</p>
-        <a href="/san-pham" class="mt-8 inline-block border border-walnut-900 px-8 py-3 text-xs uppercase tracking-[0.2em] text-walnut-900 transition-colors hover:bg-walnut-900 hover:text-sand-50">
-          Tiếp tục mua sắm
+      <!-- Empty State -->
+      <div data-cart-empty class="hidden border border-walnut-900/10 bg-sand-50/50 rounded-lg px-6 py-20 text-center">
+        <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-sand-200/80 text-walnut-800">
+          <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+          </svg>
+        </div>
+        <p class="mt-5 font-display text-2xl text-walnut-900">Giỏ hàng của bạn đang trống</p>
+        <p class="mt-2 text-sm text-walnut-800">Hãy khám phá bộ sưu tập nội thất tinh tế và chọn món đồ yêu thích nhé.</p>
+        <a href="/san-pham" class="mt-8 inline-block bg-walnut-900 px-8 py-3.5 text-xs uppercase tracking-[0.2em] text-sand-50 transition-colors hover:bg-clay-600 rounded-sm">
+          Khám phá sản phẩm ngay
         </a>
       </div>
 
+      <!-- Cart Content -->
       <div data-cart-content class="hidden">
-        <div class="grid gap-10 lg:grid-cols-[1fr_20rem] lg:gap-16">
+        <div class="grid gap-10 lg:grid-cols-[1fr_22rem] lg:gap-16">
 
           <div>
             <div class="flex items-center justify-between border-b border-walnut-900/10 pb-3 text-[11px] uppercase tracking-[0.2em] text-walnut-800">
@@ -38,31 +45,31 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             <div data-cart-items></div>
           </div>
 
-          <aside class="h-fit border border-walnut-900/10 p-6">
-            <h2 class="text-[11px] uppercase tracking-[0.25em] text-walnut-900">Tóm tắt đơn hàng</h2>
+          <aside class="h-fit rounded-lg border border-walnut-900/10 bg-sand-50 p-6 shadow-sm">
+            <h2 class="text-xs font-semibold uppercase tracking-[0.25em] text-walnut-900">Tóm tắt đơn hàng</h2>
 
-            <dl class="mt-6 flex flex-col gap-3 text-sm">
+            <dl class="mt-6 flex flex-col gap-3 text-sm border-b border-walnut-900/10 pb-6">
               <div class="flex items-center justify-between">
                 <dt class="text-walnut-800">Tạm tính</dt>
-                <dd data-cart-subtotal class="text-walnut-900">0₫</dd>
+                <dd data-cart-subtotal class="font-medium text-walnut-900">0 đ</dd>
               </div>
               <div class="flex items-center justify-between">
                 <dt class="text-walnut-800">Phí vận chuyển</dt>
-                <dd class="text-walnut-900">Tính khi thanh toán</dd>
+                <dd class="text-walnut-800 text-xs">Tính khi đặt hàng (Miễn phí từ 2tr)</dd>
               </div>
             </dl>
 
-            <div class="mt-6 flex items-center justify-between border-t border-walnut-900/10 pt-6">
-              <span class="text-sm text-walnut-900">Tổng cộng</span>
-              <span data-cart-total class="text-lg text-walnut-900">0₫</span>
+            <div class="mt-6 flex items-center justify-between">
+              <span class="text-base font-semibold text-walnut-900">Tổng cộng</span>
+              <span data-cart-total class="font-display text-2xl font-bold text-clay-600">0 đ</span>
             </div>
 
-            <a href="/thanh-toan" class="mt-6 block bg-clay-600 px-6 py-4 text-center text-xs uppercase tracking-[0.2em] text-sand-50 transition-colors hover:bg-clay-500">
+            <a href="/thanh-toan" class="mt-6 block w-full bg-clay-600 px-6 py-4 text-center text-xs font-medium uppercase tracking-[0.2em] text-sand-50 transition-all hover:bg-clay-500 rounded-sm shadow-sm active:scale-95">
               Tiến hành đặt hàng
             </a>
 
-            <button type="button" data-cart-clear class="mt-4 w-full text-center text-xs uppercase tracking-[0.2em] text-walnut-800 underline underline-offset-4 transition-colors hover:text-clay-600">
-              Xoá toàn bộ giỏ
+            <button type="button" data-cart-clear class="mt-4 w-full text-center text-xs uppercase tracking-[0.15em] text-walnut-800 underline underline-offset-4 transition-colors hover:text-red-600">
+              Xóa toàn bộ giỏ hàng
             </button>
           </aside>
 
@@ -75,7 +82,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 </BaseLayout>
 
 <script>
-  import { readCart, updateQty, removeItem, clearCart, countItems, totalPrice, formatVnd } from '../../scripts/cart';
+  import { readCart, updateQty, removeItem, clearCart, countItems, totalPrice, formatVnd, CART_EVENT } from '../../scripts/cart';
   import type { CartItem } from '../../scripts/cart';
 
   const root = document.querySelector<HTMLElement>('[data-cart-root]');
@@ -90,26 +97,38 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
   if (itemsEl && emptyEl && contentEl && subtotalEl && totalEl) {
 
-    const rowHtml = (item: CartItem) => `
-      <div data-row="${item.slug}" class="flex gap-4 border-b border-walnut-900/10 py-6">
-        <a href="/san-pham/${item.slug}" class="block h-24 w-20 shrink-0 bg-sand-200" aria-label="${item.name}"></a>
-        <div class="flex min-w-0 flex-1 flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div class="min-w-0">
-            <a href="/san-pham/${item.slug}" class="text-sm text-walnut-900 transition-colors hover:text-clay-600">${item.name}</a>
-            <p class="mt-1 text-xs text-walnut-800">${formatVnd(item.price)}</p>
-          </div>
-          <div class="flex items-center gap-4">
-            <div class="flex h-10 items-center border border-walnut-900/20">
-              <button type="button" data-row-down class="h-full w-9 text-walnut-900 transition-colors hover:text-clay-600" aria-label="Giảm số lượng">-</button>
-              <input data-row-qty type="text" value="${item.qty}" readonly aria-label="Số lượng" class="h-full w-10 border-x border-walnut-900/20 bg-transparent text-center text-sm outline-none" />
-              <button type="button" data-row-up class="h-full w-9 text-walnut-900 transition-colors hover:text-clay-600" aria-label="Tăng số lượng">+</button>
+    const rowHtml = (item: CartItem) => {
+      const imgHtml = item.thumbnail
+        ? `<img src="${item.thumbnail}" alt="${item.name}" class="h-full w-full object-cover rounded-sm" />`
+        : `<div class="flex h-full w-full items-center justify-center text-walnut-900/30">
+            <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>`;
+
+      return `
+        <div data-row="${item.slug}" class="flex gap-4 border-b border-walnut-900/10 py-6">
+          <a href="/san-pham/${item.slug}" class="block h-24 w-20 shrink-0 bg-sand-200 overflow-hidden rounded border border-walnut-900/10" aria-label="${item.name}">
+            ${imgHtml}
+          </a>
+          <div class="flex min-w-0 flex-1 flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div class="min-w-0">
+              <a href="/san-pham/${item.slug}" class="text-sm font-medium text-walnut-900 transition-colors hover:text-clay-600">${item.name}</a>
+              <p class="mt-1 text-xs text-walnut-800">${formatVnd(item.price)}</p>
             </div>
-            <p class="w-28 text-right text-sm text-walnut-900">${formatVnd(item.price * item.qty)}</p>
-            <button type="button" data-row-remove class="text-xs uppercase tracking-[0.15em] text-walnut-800 underline underline-offset-4 transition-colors hover:text-clay-600">Xoá</button>
+            <div class="flex items-center gap-4">
+              <div class="flex h-9 items-center border border-walnut-900/20 rounded bg-white">
+                <button type="button" data-row-down class="h-full px-3 text-walnut-900 transition-colors hover:bg-walnut-900/10" aria-label="Giảm số lượng">-</button>
+                <input data-row-qty type="text" value="${item.qty}" readonly aria-label="Số lượng" class="h-full w-10 border-x border-walnut-900/20 bg-transparent text-center text-xs font-semibold outline-none" />
+                <button type="button" data-row-up class="h-full px-3 text-walnut-900 transition-colors hover:bg-walnut-900/10" aria-label="Tăng số lượng">+</button>
+              </div>
+              <p class="w-28 text-right text-sm font-semibold text-walnut-900">${formatVnd(item.price * item.qty)}</p>
+              <button type="button" data-row-remove class="text-xs uppercase tracking-[0.15em] text-walnut-800 underline underline-offset-4 transition-colors hover:text-red-600" title="Xóa món này">Xóa</button>
+            </div>
           </div>
         </div>
-      </div>
-    `;
+      `;
+    };
 
     const bindRows = () => {
       itemsEl.querySelectorAll<HTMLElement>('[data-row]').forEach((row) => {
@@ -122,7 +141,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           render();
         });
         row.querySelector('[data-row-down]')?.addEventListener('click', () => {
-          updateQty(slug, current() - 1);
+          updateQty(slug, Math.max(1, current() - 1));
           render();
         });
         row.querySelector('[data-row-remove]')?.addEventListener('click', () => {
@@ -149,11 +168,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     };
 
     clearBtn?.addEventListener('click', () => {
-      clearCart();
-      render();
+      if (confirm('Bạn có chắc chắn muốn xóa toàn bộ giỏ hàng?')) {
+        clearCart();
+        render();
+      }
     });
 
     window.addEventListener('storage', render);
+    window.addEventListener(CART_EVENT, render);
     render();
   }
 </script>

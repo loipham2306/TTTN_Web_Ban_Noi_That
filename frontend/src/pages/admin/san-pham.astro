@@ -1,4 +1,4 @@
----
+﻿---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 import { products as initialProducts, categories, spaces, formatVnd } from '../../data/products';
 import { productDetails } from '../../data/product-details';
@@ -596,11 +596,11 @@ const stats = [
     });
 
     // SUBMIT FORM (ADD / EDIT)
-    form?.addEventListener('submit', (e) => {
+    // SUBMIT FORM (ADD / EDIT) – ket noi API backend
+    form?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const mode = (document.getElementById('form-mode') as HTMLInputElement).value;
       const origSlug = (document.getElementById('form-original-slug') as HTMLInputElement).value;
-
       const name = (document.getElementById('prod-name') as HTMLInputElement).value.trim();
       const slug = (document.getElementById('prod-slug') as HTMLInputElement).value.trim();
       const price = Number((document.getElementById('prod-price') as HTMLInputElement).value) || 0;
@@ -615,100 +615,55 @@ const stats = [
       const dimensions = (document.getElementById('prod-dimensions') as HTMLInputElement).value.trim();
       const warranty = (document.getElementById('prod-warranty') as HTMLInputElement).value.trim();
       const desc = (document.getElementById('prod-desc') as HTMLTextAreaElement).value.trim();
-
-      const mainImgSrc = currentUploadedMainUrl || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80';
-
+      const mainImgSrc = currentUploadedMainUrl || '';
+      const CAT_MAP: Record<string, number> = { 'sofa': 1, 'ban-an': 2, 'ghe': 3, 'giuong': 4, 'tu-ke': 5, 'den': 6, 'trang-tri': 7 };
+      const API = 'http://localhost:4000/api';
+      try {
+        if (mode === 'edit') {
+          const targetRow = rows.find((r) => r.dataset.slug === origSlug);
+          const productId = targetRow?.dataset.id;
+          if (productId) {
+            await fetch(`${API}/products/${productId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, slug, categoryId: CAT_MAP[cat] ?? 1, shortDescription: desc, status: status === 'con-hang', price, stock: status === 'het-hang' ? 0 : 10 }) });
+          }
+        } else {
+          const res = await fetch(`${API}/products`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, slug, categoryId: CAT_MAP[cat] ?? 1, shortDescription: desc, price, stock: 10, material, imageUrl: mainImgSrc || null }) });
+          const json = await res.json();
+          if (json.success && json.data?.id) { (window as any).__pendingNewId = json.data.id; }
+        }
+      } catch { /* API offline – UI-only */ }
       if (mode === 'edit') {
         const targetRow = rows.find((r) => r.dataset.slug === origSlug);
         if (targetRow) {
-          targetRow.dataset.name = name;
-          targetRow.dataset.slug = slug;
-          targetRow.dataset.price = String(price);
-          targetRow.dataset.category = cat;
-          targetRow.dataset.space = space;
-          targetRow.dataset.material = material;
-          targetRow.dataset.status = status;
-          targetRow.dataset.dimensions = dimensions;
-          targetRow.dataset.warranty = warranty;
-          targetRow.dataset.desc = desc;
-
-          if (currentUploadedMainUrl) {
-            const imgEl = targetRow.querySelector('img');
-            if (imgEl) imgEl.src = currentUploadedMainUrl;
-          }
-
+          targetRow.dataset.name = name; targetRow.dataset.slug = slug; targetRow.dataset.price = String(price);
+          targetRow.dataset.category = cat; targetRow.dataset.space = space; targetRow.dataset.material = material;
+          targetRow.dataset.status = status; targetRow.dataset.dimensions = dimensions; targetRow.dataset.warranty = warranty; targetRow.dataset.desc = desc;
+          if (currentUploadedMainUrl) { const imgEl = targetRow.querySelector('img'); if (imgEl) imgEl.src = currentUploadedMainUrl; }
           targetRow.querySelector('td:nth-child(2) p:first-child')!.textContent = name;
           targetRow.querySelector('td:nth-child(2) p:last-child')!.textContent = '/' + slug;
           targetRow.querySelector('td:nth-child(3)')!.textContent = catLabel;
           targetRow.querySelector('td:nth-child(4)')!.textContent = spaceLabel;
           targetRow.querySelector('td:nth-child(5)')!.textContent = formatVndClient(price);
-
           const statusBtn = targetRow.querySelector('[data-btn-toggle-status]') as HTMLButtonElement;
-          statusBtn.textContent = status === 'con-hang' ? 'Đang bán' : status === 'het-hang' ? 'Hết hàng' : 'Nháp';
-          statusBtn.className = `inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer ${
-            status === 'con-hang' ? 'bg-olive-700/20 text-emerald-800 border border-emerald-300' : status === 'het-hang' ? 'bg-danger-600/10 text-danger-600 border border-red-200' : 'bg-walnut-900/10 text-walnut-800 border border-walnut-900/20'
-          }`;
-
-          showToast(`Đã cập nhật sản phẩm "${name}" thành công!`);
+          statusBtn.textContent = status === 'con-hang' ? 'Dang ban' : status === 'het-hang' ? 'Het hang' : 'Nhap';
+          statusBtn.className = `inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer ${status === 'con-hang' ? 'bg-olive-700/20 text-emerald-800 border border-emerald-300' : status === 'het-hang' ? 'bg-danger-600/10 text-danger-600 border border-red-200' : 'bg-walnut-900/10 text-walnut-800 border border-walnut-900/20'}`;
+          showToast(`Da cap nhat san pham "${name}" thanh cong!`);
         }
       } else {
-        // ADD NEW ROW
         const tr = document.createElement('tr');
         tr.className = 'border-b border-walnut-900/10 last:border-b-0 hover:bg-sand-100/30 transition-colors';
-        tr.dataset.row = '';
-        tr.dataset.slug = slug;
-        tr.dataset.name = name;
-        tr.dataset.category = cat;
-        tr.dataset.space = space;
-        tr.dataset.price = String(price);
-        tr.dataset.material = material;
-        tr.dataset.status = status;
-        tr.dataset.dimensions = dimensions;
-        tr.dataset.warranty = warranty;
-        tr.dataset.desc = desc;
-
-        tr.innerHTML = `
-          <td class="px-4 py-3.5 align-middle">
-            <img src="${mainImgSrc}" alt="${name}" class="h-12 w-12 rounded object-cover border border-walnut-900/10" loading="lazy" />
-          </td>
-          <td class="px-4 py-3.5 align-middle">
-            <p class="text-sm font-medium text-walnut-900">${name}</p>
-            <p class="mt-0.5 text-xs text-walnut-800/70">/${slug}</p>
-          </td>
-          <td class="px-4 py-3.5 align-middle text-sm text-walnut-800">${catLabel}</td>
-          <td class="px-4 py-3.5 align-middle text-sm text-walnut-800">${spaceLabel}</td>
-          <td class="px-4 py-3.5 align-middle text-sm font-semibold text-clay-600">${formatVndClient(price)}</td>
-          <td class="px-4 py-3.5 align-middle">
-            <button type="button" data-btn-toggle-status class="inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer ${
-              status === 'con-hang' ? 'bg-olive-700/20 text-emerald-800 border border-emerald-300' : status === 'het-hang' ? 'bg-danger-600/10 text-danger-600 border border-red-200' : 'bg-walnut-900/10 text-walnut-800 border border-walnut-900/20'
-            }">
-              ${status === 'con-hang' ? 'Đang bán' : status === 'het-hang' ? 'Hết hàng' : 'Nháp'}
-            </button>
-          </td>
-          <td class="px-4 py-3.5 align-middle text-right">
-            <div class="inline-flex items-center gap-2">
-              <button type="button" data-btn-edit class="p-1.5 text-walnut-800 hover:text-clay-600 transition-colors cursor-pointer" title="Chỉnh sửa sản phẩm">
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                </svg>
-              </button>
-              <button type="button" data-btn-delete class="p-1.5 text-walnut-800 hover:text-danger-600 transition-colors cursor-pointer" title="Xóa sản phẩm">
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
-            </div>
-          </td>
-        `;
-
+        tr.dataset.row = ''; tr.dataset.slug = slug; tr.dataset.name = name; tr.dataset.category = cat;
+        tr.dataset.space = space; tr.dataset.price = String(price); tr.dataset.material = material;
+        tr.dataset.status = status; tr.dataset.dimensions = dimensions; tr.dataset.warranty = warranty; tr.dataset.desc = desc;
+        setTimeout(() => { if ((window as any).__pendingNewId) { tr.dataset.id = String((window as any).__pendingNewId); (window as any).__pendingNewId = null; } }, 600);
+        tr.innerHTML = `<td class="px-4 py-3.5 align-middle"><img src="${mainImgSrc}" alt="${name}" class="h-12 w-12 rounded object-cover border border-walnut-900/10" loading="lazy" /></td><td class="px-4 py-3.5 align-middle"><p class="text-sm font-medium text-walnut-900">${name}</p><p class="mt-0.5 text-xs text-walnut-800/70">/${slug}</p></td><td class="px-4 py-3.5 align-middle text-sm text-walnut-800">${catLabel}</td><td class="px-4 py-3.5 align-middle text-sm text-walnut-800">${spaceLabel}</td><td class="px-4 py-3.5 align-middle text-sm font-semibold text-clay-600">${formatVndClient(price)}</td><td class="px-4 py-3.5 align-middle"><button type="button" data-btn-toggle-status class="inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer ${status === 'con-hang' ? 'bg-olive-700/20 text-emerald-800 border border-emerald-300' : status === 'het-hang' ? 'bg-danger-600/10 text-danger-600 border border-red-200' : 'bg-walnut-900/10 text-walnut-800 border border-walnut-900/20'}">${status === 'con-hang' ? 'Dang ban' : status === 'het-hang' ? 'Het hang' : 'Nhap'}</button></td><td class="px-4 py-3.5 align-middle text-right"><div class="inline-flex items-center gap-2"><button type="button" data-btn-edit class="p-1.5 text-walnut-800 hover:text-clay-600 transition-colors cursor-pointer"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button><button type="button" data-btn-delete class="p-1.5 text-walnut-800 hover:text-danger-600 transition-colors cursor-pointer"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div></td>`;
         attachRowEvents(tr);
         rows.unshift(tr);
-        showToast(`Đã thêm sản phẩm "${name}" thành công!`);
+        showToast(`Da them san pham "${name}" thanh cong!`);
       }
-
       closeModal();
       render();
     });
+
 
     // ATTACH ROW EVENTS (EDIT, DELETE, TOGGLE)
     const attachRowEvents = (rowEl: HTMLTableRowElement) => {
@@ -787,17 +742,23 @@ const stats = [
       targetSlugToDelete = null;
     });
 
-    btnConfirmDelete?.addEventListener('click', () => {
+    btnConfirmDelete?.addEventListener('click', async () => {
       if (!targetSlugToDelete) return;
       const idx = rows.findIndex((r) => r.dataset.slug === targetSlugToDelete);
       if (idx !== -1) {
         const removed = rows.splice(idx, 1)[0];
-        showToast(`Đã xóa "${removed.dataset.name}" khỏi danh sách!`);
+        // Try API delete
+        const productId = removed.dataset.id;
+        if (productId) {
+          try { await fetch(`http://localhost:4000/api/products/${productId}`, { method: 'DELETE' }); } catch { /* offline */ }
+        }
+        showToast(`Da xoa "${removed.dataset.name}" khoi danh sach!`);
         deleteModal.classList.add('hidden');
         targetSlugToDelete = null;
         render();
       }
     });
+
 
     // ATTACH TO INITIAL ROWS
     rows.forEach(attachRowEvents);
