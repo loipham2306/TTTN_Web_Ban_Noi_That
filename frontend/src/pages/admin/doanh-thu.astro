@@ -1,0 +1,158 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+
+const monthlyStats = [
+  { month: 'Tháng 10/2026 (Hiện tại)', revenue: '485.600.000 ₫', cost: '267.080.000 ₫', profit: '218.520.000 ₫', margin: '45.0%', orders: 128 },
+  { month: 'Tháng 09/2026', revenue: '410.200.000 ₫', cost: '233.814.000 ₫', profit: '176.386.000 ₫', margin: '43.0%', orders: 114 },
+  { month: 'Tháng 08/2026', revenue: '385.000.000 ₫', cost: '223.300.000 ₫', profit: '161.700.000 ₫', margin: '42.0%', orders: 102 },
+  { month: 'Tháng 07/2026', revenue: '340.500.000 ₫', cost: '200.895.000 ₫', profit: '139.605.000 ₫', margin: '41.0%', orders: 95 },
+  { month: 'Tháng 06/2026', revenue: '315.000.000 ₫', cost: '189.000.000 ₫', profit: '126.000.000 ₫', margin: '40.0%', orders: 88 },
+];
+---
+
+<AdminLayout title="Báo Cáo Doanh Thu & Lợi Nhuận - Nội Thất">
+  <div class="space-y-6">
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-walnut-900/10 pb-6">
+      <div>
+        <h1 class="font-serif text-2xl sm:text-3xl text-walnut-900">Báo Cáo Doanh Thu & Lợi Nhuận</h1>
+        <p class="mt-1 text-sm text-walnut-800/80">Phân tích dòng tiền, chi phí giá vốn và biên độ lợi nhuận của doanh nghiệp.</p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <button 
+          type="button" 
+          onclick="alert('Đã xuất báo cáo tài chính Q3-Q4/2026 ra file PDF')"
+          class="inline-flex items-center gap-1.5 bg-walnut-900 px-4 py-2 text-xs uppercase tracking-[0.15em] text-sand-50 transition-colors hover:bg-clay-600 shadow-sm"
+        >
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+          </svg>
+          Xuất Báo Cáo Tài Chính
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
+        <p class="text-xs uppercase text-walnut-800/70 font-medium">Doanh thu năm 2026</p>
+        <p class="text-2xl font-bold text-walnut-900 mt-1">3.480.000.000 ₫</p>
+      </div>
+      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
+        <p class="text-xs uppercase text-walnut-800/70 font-medium">Lợi nhuận gộp</p>
+        <p class="text-2xl font-bold text-emerald-700 mt-1">1.566.000.000 ₫</p>
+      </div>
+      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
+        <p class="text-xs uppercase text-walnut-800/70 font-medium">Biên lợi nhuận trung bình</p>
+        <p class="text-2xl font-bold text-clay-600 mt-1">45.0%</p>
+      </div>
+      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
+        <p class="text-xs uppercase text-walnut-800/70 font-medium">Tăng trưởng so với cùng kỳ</p>
+        <p class="text-2xl font-bold text-emerald-700 mt-1">+24.8%</p>
+      </div>
+    </div>
+
+    <!-- Revenue Breakdown Chart -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div class="lg:col-span-2 rounded border border-walnut-900/10 bg-sand-50 p-6 shadow-sm">
+        <h2 class="text-base font-bold text-walnut-900 mb-2">Tăng Trưởng Doanh Thu 5 Tháng Gần Nhất</h2>
+        <p class="text-xs text-walnut-800/70 mb-6">Đơn vị: Triệu VNĐ</p>
+
+        <div class="grid grid-cols-5 gap-4 items-end h-48 border-b border-walnut-900/10 pb-2">
+          {[
+            { m: 'Tháng 6', v: 315, h: '64%' },
+            { m: 'Tháng 7', v: 340, h: '70%' },
+            { m: 'Tháng 8', v: 385, h: '79%' },
+            { m: 'Tháng 9', v: 410, h: '84%' },
+            { m: 'Tháng 10', v: 485, h: '100%' },
+          ].map((bar) => (
+            <div class="flex flex-col items-center gap-2 h-full justify-end">
+              <span class="text-xs font-bold text-walnut-900">{bar.v}M</span>
+              <div class="w-full rounded-t bg-walnut-900 hover:bg-clay-600 transition-colors" style={`height: ${bar.h};`}></div>
+              <span class="text-xs font-medium text-walnut-800 mt-1">{bar.m}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div class="rounded border border-walnut-900/10 bg-sand-50 p-6 shadow-sm">
+        <h2 class="text-base font-bold text-walnut-900 mb-2">Cơ Cấu Chi Phí</h2>
+        <p class="text-xs text-walnut-800/70 mb-5">Tỷ lệ trên tổng doanh thu</p>
+
+        <div class="space-y-4 text-xs">
+          <div>
+            <div class="flex justify-between mb-1">
+              <span class="font-medium text-walnut-900">Giá vốn hàng hóa (COGS)</span>
+              <span class="font-bold text-walnut-900">55%</span>
+            </div>
+            <div class="h-2 bg-sand-200 rounded-full overflow-hidden">
+              <div class="h-full bg-walnut-900 rounded-full" style="width: 55%"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between mb-1">
+              <span class="font-medium text-walnut-900">Lợi nhuận ròng</span>
+              <span class="font-bold text-emerald-700">32%</span>
+            </div>
+            <div class="h-2 bg-sand-200 rounded-full overflow-hidden">
+              <div class="h-full bg-emerald-600 rounded-full" style="width: 32%"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between mb-1">
+              <span class="font-medium text-walnut-900">Chi phí Marketing / Ads</span>
+              <span class="font-bold text-clay-600">8%</span>
+            </div>
+            <div class="h-2 bg-sand-200 rounded-full overflow-hidden">
+              <div class="h-full bg-clay-600 rounded-full" style="width: 8%"></div>
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between mb-1">
+              <span class="font-medium text-walnut-900">Vận chuyển & Đóng gói</span>
+              <span class="font-bold text-amber-700">5%</span>
+            </div>
+            <div class="h-2 bg-sand-200 rounded-full overflow-hidden">
+              <div class="h-full bg-amber-600 rounded-full" style="width: 5%"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly table -->
+    <div class="rounded border border-walnut-900/10 bg-sand-50 overflow-hidden shadow-sm">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="border-b border-walnut-900/10 bg-sand-100/70 text-walnut-900 uppercase tracking-wider text-[11px]">
+            <tr>
+              <th class="py-3 px-4 font-semibold">Kỳ báo cáo</th>
+              <th class="py-3 px-4 font-semibold">Tổng doanh thu</th>
+              <th class="py-3 px-4 font-semibold">Chi phí giá vốn</th>
+              <th class="py-3 px-4 font-semibold">Lợi nhuận gộp</th>
+              <th class="py-3 px-4 font-semibold">Biên lợi nhuận</th>
+              <th class="py-3 px-4 font-semibold">Số đơn hàng</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-walnut-900/10">
+            {monthlyStats.map((s) => (
+              <tr class="hover:bg-sand-100/50">
+                <td class="py-3 px-4 font-bold text-walnut-900">{s.month}</td>
+                <td class="py-3 px-4 font-bold text-walnut-900">{s.revenue}</td>
+                <td class="py-3 px-4 text-walnut-800">{s.cost}</td>
+                <td class="py-3 px-4 font-bold text-emerald-700">{s.profit}</td>
+                <td class="py-3 px-4 font-semibold text-clay-600">{s.margin}</td>
+                <td class="py-3 px-4 text-walnut-900 font-medium">{s.orders} đơn</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</AdminLayout>

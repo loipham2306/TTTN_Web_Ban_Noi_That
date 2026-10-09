@@ -1,0 +1,103 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+
+const reviews = [
+  { id: 1, customer: 'Nguyễn Văn An', product: 'Sofa Da Ý Milano Cao Cấp', rating: 5, comment: 'Sofa rất êm, da bò thật sờ mát tay và đường chỉ may tinh tế. Đóng gói cẩn thận!', date: '08/10/2026', status: 'Đã duyệt', statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+  { id: 2, customer: 'Trần Thị Mai', product: 'Bàn Ăn Đá Marble Carrara', rating: 5, comment: 'Mặt đá vân tự nhiên cực kỳ sang, chân kim loại chắc chắn. Rất hài lòng.', date: '06/10/2026', status: 'Đã duyệt', statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+  { id: 3, customer: 'Lê Hoàng Long', product: 'Ghế Thư Giãn Gỗ Óc Chó', rating: 4, comment: 'Ghế ngồi tựa lưng rất thoải mái, tuy nhiên giao hàng hơi trễ 1 ngày.', date: '05/10/2026', status: 'Đã duyệt', statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+  { id: 4, customer: 'Phạm Minh Đức', product: 'Giường Ngủ Scandinavian', rating: 5, comment: 'Gỗ sồi thơm tự nhiên, dát giường rất chắc không phát ra tiếng kêu.', date: '03/10/2026', status: 'Đã duyệt', statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+  { id: 5, customer: 'Vũ Hải Yến', product: 'Đèn Sàn Đồng Thau Chao Vải', rating: 3, comment: 'Đèn đẹp nhưng chao đèn hơi to so với góc đọc sách của mình.', date: '01/10/2026', status: 'Chờ duyệt', statusColor: 'bg-amber-100 text-amber-800 border-amber-300' },
+];
+---
+
+<AdminLayout title="Quản Lý Đánh Giá & Phản Hồi - Nội Thất">
+  <div class="space-y-6">
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-walnut-900/10 pb-6">
+      <div>
+        <h1 class="font-serif text-2xl sm:text-3xl text-walnut-900">Đánh Giá & Phản Hồi Khách Hàng</h1>
+        <p class="mt-1 text-sm text-walnut-800/80">Kiểm duyệt nhận xét, số sao đánh giá và tương tác giải đáp thắc mắc người mua.</p>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <span class="inline-flex items-center gap-1 bg-amber-500/10 text-amber-900 border border-amber-500/30 px-3 py-1.5 rounded text-xs font-bold">
+          ⭐ Điểm trung bình: 4.8 / 5.0 (126 đánh giá)
+        </span>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
+        <p class="text-xs uppercase text-walnut-800/70 font-medium">Tổng nhận xét</p>
+        <p class="text-2xl font-bold text-walnut-900 mt-1">126 lượt</p>
+      </div>
+      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
+        <p class="text-xs uppercase text-walnut-800/70 font-medium">Đánh giá 5 sao</p>
+        <p class="text-2xl font-bold text-emerald-700 mt-1">104 lượt (82%)</p>
+      </div>
+      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
+        <p class="text-xs uppercase text-walnut-800/70 font-medium">Chờ duyệt</p>
+        <p class="text-2xl font-bold text-amber-700 mt-1">1 nhận xét mới</p>
+      </div>
+      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
+        <p class="text-xs uppercase text-walnut-800/70 font-medium">Tỷ lệ phản hồi</p>
+        <p class="text-2xl font-bold text-clay-600 mt-1">98.5%</p>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="rounded border border-walnut-900/10 bg-sand-50 overflow-hidden shadow-sm">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="border-b border-walnut-900/10 bg-sand-100/70 text-walnut-900 uppercase tracking-wider text-[11px]">
+            <tr>
+              <th class="py-3 px-4 font-semibold">Khách hàng</th>
+              <th class="py-3 px-4 font-semibold">Sản phẩm</th>
+              <th class="py-3 px-4 font-semibold">Số sao</th>
+              <th class="py-3 px-4 font-semibold">Nội dung đánh giá</th>
+              <th class="py-3 px-4 font-semibold">Thời gian</th>
+              <th class="py-3 px-4 font-semibold">Trạng thái</th>
+              <th class="py-3 px-4 font-semibold text-right">Hành động</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-walnut-900/10">
+            {reviews.map((r) => (
+              <tr class="hover:bg-sand-100/50">
+                <td class="py-3 px-4 font-bold text-walnut-900">{r.customer}</td>
+                <td class="py-3 px-4 font-medium text-clay-600">{r.product}</td>
+                <td class="py-3 px-4">
+                  <div class="flex text-amber-500">
+                    {Array.from({ length: r.rating }).map(() => (
+                      <span>★</span>
+                    ))}
+                    {Array.from({ length: 5 - r.rating }).map(() => (
+                      <span class="text-walnut-900/20">★</span>
+                    ))}
+                  </div>
+                </td>
+                <td class="py-3 px-4 text-walnut-900 max-w-sm">{r.comment}</td>
+                <td class="py-3 px-4 text-walnut-800/70">{r.date}</td>
+                <td class="py-3 px-4">
+                  <span class={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold border ${r.statusColor}`}>
+                    {r.status}
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button type="button" class="text-xs font-semibold text-emerald-700 hover:underline">Duyệt</button>
+                    <span class="text-walnut-800/30">|</span>
+                    <button type="button" class="text-xs font-semibold text-clay-600 hover:underline">Phản hồi</button>
+                    <span class="text-walnut-800/30">|</span>
+                    <button type="button" class="text-xs font-semibold text-red-600 hover:underline">Ẩn</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</AdminLayout>

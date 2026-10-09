@@ -1,0 +1,98 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+
+const campaigns = [
+  { id: 'CAM-101', title: 'Thông báo Bộ Sưu Tập Mới Thu - Đông 2026', recipients: '86 khách hàng', openRate: '68.5%', clickRate: '24.2%', date: '05/10/2026', status: 'Đã hoàn tất', statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+  { id: 'CAM-102', title: 'Ưu Đãi Đặc Quyền Hội Viên Kim Cương & Vàng', recipients: '24 khách VIP', openRate: '87.5%', clickRate: '45.0%', date: '01/10/2026', status: 'Đã hoàn tất', statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+  { id: 'CAM-103', title: 'Nhắc Nhở Hoàn Tất Giỏ Hàng & Mã Freeship', recipients: '15 khách hàng', openRate: '53.3%', clickRate: '33.3%', date: 'Hôm nay', status: 'Đang gửi tự động', statusColor: 'bg-blue-100 text-blue-800 border-blue-300' },
+  { id: 'CAM-104', title: 'Bản Tin Phong Thủy Nhà Ở Quý 4/2026', recipients: '120 đăng ký', openRate: '--', clickRate: '--', date: 'Dự kiến 15/10', status: 'Bản nháp', statusColor: 'bg-slate-100 text-slate-800 border-slate-300' },
+];
+---
+
+<AdminLayout title="Email & Thông Báo Tiếp Thị - Nội Thất">
+  <div class="space-y-6">
+
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-walnut-900/10 pb-6">
+      <div>
+        <h1 class="font-serif text-2xl sm:text-3xl text-walnut-900">Email & Thông Báo Khách Hàng</h1>
+        <p class="mt-1 text-sm text-walnut-800/80">Quản lý các chiến dịch gửi email tự động, thông báo đẩy và chăm sóc sau mua.</p>
+      </div>
+
+      <button 
+        type="button" 
+        onclick="alert('Mở trình soạn thảo chiến dịch Email Marketing')"
+        class="inline-flex items-center gap-2 bg-walnut-900 px-4 py-2 text-xs uppercase tracking-[0.15em] text-sand-50 transition-colors hover:bg-clay-600 shadow-sm"
+      >
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        <span>Tạo Chiến Dịch Mới</span>
+      </button>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
+        <p class="text-xs uppercase text-walnut-800/70 font-medium">Email đã gửi trong tháng</p>
+        <p class="text-2xl font-bold text-walnut-900 mt-1">1.450 emails</p>
+      </div>
+      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
+        <p class="text-xs uppercase text-walnut-800/70 font-medium">Tỷ lệ mở trung bình (Open)</p>
+        <p class="text-2xl font-bold text-emerald-700 mt-1">68.2%</p>
+      </div>
+      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
+        <p class="text-xs uppercase text-walnut-800/70 font-medium">Tỷ lệ nhấp chuột (CTR)</p>
+        <p class="text-2xl font-bold text-clay-600 mt-1">28.4%</p>
+      </div>
+      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
+        <p class="text-xs uppercase text-walnut-800/70 font-medium">Máy chủ SMTP Mailer</p>
+        <p class="text-2xl font-bold text-emerald-700 mt-1">Hoạt động tốt</p>
+      </div>
+    </div>
+
+    <!-- Table -->
+    <div class="rounded border border-walnut-900/10 bg-sand-50 overflow-hidden shadow-sm">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="border-b border-walnut-900/10 bg-sand-100/70 text-walnut-900 uppercase tracking-wider text-[11px]">
+            <tr>
+              <th class="py-3 px-4 font-semibold">Mã</th>
+              <th class="py-3 px-4 font-semibold">Tiêu đề chiến dịch</th>
+              <th class="py-3 px-4 font-semibold">Người nhận</th>
+              <th class="py-3 px-4 font-semibold">Tỷ lệ mở</th>
+              <th class="py-3 px-4 font-semibold">Tỷ lệ Click</th>
+              <th class="py-3 px-4 font-semibold">Thời gian</th>
+              <th class="py-3 px-4 font-semibold">Trạng thái</th>
+              <th class="py-3 px-4 font-semibold text-right">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-walnut-900/10">
+            {campaigns.map((c) => (
+              <tr class="hover:bg-sand-100/50">
+                <td class="py-3 px-4 font-mono font-bold text-walnut-900">{c.id}</td>
+                <td class="py-3 px-4 font-bold text-walnut-900">{c.title}</td>
+                <td class="py-3 px-4 font-medium text-walnut-800">{c.recipients}</td>
+                <td class="py-3 px-4 font-semibold text-emerald-700">{c.openRate}</td>
+                <td class="py-3 px-4 font-semibold text-clay-600">{c.clickRate}</td>
+                <td class="py-3 px-4 text-walnut-800/80">{c.date}</td>
+                <td class="py-3 px-4">
+                  <span class={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold border ${c.statusColor}`}>
+                    {c.status}
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button type="button" class="text-xs font-semibold text-clay-600 hover:underline">Chi tiết</button>
+                    <span class="text-walnut-800/30">|</span>
+                    <button type="button" class="text-xs font-semibold text-walnut-800 hover:underline">Sao chép</button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</AdminLayout>

@@ -1,0 +1,105 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+
+const categories = [
+  { id: 1, name: 'Sofa & Phòng Khách', slug: 'sofa', count: 3, description: 'Sofa da bò Ý cao cấp, sofa vải linen Bắc Âu, góc chữ L', status: 'Hiển thị', image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80' },
+  { id: 2, name: 'Bàn Ăn', slug: 'ban-an', count: 2, description: 'Bàn ăn đá tự nhiên Carrara, bàn gỗ sồi Nga nguyên tấm', status: 'Hiển thị', image: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=400&q=80' },
+  { id: 3, name: 'Ghế & Đôn Thư Giãn', slug: 'ghe', count: 4, description: 'Ghế ăn bọc da, ghế thư giãn gỗ óc chó, công thái học Ergo', status: 'Hiển thị', image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=400&q=80' },
+  { id: 4, name: 'Giường Ngủ Cao Cấp', slug: 'giuong-ngu', count: 2, description: 'Giường bọc nỉ nhung Velvet, giường gỗ sồi Scandinavian', status: 'Hiển thị', image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=400&q=80' },
+  { id: 5, name: 'Tủ Quần Áo', slug: 'tu-quan-ao', count: 1, description: 'Tủ áo cánh kính khung nhôm Anodized, tủ 4 cánh gỗ sồi', status: 'Hiển thị', image: 'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=400&q=80' },
+  { id: 6, name: 'Kệ Tivi & Kệ Sách', slug: 'ke-tu', count: 2, description: 'Kệ treo tường tối giản, kệ sách module gỗ thông', status: 'Hiển thị', image: 'https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?auto=format&fit=crop&w=400&q=80' },
+  { id: 7, name: 'Đèn Trang Trí & Chiếu Sáng', slug: 'den-trang-tri', count: 3, description: 'Đèn sàn đồng thau chao vải, đèn thả trần mây tre đan thủ công', status: 'Hiển thị', image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=400&q=80' },
+];
+---
+
+<AdminLayout title="Quản Lý Danh Mục Sản Phẩm - Nội Thất">
+  <div class="space-y-6">
+
+    <!-- Header & Action -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-walnut-900/10 pb-6">
+      <div>
+        <h1 class="font-serif text-2xl sm:text-3xl text-walnut-900">Quản Lý Danh Mục Sản Phẩm</h1>
+        <p class="mt-1 text-sm text-walnut-800/80">Phân loại cây danh mục nội thất hiển thị trên menu và bộ lọc website.</p>
+      </div>
+
+      <button 
+        type="button" 
+        onclick="alert('Chức năng thêm danh mục mới sẽ mở form tạo phân loại')"
+        class="inline-flex items-center gap-2 bg-walnut-900 px-4 py-2 text-xs uppercase tracking-[0.15em] text-sand-50 transition-colors hover:bg-clay-600 shadow-sm"
+      >
+        <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+        </svg>
+        <span>Thêm Danh Mục</span>
+      </button>
+    </div>
+
+    <!-- Stats row -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
+        <p class="text-xs uppercase text-walnut-800/70 font-medium">Tổng danh mục</p>
+        <p class="text-2xl font-bold text-walnut-900 mt-1">7 nhóm</p>
+      </div>
+      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
+        <p class="text-xs uppercase text-walnut-800/70 font-medium">Tổng sản phẩm liên kết</p>
+        <p class="text-2xl font-bold text-walnut-900 mt-1">19 mặt hàng</p>
+      </div>
+      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
+        <p class="text-xs uppercase text-walnut-800/70 font-medium">Trạng thái đồng bộ MySQL</p>
+        <p class="text-2xl font-bold text-emerald-700 mt-1">100% Hoạt động</p>
+      </div>
+    </div>
+
+    <!-- Categories Grid / Table -->
+    <div class="rounded border border-walnut-900/10 bg-sand-50 overflow-hidden shadow-sm">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="border-b border-walnut-900/10 bg-sand-100/70 text-walnut-900 uppercase tracking-wider text-[11px]">
+            <tr>
+              <th class="py-3 px-4 font-semibold">Ảnh</th>
+              <th class="py-3 px-4 font-semibold">Tên danh mục</th>
+              <th class="py-3 px-4 font-semibold">Đường dẫn (Slug)</th>
+              <th class="py-3 px-4 font-semibold">Số sản phẩm</th>
+              <th class="py-3 px-4 font-semibold">Mô tả tóm tắt</th>
+              <th class="py-3 px-4 font-semibold">Trạng thái</th>
+              <th class="py-3 px-4 font-semibold text-right">Thao tác</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-walnut-900/10">
+            {categories.map((c) => (
+              <tr class="hover:bg-sand-100/50">
+                <td class="py-3 px-4">
+                  <img src={c.image} alt={c.name} class="h-10 w-10 object-cover rounded border border-walnut-900/10" />
+                </td>
+                <td class="py-3 px-4 font-bold text-walnut-900">{c.name}</td>
+                <td class="py-3 px-4 font-mono text-clay-600">/{c.slug}</td>
+                <td class="py-3 px-4 font-semibold text-walnut-900">{c.count} sản phẩm</td>
+                <td class="py-3 px-4 text-walnut-800/80 max-w-xs truncate">{c.description}</td>
+                <td class="py-3 px-4">
+                  <span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-100 text-emerald-800 border border-emerald-300">
+                    {c.status}
+                  </span>
+                </td>
+                <td class="py-3 px-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button type="button" class="p-1 text-walnut-800 hover:text-clay-600" title="Chỉnh sửa">
+                      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+                    <button type="button" class="p-1 text-walnut-800 hover:text-red-600" title="Xóa">
+                      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</AdminLayout>
