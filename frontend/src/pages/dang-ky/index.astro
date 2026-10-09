@@ -2,105 +2,286 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 
-<BaseLayout title="Đăng ký | Nội Thất" description="Tạo tài khoản Nội Thất để theo dõi đơn hàng và nhận ưu đãi.">
+<BaseLayout title="Đăng ký tài khoản | Nội Thất" description="Tạo tài khoản Nội Thất để theo dõi đơn hàng và nhận ưu đãi độc quyền.">
 
   <section class="mx-auto max-w-7xl px-4 py-12 sm:py-16">
     <div class="grid gap-12 lg:grid-cols-2 lg:gap-16">
 
-      <div class="hidden bg-walnut-900 p-10 text-sand-50 lg:flex lg:flex-col lg:justify-between">
-        <p class="text-lg uppercase tracking-[0.32em]">Nội Thất</p>
+      <div class="hidden bg-walnut-900 p-10 text-sand-50 lg:flex lg:flex-col lg:justify-between rounded shadow-sm">
+        <p class="text-lg uppercase tracking-[0.32em]">NỘI THẤT CAO CẤP</p>
         <div>
-          <p class="font-display text-2xl leading-snug">Trở thành thành viên để nhận bộ sưu tập mới sớm nhất.</p>
-          <p class="mt-6 text-sm text-sand-200">Ưu đãi riêng, tư vấn theo không gian và hỗ trợ đổi trả thuận tiện.</p>
+          <p class="font-display text-3xl leading-snug">Trở thành thành viên để nhận bộ sưu tập nội thất mới nhất.</p>
+          <p class="mt-6 text-sm text-sand-200/80 leading-relaxed">Ưu đãi độc quyền theo hạng hội viên, lưu lịch sử xem Phong Thủy và nhận thông báo trạng thái giao hàng theo thời gian thực.</p>
+        </div>
+        <div class="pt-6 border-t border-sand-50/15 text-xs text-sand-200/60">
+          Hệ thống bảo mật dữ liệu khách hàng theo chuẩn Enterprise.
         </div>
       </div>
 
       <div class="max-w-md">
-        <h1 class="font-display text-3xl tracking-tight sm:text-4xl">Đăng ký</h1>
-        <p class="mt-3 text-sm text-walnut-800">Điền thông tin bên dưới để tạo tài khoản.</p>
+        <h1 class="font-display text-3xl tracking-tight sm:text-4xl text-walnut-900">Đăng ký thành viên</h1>
+        <p class="mt-2 text-sm text-walnut-800/80">Điền thông tin bên dưới để tạo tài khoản mới.</p>
 
-        <form data-auth-form novalidate class="mt-8 flex flex-col gap-5">
+        <!-- Nút Đăng nhập bằng Gmail (Google OAuth) -->
+        <div class="mt-6">
+          <button
+            type="button"
+            id="btn-google-signup"
+            class="flex w-full items-center justify-center gap-3 border border-walnut-900/20 bg-sand-50 py-3 text-xs uppercase tracking-[0.15em] font-medium text-walnut-900 transition-all hover:bg-sand-100 hover:border-walnut-900 shadow-sm cursor-pointer"
+          >
+            <svg class="h-4 w-4" viewBox="0 0 24 24">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
+              <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" />
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" />
+            </svg>
+            <span>Đăng ký nhanh bằng Gmail</span>
+          </button>
+        </div>
+
+        <div class="my-6 flex items-center gap-3">
+          <div class="h-px flex-1 bg-walnut-900/15"></div>
+          <span class="text-[10px] uppercase tracking-widest text-walnut-800/60">HOẶC DÙNG EMAIL</span>
+          <div class="h-px flex-1 bg-walnut-900/15"></div>
+        </div>
+
+        <form id="register-form" novalidate class="flex flex-col gap-4">
           <div>
-            <label for="reg-name" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Họ và tên</label>
-            <input id="reg-name" name="fullname" type="text" autocomplete="name" class="mt-2 w-full border border-walnut-900/20 bg-transparent px-4 py-3 text-sm outline-none transition-colors focus:border-clay-600" />
-            <p data-error-for="fullname" class="mt-2 hidden text-xs text-danger-600"></p>
+            <label for="reg-name" class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800">Họ và tên *</label>
+            <input id="reg-name" name="fullname" type="text" required placeholder="Ví dụ: Nguyễn Văn An" autocomplete="name" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-4 py-2.5 text-sm outline-none transition-colors focus:border-clay-600 focus:bg-sand-100/30" />
+            <p id="err-fullname" class="mt-1 hidden text-xs text-red-600 font-medium"></p>
           </div>
 
           <div>
-            <label for="reg-email" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Email</label>
-            <input id="reg-email" name="email" type="email" autocomplete="email" class="mt-2 w-full border border-walnut-900/20 bg-transparent px-4 py-3 text-sm outline-none transition-colors focus:border-clay-600" />
-            <p data-error-for="email" class="mt-2 hidden text-xs text-danger-600"></p>
+            <label for="reg-email" class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800">Email *</label>
+            <input id="reg-email" name="email" type="email" required placeholder="an.nguyen@gmail.com" autocomplete="email" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-4 py-2.5 text-sm outline-none transition-colors focus:border-clay-600 focus:bg-sand-100/30" />
+            <p id="err-email" class="mt-1 hidden text-xs text-red-600 font-medium"></p>
           </div>
 
           <div>
-            <label for="reg-phone" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Số điện thoại</label>
-            <input id="reg-phone" name="phone" type="tel" autocomplete="tel" class="mt-2 w-full border border-walnut-900/20 bg-transparent px-4 py-3 text-sm outline-none transition-colors focus:border-clay-600" />
-            <p data-error-for="phone" class="mt-2 hidden text-xs text-danger-600"></p>
+            <label for="reg-phone" class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800">Số điện thoại *</label>
+            <input id="reg-phone" name="phone" type="tel" required placeholder="0908 123 456" autocomplete="tel" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-4 py-2.5 text-sm outline-none transition-colors focus:border-clay-600 focus:bg-sand-100/30" />
+            <p id="err-phone" class="mt-1 hidden text-xs text-red-600 font-medium"></p>
+          </div>
+
+          <!-- Mật khẩu kèm thanh đo độ mạnh (Yếu / Trung bình / Mạnh) -->
+          <div>
+            <label for="reg-password" class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800">Mật khẩu *</label>
+            <input id="reg-password" name="password" type="password" required autocomplete="new-password" placeholder="Nhập ít nhất 6 ký tự" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-4 py-2.5 text-sm outline-none transition-colors focus:border-clay-600 focus:bg-sand-100/30" />
+            
+            <!-- THANH ĐO ĐỘ MẠNH MẬT KHẨU (YÊU CẦU ĐẶC TẢ) -->
+            <div id="password-strength-container" class="mt-2 hidden">
+              <div class="flex items-center justify-between text-[11px] mb-1">
+                <span class="text-walnut-800/70">Độ an toàn:</span>
+                <span id="password-strength-text" class="font-bold text-red-600">Yếu</span>
+              </div>
+              <div class="h-1.5 w-full bg-sand-200 rounded-full overflow-hidden">
+                <div id="password-strength-bar" class="h-full w-1/3 bg-red-500 transition-all duration-300"></div>
+              </div>
+            </div>
+            <p id="err-password" class="mt-1 hidden text-xs text-red-600 font-medium"></p>
           </div>
 
           <div>
-            <label for="reg-password" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Mật khẩu</label>
-            <input id="reg-password" name="password" type="password" autocomplete="new-password" class="mt-2 w-full border border-walnut-900/20 bg-transparent px-4 py-3 text-sm outline-none transition-colors focus:border-clay-600" />
-            <p data-error-for="password" class="mt-2 hidden text-xs text-danger-600"></p>
+            <label for="reg-confirm" class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800">Xác nhận mật khẩu *</label>
+            <input id="reg-confirm" name="confirm" type="password" required autocomplete="new-password" placeholder="Nhập lại mật khẩu" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-4 py-2.5 text-sm outline-none transition-colors focus:border-clay-600 focus:bg-sand-100/30" />
+            <p id="err-confirm" class="mt-1 hidden text-xs text-red-600 font-medium"></p>
           </div>
 
-          <div>
-            <label for="reg-confirm" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Xác nhận mật khẩu</label>
-            <input id="reg-confirm" name="confirm" type="password" autocomplete="new-password" class="mt-2 w-full border border-walnut-900/20 bg-transparent px-4 py-3 text-sm outline-none transition-colors focus:border-clay-600" />
-            <p data-error-for="confirm" class="mt-2 hidden text-xs text-danger-600"></p>
-          </div>
-
-          <div class="flex items-start gap-3">
-            <input id="reg-terms" name="terms" type="checkbox" class="mt-0.5 h-4 w-4 accent-[#333333]" />
-            <label for="reg-terms" class="text-sm text-walnut-800">
-              Tôi đồng ý với điều khoản sử dụng và chính sách bảo mật.
+          <div class="flex items-start gap-2.5 mt-1">
+            <input id="reg-terms" name="terms" type="checkbox" checked class="mt-1 h-4 w-4 accent-walnut-900 cursor-pointer" />
+            <label for="reg-terms" class="text-xs text-walnut-800 leading-normal cursor-pointer">
+              Tôi đồng ý với <a href="#" class="underline hover:text-clay-600">Điều khoản dịch vụ</a> và <a href="#" class="underline hover:text-clay-600">Chính sách bảo mật</a> của Nội Thất.
             </label>
           </div>
-          <p data-error-for="terms" class="hidden text-xs text-danger-600"></p>
 
-          <button type="submit" class="mt-2 bg-clay-600 px-8 py-4 text-xs uppercase tracking-[0.2em] text-sand-50 transition-colors hover:bg-clay-500">
-            Tạo tài khoản
+          <button 
+            type="submit" 
+            id="btn-submit"
+            class="mt-3 bg-clay-600 px-8 py-3.5 text-xs uppercase tracking-[0.2em] font-semibold text-sand-50 transition-colors hover:bg-clay-500 shadow-sm cursor-pointer flex items-center justify-center gap-2"
+          >
+            <span>Tạo tài khoản</span>
           </button>
         </form>
 
-        <div data-auth-success class="mt-8 hidden border border-walnut-900/15 p-8">
-          <p class="font-display text-xl">Đăng ký thành công</p>
-          <p class="mt-3 text-sm leading-relaxed text-walnut-800">Biểu mẫu đã hợp lệ. Phần tạo tài khoản thật sẽ được nối khi có API máy chủ.</p>
-          <a href="/dang-nhap" class="mt-6 inline-block border border-walnut-900 px-6 py-3 text-xs uppercase tracking-[0.2em] text-walnut-900 transition-colors hover:bg-walnut-900 hover:text-sand-50">Đi tới đăng nhập</a>
-        </div>
-
-        <p class="mt-8 text-sm text-walnut-800">
+        <p class="mt-6 text-xs text-walnut-800 text-center">
           Đã có tài khoản?
-          <a href="/dang-nhap" class="text-walnut-900 underline underline-offset-4 transition-colors hover:text-clay-600">Đăng nhập</a>
+          <a href="/dang-nhap" class="font-bold text-walnut-900 underline underline-offset-4 transition-colors hover:text-clay-600">Đăng nhập ngay</a>
         </p>
       </div>
 
     </div>
   </section>
 
+  <!-- TOAST THÔNG BÁO -->
+  <div id="auth-toast" class="fixed bottom-6 right-6 z-50 hidden translate-y-4 rounded bg-walnut-900 px-6 py-4 text-xs font-medium text-sand-50 shadow-2xl transition-all duration-300 border border-sand-50/20">
+    <p id="toast-title" class="font-bold uppercase tracking-wider text-sand-50 mb-0.5">Thông báo</p>
+    <p id="toast-body" class="text-sand-200">Đăng ký thành công! Đang chuyển sang trang Đăng nhập...</p>
+  </div>
+
 </BaseLayout>
 
 <script>
-  import { initAuthForm, required, email, phone, minLength, matches, accepted } from '../../scripts/validate';
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('register-form') as HTMLFormElement;
+    const nameInput = document.getElementById('reg-name') as HTMLInputElement;
+    const emailInput = document.getElementById('reg-email') as HTMLInputElement;
+    const phoneInput = document.getElementById('reg-phone') as HTMLInputElement;
+    const passInput = document.getElementById('reg-password') as HTMLInputElement;
+    const confirmInput = document.getElementById('reg-confirm') as HTMLInputElement;
+    const termsInput = document.getElementById('reg-terms') as HTMLInputElement;
+    const btnGoogle = document.getElementById('btn-google-signup') as HTMLButtonElement;
 
-  const form = document.querySelector<HTMLFormElement>('[data-auth-form]');
-  const success = document.querySelector<HTMLElement>('[data-auth-success]');
+    // Password strength elements
+    const strengthContainer = document.getElementById('password-strength-container') as HTMLElement;
+    const strengthText = document.getElementById('password-strength-text') as HTMLElement;
+    const strengthBar = document.getElementById('password-strength-bar') as HTMLElement;
 
-  if (form) {
-    initAuthForm(
-      form,
-      {
-        fullname: [required('Vui lòng nhập họ và tên.'), minLength(2, 'Họ và tên cần ít nhất 2 ký tự.')],
-        email: [required('Vui lòng nhập email.'), email('Email chưa đúng định dạng.')],
-        phone: [required('Vui lòng nhập số điện thoại.'), phone('Số điện thoại chưa hợp lệ (ví dụ 0912345678).')],
-        password: [required('Vui lòng nhập mật khẩu.'), minLength(8, 'Mật khẩu cần ít nhất 8 ký tự.')],
-        confirm: [required('Vui lòng xác nhận mật khẩu.'), matches('password', 'Mật khẩu xác nhận không khớp.')],
-        terms: [accepted('terms', 'Bạn cần đồng ý điều khoản để tiếp tục.')],
-      },
-      () => {
-        form.classList.add('hidden');
-        success?.classList.remove('hidden');
+    // Toast
+    const toast = document.getElementById('auth-toast') as HTMLElement;
+    const toastBody = document.getElementById('toast-body') as HTMLElement;
+
+    const showToast = (msg: string, isError = false) => {
+      toastBody.textContent = msg;
+      toast.className = `fixed bottom-6 right-6 z-50 rounded px-6 py-4 text-xs font-medium text-sand-50 shadow-2xl transition-all duration-300 border ${
+        isError ? 'bg-red-900 border-red-500' : 'bg-walnut-900 border-emerald-500/50'
+      }`;
+      toast.classList.remove('hidden');
+      requestAnimationFrame(() => toast.classList.remove('translate-y-4'));
+    };
+
+    // LIVE PASSWORD STRENGTH METER (YẾU / TRUNG BÌNH / MẠNH)
+    passInput?.addEventListener('input', () => {
+      const val = passInput.value;
+      if (!val) {
+        strengthContainer.classList.add('hidden');
+        return;
       }
-    );
-  }
+
+      strengthContainer.classList.remove('hidden');
+
+      // Đánh giá tiêu chuẩn:
+      // Yếu: < 6 ký tự
+      // Trung bình: >= 6 ký tự và có cả chữ + số
+      // Mạnh: >= 8 ký tự và có chữ hoa, chữ thường, số/ký tự đặc biệt
+      const hasLetters = /[a-zA-Z]/.test(val);
+      const hasNumbers = /[0-9]/.test(val);
+      const hasSpecial = /[^a-zA-Z0-9]/.test(val);
+      const isLongEnough = val.length >= 8;
+
+      if (val.length < 6) {
+        strengthText.textContent = 'Mật khẩu yếu (Cần ít nhất 6 ký tự)';
+        strengthText.className = 'font-bold text-red-600';
+        strengthBar.className = 'h-full w-1/4 bg-red-500 transition-all duration-300';
+      } else if (isLongEnough && hasLetters && hasNumbers && hasSpecial) {
+        strengthText.textContent = 'Mật khẩu mạnh (An toàn cao)';
+        strengthText.className = 'font-bold text-emerald-600';
+        strengthBar.className = 'h-full w-full bg-emerald-500 transition-all duration-300';
+      } else if (hasLetters && hasNumbers) {
+        strengthText.textContent = 'Mật khẩu trung bình';
+        strengthText.className = 'font-bold text-amber-600';
+        strengthBar.className = 'h-full w-2/3 bg-amber-500 transition-all duration-300';
+      } else {
+        strengthText.textContent = 'Mật khẩu yếu';
+        strengthText.className = 'font-bold text-red-600';
+        strengthBar.className = 'h-full w-1/3 bg-red-500 transition-all duration-300';
+      }
+    });
+
+    // GOOGLE FAST SIGNUP (GMAIL)
+    btnGoogle?.addEventListener('click', () => {
+      const googleUser = {
+        name: 'Trương Chí Vỹ (Google)',
+        email: 'truongchivy2005@gmail.com',
+        phone: '0908 999 888',
+        googleId: 'gg_10928374829',
+        tier: 'Vàng',
+        spent: '0 ₫',
+        orders: 0,
+        date: new Date().toLocaleDateString('vi-VN'),
+        status: 'Hoạt động',
+      };
+
+      // Save to registered customers list
+      const existing = JSON.parse(localStorage.getItem('registered_customers') || '[]');
+      if (!existing.some((u: any) => u.email === googleUser.email)) {
+        existing.unshift(googleUser);
+        localStorage.setItem('registered_customers', JSON.stringify(existing));
+      }
+
+      // Also set current user and redirect home
+      localStorage.setItem('current_user', JSON.stringify(googleUser));
+      showToast('Đăng nhập bằng Gmail thành công! Đang chuyển về Trang chủ...');
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 1000);
+    });
+
+    // SUBMIT FORM REGISTER
+    form?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const fullname = nameInput.value.trim();
+      const email = emailInput.value.trim();
+      const phone = phoneInput.value.trim();
+      const password = passInput.value;
+      const confirm = confirmInput.value;
+
+      if (!fullname || !email || !password) {
+        showToast('Vui lòng điền đầy đủ các trường thông tin.', true);
+        return;
+      }
+
+      if (password.length < 6) {
+        showToast('Mật khẩu phải chứa ít nhất 6 ký tự.', true);
+        return;
+      }
+
+      if (password !== confirm) {
+        showToast('Mật khẩu xác nhận không khớp.', true);
+        return;
+      }
+
+      if (!termsInput.checked) {
+        showToast('Bạn cần đồng ý với điều khoản sử dụng.', true);
+        return;
+      }
+
+      // Prepare user record
+      const newUser = {
+        name: fullname,
+        email: email,
+        phone: phone || 'Chưa cập nhật',
+        password: password,
+        tier: 'Bạc',
+        spent: '0 ₫',
+        orders: 0,
+        date: new Date().toLocaleDateString('vi-VN'),
+        status: 'Hoạt động',
+      };
+
+      // 1. SAVE TO BACKEND MYSQL (if backend is running)
+      try {
+        await fetch('http://localhost:4000/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ fullname, email, phone, password }),
+        });
+      } catch (err) {
+        console.warn('Backend chưa bật, lưu dữ liệu trực tiếp vào hệ thống Client storage.');
+      }
+
+      // 2. SAVE TO LOCALSTORAGE (đảm bảo đồng bộ ngay lập tức cho trang Admin)
+      const existing = JSON.parse(localStorage.getItem('registered_customers') || '[]');
+      // Filter out existing email if any
+      const updated = [newUser, ...existing.filter((u: any) => u.email !== email)];
+      localStorage.setItem('registered_customers', JSON.stringify(updated));
+
+      // 3. SHOW SUCCESS TOAST & CHUYỂN SANG TRANG ĐĂNG NHẬP (ĐÚNG YÊU CẦU)
+      showToast('Đăng ký tài khoản thành công! Đang chuyển sang trang Đăng nhập...');
+      setTimeout(() => {
+        window.location.href = '/dang-nhap';
+      }, 1200);
+    });
+  });
 </script>

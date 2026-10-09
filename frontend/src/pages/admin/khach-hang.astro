@@ -1,7 +1,7 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 
-const customers = [
+const initialCustomers = [
   { id: 'KH-1001', name: 'Nguyễn Văn An', phone: '0908 123 456', email: 'an.nguyen@gmail.com', spent: '82.500.000 ₫', orders: 4, tier: 'Kim Cương', tierColor: 'bg-purple-100 text-purple-800 border-purple-300', date: '12/01/2026', status: 'Hoạt động' },
   { id: 'KH-1002', name: 'Trần Thị Mai', phone: '0912 345 678', email: 'mai.tran@gmail.com', spent: '48.900.000 ₫', orders: 2, tier: 'Vàng', tierColor: 'bg-amber-100 text-amber-800 border-amber-300', date: '04/03/2026', status: 'Hoạt động' },
   { id: 'KH-1003', name: 'Lê Hoàng Long', phone: '0987 654 321', email: 'long.le@gmail.com', spent: '35.200.000 ₫', orders: 3, tier: 'Vàng', tierColor: 'bg-amber-100 text-amber-800 border-amber-300', date: '18/05/2026', status: 'Hoạt động' },
@@ -17,13 +17,13 @@ const customers = [
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-walnut-900/10 pb-6">
       <div>
         <h1 class="font-serif text-2xl sm:text-3xl text-walnut-900">Quản Lý Khách Hàng</h1>
-        <p class="mt-1 text-sm text-walnut-800/80">Theo dõi thông tin người mua, hạn mức chi tiêu và xếp hạng hội viên.</p>
+        <p class="mt-1 text-sm text-walnut-800/80">Theo dõi thông tin người mua, tài khoản đăng ký mới và xếp hạng hội viên.</p>
       </div>
 
       <div class="flex items-center gap-2">
         <button 
           type="button" 
-          onclick="alert('Đã xuất danh sách 86 khách hàng ra file Excel')"
+          onclick="alert('Đã xuất danh sách khách hàng ra file Excel')"
           class="inline-flex items-center gap-1.5 border border-walnut-900/20 bg-sand-50 px-3.5 py-2 text-xs font-semibold text-walnut-900 hover:bg-sand-100 shadow-sm"
         >
           <svg class="h-4 w-4 text-walnut-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -38,7 +38,7 @@ const customers = [
     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Tổng khách hàng</p>
-        <p class="text-2xl font-bold text-walnut-900 mt-1">86 tài khoản</p>
+        <p id="stat-total-customers" class="text-2xl font-bold text-walnut-900 mt-1">86 tài khoản</p>
       </div>
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Hội viên VIP (Kim Cương / Vàng)</p>
@@ -58,6 +58,7 @@ const customers = [
     <div class="rounded border border-walnut-900/10 bg-sand-50 overflow-hidden shadow-sm">
       <div class="p-4 border-b border-walnut-900/10 flex flex-col sm:flex-row gap-3 items-center justify-between">
         <input 
+          id="search-customer"
           type="text" 
           placeholder="Tìm theo tên, số điện thoại, email..." 
           class="w-full sm:w-80 rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-1.5 text-xs text-walnut-900 placeholder:text-walnut-800/50 focus:border-walnut-900 focus:outline-none"
@@ -86,14 +87,14 @@ const customers = [
               <th class="py-3 px-4 font-semibold text-right">Thao tác</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-walnut-900/10">
-            {customers.map((c) => (
-              <tr class="hover:bg-sand-100/50">
+          <tbody id="customers-table-body" class="divide-y divide-walnut-900/10">
+            {initialCustomers.map((c) => (
+              <tr class="hover:bg-sand-100/50" data-customer-row data-name={c.name} data-email={c.email} data-phone={c.phone}>
                 <td class="py-3 px-4 font-mono font-bold text-walnut-900">{c.id}</td>
                 <td class="py-3 px-4">
                   <div class="flex items-center gap-2.5">
                     <div class="h-7 w-7 rounded-full bg-sand-200 text-walnut-900 flex items-center justify-center font-bold text-[10px]">
-                      {c.name.split(' ').map(n => n[0]).slice(-2).join('')}
+                      {c.name.split(' ').map((n: string) => n[0]).slice(-2).join('')}
                     </div>
                     <span class="font-bold text-walnut-900">{c.name}</span>
                   </div>
@@ -129,3 +130,82 @@ const customers = [
 
   </div>
 </AdminLayout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const tableBody = document.getElementById('customers-table-body');
+    const totalEl = document.getElementById('stat-total-customers');
+    const searchInput = document.getElementById('search-customer') as HTMLInputElement | null;
+
+    // Load registered customers from localStorage and prepend to table
+    const registered = JSON.parse(localStorage.getItem('registered_customers') || '[]');
+
+    if (tableBody && registered.length > 0) {
+      if (totalEl) totalEl.textContent = `${86 + registered.length} tài khoản`;
+
+      registered.forEach((u: any, idx: number) => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-sand-100/50 bg-emerald-50/40';
+        tr.dataset.customerRow = '';
+        tr.dataset.name = u.name;
+        tr.dataset.email = u.email;
+        tr.dataset.phone = u.phone;
+
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-mono font-bold text-emerald-800">
+            KH-NEW${idx + 1}
+            <span class="ml-1 inline-block bg-emerald-600 text-white text-[9px] px-1 py-0.2 rounded">Mới</span>
+          </td>
+          <td class="py-3 px-4">
+            <div class="flex items-center gap-2.5">
+              <div class="h-7 w-7 rounded-full bg-emerald-700 text-sand-50 flex items-center justify-center font-bold text-[10px]">
+                ${(u.name || 'KH').split(' ').map((n: string) => n[0]).slice(-2).join('')}
+              </div>
+              <div>
+                <p class="font-bold text-walnut-900">${u.name}</p>
+                <p class="text-[10px] text-emerald-700 font-medium">Tài khoản vừa tạo</p>
+              </div>
+            </div>
+          </td>
+          <td class="py-3 px-4">
+            <p class="font-medium text-walnut-900">${u.phone || 'Chưa cập nhật'}</p>
+            <p class="text-[10px] text-walnut-800/60">${u.email}</p>
+          </td>
+          <td class="py-3 px-4">
+            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold border bg-slate-100 text-slate-800 border-slate-300">
+              ${u.tier || 'Bạc'}
+            </span>
+          </td>
+          <td class="py-3 px-4 font-semibold text-walnut-900">${u.orders || 0} đơn</td>
+          <td class="py-3 px-4 font-bold text-clay-600">${u.spent || '0 ₫'}</td>
+          <td class="py-3 px-4 text-walnut-800/80">${u.date || new Date().toLocaleDateString('vi-VN')}</td>
+          <td class="py-3 px-4">
+            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-100 text-emerald-800">
+              Hoạt động
+            </span>
+          </td>
+          <td class="py-3 px-4 text-right">
+            <button type="button" class="text-xs font-semibold text-clay-600 hover:underline">
+              Xem chi tiết
+            </button>
+          </td>
+        `;
+
+        tableBody.prepend(tr);
+      });
+    }
+
+    // Filter by name/email/phone
+    searchInput?.addEventListener('input', () => {
+      const q = searchInput.value.toLowerCase().trim();
+      const rows = tableBody?.querySelectorAll<HTMLTableRowElement>('[data-customer-row]');
+      rows?.forEach((r) => {
+        const name = (r.dataset.name || '').toLowerCase();
+        const email = (r.dataset.email || '').toLowerCase();
+        const phone = (r.dataset.phone || '').toLowerCase();
+        const match = !q || name.includes(q) || email.includes(q) || phone.includes(q);
+        r.classList.toggle('hidden', !match);
+      });
+    });
+  });
+</script>

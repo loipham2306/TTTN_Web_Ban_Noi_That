@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import { healthRouter } from './health.route.js';
+import { authRouter } from './auth.route.js';
 
 const router = Router();
 
 router.use('/health', healthRouter);
-// TODO: Mount products, orders, shipping, phong-thuy, admin routes
+router.use('/auth', authRouter);
 
 export const apiRouter = router;
