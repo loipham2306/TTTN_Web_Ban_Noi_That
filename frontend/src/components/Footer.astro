@@ -1,8 +1,180 @@
 ---
+const currentYear = new Date().getFullYear();
 ---
-<footer class="border-t border-walnut-900/10 bg-white py-8 text-sm text-walnut-800/80">
-  <div class="mx-auto max-w-6xl px-4 text-center sm:text-left flex flex-col sm:flex-row items-center justify-between gap-4">
-    <p>© 2026 Nội Thất Cao Cấp. Thiết kế cho không gian sống đẳng cấp.</p>
-    <p class="text-xs text-walnut-800/60">Nội dung phong thủy mang tính tham khảo.</p>
+
+<footer class="border-t border-white/10 bg-[#0d0d0e] text-[#a3a3a3] transition-colors">
+  {/* THANH 4 ĐẶC QUYỀN THƯƠNG HIỆU (LUXURY VALUE PROPOSITION) */}
+  <div class="border-b border-white/10">
+    <div class="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div class="flex items-start gap-4">
+          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-[#f5f5f5]">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" class="h-6 w-6">
+              <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+            </svg>
+          </div>
+          <div>
+            <h4 class="font-display text-sm font-medium tracking-wide text-white">Chế Tác Tuyển Chọn</h4>
+            <p class="mt-1 text-xs leading-relaxed text-[#8a8a8a]">Vật liệu gỗ, da bò Ý, đá marble cao cấp được chọn lọc tỉ mỉ.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4">
+          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-[#f5f5f5]">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" class="h-6 w-6">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+          </div>
+          <div>
+            <h4 class="font-display text-sm font-medium tracking-wide text-white">Bảo Hành 24 Tháng</h4>
+            <p class="mt-1 text-xs leading-relaxed text-[#8a8a8a]">Cam kết đồng hành và hỗ trợ bảo trì trọn đời cho mọi không gian.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4">
+          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-[#f5f5f5]">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" class="h-6 w-6">
+              <rect x="1" y="3" width="15" height="13" />
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+              <circle cx="5.5" cy="18.5" r="2.5" />
+              <circle cx="18.5" cy="18.5" r="2.5" />
+            </svg>
+          </div>
+          <div>
+            <h4 class="font-display text-sm font-medium tracking-wide text-white">Lắp Đặt Chuyên Nghiệp</h4>
+            <p class="mt-1 text-xs leading-relaxed text-[#8a8a8a]">Vận chuyển cẩn trọng và sắp đặt hoàn thiện tận căn hộ của bạn.</p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4">
+          <div class="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-white/15 bg-white/5 text-[#f5f5f5]">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" class="h-6 w-6">
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20" />
+            </svg>
+          </div>
+          <div>
+            <h4 class="font-display text-sm font-medium tracking-wide text-white">Tư Vấn Phong Thủy</h4>
+            <p class="mt-1 text-xs leading-relaxed text-[#8a8a8a]">Định hướng hướng đặt và màu sắc hài hòa sinh khí bản mệnh.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* KHỐI NỘI DUNG CHÍNH 4 CỘT */}
+  <div class="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-1 gap-12 sm:grid-cols-2 lg:grid-cols-5">
+      {/* CỘT 1: THƯƠNG HIỆU (Chiếm 2 cột trên lg) */}
+      <div class="lg:col-span-2">
+        <a href="/" class="inline-block font-sans text-xl font-semibold uppercase tracking-[0.35em] text-white">
+          Nội Thất
+        </a>
+        <p class="mt-4 max-w-sm text-xs leading-relaxed text-[#8a8a8a]">
+          Kiến tạo không gian sống thượng lưu, tinh tế và bền vững. Nơi thẩm mỹ đương đại hòa quyện cùng nghệ thuật bài trí phong thủy hài hòa.
+        </p>
+
+        <div class="mt-6 space-y-2.5 text-xs text-[#b0b0b0]">
+          <p class="flex items-start gap-2.5">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="mt-0.5 h-4 w-4 shrink-0 text-white/70">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+              <circle cx="12" cy="10" r="3" />
+            </svg>
+            <span>Showroom: 615 Âu Cơ, P. Phú Trung, Q. Tân Phú, TP. HCM</span>
+          </p>
+          <p class="flex items-center gap-2.5">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-4 w-4 shrink-0 text-white/70">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+            </svg>
+            <span>Hotline VIP: <a href="tel:1900636884" class="text-white hover:underline">1900 636 884</a> (08:30 - 21:00)</span>
+          </p>
+          <p class="flex items-center gap-2.5">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-4 w-4 shrink-0 text-white/70">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+            <span>Email: <a href="mailto:contact@noithat.vn" class="text-white hover:underline">contact@noithat.vn</a></span>
+          </p>
+        </div>
+      </div>
+
+      {/* CỘT 2: BỘ SƯU TẬP */}
+      <div>
+        <h3 class="text-xs font-semibold uppercase tracking-[0.25em] text-white">Bộ Sưu Tập</h3>
+        <ul class="mt-5 space-y-2.5 text-xs">
+          <li><a href="/san-pham?danh-muc=sofa" class="transition-colors hover:text-white">Sofa & Ghế Thư Giãn</a></li>
+          <li><a href="/san-pham?danh-muc=ban-an" class="transition-colors hover:text-white">Bàn Ghế Ăn & Bếp</a></li>
+          <li><a href="/san-pham?danh-muc=giuong" class="transition-colors hover:text-white">Giường Ngủ & Tủ Quần Áo</a></li>
+          <li><a href="/san-pham?danh-muc=tu-ke" class="transition-colors hover:text-white">Kệ Tivi & Tủ Trang Trí</a></li>
+          <li><a href="/san-pham?danh-muc=den" class="transition-colors hover:text-white">Hệ Thống Chiếu Sáng</a></li>
+          <li><a href="/san-pham?danh-muc=trang-tri" class="transition-colors hover:text-white">Gương & Đồ Decor</a></li>
+          <li><a href="/phong-thuy" class="text-amber-300/90 transition-colors hover:text-amber-200">✦ Tư Vấn Theo Phong Thủy</a></li>
+        </ul>
+      </div>
+
+      {/* CỘT 3: DỊCH VỤ & CHÍNH SÁCH */}
+      <div>
+        <h3 class="text-xs font-semibold uppercase tracking-[0.25em] text-white">Đặc Quyền & Hỗ Trợ</h3>
+        <ul class="mt-5 space-y-2.5 text-xs">
+          <li><a href="/gioi-thieu" class="transition-colors hover:text-white">Câu Chuyện Thương Hiệu</a></li>
+          <li><a href="/#du-an" class="transition-colors hover:text-white">Dự Án Đã Thực Hiện</a></li>
+          <li><a href="/#doi-tac" class="transition-colors hover:text-white">Dành Cho Kiến Trúc Sư (B2B)</a></li>
+          <li><a href="/chinh-sach-bao-hanh" class="transition-colors hover:text-white">Chính Sách Bảo Hành & Bảo Trì</a></li>
+          <li><a href="/chinh-sach-van-chuyen" class="transition-colors hover:text-white">Vận Chuyển & Lắp Đặt</a></li>
+          <li><a href="/huong-dan-thanh-toan" class="transition-colors hover:text-white">Hình Thức Thanh Toán (Trả góp 0%)</a></li>
+        </ul>
+      </div>
+
+      {/* CỘT 4: BẢN TIN & KẾT NỐI */}
+      <div>
+        <h3 class="text-xs font-semibold uppercase tracking-[0.25em] text-white">Bản Tin Độc Bản</h3>
+        <p class="mt-5 text-xs leading-relaxed text-[#8a8a8a]">
+          Nhận đặc quyền chiêm ngưỡng các thiết kế giới hạn và ưu đãi riêng tư.
+        </p>
+        <form class="mt-4 flex flex-col gap-2" onsubmit="event.preventDefault(); alert('Cảm ơn bạn đã đăng ký nhận bản tin VIP!');">
+          <input
+            type="email"
+            placeholder="Địa chỉ email của bạn"
+            required
+            class="w-full border border-white/20 bg-white/5 px-3.5 py-2.5 text-xs text-white placeholder-[#707070] outline-none transition focus:border-white/50 focus:bg-white/10"
+          />
+          <button
+            type="submit"
+            class="w-full border border-white/30 bg-white px-4 py-2.5 text-[11px] font-medium uppercase tracking-[0.2em] text-[#111111] transition-all hover:bg-neutral-200"
+          >
+            Đăng Ký
+          </button>
+        </form>
+
+        <div class="mt-6">
+          <p class="text-[11px] uppercase tracking-[0.15em] text-white/70">Kết nối cùng chúng tôi</p>
+          <div class="mt-3 flex items-center gap-3">
+            <a href="#" aria-label="Facebook" class="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition hover:border-white hover:text-white">
+              <svg viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4">
+                <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H7.5v-3H10V9.5C10 7.02 11.48 5.7 13.74 5.7c1.08 0 2.22.19 2.22.19v2.44h-1.25c-1.23 0-1.61.76-1.61 1.54V12h2.75l-.44 3H13.1v6.8c4.56-.93 8-4.96 8-9.8z"/>
+              </svg>
+            </a>
+            <a href="#" aria-label="Instagram" class="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/5 text-white/80 transition hover:border-white hover:text-white">
+              <svg viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4">
+                <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/>
+              </svg>
+            </a>
+            <a href="#" aria-label="Zalo" class="flex h-8 w-8 items-center justify-center rounded-full border border-white/15 bg-white/5 text-[11px] font-bold text-white/80 transition hover:border-white hover:text-white">
+              Z
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* DÒNG BẢN QUYỀN VÀ PHÁP LÝ (BOTTOM BAR) */}
+  <div class="border-t border-white/10 bg-black/60 py-6 text-xs text-[#707070]">
+    <div class="mx-auto flex max-w-7xl flex-col items-center justify-between gap-4 px-4 sm:flex-row sm:px-6 lg:px-8">
+      <p>© {currentYear} NỘI THẤT LUXURY. Bảo lưu mọi quyền.</p>
+      <p class="text-center text-[11px] sm:text-right">
+        Nội dung phong thủy mang tính tham khảo và hướng tới sự cân bằng sinh khí cho gia chủ.
+      </p>
+    </div>
   </div>
 </footer>

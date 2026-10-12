@@ -7,77 +7,58 @@ interface MenuLink {
 interface MenuItem {
   label: string;
   href?: string;
+  badge?: string;
   children?: MenuLink[];
 }
 
 const menu: MenuItem[] = [
   {
-    label: 'Phòng khách',
+    label: 'Trang chủ',
+    href: '/',
+  },
+  {
+    label: 'Sản phẩm',
+    href: '/san-pham',
     children: [
-      { label: 'Sofa', href: '/san-pham?danh-muc=sofa' },
-      { label: 'Ghế thư giãn', href: '/san-pham?danh-muc=ghe' },
-      { label: 'Bàn trà', href: '/san-pham?danh-muc=trang-tri' },
-      { label: 'Kệ tivi', href: '/san-pham?danh-muc=tu-ke' },
+      { label: 'Tất cả sản phẩm', href: '/san-pham' },
+      { label: 'Sofa cao cấp', href: '/san-pham?danh-muc=sofa' },
+      { label: 'Ghế & Bàn ăn', href: '/san-pham?danh-muc=ban-an' },
+      { label: 'Giường & Tủ phòng ngủ', href: '/san-pham?danh-muc=giuong' },
+      { label: 'Tủ & Kệ trang trí', href: '/san-pham?danh-muc=tu-ke' },
+      { label: 'Hệ thống đèn nghệ thuật', href: '/san-pham?danh-muc=den' },
+      { label: 'Đồ trang trí & Gương', href: '/san-pham?danh-muc=trang-tri' },
     ],
   },
   {
-    label: 'Phòng ăn',
+    label: 'Không gian',
+    href: '/#mua-theo-khong-gian',
     children: [
-      { label: 'Bàn ăn', href: '/san-pham?danh-muc=ban-an' },
-      { label: 'Ghế ăn', href: '/san-pham?danh-muc=ghe' },
-      { label: 'Đèn thả trần', href: '/san-pham?danh-muc=den' },
+      { label: 'Phòng khách sang trọng', href: '/san-pham?khong-gian=phong-khach' },
+      { label: 'Phòng ăn ấm cúng', href: '/san-pham?khong-gian=phong-an' },
+      { label: 'Phòng ngủ thư thái', href: '/san-pham?khong-gian=phong-ngu' },
+      { label: 'Không gian làm việc VIP', href: '/san-pham?khong-gian=lam-viec' },
+      { label: 'Khu vực ngoài trời & Sân vườn', href: '/san-pham?khong-gian=ngoai-troi' },
+      { label: '✦ Dự án & Không gian thực tế', href: '/#du-an' },
     ],
   },
   {
-    label: 'Phòng ngủ',
-    children: [
-      { label: 'Giường ngủ', href: '/san-pham?danh-muc=giuong' },
-      { label: 'Tủ quần áo', href: '/san-pham?danh-muc=tu-ke' },
-      { label: 'Gương trang trí', href: '/san-pham?danh-muc=trang-tri' },
-    ],
+    label: 'Phong thủy',
+    href: '/phong-thuy',
   },
   {
-    label: 'Làm việc',
+    label: 'Về chúng tôi',
+    href: '/#cau-chuyen',
     children: [
-      { label: 'Ghế công thái học', href: '/san-pham?danh-muc=ghe' },
-      { label: 'Kệ sách', href: '/san-pham?danh-muc=tu-ke' },
-      { label: 'Đèn bàn', href: '/san-pham?danh-muc=den' },
+      { label: 'Câu chuyện thương hiệu', href: '/#cau-chuyen' },
+      { label: 'Showroom & Liên hệ', href: '/#showroom' },
+      { label: 'Hợp tác KTS & Dự án', href: '/#doi-tac' },
     ],
   },
-  {
-    label: 'Ngoài trời',
-    children: [
-      { label: 'Ghế gỗ teak', href: '/san-pham?khong-gian=ngoai-troi' },
-      { label: 'Toàn bộ ngoài trời', href: '/san-pham?khong-gian=ngoai-troi' },
-    ],
-  },
-  {
-    label: 'Chiếu sáng',
-    children: [
-      { label: 'Đèn sàn', href: '/san-pham?danh-muc=den' },
-      { label: 'Đèn thả trần', href: '/san-pham?danh-muc=den' },
-      { label: 'Đèn bàn', href: '/san-pham?danh-muc=den' },
-    ],
-  },
-  {
-    label: 'Trang trí',
-    children: [
-      { label: 'Bàn trà', href: '/san-pham?danh-muc=trang-tri' },
-      { label: 'Gương', href: '/san-pham?danh-muc=trang-tri' },
-      { label: 'Đồ trang trí', href: '/san-pham?danh-muc=trang-tri' },
-    ],
-  },
-  { label: 'Hàng mới về', href: '/san-pham' },
-  { label: 'Phong thủy', href: '/phong-thuy' },
 ];
 
 const secondary: MenuLink[] = [
-  { label: 'Về chúng tôi', href: '/' },
-  { label: 'Bộ sưu tập', href: '/san-pham' },
-  { label: 'Gợi ý phong thủy', href: '/phong-thuy' },
-  { label: 'Đăng ký tài khoản', href: '/dang-ky' },
-  { label: 'Đăng nhập', href: '/dang-nhap' },
-  { label: 'Trang quản trị (Admin)', href: '/admin' },
+  { label: 'Tài khoản của tôi', href: '/dang-nhap' },
+  { label: 'Hotline đặt lịch hẹn: 1900 636 884', href: 'tel:1900636884' },
 ];
 
 const isHome = Astro.url.pathname === '/';
@@ -85,131 +66,239 @@ const isHome = Astro.url.pathname === '/';
 
 <header
   id="site-header"
-  class="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
   data-overlay={isHome ? 'true' : 'false'}
+  class="fixed inset-x-0 top-0 z-50 transition-all duration-300"
 >
-  <div class="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:h-20 sm:px-6 lg:px-8">
-    <!-- Nút mở Menu -->
-    <div class="flex items-center gap-4">
-      <button
-        id="menu-btn"
-        type="button"
-        class="inline-flex h-10 w-10 items-center justify-center transition-opacity hover:opacity-60 cursor-pointer"
-        aria-label="Mở menu"
-        aria-expanded="false"
-        aria-controls="menu-panel"
-      >
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-6 w-6 shrink-0">
-          <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round" />
-        </svg>
-      </button>
+  {/* TOP ANNOUNCEMENT BAR (QUÝ PHÁI, TINH TẾ) */}
+  <div id="header-topbar" class="border-b border-white/10 bg-black/75 py-1.5 text-[11px] text-neutral-300 backdrop-blur-md transition-all duration-300">
+    <div class="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-8">
+      <div class="hidden items-center gap-5 md:flex">
+        <span class="flex items-center gap-1.5">
+          <span class="inline-block h-1.5 w-1.5 rounded-full bg-amber-400"></span>
+          <span>Showroom Flagship: 615 Âu Cơ, TP. HCM</span>
+        </span>
+        <span class="text-white/20">|</span>
+        <span class="text-neutral-400">Giờ mở cửa: 08:30 – 21:00</span>
+      </div>
 
-      <a href="/" class="logo-mark text-lg font-bold uppercase tracking-[0.28em] sm:text-2xl transition-opacity hover:opacity-80">
-        NỘI THẤT
-      </a>
+      <div class="mx-auto flex items-center gap-3 text-center md:mx-0 md:text-right">
+        <span class="font-normal text-neutral-300">Miễn phí giao hàng & lắp đặt tận nơi</span>
+        <span class="text-white/20">•</span>
+        <span class="text-neutral-300">Hotline VIP: <a href="tel:1900636884" class="font-medium text-amber-300 transition hover:underline">1900 636 884</a></span>
+      </div>
     </div>
+  </div>
 
-    <!-- Actions (Tài khoản, Giỏ hàng) -->
-    <div class="flex items-center gap-2 sm:gap-4">
-      <a
-        href="/dang-nhap"
-        class="inline-flex h-10 w-10 items-center justify-center transition-opacity hover:opacity-60"
-        aria-label="Tài khoản"
-        title="Đăng nhập / Tài khoản"
-      >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-[22px] w-[22px] shrink-0">
-          <circle cx="12" cy="8" r="3.5" />
-          <path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5" stroke-linecap="round" />
-        </svg>
-      </a>
+  {/* MAIN NAVBAR */}
+  <div class="navbar-container transition-all duration-300">
+    <div class="relative mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:h-20 sm:px-8">
+      {/* KHỐI TRÁI: MOBILE MENU & LOGO */}
+      <div class="flex items-center gap-4 sm:gap-8">
+        <button
+          id="menu-btn"
+          type="button"
+          class="inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/10 lg:hidden"
+          aria-label="Mở menu"
+          aria-expanded="false"
+          aria-controls="menu-panel"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-6 w-6">
+            <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round" />
+          </svg>
+        </button>
 
-      <a
-        href="/gio-hang"
-        class="relative inline-flex h-10 w-10 items-center justify-center transition-opacity hover:opacity-60"
-        aria-label="Giỏ hàng"
-        title="Giỏ hàng"
-      >
-        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-[22px] w-[22px] shrink-0">
-          <path d="M5 8h14l-1.2 12H6.2L5 8Z" stroke-linejoin="round" />
-          <path d="M9 8V6.5a3 3 0 0 1 6 0V8" stroke-linecap="round" />
+        <a href="/" class="group flex flex-col">
+          <span class="logo-mark font-sans text-lg font-semibold uppercase tracking-[0.35em] transition sm:text-2xl">
+            Nội Thất
+          </span>
+          <span class="text-[9px] uppercase tracking-[0.45em] text-neutral-400 opacity-90 transition group-hover:text-amber-400">
+            Luxury Living
+          </span>
+        </a>
+      </div>
+
+      {/* KHỐI GIỮA: CANH GIỮA HOÀN HẢO (MATHEMATICALLY CENTERED) */}
+      <nav class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden lg:flex items-center gap-6 xl:gap-9 whitespace-nowrap" aria-label="Menu chính máy tính">
+        {menu.map((item) => (
+          <div class="nav-item group relative">
+            <a
+              href={item.href || '#'}
+              class="nav-link flex items-center gap-1.5 py-2 text-[12px] font-medium uppercase tracking-[0.18em] transition-colors duration-250 whitespace-nowrap"
+            >
+              <span class="hover-line-center whitespace-nowrap">{item.label}</span>
+              {item.children && (
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-3 w-3 shrink-0 opacity-60 transition-transform duration-200 group-hover:rotate-180">
+                  <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              )}
+            </a>
+
+            {/* DROPDOWN MENU CHUẨN LUXURY */}
+            {item.children && (
+              <div class="dropdown-menu invisible absolute left-1/2 top-full -translate-x-1/2 pt-2 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
+                <div class="w-max min-w-[240px] rounded-sm border border-neutral-800 bg-[#141416]/95 p-3 shadow-2xl backdrop-blur-xl">
+                  <ul class="space-y-1">
+                    {item.children.map((child) => (
+                      <li>
+                        <a
+                          href={child.href}
+                          class="block rounded-sm px-3.5 py-2 text-xs font-normal text-neutral-300 transition-colors hover:bg-white/10 hover:text-white whitespace-nowrap"
+                        >
+                          {child.label}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </nav>
+
+      {/* KHỐI PHẢI: TÌM KIẾM, TÀI KHOẢN, GIỎ HÀNG */}
+      <div class="flex items-center gap-2 sm:gap-3">
+        {/* Nút toggle tìm kiếm nhanh */}
+        <button
+          id="search-toggle-btn"
+          type="button"
+          class="inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/10"
+          aria-label="Tìm kiếm sản phẩm"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5">
+            <circle cx="11" cy="11" r="6" />
+            <path d="M15.5 15.5 20 20" stroke-linecap="round" />
+          </svg>
+        </button>
+
+        {/* Nút Tài khoản */}
+        <a
+          href="/dang-nhap"
+          class="inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/10"
+          aria-label="Tài khoản cá nhân"
+          title="Tài khoản"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5">
+            <circle cx="12" cy="8" r="3.5" />
+            <path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5" stroke-linecap="round" />
+          </svg>
+        </a>
+
+        {/* Nút Giỏ hàng */}
+        <a
+          href="/gio-hang"
+          class="relative inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/10"
+          aria-label="Giỏ hàng"
+          title="Giỏ hàng"
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5">
+            <path d="M5 8h14l-1.2 12H6.2L5 8Z" stroke-linejoin="round" />
+            <path d="M9 8V6.5a3 3 0 0 1 6 0V8" stroke-linecap="round" />
+          </svg>
+          <span
+            data-cart-count
+            style="display:none"
+            class="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-400 px-1 text-[10px] font-bold text-neutral-950 shadow-sm"
+          >0</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  {/* THANH TÌM KIẾM NHANH THẢ XUỐNG KHI BẤM KÍNH LÚP */}
+  <div id="quick-search-bar" class="hidden border-b border-neutral-800 bg-[#121214]/95 px-4 py-4 shadow-xl backdrop-blur-xl sm:px-8">
+    <div class="mx-auto max-w-3xl">
+      <form data-desktop-search role="search" class="flex items-center gap-3 border-b border-white/20 pb-2">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5 text-neutral-400">
+          <circle cx="11" cy="11" r="6" />
+          <path d="M15.5 15.5 20 20" stroke-linecap="round" />
         </svg>
-        <span
-          data-cart-count
-          style="display:none"
-          class="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-clay-600 px-1 text-[10px] font-semibold text-sand-50"
-        >0</span>
-      </a>
+        <input
+          type="search"
+          name="q"
+          placeholder="Tìm sofa da, bàn ăn gỗ sồi, đèn trần nghệ thuật..."
+          class="w-full bg-transparent text-sm text-white placeholder-neutral-500 outline-none"
+        />
+        <button type="submit" class="text-xs uppercase tracking-widest text-amber-300 transition hover:text-amber-200">Tìm kiếm</button>
+        <button type="button" id="close-search-btn" class="ml-2 text-neutral-400 hover:text-white" aria-label="Đóng">✕</button>
+      </form>
     </div>
   </div>
 </header>
 
-<!-- Bảng menu trượt -->
+{/* BẢNG MENU TRƯỢT DI ĐỘNG (MOBILE DRAWER MENU) */}
 <div id="menu-panel" class="pointer-events-none fixed inset-0 z-[60] opacity-0 transition-opacity duration-300">
-  <div id="menu-backdrop" class="absolute inset-0 bg-walnut-900/40" aria-hidden="true"></div>
+  <div id="menu-backdrop" class="absolute inset-0 bg-black/70 backdrop-blur-sm" aria-hidden="true"></div>
 
   <aside
-    class="absolute left-0 top-0 flex h-full w-full max-w-sm flex-col bg-sand-50 px-6 py-6 text-walnut-900 shadow-2xl"
-    aria-label="Menu chính"
+    class="absolute left-0 top-0 flex h-full w-full max-w-sm flex-col bg-[#141416] px-6 py-6 text-white shadow-2xl"
+    aria-label="Menu chính trên điện thoại"
   >
-    <div class="flex shrink-0 items-center justify-between">
-      <span class="text-lg font-bold uppercase tracking-[0.28em]">NỘI THẤT</span>
+    <div class="flex shrink-0 items-center justify-between border-b border-white/10 pb-4">
+      <div class="flex flex-col">
+        <span class="text-lg font-semibold uppercase tracking-[0.32em] text-white">Nội Thất</span>
+        <span class="text-[9px] uppercase tracking-[0.4em] text-amber-400">Luxury Living</span>
+      </div>
       <button
         id="menu-close"
         type="button"
-        class="inline-flex h-10 w-10 items-center justify-center transition-opacity hover:opacity-60 cursor-pointer"
+        class="inline-flex h-10 w-10 items-center justify-center rounded-full text-white/70 hover:bg-white/10 hover:text-white"
         aria-label="Đóng menu"
       >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5 shrink-0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5">
           <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" />
         </svg>
       </button>
     </div>
 
-    <form data-menu-search role="search" class="mt-8 flex shrink-0 items-center gap-3 border-b border-walnut-900/20 pb-2">
+    {/* Form tìm kiếm trên mobile */}
+    <form data-menu-search role="search" class="mt-6 flex shrink-0 items-center gap-3 border-b border-white/20 pb-2">
       <input
         type="search"
         name="q"
-        placeholder="Tìm kiếm sản phẩm..."
-        aria-label="Tìm kiếm sản phẩm"
-        class="w-full bg-transparent text-sm outline-none placeholder:text-walnut-800/60"
+        placeholder="Tìm sofa, bàn ăn, đèn..."
+        aria-label="Tìm sản phẩm"
+        class="w-full bg-transparent text-sm text-white placeholder-neutral-500 outline-none"
       />
-      <button type="submit" aria-label="Tìm kiếm" class="text-walnut-800 transition-colors hover:text-clay-600 cursor-pointer">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5 shrink-0">
+      <button type="submit" aria-label="Tìm" class="text-neutral-400 hover:text-white">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5">
           <circle cx="11" cy="11" r="6" />
           <path d="M15.5 15.5 20 20" stroke-linecap="round" />
         </svg>
       </button>
     </form>
 
-    <nav class="mt-6 flex-1 overflow-y-auto" aria-label="Danh mục">
+    <nav class="mt-6 flex-1 overflow-y-auto" aria-label="Danh mục điện thoại">
       <ul class="flex flex-col">
         {menu.map((item) => (
-          <li class="border-b border-walnut-900/10">
+          <li class="border-b border-white/10">
             {item.children ? (
               <details class="menu-group">
-                <summary class="flex cursor-pointer items-center justify-between gap-4 py-3">
-                  <span class="text-base tracking-tight text-walnut-900 font-medium">{item.label}</span>
-                  <span class="menu-plus text-lg leading-none text-walnut-800" aria-hidden="true">+</span>
+                <summary class="flex cursor-pointer items-center justify-between gap-4 py-3.5">
+                  <span class="text-sm font-medium uppercase tracking-[0.15em] text-white">{item.label}</span>
+                  <span class="menu-plus text-lg leading-none text-neutral-400" aria-hidden="true">+</span>
                 </summary>
-                <ul class="flex flex-col gap-2 pb-4 pl-4">
+                <ul class="flex flex-col gap-2.5 pb-4 pl-4 text-xs">
                   {item.children.map((child) => (
                     <li>
-                      <a href={child.href} class="text-sm text-walnut-800 transition-colors hover:text-clay-600">{child.label}</a>
+                      <a href={child.href} class="text-neutral-400 transition-colors hover:text-white">{child.label}</a>
                     </li>
                   ))}
                 </ul>
               </details>
             ) : (
-              <a href={item.href} class="block py-3 text-base tracking-tight text-walnut-900 transition-colors hover:text-clay-600 font-medium">{item.label}</a>
+              <a href={item.href} class="block py-3.5 text-sm font-medium uppercase tracking-[0.15em] text-white transition-colors hover:text-amber-300">
+                {item.label}
+              </a>
             )}
           </li>
         ))}
       </ul>
 
-      <ul class="mt-8 flex flex-col gap-3 pb-10 text-sm text-walnut-800">
+      <ul class="mt-8 flex flex-col gap-3 pb-10 text-xs text-neutral-400">
         {secondary.map((item) => (
           <li>
-            <a href={item.href} class="transition-colors hover:text-clay-600">{item.label}</a>
+            <a href={item.href} class="transition-colors hover:text-white">{item.label}</a>
           </li>
         ))}
       </ul>
@@ -219,29 +308,70 @@ const isHome = Astro.url.pathname === '/';
 
 <style>
   #site-header {
-    color: #111111;
-    background-color: #ffffff;
-    border-bottom: 1px solid var(--color-sand-200);
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-  }
-
-  /* Trang chủ: header trong suốt nằm trên hero */
-  #site-header[data-overlay='true'] {
+    --line-color: #fbbf24; /* Vàng kim champagne trên nền tối (kế thừa bởi .hover-line-center) */
     color: #ffffff;
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  /* Trạng thái mặc định trên trang chủ (Overlay trên nền tối) */
+  #site-header[data-overlay='true'] .navbar-container {
     background-color: transparent;
-    border-bottom-color: transparent;
   }
 
-  #site-header[data-overlay='true'].is-scrolled {
+  /* Khi cuộn chuột trên trang chủ HOẶC ở các trang con */
+  #site-header[data-overlay='true'].is-scrolled,
+  #site-header[data-overlay='false'] {
+    --line-color: #fbbf24; /* Đồng bộ màu vàng nhạt champagne như ở đầu trang */
     color: #111111;
-    background-color: rgba(255, 255, 255, 0.95);
-    border-bottom-color: var(--color-sand-200);
-    backdrop-filter: blur(10px);
   }
 
+  #site-header[data-overlay='true'].is-scrolled .navbar-container,
+  #site-header[data-overlay='false'] .navbar-container {
+    background-color: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Chỉnh màu chữ menu khi header nền sáng */
+  #site-header[data-overlay='true'].is-scrolled .nav-item > .nav-link,
+  #site-header[data-overlay='false'] .nav-item > .nav-link {
+    color: #222222;
+  }
+
+  /* Khi hover: MÀU CHỮ VÀ THANH NGANG TRÙNG KHỚP 100% CÙNG MỘT MÃ MÀU (#fbbf24) */
+  .nav-item:hover .nav-link,
+  .nav-link:hover {
+    color: var(--line-color, #fbbf24) !important;
+  }
+
+  #site-header[data-overlay='true'].is-scrolled .logo-mark,
+  #site-header[data-overlay='false'] .logo-mark {
+    color: #111111;
+  }
+
+  /* Dropdown panel khi ở header trắng */
+  #site-header[data-overlay='true'].is-scrolled .dropdown-menu > div,
+  #site-header[data-overlay='false'] .dropdown-menu > div {
+    background-color: #ffffff;
+    border-color: #e5e5e5;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  }
+
+  #site-header[data-overlay='true'].is-scrolled .dropdown-menu a,
+  #site-header[data-overlay='false'] .dropdown-menu a {
+    color: #4b5563;
+  }
+  #site-header[data-overlay='true'].is-scrolled .dropdown-menu a:hover,
+  #site-header[data-overlay='false'] .dropdown-menu a:hover {
+    color: #111111;
+    background-color: #f3f4f6;
+  }
+
+  /* Panel trượt mobile */
   #menu-panel > aside {
     transform: translateX(-100%);
-    transition: transform 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
 
   #menu-panel.is-open {
@@ -276,17 +406,21 @@ const isHome = Astro.url.pathname === '/';
   const menuClose = document.getElementById('menu-close');
   const menuPanel = document.getElementById('menu-panel');
   const menuBackdrop = document.getElementById('menu-backdrop');
-  const searchForm = document.querySelector<HTMLFormElement>('[data-menu-search]');
-  const searchInput = document.querySelector<HTMLInputElement>('[data-menu-search] input[name="q"]');
+  const searchToggleBtn = document.getElementById('search-toggle-btn');
+  const quickSearchBar = document.getElementById('quick-search-bar');
+  const closeSearchBtn = document.getElementById('close-search-btn');
 
-  if (header?.dataset.overlay === 'true') {
-    const onScroll = () => {
-      header.classList.toggle('is-scrolled', window.scrollY > 40);
-    };
-    onScroll();
-    window.addEventListener('scroll', onScroll, { passive: true });
-  }
+  // Xử lý scroll header
+  const onScroll = () => {
+    if (!header) return;
+    const isScrolled = window.scrollY > 40;
+    header.classList.toggle('is-scrolled', isScrolled);
+  };
 
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  // Mobile Menu Drawer
   const openMenu = () => {
     if (!menuPanel || !menuBtn) return;
     menuPanel.classList.add('is-open');
@@ -306,16 +440,37 @@ const isHome = Astro.url.pathname === '/';
   menuBackdrop?.addEventListener('click', closeMenu);
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') closeMenu();
+    if (event.key === 'Escape') {
+      closeMenu();
+      quickSearchBar?.classList.add('hidden');
+    }
   });
 
-  if (searchForm && searchInput) {
-    searchForm.addEventListener('submit', (event) => {
+  // Toggle thanh tìm kiếm nhanh
+  searchToggleBtn?.addEventListener('click', () => {
+    if (!quickSearchBar) return;
+    const isHidden = quickSearchBar.classList.toggle('hidden');
+    if (!isHidden) {
+      quickSearchBar.querySelector<HTMLInputElement>('input[name="q"]')?.focus();
+    }
+  });
+
+  closeSearchBtn?.addEventListener('click', () => {
+    quickSearchBar?.classList.add('hidden');
+  });
+
+  // Tìm kiếm form
+  const handleSearchSubmit = (form: HTMLFormElement | null) => {
+    form?.addEventListener('submit', (event) => {
       event.preventDefault();
-      const keyword = searchInput.value.trim();
+      const input = form.querySelector<HTMLInputElement>('input[name="q"]');
+      const keyword = input?.value.trim();
       window.location.href = keyword ? '/san-pham?q=' + encodeURIComponent(keyword) : '/san-pham';
     });
-  }
+  };
+
+  handleSearchSubmit(document.querySelector<HTMLFormElement>('[data-menu-search]'));
+  handleSearchSubmit(document.querySelector<HTMLFormElement>('[data-desktop-search]'));
 </script>
 
 <script>

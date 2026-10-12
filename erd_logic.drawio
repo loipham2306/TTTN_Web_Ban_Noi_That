@@ -1,0 +1,226 @@
+<mxfile host="app.diagrams.net" modified="2026-10-09T14:02:00.000Z" agent="Antigravity" version="24.7.5" type="device">
+  <diagram id="erd-logic" name="ERD Logic Web Ban Noi That">
+    <mxGraphModel dx="1600" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1500" pageHeight="1100" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+
+        <!-- TIÊU ĐỀ SƠ ĐỒ -->
+        <mxCell id="title" value="SƠ ĐỒ THỰC THỂ MỐI QUAN HỆ (LOGICAL ERD) - WEBSITE BÁN NỘI THẤT" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontStyle=1;fontSize=18;fontColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="350" y="15" width="800" height="30" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== ZONE 1: USER & AUTH ==================== -->
+        <!-- ROLES -->
+        <mxCell id="tbl_roles" value="&lt;b&gt;ROLES&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id&lt;br&gt;name&lt;br&gt;description" style="shape=rect;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingRight=8;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="50" y="70" width="160" height="90" as="geometry" />
+        </mxCell>
+
+        <!-- USERS -->
+        <mxCell id="tbl_users" value="&lt;b&gt;USERS&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; role_id&lt;br&gt;email&lt;br&gt;password_hash&lt;br&gt;full_name&lt;br&gt;phone&lt;br&gt;avatar_url&lt;br&gt;status&lt;br&gt;created_at&lt;br&gt;updated_at&lt;br&gt;deleted_at" style="shape=rect;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingRight=8;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="270" y="70" width="180" height="210" as="geometry" />
+        </mxCell>
+
+        <!-- USER_ADDRESSES -->
+        <mxCell id="tbl_user_addresses" value="&lt;b&gt;USER_ADDRESSES&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; user_id&lt;br&gt;receiver_name&lt;br&gt;receiver_phone&lt;br&gt;province&lt;br&gt;district&lt;br&gt;ward&lt;br&gt;specific_address&lt;br&gt;is_default" style="shape=rect;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingRight=8;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="50" y="210" width="170" height="175" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== ZONE 2: PRODUCTS & CATALOG ==================== -->
+        <!-- CATEGORIES -->
+        <mxCell id="tbl_categories" value="&lt;b&gt;CATEGORIES&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; parent_id&lt;br&gt;name&lt;br&gt;slug&lt;br&gt;image_url&lt;br&gt;status" style="shape=rect;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingRight=8;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="520" y="70" width="170" height="135" as="geometry" />
+        </mxCell>
+
+        <!-- PRODUCTS -->
+        <mxCell id="tbl_products" value="&lt;b&gt;PRODUCTS&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; category_id&lt;br&gt;name&lt;br&gt;slug&lt;br&gt;short_description&lt;br&gt;content&lt;br&gt;brand&lt;br&gt;view_count&lt;br&gt;status&lt;br&gt;created_at&lt;br&gt;updated_at&lt;br&gt;deleted_at" style="shape=rect;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingRight=8;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="760" y="70" width="190" height="225" as="geometry" />
+        </mxCell>
+
+        <!-- PRODUCT_VARIANTS -->
+        <mxCell id="tbl_product_variants" value="&lt;b&gt;PRODUCT_VARIANTS&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; product_id&lt;br&gt;sku&lt;br&gt;color&lt;br&gt;material&lt;br&gt;price&lt;br&gt;compare_at_price&lt;br&gt;stock_quantity&lt;br&gt;weight_gram&lt;br&gt;dimensions" style="shape=rect;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingRight=8;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="70" width="190" height="195" as="geometry" />
+        </mxCell>
+
+        <!-- PRODUCT_IMAGES -->
+        <mxCell id="tbl_product_images" value="&lt;b&gt;PRODUCT_IMAGES&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; product_id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; variant_id&lt;br&gt;image_url&lt;br&gt;is_thumbnail&lt;br&gt;sort_order" style="shape=rect;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingRight=8;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="320" width="180" height="130" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== ZONE 3: CART & ORDERS ==================== -->
+        <!-- SHOPPING_CARTS -->
+        <mxCell id="tbl_shopping_carts" value="&lt;b&gt;SHOPPING_CARTS&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; user_id&lt;br&gt;session_id&lt;br&gt;created_at&lt;br&gt;updated_at" style="shape=rect;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingRight=8;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="270" y="340" width="170" height="120" as="geometry" />
+        </mxCell>
+
+        <!-- CART_ITEMS -->
+        <mxCell id="tbl_cart_items" value="&lt;b&gt;CART_ITEMS&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; cart_id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; variant_id&lt;br&gt;quantity" style="shape=rect;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingRight=8;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="520" y="340" width="170" height="105" as="geometry" />
+        </mxCell>
+
+        <!-- COUPONS -->
+        <mxCell id="tbl_coupons" value="&lt;b&gt;COUPONS&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id&lt;br&gt;code&lt;br&gt;discount_type&lt;br&gt;discount_value&lt;br&gt;min_order_value&lt;br&gt;max_discount_amount&lt;br&gt;start_date&lt;br&gt;end_date&lt;br&gt;usage_limit&lt;br&gt;used_count&lt;br&gt;status" style="shape=rect;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingRight=8;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="50" y="520" width="180" height="215" as="geometry" />
+        </mxCell>
+
+        <!-- ORDERS -->
+        <mxCell id="tbl_orders" value="&lt;b&gt;ORDERS&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id&lt;br&gt;order_code&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; user_id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; coupon_id&lt;br&gt;shipping_address&lt;br&gt;shipping_fee&lt;br&gt;subtotal_amount&lt;br&gt;discount_amount&lt;br&gt;total_amount&lt;br&gt;payment_method&lt;br&gt;payment_status&lt;br&gt;order_status&lt;br&gt;seller_note&lt;br&gt;customer_note&lt;br&gt;created_at&lt;br&gt;updated_at" style="shape=rect;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingRight=8;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="290" y="520" width="200" height="295" as="geometry" />
+        </mxCell>
+
+        <!-- ORDER_ITEMS -->
+        <mxCell id="tbl_order_items" value="&lt;b&gt;ORDER_ITEMS&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; order_id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; product_id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; variant_id&lt;br&gt;product_name&lt;br&gt;variant_name&lt;br&gt;sku&lt;br&gt;quantity&lt;br&gt;unit_price&lt;br&gt;total_price" style="shape=rect;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingRight=8;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="560" y="520" width="180" height="195" as="geometry" />
+        </mxCell>
+
+        <!-- REVIEWS -->
+        <mxCell id="tbl_reviews" value="&lt;b&gt;REVIEWS&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; product_id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; user_id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; order_id&lt;br&gt;rating&lt;br&gt;content&lt;br&gt;status&lt;br&gt;created_at" style="shape=rect;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingRight=8;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="800" y="520" width="170" height="160" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== ZONE 4: AI CHAT & SYSTEM ==================== -->
+        <!-- CHAT_SESSIONS -->
+        <mxCell id="tbl_chat_sessions" value="&lt;b&gt;CHAT_SESSIONS&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; user_id&lt;br&gt;guest_id&lt;br&gt;status&lt;br&gt;started_at&lt;br&gt;ended_at" style="shape=rect;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingRight=8;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="520" width="180" height="135" as="geometry" />
+        </mxCell>
+
+        <!-- CHAT_MESSAGES -->
+        <mxCell id="tbl_chat_messages" value="&lt;b&gt;CHAT_MESSAGES&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; session_id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; sender_id&lt;br&gt;sender_type&lt;br&gt;content&lt;br&gt;created_at" style="shape=rect;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingRight=8;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1270" y="520" width="180" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- BOT_PROMPTS -->
+        <mxCell id="tbl_bot_prompts" value="&lt;b&gt;BOT_PROMPTS&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; updated_by&lt;br&gt;context_key&lt;br&gt;content&lt;br&gt;is_active" style="shape=rect;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingRight=8;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1030" y="730" width="180" height="125" as="geometry" />
+        </mxCell>
+
+        <!-- SYSTEM_LOGS -->
+        <mxCell id="tbl_system_logs" value="&lt;b&gt;SYSTEM_LOGS&lt;/b&gt;&lt;hr&gt;&lt;b&gt;PK&lt;/b&gt; id&lt;br&gt;&lt;b&gt;FK&lt;/b&gt; user_id&lt;br&gt;action&lt;br&gt;description&lt;br&gt;ip_address&lt;br&gt;created_at" style="shape=rect;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacingLeft=8;spacingTop=6;spacingRight=8;fillColor=#ffffff;strokeColor=#000000;strokeWidth=1.5;fontColor=#000000;fontSize=11;" vertex="1" parent="1">
+          <mxGeometry x="1270" y="730" width="180" height="135" as="geometry" />
+        </mxCell>
+
+        <!-- ==================== CROW'S FOOT RELATIONSHIPS ==================== -->
+        <!-- 1. ROLES (1) <-> (N) USERS -->
+        <mxCell id="rel_roles_users" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_roles" target="tbl_users">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 2. USERS (1) <-> (N) USER_ADDRESSES -->
+        <mxCell id="rel_users_addresses" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_users" target="tbl_user_addresses">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 3. CATEGORIES (1) <-> (N) CATEGORIES (Self loop sang bên trái) -->
+        <mxCell id="rel_cat_parent" value="parent_id (1 : N)" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=10;fontColor=#000000;" edge="1" parent="1" source="tbl_categories" target="tbl_categories">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="490" y="110" />
+              <mxPoint x="490" y="150" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+
+        <!-- 4. CATEGORIES (1) <-> (N) PRODUCTS -->
+        <mxCell id="rel_cat_prod" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_categories" target="tbl_products">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 5. PRODUCTS (1) <-> (N) PRODUCT_VARIANTS -->
+        <mxCell id="rel_prod_var" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_products" target="tbl_product_variants">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 6. PRODUCTS (1) <-> (N) PRODUCT_IMAGES -->
+        <mxCell id="rel_prod_img" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_products" target="tbl_product_images">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 7. PRODUCT_VARIANTS (1) <-> (N) PRODUCT_IMAGES -->
+        <mxCell id="rel_var_img" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_product_variants" target="tbl_product_images">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 8. USERS (1) <-> (N) SHOPPING_CARTS -->
+        <mxCell id="rel_users_cart" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_users" target="tbl_shopping_carts">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 9. SHOPPING_CARTS (1) <-> (N) CART_ITEMS -->
+        <mxCell id="rel_cart_items" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_shopping_carts" target="tbl_cart_items">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 10. PRODUCT_VARIANTS (1) <-> (N) CART_ITEMS -->
+        <mxCell id="rel_var_cart_items" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_product_variants" target="tbl_cart_items">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 11. USERS (1) <-> (N) ORDERS -->
+        <mxCell id="rel_users_orders" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_users" target="tbl_orders">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 12. COUPONS (1) <-> (N) ORDERS -->
+        <mxCell id="rel_coupons_orders" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_coupons" target="tbl_orders">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 13. ORDERS (1) <-> (N) ORDER_ITEMS -->
+        <mxCell id="rel_orders_items" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_orders" target="tbl_order_items">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 14. PRODUCTS (1) <-> (N) ORDER_ITEMS -->
+        <mxCell id="rel_prod_order_items" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_products" target="tbl_order_items">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 15. PRODUCT_VARIANTS (1) <-> (N) ORDER_ITEMS -->
+        <mxCell id="rel_var_order_items" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_product_variants" target="tbl_order_items">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 16. PRODUCTS (1) <-> (N) REVIEWS -->
+        <mxCell id="rel_prod_reviews" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_products" target="tbl_reviews">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 17. USERS (1) <-> (N) REVIEWS -->
+        <mxCell id="rel_users_reviews" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_users" target="tbl_reviews">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 18. ORDERS (1) <-> (N) REVIEWS -->
+        <mxCell id="rel_orders_reviews" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_orders" target="tbl_reviews">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 19. USERS (1) <-> (N) CHAT_SESSIONS -->
+        <mxCell id="rel_users_chats" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_users" target="tbl_chat_sessions">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 20. CHAT_SESSIONS (1) <-> (N) CHAT_MESSAGES -->
+        <mxCell id="rel_chat_session_messages" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_chat_sessions" target="tbl_chat_messages">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 21. USERS (1) <-> (N) CHAT_MESSAGES (sender_id) -->
+        <mxCell id="rel_users_chat_messages" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_users" target="tbl_chat_messages">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 22. USERS (1) <-> (N) SYSTEM_LOGS -->
+        <mxCell id="rel_users_logs" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_users" target="tbl_system_logs">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- 23. USERS (1) <-> (N) BOT_PROMPTS (updated_by) -->
+        <mxCell id="rel_users_bot_prompts" value="1 : N" style="endArrow=ERmany;startArrow=ERone;html=1;rounded=0;strokeColor=#000000;strokeWidth=1.2;fontSize=11;fontColor=#000000;" edge="1" parent="1" source="tbl_users" target="tbl_bot_prompts">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

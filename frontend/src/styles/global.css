@@ -30,3 +30,57 @@ font-family: var(--font-sans);
 
 h1, h2, h3 { font-family: var(--font-display); }
 }
+
+/* ==========================================================================
+   HIỆU ỨNG TÁI SỬ DỤNG CHO TOÀN BỘ WEBSITE (REUSABLE LUXURY EFFECTS)
+   ========================================================================== */
+
+/* 1. Hiệu ứng gạch chân dãn từ giữa sang 2 bên (Expanding Center Underline) */
+.hover-line-center {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.hover-line-center::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 50%;
+  width: 0;
+  height: 1.5px;
+  background-color: var(--line-color, currentColor);
+  transform: translateX(-50%);
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 9999px;
+}
+
+.hover-line-center:hover::after,
+.group:hover .hover-line-center::after {
+  width: 100%;
+}
+
+/* 2. Biến thể màu vàng ánh kim luxury (Luxury Gold Underline) */
+.hover-line-gold {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.hover-line-gold::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 50%;
+  width: 0;
+  height: 1.5px;
+  background-color: #d97706; /* amber-600 */
+  transform: translateX(-50%);
+  transition: width 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  border-radius: 9999px;
+}
+
+.hover-line-gold:hover::after,
+.group:hover .hover-line-gold::after {
+  width: 100%;
+}
