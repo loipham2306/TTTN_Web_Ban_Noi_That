@@ -17,6 +17,10 @@
 /* Chữ */
 --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
 --font-display: "Lora", ui-serif, Georgia, serif;
+
+/* Chuyển động dùng chung (luxury easing) */
+--ease-lux: cubic-bezier(0.16, 1, 0.3, 1);
+--ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @layer base {
@@ -32,7 +36,7 @@ h1, h2, h3 { font-family: var(--font-display); }
 }
 
 /* ==========================================================================
-   HIỆU ỨNG TÁI SỬ DỤNG CHO TOÀN BỘ WEBSITE (REUSABLE LUXURY EFFECTS)
+   HIỆU ỨNG TÁI SỬ DỤNG CHO TOÀN BỘ WEBSITE 
    ========================================================================== */
 
 /* 1. Hiệu ứng gạch chân dãn từ giữa sang 2 bên (Expanding Center Underline) */
@@ -83,4 +87,179 @@ h1, h2, h3 { font-family: var(--font-display); }
 .hover-line-gold:hover::after,
 .group:hover .hover-line-gold::after {
   width: 100%;
+}
+
+/* ==========================================================================
+   MOTION SYSTEM — hiệu ứng chuyển động dùng chung cho cả User & Admin
+   Tất cả đều tôn trọng prefers-reduced-motion ở cuối file.
+   ========================================================================== */
+
+:root {
+  --ease-lux: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  --dur-1: 0.4s;
+  --dur-2: 0.7s;
+  --dur-3: 1.1s;
+}
+
+/* ---------- Keyframes ---------- */
+@keyframes lux-fade-up {
+  from { opacity: 0; transform: translate3d(0, 26px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes lux-fade-down {
+  from { opacity: 0; transform: translate3d(0, -16px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+@keyframes lux-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes lux-zoom-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
+@keyframes lux-img-in {
+  from { opacity: 0; filter: blur(12px); transform: scale(1.05); }
+  to   { opacity: 1; filter: blur(0);    transform: scale(1); }
+}
+@keyframes lux-shimmer { 100% { transform: translateX(100%); } }
+@keyframes lux-spin { to { transform: rotate(360deg); } }
+@keyframes lux-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+@keyframes lux-loader-backdrop-out { to { opacity: 0; visibility: hidden; } }
+@keyframes lux-loader-mark-out {
+  from { opacity: 1; transform: scale(1); }
+  to   { opacity: 0; transform: scale(0.96); visibility: hidden; }
+}
+
+/* ---------- 1. Hiệu ứng lúc tải trang (Entrance) ---------- */
+/* ---------- 1. Hiệu ứng lúc tải trang (Entrance) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+/* Delay 0.45s = bắt đầu SAU khi page loader tan (loader tắt ~0.45s) */
+#site-header { animation: lux-fade-down var(--dur-2) var(--ease-lux) 0.45s both; }
+main { animation: lux-fade-in var(--dur-3) var(--ease-lux) 0.45s both; }
+main > section:first-child,
+main >.space-y-8 >:first-child { animation: lux-fade-up var(--dur-3) var(--ease-lux) 0.55s both; }
+footer { animation: lux-fade-in var(--dur-3) var(--ease-lux) 0.55s both; }
+}
+/* ---------- 2. Scroll reveal (IntersectionObserver — chạy mọi trình duyệt) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+/* Trạng thái chờ: ẩn, đợi JS gắn.is-visible */
+.lux-reveal,
+.grid > *,
+article[data-product] {
+opacity: 0;
+}
+
+/* Vào khung nhìn → chạy 1 lần.
+fill-mode: backwards giữ trạng thái "from" trong lúc chờ delay (để stagger),
+khi chạy xong KHÔNG giữ fill ⇒ hover nâng card vẫn hoạt động bình thường. */
+.lux-reveal.is-visible,
+.grid > *.is-visible,
+article[data-product].is-visible {
+opacity: 1;
+animation: lux-fade-up 0.9s var(--ease-lux) backwards;
+animation-delay: var(--lux-delay, 0s);
+}
+
+.lux-reveal--fade.is-visible { animation-name: lux-fade-in; }
+.lux-reveal--zoom.is-visible { animation-name: lux-zoom-in; }
+.lux-reveal--left.is-visible { animation-name: lux-fade-up; }
+.lux-reveal--right.is-visible { animation-name: lux-fade-up; }
+}
+
+
+/* ---------- 3. Card nâng khi hover (lift) ---------- */
+.lux-card,
+article[data-product] {
+  transition: transform var(--dur-2) var(--ease-lux),
+              box-shadow var(--dur-2) var(--ease-lux),
+              border-color var(--dur-2) var(--ease-lux);
+  will-change: transform;
+}
+.lux-card:hover,
+article[data-product]:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 26px 50px -28px rgba(17, 17, 17, 0.45);
+}
+article[data-product] > a { display: block; }
+
+/* ---------- 4. Ảnh mờ dần khi tải (blur-up) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  img {
+    animation: lux-img-in 0.9s var(--ease-soft) both;
+  }
+}
+/* Cho phép tắt thủ công nếu ảnh cần giữ nguyên trạng thái */
+img.no-anim { animation: none !important; }
+
+/* ---------- 5. Skeleton shimmer ---------- */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: var(--color-sand-200);
+  border-radius: 6px;
+  color: transparent !important;
+  pointer-events: none;
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.7) 50%, transparent 80%);
+  animation: lux-shimmer 1.6s var(--ease-soft) infinite;
+}
+.skeleton-text  { height: 0.85rem; margin: 0.35rem 0; }
+.skeleton-line  { height: 1rem; }
+.skeleton-block { min-height: 8rem; }
+.skeleton-circle { border-radius: 9999px; }
+
+/* ---------- 6. Page loader (thuần CSS, tự tắt sau khi trang hiện) ---------- */
+@media (prefers-reduced-motion: no-preference) {
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    background: radial-gradient(circle at 50% 45%, #ffffff 0%, var(--color-sand-100) 100%);
+    pointer-events: none;
+    animation: lux-loader-backdrop-out 0.3s var(--ease-soft) 0.2s both;
+    .lux-reveal { transition: none; }
+    .lux-reveal { opacity: 0; transform: translateY(16px); transition-delay: var(--lux-delay, 0ms); }
+.lux-reveal.is-visible { opacity: 1; transform: none; }
+  }
+  body::after {
+    content: "";
+    position: fixed;
+    z-index: 10000;
+    top: 50%;
+    left: 50%;
+    width: 46px;
+    height: 46px;
+    margin: -23px 0 0 -23px;
+    border-radius: 9999px;
+    border: 2px solid var(--color-sand-200);
+    border-top-color: var(--color-walnut-900);
+    pointer-events: none;
+    animation: lux-spin 0.9s linear infinite,
+               lux-loader-mark-out 0.25s var(--ease-soft) 0.2s both;
+  }
+}
+
+/* ---------- 7. Prefers Reduced Motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  .lux-reveal,
+  .grid > *,
+  article[data-product] { opacity: 1 !important; transform: none !important; }
+  img { opacity: 1 !important; filter: none !important; transform: none !important; }
+  .skeleton::after { animation: none !important; }
+  body::before,
+  body::after { display: none !important; }
 }
