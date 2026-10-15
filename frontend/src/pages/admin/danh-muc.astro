@@ -175,13 +175,56 @@ const initialCategories = [
         </div>
 
         <div>
-          <label for="cat-image-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Link hình ảnh đại diện</label>
-          <input 
-            type="url" 
-            id="cat-image-input" 
-            placeholder="https://images.unsplash.com/photo-..." 
-            class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50"
-          />
+          <label class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium mb-1.5">Hình ảnh đại diện danh mục</label>
+          
+          <!-- Hidden Input lưu Data URL hoặc link ảnh -->
+          <input type="hidden" id="cat-image-data" />
+          
+          <!-- File input ẩn -->
+          <input type="file" id="cat-file-input" accept="image/*" class="hidden" />
+
+          <!-- Vùng kéo thả khi chưa có ảnh -->
+          <div 
+            id="cat-dropzone" 
+            class="group relative flex flex-col items-center justify-center border-2 border-dashed border-walnut-900/20 bg-sand-100/40 p-5 text-center transition-all hover:border-clay-600 hover:bg-sand-100/70 cursor-pointer rounded"
+          >
+            <div class="flex h-11 w-11 items-center justify-center rounded-full bg-sand-50 shadow-sm text-walnut-800 group-hover:text-clay-600 group-hover:scale-105 transition-all">
+              <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <p class="mt-2 text-xs font-semibold text-walnut-900">
+              Nhấn để tải ảnh từ máy tính <span class="font-normal text-walnut-800/70">hoặc kéo thả vào đây</span>
+            </p>
+            <p class="mt-0.5 text-[11px] text-walnut-800/60">Hỗ trợ định dạng JPG, PNG, WEBP (tối đa 5MB)</p>
+          </div>
+
+          <!-- Vùng xem trước khi đã có ảnh -->
+          <div id="cat-preview-container" class="hidden relative mt-1.5 border border-walnut-900/20 bg-sand-100/30 p-3 rounded">
+            <div class="flex items-center gap-3.5">
+              <img id="cat-image-preview" src="" alt="Preview" class="h-16 w-16 object-cover rounded border border-walnut-900/10 shadow-sm bg-sand-50" />
+              <div class="flex-1 min-w-0">
+                <p id="cat-preview-filename" class="text-xs font-semibold text-walnut-900 truncate">Ảnh danh mục</p>
+                <p id="cat-preview-info" class="text-[11px] text-walnut-800/60 mt-0.5">Sẵn sàng lưu</p>
+                <div class="flex items-center gap-3 mt-1.5">
+                  <button 
+                    type="button" 
+                    id="btn-change-cat-image" 
+                    class="text-[11px] font-semibold text-clay-600 hover:text-clay-700 underline cursor-pointer"
+                  >
+                    Đổi ảnh khác
+                  </button>
+                  <button 
+                    type="button" 
+                    id="btn-remove-cat-image" 
+                    class="text-[11px] font-medium text-danger-600 hover:text-danger-700 cursor-pointer"
+                  >
+                    Xóa ảnh
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <div>
@@ -261,8 +304,87 @@ const initialCategories = [
     const nameInput = document.getElementById('cat-name-input') as HTMLInputElement;
     const slugInput = document.getElementById('cat-slug-input') as HTMLInputElement;
     const descInput = document.getElementById('cat-desc-input') as HTMLTextAreaElement;
-    const imageInput = document.getElementById('cat-image-input') as HTMLInputElement;
     const statusSelect = document.getElementById('cat-status-input') as HTMLSelectElement;
+
+    // Image upload & preview elements
+    const catImageData = document.getElementById('cat-image-data') as HTMLInputElement;
+    const catFileInput = document.getElementById('cat-file-input') as HTMLInputElement;
+    const catDropzone = document.getElementById('cat-dropzone') as HTMLElement;
+    const catPreviewContainer = document.getElementById('cat-preview-container') as HTMLElement;
+    const catImagePreview = document.getElementById('cat-image-preview') as HTMLImageElement;
+    const catPreviewFilename = document.getElementById('cat-preview-filename') as HTMLElement;
+    const catPreviewInfo = document.getElementById('cat-preview-info') as HTMLElement;
+    const btnChangeCatImage = document.getElementById('btn-change-cat-image') as HTMLButtonElement;
+    const btnRemoveCatImage = document.getElementById('btn-remove-cat-image') as HTMLButtonElement;
+
+    const setPreview = (urlOrDataUrl: string, name = 'Ảnh danh mục', info = 'Đã chọn') => {
+      if (urlOrDataUrl) {
+        catImageData.value = urlOrDataUrl;
+        catImagePreview.src = urlOrDataUrl;
+        catPreviewFilename.textContent = name;
+        catPreviewInfo.textContent = info;
+        catDropzone?.classList.add('hidden');
+        catPreviewContainer?.classList.remove('hidden');
+      } else {
+        clearPreview();
+      }
+    };
+
+    const clearPreview = () => {
+      catImageData.value = '';
+      if (catFileInput) catFileInput.value = '';
+      catImagePreview.src = '';
+      catPreviewFilename.textContent = '';
+      catDropzone?.classList.remove('hidden');
+      catPreviewContainer?.classList.add('hidden');
+    };
+
+    const handleFile = (file: File) => {
+      if (!file.type.startsWith('image/')) {
+        alert('Vui lòng chọn tệp hình ảnh (JPG, PNG, WEBP)');
+        return;
+      }
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Dung lượng ảnh vượt quá 5MB. Vui lòng chọn ảnh nhẹ hơn.');
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const dataUrl = e.target?.result as string;
+        setPreview(dataUrl, file.name, `${(file.size / 1024).toFixed(1)} KB`);
+      };
+      reader.readAsDataURL(file);
+    };
+
+    catDropzone?.addEventListener('click', () => catFileInput?.click());
+    btnChangeCatImage?.addEventListener('click', () => catFileInput?.click());
+    btnRemoveCatImage?.addEventListener('click', clearPreview);
+
+    catFileInput?.addEventListener('change', () => {
+      if (catFileInput.files && catFileInput.files[0]) {
+        handleFile(catFileInput.files[0]);
+      }
+    });
+
+    // Kéo thả ảnh trực tiếp
+    catDropzone?.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      catDropzone.classList.add('border-clay-600', 'bg-sand-100/80');
+    });
+
+    ['dragleave', 'dragend'].forEach((evt) => {
+      catDropzone?.addEventListener(evt, () => {
+        catDropzone.classList.remove('border-clay-600', 'bg-sand-100/80');
+      });
+    });
+
+    catDropzone?.addEventListener('drop', (e) => {
+      e.preventDefault();
+      catDropzone.classList.remove('border-clay-600', 'bg-sand-100/80');
+      if (e.dataTransfer?.files && e.dataTransfer.files[0]) {
+        handleFile(e.dataTransfer.files[0]);
+      }
+    });
 
     // Delete modal
     const deleteModal = document.getElementById('delete-cat-modal') as HTMLElement;
@@ -315,7 +437,7 @@ const initialCategories = [
         nameInput.value = '';
         slugInput.value = '';
         descInput.value = '';
-        imageInput.value = 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80';
+        clearPreview();
         statusSelect.value = 'Hiển thị';
       } else if (row) {
         catModalTitle.textContent = 'Chỉnh sửa danh mục';
@@ -323,7 +445,12 @@ const initialCategories = [
         nameInput.value = row.dataset.name || '';
         slugInput.value = row.dataset.slug || '';
         descInput.value = row.dataset.desc || '';
-        imageInput.value = row.dataset.image || '';
+        const currentImage = row.dataset.image || '';
+        if (currentImage) {
+          setPreview(currentImage, `${row.dataset.name || 'Danh mục'}.jpg`, 'Ảnh hiện tại');
+        } else {
+          clearPreview();
+        }
         statusSelect.value = row.dataset.status || 'Hiển thị';
       }
       catModal.classList.remove('hidden');
@@ -384,7 +511,7 @@ const initialCategories = [
       const name = nameInput.value.trim();
       const slug = slugInput.value.trim();
       const desc = descInput.value.trim();
-      const image = imageInput.value.trim() || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80';
+      const image = catImageData.value.trim() || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80';
       const status = statusSelect.value;
 
       if (!name || !slug) return;
