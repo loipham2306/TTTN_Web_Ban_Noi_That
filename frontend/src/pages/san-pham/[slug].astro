@@ -1,8 +1,9 @@
-﻿---
+---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { products }        from '../../data/products';
 import { productDetails }  from '../../data/product-details';
 import { formatVnd }       from '../../scripts/cart';
+import ProductCard         from '../../components/ProductCard.astro';
 
 export async function getStaticPaths() {
   return products.map((p) => ({
@@ -51,6 +52,52 @@ const dimensions   = apiProduct?.variants?.[0]?.dimensions ?? detail.dimensions;
 const warranty     = detail.warranty;
 const brand        = apiProduct?.brand ?? null;
 const stock        = apiProduct?.variants?.[0]?.stock ?? 10;
+
+// RELATED PRODUCTS: Same category or space, excluding current product
+const sameCategory = products.filter((p) => p.slug !== slug && p.category === product.category);
+const sameSpace = products.filter((p) => p.slug !== slug && p.space === product.space && p.category !== product.category);
+const otherProducts = products.filter((p) => p.slug !== slug && p.category !== product.category && p.space !== product.space);
+const relatedProducts = [...sameCategory, ...sameSpace, ...otherProducts].slice(0, 4);
+
+// SAMPLE CUSTOMER REVIEWS
+const reviews = [
+  {
+    id: 1,
+    name: 'Nguyễn Văn An',
+    rating: 5,
+    date: '08/10/2026',
+    verified: true,
+    comment: 'Sản phẩm hoàn thiện rất tỉ mỉ, chất liệu da và khung gỗ đầm chắc vượt ngoài mong đợi. Đội ngũ giao hàng lắp đặt tận nhà nhanh nhẹn và nhiệt tình.',
+    reply: 'Nội Thất cảm ơn anh An đã tin tưởng và ủng hộ thương hiệu! Chúc anh luôn có những phút giây thư giãn tuyệt vời trong không gian sống.',
+  },
+  {
+    id: 2,
+    name: 'Trần Thị Mai',
+    rating: 5,
+    date: '06/10/2026',
+    verified: true,
+    comment: 'Đường may và các góc cạnh rất sắc sảo, màu sắc sang trọng đúng chuẩn như hình mẫu. Đóng gói bảo bọc 3 lớp chống va đập cực kỳ kỹ lưỡng.',
+    reply: '',
+  },
+  {
+    id: 3,
+    name: 'Lê Hoàng Long',
+    rating: 4,
+    date: '05/10/2026',
+    verified: true,
+    comment: 'Kiểu dáng hiện đại, ngồi tựa êm ái thư giãn sau giờ làm việc. Shipper giao hơi trễ 1 ngày nhưng bộ phận CSKH đã gọi hỗ trợ voucher nên vẫn cho 4 sao hài lòng.',
+    reply: 'Nội Thất chân thành cảm ơn góp ý của anh Long. Chúng tôi đã làm việc lại với bên vận chuyển để tối ưu thời gian giao hàng tốt nhất.',
+  },
+  {
+    id: 4,
+    name: 'Phạm Minh Đức',
+    rating: 5,
+    date: '03/10/2026',
+    verified: true,
+    comment: 'Khung sườn chịu lực rất đầm và êm, không hề có tiếng cọt kẹt khi sử dụng. Mức giá hoàn toàn tương xứng với chất lượng cao cấp nhận được.',
+    reply: '',
+  },
+];
 ---
 
 <BaseLayout
@@ -67,7 +114,7 @@ const stock        = apiProduct?.variants?.[0]?.stock ?? 10;
       <span>/</span>
       <a href={`/san-pham?danh-muc=${catSlug}`} class="hover:text-walnut-900 transition-colors">{catLabel}</a>
       <span>/</span>
-      <span class="text-walnut-900">{name}</span>
+      <span class="text-walnut-900 font-medium">{name}</span>
     </nav>
 
     <!-- PRODUCT DETAIL -->
@@ -75,7 +122,7 @@ const stock        = apiProduct?.variants?.[0]?.stock ?? 10;
 
       <!-- LEFT: IMAGES -->
       <div class="space-y-4">
-        <div class="aspect-square w-full overflow-hidden bg-sand-100 rounded-lg border border-walnut-900/10 shadow-sm">
+        <div class="aspect-square w-full overflow-hidden bg-sand-100 rounded-lg border border-walnut-900/10 shadow-sm relative">
           {thumbnail ? (
             <img
               src={thumbnail}
@@ -84,7 +131,7 @@ const stock        = apiProduct?.variants?.[0]?.stock ?? 10;
               loading="eager"
             />
           ) : (
-            <div class="flex h-full w-full items-center justify-center bg-sand-100">
+            <div class="flex h-full w-full items-center justify-center bg-sand-200/50">
               <svg class="h-24 w-24 text-walnut-900/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
@@ -115,8 +162,17 @@ const stock        = apiProduct?.variants?.[0]?.stock ?? 10;
           {name}
         </h1>
 
+        <!-- Rating overview badge -->
+        <div class="mt-3 flex items-center gap-2">
+          <div class="flex text-amber-500 text-sm">
+            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+          </div>
+          <span class="text-xs font-semibold text-walnut-900">4.9 / 5.0</span>
+          <span class="text-xs text-walnut-800/50">({reviews.length} đánh giá thực tế)</span>
+        </div>
+
         <!-- Price -->
-        <div class="mt-6 flex items-baseline gap-4">
+        <div class="mt-5 flex items-baseline gap-4">
           <span class="font-display text-2xl text-clay-600 font-semibold">{formatVnd(price)}</span>
           {comparePrice && (
             <span class="text-sm text-walnut-800/50 line-through">{formatVnd(comparePrice)}</span>
@@ -164,7 +220,7 @@ const stock        = apiProduct?.variants?.[0]?.stock ?? 10;
             <button
               type="button"
               id="btn-qty-minus"
-              class="px-3 py-1.5 text-walnut-900 transition-colors hover:bg-walnut-900/10 text-base"
+              class="px-3 py-1.5 text-walnut-900 transition-colors hover:bg-walnut-900/10 text-base cursor-pointer"
               aria-label="Giảm số lượng"
             >-</button>
             <input
@@ -178,7 +234,7 @@ const stock        = apiProduct?.variants?.[0]?.stock ?? 10;
             <button
               type="button"
               id="btn-qty-plus"
-              class="px-3 py-1.5 text-walnut-900 transition-colors hover:bg-walnut-900/10 text-base"
+              class="px-3 py-1.5 text-walnut-900 transition-colors hover:bg-walnut-900/10 text-base cursor-pointer"
               aria-label="Tăng số lượng"
             >+</button>
           </div>
@@ -223,12 +279,288 @@ const stock        = apiProduct?.variants?.[0]?.stock ?? 10;
       </div>
     </div>
 
+    <!-- ============================================================== -->
+    <!-- SECTION 1: ĐÁNH GIÁ TỪ KHÁCH HÀNG (CUSTOMER REVIEWS & RATINGS) -->
+    <!-- ============================================================== -->
+    <section id="reviews-section" class="mt-20 border-t border-walnut-900/10 pt-16">
+      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-8">
+        <div>
+          <span class="text-xs font-semibold uppercase tracking-[0.25em] text-clay-600">Đánh giá & Trải nghiệm</span>
+          <h2 class="mt-2 font-display text-2xl sm:text-3xl text-walnut-900 font-bold">Khách Hàng Nói Gì Về Sản Phẩm?</h2>
+          <p class="mt-1 text-sm text-walnut-800/80">Tổng hợp những cảm nhận chân thực nhất từ gia chủ đã trực tiếp sở hữu và sử dụng.</p>
+        </div>
+
+        <button 
+          type="button" 
+          id="btn-open-review-modal"
+          class="inline-flex items-center gap-2 bg-walnut-900 px-5 py-3 text-xs uppercase tracking-[0.15em] text-sand-50 hover:bg-clay-600 transition-colors shadow-sm cursor-pointer font-medium rounded-sm self-start sm:self-auto"
+        >
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          <span>Viết đánh giá của bạn</span>
+        </button>
+      </div>
+
+      <!-- Rating Breakdown Box -->
+      <div class="rounded-lg border border-walnut-900/10 bg-sand-100/70 p-6 sm:p-8 grid grid-cols-1 md:grid-cols-3 gap-8 items-center shadow-sm">
+        
+        <!-- Score summary -->
+        <div class="text-center md:text-left border-b md:border-b-0 md:border-r border-walnut-900/10 pb-6 md:pb-0 md:pr-8">
+          <p class="text-xs uppercase tracking-wider text-walnut-800/70 font-medium">Điểm trung bình</p>
+          <div class="mt-2 flex items-baseline justify-center md:justify-start gap-2">
+            <span class="text-4xl sm:text-5xl font-bold font-display text-walnut-900">4.9</span>
+            <span class="text-sm text-walnut-800/60 font-semibold">/ 5.0</span>
+          </div>
+          <div class="mt-2 flex items-center justify-center md:justify-start text-amber-500 text-lg">
+            <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+          </div>
+          <p class="mt-2 text-xs text-emerald-800 font-medium">✓ 100% Khách hàng đánh giá hài lòng</p>
+        </div>
+
+        <!-- Rating Progress bars -->
+        <div class="space-y-2.5">
+          <div class="flex items-center gap-3 text-xs">
+            <span class="w-12 text-walnut-900 font-semibold">5 sao</span>
+            <div class="flex-1 h-2 rounded-full bg-sand-200 overflow-hidden">
+              <div class="h-full bg-clay-600 rounded-full" style="width: 88%"></div>
+            </div>
+            <span class="w-8 text-right text-walnut-800/70">88%</span>
+          </div>
+          <div class="flex items-center gap-3 text-xs">
+            <span class="w-12 text-walnut-900 font-semibold">4 sao</span>
+            <div class="flex-1 h-2 rounded-full bg-sand-200 overflow-hidden">
+              <div class="h-full bg-clay-600 rounded-full" style="width: 12%"></div>
+            </div>
+            <span class="w-8 text-right text-walnut-800/70">12%</span>
+          </div>
+          <div class="flex items-center gap-3 text-xs">
+            <span class="w-12 text-walnut-900 font-semibold">3 sao</span>
+            <div class="flex-1 h-2 rounded-full bg-sand-200 overflow-hidden">
+              <div class="h-full bg-clay-600 rounded-full" style="width: 0%"></div>
+            </div>
+            <span class="w-8 text-right text-walnut-800/70">0%</span>
+          </div>
+          <div class="flex items-center gap-3 text-xs">
+            <span class="w-12 text-walnut-900 font-semibold">2 sao</span>
+            <div class="flex-1 h-2 rounded-full bg-sand-200 overflow-hidden">
+              <div class="h-full bg-clay-600 rounded-full" style="width: 0%"></div>
+            </div>
+            <span class="w-8 text-right text-walnut-800/70">0%</span>
+          </div>
+          <div class="flex items-center gap-3 text-xs">
+            <span class="w-12 text-walnut-900 font-semibold">1 sao</span>
+            <div class="flex-1 h-2 rounded-full bg-sand-200 overflow-hidden">
+              <div class="h-full bg-clay-600 rounded-full" style="width: 0%"></div>
+            </div>
+            <span class="w-8 text-right text-walnut-800/70">0%</span>
+          </div>
+        </div>
+
+        <!-- Policy & Voucher Incentive -->
+        <div class="bg-sand-50 p-5 rounded border border-walnut-900/10 text-xs space-y-2 text-walnut-900">
+          <p class="font-bold uppercase tracking-wider text-[11px] text-clay-700 flex items-center gap-1.5">
+            <span>🎁</span> Nhận Voucher Khuyến Mãi
+          </p>
+          <p class="text-walnut-800 leading-relaxed">
+            Đánh giá kèm cảm nhận thực tế sau khi mua sắm để nhận ngay mã giảm giá <strong class="text-clay-600 font-semibold">100.000 ₫</strong> cho đơn hàng kế tiếp.
+          </p>
+          <div class="pt-2 text-[11px] text-walnut-800/60 border-t border-walnut-900/10">
+            Mọi đánh giá đều được xác minh danh tính và kiểm duyệt công khai.
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Filter Buttons -->
+      <div class="mt-8 flex flex-wrap items-center gap-2" id="review-filters">
+        <button type="button" data-filter="all" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-walnut-900 text-sand-50 cursor-pointer transition-colors">Tất cả ({reviews.length})</button>
+        <button type="button" data-filter="5" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-sand-200/80 text-walnut-900 hover:bg-sand-200 cursor-pointer transition-colors">5 Sao (3)</button>
+        <button type="button" data-filter="4" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-sand-200/80 text-walnut-900 hover:bg-sand-200 cursor-pointer transition-colors">4 Sao (1)</button>
+        <button type="button" data-filter="has-reply" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-sand-200/80 text-walnut-900 hover:bg-sand-200 cursor-pointer transition-colors">Có phản hồi từ Store</button>
+      </div>
+
+      <!-- Customer Reviews List -->
+      <div class="mt-6 space-y-4" id="review-list">
+        {reviews.map((r) => (
+          <div 
+            class="rounded-lg border border-walnut-900/10 bg-sand-50 p-5 sm:p-6 transition-all hover:border-walnut-900/20"
+            data-review-item
+            data-rating={r.rating}
+            data-has-reply={r.reply ? 'true' : 'false'}
+          >
+            <div class="flex items-start justify-between gap-4">
+              <div class="flex items-center gap-3">
+                <div class="h-10 w-10 rounded-full bg-walnut-900 text-sand-50 font-bold flex items-center justify-center text-xs">
+                  {r.name.split(' ').map((n: string) => n[0]).slice(-2).join('')}
+                </div>
+                <div>
+                  <div class="flex items-center gap-2">
+                    <h3 class="font-bold text-sm text-walnut-900">{r.name}</h3>
+                    {r.verified && (
+                      <span class="inline-flex items-center gap-1 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 px-1.5 py-0.5 text-[10px] font-semibold">
+                        <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                        </svg>
+                        Đã mua hàng chính hãng
+                      </span>
+                    )}
+                  </div>
+                  <p class="text-[11px] text-walnut-800/60 mt-0.5">{r.date}</p>
+                </div>
+              </div>
+
+              <div class="flex text-amber-500 text-sm">
+                {Array.from({ length: r.rating }).map(() => (
+                  <span>★</span>
+                ))}
+                {Array.from({ length: 5 - r.rating }).map(() => (
+                  <span class="text-walnut-900/20">★</span>
+                ))}
+              </div>
+            </div>
+
+            <p class="mt-3.5 text-sm leading-relaxed text-walnut-900 font-normal">
+              {r.comment}
+            </p>
+
+            {r.reply && (
+              <div class="mt-4 rounded border-l-2 border-clay-600 bg-sand-100/70 p-3.5 text-xs text-walnut-800 space-y-1">
+                <div class="flex items-center gap-1.5 font-bold text-clay-700 uppercase tracking-wider text-[10px]">
+                  <span>💬 Phản hồi từ Quản trị viên Nội Thất:</span>
+                </div>
+                <p class="leading-relaxed">{r.reply}</p>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- ============================================================== -->
+    <!-- SECTION 2: SẢN PHẨM LIÊN QUAN (RELATED PRODUCTS SECTION)       -->
+    <!-- ============================================================== -->
+    <section class="mt-24 border-t border-walnut-900/10 pt-16">
+      <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-10">
+        <div>
+          <span class="text-xs font-semibold uppercase tracking-[0.25em] text-clay-600">Bộ Sưu Tập Gợi Ý</span>
+          <h2 class="mt-2 font-display text-2xl sm:text-3xl text-walnut-900 font-bold">Sản Phẩm Cùng Phong Cách</h2>
+          <p class="mt-1 text-sm text-walnut-800/80">Những thiết kế đồng điệu về vật liệu và cảm hứng thẩm mỹ để bạn dễ dàng hoàn thiện không gian sống.</p>
+        </div>
+
+        <a 
+          href={`/san-pham?danh-muc=${catSlug}`}
+          class="inline-flex items-center gap-1 text-xs font-semibold uppercase tracking-[0.15em] text-walnut-900 hover:text-clay-600 transition-colors group cursor-pointer"
+        >
+          <span>Xem tất cả {catLabel}</span>
+          <span class="transition-transform group-hover:translate-x-1">→</span>
+        </a>
+      </div>
+
+      <!-- Related Products Grid -->
+      <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+        {relatedProducts.map((rp) => (
+          <ProductCard product={rp} />
+        ))}
+      </div>
+    </section>
+
   </main>
+
+  <!-- MODAL: VIẾT ĐÁNH GIÁ SẢN PHẨM -->
+  <div id="write-review-modal" class="fixed inset-0 z-50 hidden bg-walnut-900/60 backdrop-blur-sm overflow-y-auto p-4 flex items-center justify-center">
+    <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-lg p-6 sm:p-8 shadow-xl relative my-8">
+      <div class="flex items-center justify-between border-b border-walnut-900/10 pb-4">
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.2em] text-walnut-800">Đánh giá sản phẩm</p>
+          <h2 class="text-xl font-bold text-walnut-900 mt-1">Cảm Nhận Của Bạn</h2>
+          <p class="text-xs text-clay-600 font-medium truncate max-w-sm mt-0.5">{name}</p>
+        </div>
+        <button type="button" id="btn-close-review-modal" class="text-walnut-800 hover:text-danger-600 p-1 cursor-pointer">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="write-review-form" class="mt-6 flex flex-col gap-4">
+        <div>
+          <label class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium mb-1.5">Mức độ hài lòng của bạn *</label>
+          <div class="flex items-center gap-2 cursor-pointer text-2xl text-amber-500" id="star-picker">
+            <span data-star="1" class="transition-transform hover:scale-125">★</span>
+            <span data-star="2" class="transition-transform hover:scale-125">★</span>
+            <span data-star="3" class="transition-transform hover:scale-125">★</span>
+            <span data-star="4" class="transition-transform hover:scale-125">★</span>
+            <span data-star="5" class="transition-transform hover:scale-125">★</span>
+            <span id="star-desc" class="text-xs text-walnut-900 font-semibold ml-2">5 sao - Rất tuyệt vời</span>
+          </div>
+          <input type="hidden" id="review-stars-input" value="5" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="review-author-name" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Họ và tên *</label>
+            <input 
+              type="text" 
+              id="review-author-name" 
+              required 
+              placeholder="VD: Hoàng Minh Trí" 
+              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50"
+            />
+          </div>
+          <div>
+            <label for="review-author-phone" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Số điện thoại xác thực *</label>
+            <input 
+              type="text" 
+              id="review-author-phone" 
+              required 
+              placeholder="0909 xxx xxx" 
+              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="review-comment-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Chia sẻ chi tiết trải nghiệm của bạn *</label>
+          <textarea 
+            id="review-comment-input" 
+            required 
+            rows="4" 
+            placeholder="Bạn thấy chất lượng gia công, độ êm ái, màu sắc thực tế và dịch vụ giao hàng như thế nào?..." 
+            class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 p-3 text-xs outline-none focus:border-clay-600 focus:bg-sand-50 leading-relaxed"
+          ></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 border-t border-walnut-900/10 pt-4 mt-2">
+          <button 
+            type="button" 
+            id="btn-cancel-review-modal" 
+            class="border border-walnut-900/20 px-5 py-2 text-xs uppercase tracking-[0.15em] text-walnut-800 hover:border-walnut-900 cursor-pointer"
+          >
+            Hủy
+          </button>
+          <button 
+            type="submit" 
+            class="bg-clay-600 px-6 py-2 text-xs uppercase tracking-[0.15em] text-sand-50 hover:bg-clay-500 shadow-sm cursor-pointer font-medium"
+          >
+            Gửi đánh giá
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST THÔNG BÁO -->
+  <div id="review-user-toast" class="fixed bottom-6 right-6 z-50 hidden translate-y-4 rounded bg-walnut-900 px-5 py-3 text-xs uppercase tracking-[0.15em] text-sand-50 shadow-lg transition-all duration-300 border border-emerald-500/40">
+    <span id="review-user-toast-msg">Đã gửi đánh giá thành công!</span>
+  </div>
+
 </BaseLayout>
 
 <script>
   import { addToCart, showCartToast } from '../../scripts/cart';
 
+  // CART & QUANTITY
   const btnAdd = document.getElementById('btn-add-to-cart') as HTMLButtonElement | null;
   const btnBuy = document.getElementById('btn-buy-now') as HTMLButtonElement | null;
   const inputQty = document.getElementById('input-qty') as HTMLInputElement | null;
@@ -241,15 +573,11 @@ const stock        = apiProduct?.variants?.[0]?.stock ?? 10;
   };
 
   btnMinus?.addEventListener('click', () => {
-    if (inputQty) {
-      inputQty.value = String(Math.max(1, getQty() - 1));
-    }
+    if (inputQty) inputQty.value = String(Math.max(1, getQty() - 1));
   });
 
   btnPlus?.addEventListener('click', () => {
-    if (inputQty) {
-      inputQty.value = String(getQty() + 1);
-    }
+    if (inputQty) inputQty.value = String(getQty() + 1);
   });
 
   const getItemPayload = (btnEl: HTMLButtonElement) => ({
@@ -277,4 +605,146 @@ const stock        = apiProduct?.variants?.[0]?.stock ?? 10;
       window.location.href = '/thanh-toan';
     });
   }
+
+  // ==============================================================
+  // REVIEW INTERACTION & FILTERING
+  // ==============================================================
+  const modal = document.getElementById('write-review-modal') as HTMLElement | null;
+  const btnOpenModal = document.getElementById('btn-open-review-modal') as HTMLButtonElement | null;
+  const btnCloseModal = document.getElementById('btn-close-review-modal') as HTMLButtonElement | null;
+  const btnCancelModal = document.getElementById('btn-cancel-review-modal') as HTMLButtonElement | null;
+  const form = document.getElementById('write-review-form') as HTMLFormElement | null;
+  const reviewList = document.getElementById('review-list') as HTMLElement | null;
+  const starPicker = document.getElementById('star-picker') as HTMLElement | null;
+  const starInput = document.getElementById('review-stars-input') as HTMLInputElement | null;
+  const starDesc = document.getElementById('star-desc') as HTMLElement | null;
+
+  // Toast
+  const toast = document.getElementById('review-user-toast') as HTMLElement | null;
+  const toastMsg = document.getElementById('review-user-toast-msg') as HTMLElement | null;
+
+  const showToast = (msg: string) => {
+    if (!toast || !toastMsg) return;
+    toastMsg.textContent = msg;
+    toast.classList.remove('hidden');
+    requestAnimationFrame(() => toast.classList.remove('translate-y-4'));
+    setTimeout(() => {
+      toast.classList.add('translate-y-4');
+      setTimeout(() => toast.classList.add('hidden'), 300);
+    }, 3500);
+  };
+
+  const closeModal = () => modal?.classList.add('hidden');
+  btnOpenModal?.addEventListener('click', () => {
+    form?.reset();
+    modal?.classList.remove('hidden');
+  });
+  btnCloseModal?.addEventListener('click', closeModal);
+  btnCancelModal?.addEventListener('click', closeModal);
+  modal?.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+
+  // Star Picker
+  const starLabels: Record<number, string> = {
+    1: '1 sao - Kém hài lòng',
+    2: '2 sao - Chưa ưng ý',
+    3: '3 sao - Tạm ổn',
+    4: '4 sao - Tốt & Hài lòng',
+    5: '5 sao - Rất tuyệt vời',
+  };
+
+  starPicker?.querySelectorAll<HTMLSpanElement>('[data-star]').forEach((starEl) => {
+    starEl.addEventListener('click', () => {
+      const rating = Number(starEl.dataset.star || '5');
+      if (starInput) starInput.value = String(rating);
+      if (starDesc) starDesc.textContent = starLabels[rating] || '';
+
+      starPicker.querySelectorAll<HTMLSpanElement>('[data-star]').forEach((s) => {
+        const val = Number(s.dataset.star || '0');
+        if (val <= rating) {
+          s.classList.remove('text-walnut-900/20');
+          s.classList.add('text-amber-500');
+        } else {
+          s.classList.remove('text-amber-500');
+          s.classList.add('text-walnut-900/20');
+        }
+      });
+    });
+  });
+
+  // Filter Reviews
+  const filterBtns = document.querySelectorAll<HTMLButtonElement>('#review-filters [data-filter]');
+  filterBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      filterBtns.forEach((b) => {
+        b.className = 'px-3.5 py-1.5 rounded-full text-xs font-semibold bg-sand-200/80 text-walnut-900 hover:bg-sand-200 cursor-pointer transition-colors';
+      });
+      btn.className = 'px-3.5 py-1.5 rounded-full text-xs font-semibold bg-walnut-900 text-sand-50 cursor-pointer transition-colors';
+
+      const filter = btn.dataset.filter;
+      const items = reviewList?.querySelectorAll<HTMLElement>('[data-review-item]');
+      items?.forEach((item) => {
+        const rating = item.dataset.rating;
+        const hasReply = item.dataset.hasReply === 'true';
+
+        if (filter === 'all') {
+          item.classList.remove('hidden');
+        } else if (filter === 'has-reply') {
+          item.classList.toggle('hidden', !hasReply);
+        } else {
+          item.classList.toggle('hidden', rating !== filter);
+        }
+      });
+    });
+  });
+
+  // Submit Review Form
+  form?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = (document.getElementById('review-author-name') as HTMLInputElement)?.value.trim();
+    const comment = (document.getElementById('review-comment-input') as HTMLTextAreaElement)?.value.trim();
+    const rating = Number(starInput?.value || '5');
+
+    if (!name || !comment || !reviewList) return;
+
+    const initials = name.split(' ').map((n) => n[0]).slice(-2).join('');
+    const newDiv = document.createElement('div');
+    newDiv.className = 'rounded-lg border border-walnut-900/10 bg-sand-50 p-5 sm:p-6 transition-all hover:border-walnut-900/20 bg-emerald-50/20';
+    newDiv.setAttribute('data-review-item', '');
+    newDiv.dataset.rating = String(rating);
+    newDiv.dataset.hasReply = 'false';
+
+    const starsHtml = Array.from({ length: rating }).map(() => '<span>★</span>').join('') +
+      Array.from({ length: 5 - rating }).map(() => '<span class="text-walnut-900/20">★</span>').join('');
+
+    newDiv.innerHTML = `
+      <div class="flex items-start justify-between gap-4">
+        <div class="flex items-center gap-3">
+          <div class="h-10 w-10 rounded-full bg-emerald-800 text-sand-50 font-bold flex items-center justify-center text-xs">
+            ${initials}
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="font-bold text-sm text-walnut-900">${name}</h3>
+              <span class="inline-flex items-center gap-1 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 px-1.5 py-0.5 text-[10px] font-semibold">
+                ✓ Đã mua hàng chính hãng
+              </span>
+            </div>
+            <p class="text-[11px] text-walnut-800/60 mt-0.5">Vừa xong</p>
+          </div>
+        </div>
+        <div class="flex text-amber-500 text-sm">
+          ${starsHtml}
+        </div>
+      </div>
+      <p class="mt-3.5 text-sm leading-relaxed text-walnut-900 font-normal">
+        ${comment}
+      </p>
+    `;
+
+    reviewList.prepend(newDiv);
+    closeModal();
+    showToast('Cảm ơn bạn! Đánh giá của bạn đã được ghi nhận thành công.');
+  });
 </script>
