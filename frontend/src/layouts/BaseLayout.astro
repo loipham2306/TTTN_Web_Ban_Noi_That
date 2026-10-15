@@ -1,11 +1,12 @@
 ---
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import ContactFab from '../components/ContactFab.astro';
 import '../styles/global.css';
 
 interface Props {
-  title: string;
-  description?: string;
+title: string;
+description?: string;
 }
 
 const { title, description = 'Nội thất thiết kế cho không gian sống đẳng cấp.' } = Astro.props;
@@ -14,20 +15,129 @@ const isHome = Astro.url.pathname === '/';
 <!doctype html>
 <html lang="vi">
 <head>
-  <meta charset="UTF-8" />
-  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content={description} />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" />
-  <title>{title}</title>
+<meta charset="UTF-8" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content={description} />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+rel="stylesheet"
+href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap"
+/>
+<title>{title}</title>
 </head>
 <body class="flex min-h-screen flex-col bg-sand-50 text-walnut-900 font-sans antialiased">
-  <Header />
-  <main class:list={['flex-1', !isHome && 'pt-24 sm:pt-28']}>
-    <slot />
-  </main>
-  <Footer />
+<Header />
+<main class:list={['flex-1',!isHome && 'pt-24 sm:pt-28']}>
+<slot />
+</main>
+<Footer />
+{!Astro.url.pathname.startsWith('/admin') && <ContactFab />}
+
+<!-- global.css an.grid > * / article[data-product] khi JS chua chay.
+Neu nguoi dung tat JS thi phai ep hien, khong duoc de trang trang. -->
+<noscript>
+<style>
+.lux-reveal,
+.grid > *,
+article[data-product] {
+opacity: 1!important;
+transform: none!important;
+}
+img {
+opacity: 1!important;
+filter: none!important;
+transform: none!important;
+}
+</style>
+</noscript>
+
+<!-- Khong duoc them thuoc tinh (lang="ts", type=...) vao the script:
+Astro se coi la is:inline va KHONG boc TypeScript -> trinh duyet chet.
+<script> tran = Astro tu hieu la TypeScript va tu transpile. -->
+<script>
+  (() => {
+    const SEL = '.lux-reveal,.grid > *, article[data-product]';
+    const STEP = 70;
+    const MAX_STAGGER = 6;
+
+    const seen = new WeakSet<Element>();
+
+    const reduceMotion =
+      typeof window.matchMedia === 'function' &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const show = (el: Element): void => {
+      const parent = el.parentElement;
+      const index = parent ? Array.from(parent.children).indexOf(el) : 0;
+      const delay = Math.min(index, MAX_STAGGER) * STEP;
+      const node = el as HTMLElement;
+
+      node.style.setProperty('--lux-delay', delay + 'ms');
+      el.classList.add('is-visible');
+      seen.add(el);
+    };
+
+    const handleEntries: IntersectionObserverCallback = (entries, observer) => {
+      for (const entry of entries) {
+        if (!entry.isIntersecting) continue;
+        observer.unobserve(entry.target);
+        show(entry.target);
+      }
+    };
+
+    const io: IntersectionObserver | null =
+      !reduceMotion && 'IntersectionObserver' in window
+        ? new IntersectionObserver(handleEntries, {
+            rootMargin: '0px 0px -10% 0px',
+            threshold: 0.12,
+          })
+        : null;
+
+    const observe = (el: Element): void => {
+      if (seen.has(el)) return;
+
+      const rect = el.getBoundingClientRect();
+      // Không có layout box (tab ẩn, modal đóng, menu mobile đóng) -> hiện luôn
+      if (!io || (rect.width === 0 && rect.height === 0)) {
+        show(el);
+        return;
+      }
+
+      io.observe(el);
+    };
+
+    const initLuxReveal = (): void => {
+      const items = document.querySelectorAll(SEL);
+      for (const item of items) observe(item);
+    };
+
+    const start = (): void => {
+      initLuxReveal();
+
+      // React island / nội dung render sau khi tải -> quét lại, debounce nhẹ
+      let timer = 0;
+      const mo = new MutationObserver(() => {
+        window.clearTimeout(timer);
+        timer = window.setTimeout(initLuxReveal, 120);
+      });
+      mo.observe(document.body || document.documentElement, {
+        childList: true,
+        subtree: true,
+      });
+
+      // Lưới an toàn: ảnh treo / node mount trễ vẫn phải hiện
+      window.addEventListener('load', initLuxReveal);
+      window.setTimeout(initLuxReveal, 2500);
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', start, { once: true });
+    } else {
+      start();
+    }
+  })();
+</script>
 </body>
 </html>

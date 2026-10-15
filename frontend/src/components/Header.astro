@@ -11,11 +11,12 @@ interface MenuItem {
   children?: MenuLink[];
 }
 
+interface AccountLink extends MenuLink {
+  icon: string; // thuộc tính "d" của thẻ <path> (viewBox 24x24)
+}
+
 const menu: MenuItem[] = [
-  {
-    label: 'Trang chủ',
-    href: '/',
-  },
+  { label: 'Trang chủ', href: '/' },
   {
     label: 'Sản phẩm',
     href: '/san-pham',
@@ -41,10 +42,7 @@ const menu: MenuItem[] = [
       { label: '✦ Dự án & Không gian thực tế', href: '/#du-an' },
     ],
   },
-  {
-    label: 'Phong thủy',
-    href: '/phong-thuy',
-  },
+  { label: 'Phong thủy', href: '/phong-thuy' },
   {
     label: 'Về chúng tôi',
     href: '/#cau-chuyen',
@@ -56,8 +54,35 @@ const menu: MenuItem[] = [
   },
 ];
 
+// Icon (path "d") dùng chung cho menu tài khoản
+const ICON = {
+  user: 'M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8c1-3.5 3.8-5 7-5s6 1.5 7 5',
+  box: 'M4 8l8-4 8 4v8l-8 4-8-4V8Zm0 0 8 4m0 0 8-4m-8 4v8',
+  heart: 'M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10Z',
+  pin: 'M12 21s-6-5.2-6-10a6 6 0 1 1 12 0c0 4.8-6 10-6 10Zm0-8a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z',
+  login: 'M10 17l5-5-5-5M15 12H4m9-8h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5',
+  add: 'M12 5v14M5 12h14',
+  star: 'M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6.0L12 16.5 6.6 19.5l1.2-6L3.3 9.3l6.1-.7L12 3Z',
+  logout: 'M10 17l-5-5 5-5M5 12h11m-3-8h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5',
+  shield: 'M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3Z',
+};
+
+// Menu khi CHƯA đăng nhập
+const guestMenu: AccountLink[] = [
+  { label: 'Đăng nhập', href: '/dang-nhap', icon: ICON.login },
+  { label: 'Đăng ký thành viên', href: '/dang-ky', icon: ICON.add },
+  { label: 'Tư vấn phong thủy', href: '/phong-thuy', icon: ICON.star },
+];
+
+// Menu khi ĐÃ đăng nhập (nút Đăng xuất và Trang quản trị nằm riêng trong markup)
+const userMenu: AccountLink[] = [
+  { label: 'Tài khoản của tôi', href: '/tai-khoan', icon: ICON.user },
+  { label: 'Đơn hàng của tôi', href: '/tai-khoan/don-hang', icon: ICON.box },
+  { label: 'Danh sách yêu thích', href: '/tai-khoan/yeu-thich', icon: ICON.heart },
+  { label: 'Sổ địa chỉ giao hàng', href: '/tai-khoan/dia-chi', icon: ICON.pin },
+];
+
 const secondary: MenuLink[] = [
-  { label: 'Tài khoản của tôi', href: '/dang-nhap' },
   { label: 'Hotline đặt lịch hẹn: 1900 636 884', href: 'tel:1900636884' },
 ];
 
@@ -69,8 +94,8 @@ const isHome = Astro.url.pathname === '/';
   data-overlay={isHome ? 'true' : 'false'}
   class="fixed inset-x-0 top-0 z-50 transition-all duration-300"
 >
-  {/* TOP ANNOUNCEMENT BAR (QUÝ PHÁI, TINH TẾ) */}
-  <div id="header-topbar" class="border-b border-white/10 bg-black/75 py-1.5 text-[11px] text-neutral-300 backdrop-blur-md transition-all duration-300">
+  {/* TOP ANNOUNCEMENT BAR */}
+  <div id="header-topbar" class="border-b border-white/10 bg-[#0f2418]/90 py-1.5 text-[11px] text-neutral-300 backdrop-blur-md transition-all duration-300">
     <div class="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-8">
       <div class="hidden items-center gap-5 md:flex">
         <span class="flex items-center gap-1.5">
@@ -97,7 +122,7 @@ const isHome = Astro.url.pathname === '/';
         <button
           id="menu-btn"
           type="button"
-          class="inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/10 lg:hidden"
+          class="icon-btn inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/10 lg:hidden"
           aria-label="Mở menu"
           aria-expanded="false"
           aria-controls="menu-panel"
@@ -117,13 +142,14 @@ const isHome = Astro.url.pathname === '/';
         </a>
       </div>
 
-      {/* KHỐI GIỮA: CANH GIỮA HOÀN HẢO (MATHEMATICALLY CENTERED) */}
-      <nav class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 hidden lg:flex items-center gap-6 xl:gap-9 whitespace-nowrap" aria-label="Menu chính máy tính">
+      {/* KHỐI GIỮA */}
+      <nav class="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-6 whitespace-nowrap lg:flex xl:gap-9" aria-label="Menu chính máy tính">
         {menu.map((item) => (
           <div class="nav-item group relative">
             <a
               href={item.href || '#'}
-              class="nav-link flex items-center gap-1.5 py-2 text-[12px] font-medium uppercase tracking-[0.18em] transition-colors duration-250 whitespace-nowrap"
+              class="nav-link flex items-center gap-1.5 whitespace-nowrap py-2 text-[12px] font-medium uppercase tracking-[0.18em] transition-colors duration-200"
+              aria-haspopup={item.children ? 'true' : undefined}
             >
               <span class="hover-line-center whitespace-nowrap">{item.label}</span>
               {item.children && (
@@ -133,18 +159,14 @@ const isHome = Astro.url.pathname === '/';
               )}
             </a>
 
-            {/* DROPDOWN MENU CHUẨN LUXURY */}
             {item.children && (
-              <div class="dropdown-menu invisible absolute left-1/2 top-full -translate-x-1/2 pt-2 opacity-0 transition-all duration-200 group-hover:visible group-hover:opacity-100">
-                <div class="w-max min-w-[240px] rounded-sm border border-neutral-800 bg-[#141416]/95 p-3 shadow-2xl backdrop-blur-xl">
-                  <ul class="space-y-1">
+              <div class="dropdown-menu invisible absolute left-1/2 top-full -translate-x-1/2 pt-2 transition-all duration-200">
+                <div class="panel-card w-max min-w-[240px] rounded-xl p-2 shadow-2xl backdrop-blur-xl">
+                  <ul>
                     {item.children.map((child) => (
                       <li>
-                        <a
-                          href={child.href}
-                          class="block rounded-sm px-3.5 py-2 text-xs font-normal text-neutral-300 transition-colors hover:bg-white/10 hover:text-white whitespace-nowrap"
-                        >
-                          {child.label}
+                        <a href={child.href} class="panel-link whitespace-nowrap">
+                          <span>{child.label}</span>
                         </a>
                       </li>
                     ))}
@@ -158,12 +180,13 @@ const isHome = Astro.url.pathname === '/';
 
       {/* KHỐI PHẢI: TÌM KIẾM, TÀI KHOẢN, GIỎ HÀNG */}
       <div class="flex items-center gap-2 sm:gap-3">
-        {/* Nút toggle tìm kiếm nhanh */}
         <button
           id="search-toggle-btn"
           type="button"
-          class="inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/10"
+          class="icon-btn inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/10"
           aria-label="Tìm kiếm sản phẩm"
+          aria-expanded="false"
+          aria-controls="quick-search-bar"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5">
             <circle cx="11" cy="11" r="6" />
@@ -171,11 +194,97 @@ const isHome = Astro.url.pathname === '/';
           </svg>
         </button>
 
-        {/* Nút Tài khoản */}
+        {/* TÀI KHOẢN (desktop): icon + tên khách + mũi tên, hover mở dropdown */}
+        <div class="nav-item group relative hidden lg:block">
+          <a
+            href="/dang-nhap"
+            data-account-link
+            class="icon-btn account-trigger inline-flex h-10 items-center gap-2 rounded-full px-2.5 transition-colors hover:bg-white/10"
+            aria-haspopup="true"
+            aria-controls="account-menu-panel"
+            title="Tài khoản"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5 shrink-0">
+              <circle cx="12" cy="8" r="3.5" />
+              <path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5" stroke-linecap="round" />
+            </svg>
+            <span class="account-name max-w-[140px] truncate text-[13px] font-medium" data-user-name>Khách</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="account-caret h-3 w-3 shrink-0 opacity-60">
+              <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+
+          <div
+            id="account-menu-panel"
+            class="dropdown-menu dropdown-menu--right invisible absolute right-0 top-full pt-2 transition-all duration-200"
+          >
+            <div class="panel-card w-max min-w-[260px] rounded-xl p-2 shadow-2xl backdrop-blur-xl">
+              {/* Khách */}
+              <div class="auth-guest">
+                <p class="panel-muted px-3.5 pb-2 pt-2 text-xs">Xin chào, Khách</p>
+                <ul>
+                  {guestMenu.map((item) => (
+                    <li>
+                      <a href={item.href} class="panel-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-4 w-4 shrink-0" aria-hidden="true">
+                          <path d={item.icon} stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span>{item.label}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+
+              {/* Đã đăng nhập */}
+              <div class="auth-user">
+                <div class="px-3.5 pb-2 pt-2">
+                  <span class="panel-muted block text-[11px]">Xin chào</span>
+                  <span class="panel-title block truncate text-sm font-semibold" data-user-name>Khách</span>
+                </div>
+
+                <div class="admin-only">
+                  <a href="/admin" class="panel-link panel-link--accent">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-4 w-4 shrink-0" aria-hidden="true">
+                      <path d={ICON.shield} stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span>Trang quản trị</span>
+                  </a>
+                  <div class="panel-divider" role="separator"></div>
+                </div>
+
+                <ul>
+                  {userMenu.map((item) => (
+                    <li>
+                      <a href={item.href} class="panel-link">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-4 w-4 shrink-0" aria-hidden="true">
+                          <path d={item.icon} stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        <span>{item.label}</span>
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+
+                <div class="panel-divider" role="separator"></div>
+
+                <button type="button" data-logout class="panel-link panel-link--danger w-full text-left">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-4 w-4 shrink-0" aria-hidden="true">
+                    <path d={ICON.logout} stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                  <span>Đăng xuất</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Tài khoản trên mobile: bấm là đi thẳng */}
         <a
           href="/dang-nhap"
-          class="inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/10"
-          aria-label="Tài khoản cá nhân"
+          data-account-link
+          class="icon-btn inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/10 lg:hidden"
+          aria-label="Tài khoản"
           title="Tài khoản"
         >
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5">
@@ -184,10 +293,10 @@ const isHome = Astro.url.pathname === '/';
           </svg>
         </a>
 
-        {/* Nút Giỏ hàng */}
+        {/* Giỏ hàng */}
         <a
           href="/gio-hang"
-          class="relative inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/10"
+          class="icon-btn relative inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/10"
           aria-label="Giỏ hàng"
           title="Giỏ hàng"
         >
@@ -198,15 +307,15 @@ const isHome = Astro.url.pathname === '/';
           <span
             data-cart-count
             style="display:none"
-            class="absolute right-1 top-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-amber-400 px-1 text-[10px] font-bold text-neutral-950 shadow-sm"
+            class="absolute right-1 top-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-amber-400 px-1 text-[10px] font-bold text-neutral-950 shadow-sm"
           >0</span>
         </a>
       </div>
     </div>
   </div>
 
-  {/* THANH TÌM KIẾM NHANH THẢ XUỐNG KHI BẤM KÍNH LÚP */}
-  <div id="quick-search-bar" class="hidden border-b border-neutral-800 bg-[#121214]/95 px-4 py-4 shadow-xl backdrop-blur-xl sm:px-8">
+  {/* THANH TÌM KIẾM NHANH */}
+  <div id="quick-search-bar" class="hidden border-b border-neutral-800 bg-[#173524]/95 px-4 py-4 shadow-xl backdrop-blur-xl sm:px-8">
     <div class="mx-auto max-w-3xl">
       <form data-desktop-search role="search" class="flex items-center gap-3 border-b border-white/20 pb-2">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5 text-neutral-400">
@@ -226,12 +335,12 @@ const isHome = Astro.url.pathname === '/';
   </div>
 </header>
 
-{/* BẢNG MENU TRƯỢT DI ĐỘNG (MOBILE DRAWER MENU) */}
+{/* MOBILE DRAWER MENU */}
 <div id="menu-panel" class="pointer-events-none fixed inset-0 z-[60] opacity-0 transition-opacity duration-300">
   <div id="menu-backdrop" class="absolute inset-0 bg-black/70 backdrop-blur-sm" aria-hidden="true"></div>
 
   <aside
-    class="absolute left-0 top-0 flex h-full w-full max-w-sm flex-col bg-[#141416] px-6 py-6 text-white shadow-2xl"
+    class="absolute left-0 top-0 flex h-full w-full max-w-sm flex-col bg-[#173524] px-6 py-6 text-white shadow-2xl"
     aria-label="Menu chính trên điện thoại"
   >
     <div class="flex shrink-0 items-center justify-between border-b border-white/10 pb-4">
@@ -251,7 +360,6 @@ const isHome = Astro.url.pathname === '/';
       </button>
     </div>
 
-    {/* Form tìm kiếm trên mobile */}
     <form data-menu-search role="search" class="mt-6 flex shrink-0 items-center gap-3 border-b border-white/20 pb-2">
       <input
         type="search"
@@ -295,108 +403,209 @@ const isHome = Astro.url.pathname === '/';
         ))}
       </ul>
 
-      <ul class="mt-8 flex flex-col gap-3 pb-10 text-xs text-neutral-400">
-        {secondary.map((item) => (
-          <li>
-            <a href={item.href} class="transition-colors hover:text-white">{item.label}</a>
-          </li>
-        ))}
-      </ul>
+      {/* Khối tài khoản trên mobile */}
+      <div class="mt-8 border-t border-white/10 pt-6 pb-10">
+        <p class="text-[10px] uppercase tracking-[0.3em] text-neutral-500">
+          <span class="auth-guest">Tài khoản</span>
+          <span class="auth-user">Xin chào, <span data-user-name>Khách</span></span>
+        </p>
+
+        <div class="auth-guest">
+          <ul class="mt-3 flex flex-col gap-3 text-xs text-neutral-300">
+            {guestMenu.map((item) => (
+              <li><a href={item.href} class="transition-colors hover:text-white">{item.label}</a></li>
+            ))}
+          </ul>
+        </div>
+
+        <div class="auth-user">
+          <ul class="mt-3 flex flex-col gap-3 text-xs text-neutral-300">
+            <li class="admin-only"><a href="/admin" class="text-amber-300 transition-colors hover:text-amber-200">Trang quản trị</a></li>
+            {userMenu.map((item) => (
+              <li><a href={item.href} class="transition-colors hover:text-white">{item.label}</a></li>
+            ))}
+            <li><button type="button" data-logout class="text-red-400 transition-colors hover:text-red-300">Đăng xuất</button></li>
+          </ul>
+        </div>
+
+        <ul class="mt-6 flex flex-col gap-3 text-xs text-neutral-400">
+          {secondary.map((item) => (
+            <li><a href={item.href} class="transition-colors hover:text-white">{item.label}</a></li>
+          ))}
+        </ul>
+      </div>
     </nav>
   </aside>
 </div>
 
 <style>
+  /* ===== Biến màu: tối (overlay trang chủ) là mặc định ===== */
   #site-header {
-    --line-color: #fbbf24; /* Vàng kim champagne trên nền tối (kế thừa bởi .hover-line-center) */
+    --line-color: #fbbf24;
+    --panel-bg: rgba(23, 53, 36, 0.97);
+    --panel-border: #24472f;
+    --panel-text: #d4d4d4;
+    --panel-text-hover: #ffffff;
+    --panel-hover-bg: rgba(255, 255, 255, 0.1);
+    --panel-muted: #8a8a8a;
+    --panel-divider: rgba(255, 255, 255, 0.12);
+    --panel-accent: #fbbf24;
+    --panel-danger: #f87171;
     color: #ffffff;
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   }
 
-  /* Trạng thái mặc định trên trang chủ (Overlay trên nền tối) */
+
   #site-header[data-overlay='true'] .navbar-container {
     background-color: transparent;
   }
 
-  /* Khi cuộn chuột trên trang chủ HOẶC ở các trang con */
-  #site-header[data-overlay='true'].is-scrolled,
-  #site-header[data-overlay='false'] {
-    --line-color: #fbbf24; /* Đồng bộ màu vàng nhạt champagne như ở đầu trang */
-    color: #111111;
-  }
-
   #site-header[data-overlay='true'].is-scrolled .navbar-container,
   #site-header[data-overlay='false'] .navbar-container {
-    background-color: rgba(255, 255, 255, 0.94);
+    background-color: rgba(23, 53, 36, 0.97);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.25);
   }
 
-  /* Chỉnh màu chữ menu khi header nền sáng */
-  #site-header[data-overlay='true'].is-scrolled .nav-item > .nav-link,
-  #site-header[data-overlay='false'] .nav-item > .nav-link {
-    color: #222222;
-  }
 
-  /* Khi hover: MÀU CHỮ VÀ THANH NGANG TRÙNG KHỚP 100% CÙNG MỘT MÃ MÀU (#fbbf24) */
   .nav-item:hover .nav-link,
   .nav-link:hover {
     color: var(--line-color, #fbbf24) !important;
   }
 
-  #site-header[data-overlay='true'].is-scrolled .logo-mark,
-  #site-header[data-overlay='false'] .logo-mark {
-    color: #111111;
+  .icon-btn {
+    transition: color 0.2s ease, background-color 0.2s ease;
+  }
+  .icon-btn:hover {
+    color: var(--line-color, #fbbf24);
   }
 
-  /* Dropdown panel khi ở header trắng */
-  #site-header[data-overlay='true'].is-scrolled .dropdown-menu > div,
-  #site-header[data-overlay='false'] .dropdown-menu > div {
-    background-color: #ffffff;
-    border-color: #e5e5e5;
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+  /* ===== Dropdown: mở bằng hover (chuột) và focus-within (bàn phím) ===== */
+  .nav-item .dropdown-menu > div {
+    transform: translateY(6px);
+    opacity: 0;
+    transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.22s ease;
+  }
+  .nav-item:hover .dropdown-menu,
+  .nav-item:focus-within .dropdown-menu {
+    visibility: visible;
+  }
+  .nav-item:hover .dropdown-menu > div,
+  .nav-item:focus-within .dropdown-menu > div {
+    transform: translateY(0);
+    opacity: 1;
   }
 
-  #site-header[data-overlay='true'].is-scrolled .dropdown-menu a,
-  #site-header[data-overlay='false'] .dropdown-menu a {
-    color: #4b5563;
-  }
-  #site-header[data-overlay='true'].is-scrolled .dropdown-menu a:hover,
-  #site-header[data-overlay='false'] .dropdown-menu a:hover {
-    color: #111111;
-    background-color: #f3f4f6;
+  /* Panel tài khoản canh phải, không dùng translateX của dropdown mặc định */
+  .dropdown-menu--right {
+    left: auto;
+    right: 0;
+    transform: none;
   }
 
-  /* Panel trượt mobile */
+  /* ===== Giao diện panel (đọc màu từ biến ở trên) ===== */
+  .panel-card {
+    background-color: var(--panel-bg);
+    border: 1px solid var(--panel-border);
+  }
+  .panel-title {
+    color: var(--panel-text-hover);
+  }
+  .panel-muted {
+    color: var(--panel-muted);
+  }
+  .panel-divider {
+    height: 1px;
+    margin: 0.35rem 0.5rem;
+    background-color: var(--panel-divider);
+  }
+  .panel-link {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 0.875rem;
+    border-radius: 0.5rem;
+    font-size: 0.8125rem;
+    color: var(--panel-text);
+    transition: color 0.15s ease, background-color 0.15s ease;
+  }
+  .panel-link:hover {
+    color: var(--panel-text-hover);
+    background-color: var(--panel-hover-bg);
+  }
+  .panel-link--accent {
+    color: var(--panel-accent);
+    font-weight: 600;
+  }
+  .panel-link--accent:hover {
+    color: var(--panel-accent);
+  }
+  .panel-link--danger {
+    color: var(--panel-danger);
+  }
+  .panel-link--danger:hover {
+    color: var(--panel-danger);
+  }
+
+  /* ===== Trạng thái đăng nhập (JS gán data-auth / data-role lên header và drawer) ===== */
+  .auth-user,
+  .admin-only,
+  .account-name,
+  .account-caret {
+    display: none;
+  }
+  [data-auth='user'] .auth-user {
+    display: block;
+  }
+  [data-auth='user'] .auth-guest {
+    display: none;
+  }
+  [data-auth='user'][data-role='admin'] .admin-only {
+    display: block;
+  }
+  @media (min-width: 1280px) {
+    [data-auth='user'] .account-name {
+      display: inline-block;
+    }
+    [data-auth='user'] .account-caret {
+      display: block;
+    }
+  }
+
+  /* ===== Drawer mobile ===== */
   #menu-panel > aside {
     transform: translateX(-100%);
     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   }
-
   #menu-panel.is-open {
     pointer-events: auto;
     opacity: 1;
   }
-
   #menu-panel.is-open > aside {
     transform: translateX(0);
   }
-
   .menu-group > summary {
     list-style: none;
   }
-
   .menu-group > summary::-webkit-details-marker {
     display: none;
   }
-
   .menu-plus {
     transition: transform 0.2s ease;
   }
-
   .menu-group[open] .menu-plus {
     transform: rotate(45deg);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #site-header,
+    #site-header *,
+    #menu-panel > aside,
+    .nav-item .dropdown-menu > div {
+      transition-duration: 0.01ms !important;
+      animation-duration: 0.01ms !important;
+    }
   }
 </style>
 
@@ -410,25 +619,24 @@ const isHome = Astro.url.pathname === '/';
   const quickSearchBar = document.getElementById('quick-search-bar');
   const closeSearchBtn = document.getElementById('close-search-btn');
 
-  // Xử lý scroll header
-  const onScroll = () => {
+  // Header đổi màu khi cuộn
+  const onScroll = (): void => {
     if (!header) return;
-    const isScrolled = window.scrollY > 40;
-    header.classList.toggle('is-scrolled', isScrolled);
+    header.classList.toggle('is-scrolled', window.scrollY > 40);
   };
 
   onScroll();
   window.addEventListener('scroll', onScroll, { passive: true });
 
-  // Mobile Menu Drawer
-  const openMenu = () => {
+  // Mobile drawer
+  const openMenu = (): void => {
     if (!menuPanel || !menuBtn) return;
     menuPanel.classList.add('is-open');
     menuBtn.setAttribute('aria-expanded', 'true');
     document.body.style.overflow = 'hidden';
   };
 
-  const closeMenu = () => {
+  const closeMenu = (): void => {
     if (!menuPanel || !menuBtn) return;
     menuPanel.classList.remove('is-open');
     menuBtn.setAttribute('aria-expanded', 'false');
@@ -439,17 +647,31 @@ const isHome = Astro.url.pathname === '/';
   menuClose?.addEventListener('click', closeMenu);
   menuBackdrop?.addEventListener('click', closeMenu);
 
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-      closeMenu();
-      quickSearchBar?.classList.add('hidden');
-    }
+  menuPanel?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', closeMenu);
   });
 
-  // Toggle thanh tìm kiếm nhanh
+  window.addEventListener('resize', () => {
+    if (window.innerWidth >= 1024) closeMenu();
+  });
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return;
+
+    closeMenu();
+    quickSearchBar?.classList.add('hidden');
+    searchToggleBtn?.setAttribute('aria-expanded', 'false');
+
+    // Bỏ focus để dropdown mở bằng bàn phím cũng đóng lại
+    const active = document.activeElement as HTMLElement | null;
+    if (active && header?.contains(active)) active.blur();
+  });
+
+  // Thanh tìm kiếm nhanh
   searchToggleBtn?.addEventListener('click', () => {
     if (!quickSearchBar) return;
     const isHidden = quickSearchBar.classList.toggle('hidden');
+    searchToggleBtn.setAttribute('aria-expanded', String(!isHidden));
     if (!isHidden) {
       quickSearchBar.querySelector<HTMLInputElement>('input[name="q"]')?.focus();
     }
@@ -457,14 +679,14 @@ const isHome = Astro.url.pathname === '/';
 
   closeSearchBtn?.addEventListener('click', () => {
     quickSearchBar?.classList.add('hidden');
+    searchToggleBtn?.setAttribute('aria-expanded', 'false');
   });
 
-  // Tìm kiếm form
-  const handleSearchSubmit = (form: HTMLFormElement | null) => {
+  const handleSearchSubmit = (form: HTMLFormElement | null): void => {
     form?.addEventListener('submit', (event) => {
       event.preventDefault();
       const input = form.querySelector<HTMLInputElement>('input[name="q"]');
-      const keyword = input?.value.trim();
+      const keyword = input?.value.trim() ?? '';
       window.location.href = keyword ? '/san-pham?q=' + encodeURIComponent(keyword) : '/san-pham';
     });
   };
@@ -475,10 +697,12 @@ const isHome = Astro.url.pathname === '/';
 
 <script>
   import { readCart, countItems, CART_EVENT } from '../scripts/cart';
+  import { readUser, clearUser, AUTH_EVENT } from '../scripts/auth';
 
+  // ----- Badge giỏ hàng -----
   const badge = document.querySelector<HTMLElement>('[data-cart-count]');
 
-  const syncBadge = () => {
+  const syncBadge = (): void => {
     if (!badge) return;
     const count = countItems(readCart());
     badge.textContent = String(count);
@@ -488,4 +712,45 @@ const isHome = Astro.url.pathname === '/';
   syncBadge();
   window.addEventListener(CART_EVENT, syncBadge);
   window.addEventListener('storage', syncBadge);
+
+  // ----- Trạng thái đăng nhập: hiện tên khách, đổi menu -----
+  const authTargets = [
+    document.getElementById('site-header'),
+    document.getElementById('menu-panel'),
+  ];
+
+  const syncAuth = (): void => {
+    const user = readUser();
+
+    for (const el of authTargets) {
+      if (!el) continue;
+      if (user) {
+        el.dataset.auth = 'user';
+        el.dataset.role = user.role ?? 'customer';
+      } else {
+        delete el.dataset.auth;
+        delete el.dataset.role;
+      }
+    }
+
+    document.querySelectorAll<HTMLElement>('[data-user-name]').forEach((el) => {
+      el.textContent = user?.name ?? 'Khách';
+    });
+
+    document.querySelectorAll<HTMLAnchorElement>('[data-account-link]').forEach((a) => {
+      a.href = user ? '/tai-khoan' : '/dang-nhap';
+      a.setAttribute('aria-label', user ? 'Tài khoản của ' + user.name : 'Đăng nhập');
+    });
+  };
+
+  syncAuth();
+  window.addEventListener(AUTH_EVENT, syncAuth);
+  window.addEventListener('storage', syncAuth);
+
+  document.querySelectorAll<HTMLElement>('[data-logout]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      clearUser();
+      window.location.href = '/';
+    });
+  });
 </script>
