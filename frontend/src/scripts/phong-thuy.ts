@@ -205,7 +205,7 @@ Hãy đóng vai Chuyên gia Phong Thủy Nội Thất cao cấp, đưa ra lời 
 3. Lời khuyên chọn chất liệu & màu sắc nội thất tương sinh.
 Trình bày sang trọng, ấm áp, dùng gạch đầu dòng rõ ràng.`;
 
-  const models = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
+  const models = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
   for (const m of models) {
     try {
       const res = await fetch(

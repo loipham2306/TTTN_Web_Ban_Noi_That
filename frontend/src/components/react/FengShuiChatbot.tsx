@@ -140,7 +140,7 @@ export default function FengShuiChatbot() {
       if (!geminiApiKey) {
         throw new Error('Chưa cấu hình API Key. Vui lòng thêm PUBLIC_GEMINI_API_KEY vào file .env');
       }
-      const modelsToTry = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
+      const modelsToTry = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
 
       const geminiHistory = newMessages.slice(1).map((m) => ({
         role: m.role === 'assistant' ? 'model' : 'user',
@@ -149,6 +149,7 @@ export default function FengShuiChatbot() {
 
       let apiSuccess = false;
       let lastErrorMessage = '';
+      let replyText = '';
 
       const contextPrompt = productContext
         ? `\n\n[NGỮ CẢNH HIỆN TẠI]: Khách hàng ĐANG MỞ XEM trang chi tiết sản phẩm: "${productContext}". Nếu khách hàng hỏi các đại từ như "món này", "sản phẩm này", "cái này có hợp mệnh tôi không", hãy luận giải trực tiếp sự tương hợp phong thủy của món "${productContext}" với bản mệnh của khách.`
