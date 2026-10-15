@@ -639,14 +639,6 @@ const reviews = [
   const currentName = btnWishlist?.dataset.name || '';
   const currentPrice = Number(btnWishlist?.dataset.price || 0);
 
-  const getWishlist = (): string[] => {
-    try {
-      return JSON.parse(localStorage.getItem('user_wishlist_slugs') || '[]');
-    } catch {
-      return [];
-    }
-  };
-
   const updateWishlistUI = (isSaved: boolean) => {
     if (!btnWishlist || !iconWishlist) return;
     if (isSaved) {
@@ -661,22 +653,41 @@ const reviews = [
   };
 
   // Check state on load
+  const getWishlist = (): any[] => {
+    try {
+      return JSON.parse(localStorage.getItem('user_wishlist') || '[]');
+    } catch {
+      return [];
+    }
+  };
+
+  const isFavorited = (slugStr: string): boolean => {
+    return getWishlist().some((item: any) => item.slug === slugStr);
+  };
+
   if (currentSlug) {
-    const list = getWishlist();
-    updateWishlistUI(list.includes(currentSlug));
+    updateWishlistUI(isFavorited(currentSlug));
   }
 
   btnWishlist?.addEventListener('click', () => {
     const list = getWishlist();
-    const index = list.indexOf(currentSlug);
+    const index = list.findIndex((item: any) => item.slug === currentSlug);
     if (index > -1) {
       list.splice(index, 1);
-      localStorage.setItem('user_wishlist_slugs', JSON.stringify(list));
+      localStorage.setItem('user_wishlist', JSON.stringify(list));
+      localStorage.setItem('user_wishlist_slugs', JSON.stringify(list.map((i: any) => i.slug)));
+      window.dispatchEvent(new Event('wishlist:changed'));
       updateWishlistUI(false);
       showToast(`Đã bỏ "${currentName}" khỏi danh sách yêu thích!`);
     } else {
-      list.push(currentSlug);
-      localStorage.setItem('user_wishlist_slugs', JSON.stringify(list));
+      list.unshift({
+        slug: currentSlug,
+        name: currentName,
+        price: currentPrice,
+      });
+      localStorage.setItem('user_wishlist', JSON.stringify(list));
+      localStorage.setItem('user_wishlist_slugs', JSON.stringify(list.map((i: any) => i.slug)));
+      window.dispatchEvent(new Event('wishlist:changed'));
       updateWishlistUI(true);
       showToast(`Đã thêm "${currentName}" vào danh sách yêu thích! ❤️`);
     }

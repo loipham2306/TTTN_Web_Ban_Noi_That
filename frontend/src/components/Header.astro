@@ -1046,6 +1046,54 @@ const isHome = Astro.url.pathname === '/';
     if (addrName) addrName.textContent = name;
     if (addrPhone) addrPhone.textContent = phone;
 
+    // Wishlist Info (Đồng bộ trực tiếp các sản phẩm đã bấm Yêu thích)
+    const wishlistContainer = document.getElementById('tab-pane-wishlist');
+    if (wishlistContainer) {
+      let wishItems: any[] = [];
+      try {
+        wishItems = JSON.parse(localStorage.getItem('user_wishlist') || '[]');
+      } catch {}
+
+      if (wishItems.length === 0) {
+        wishlistContainer.innerHTML = `
+          <div class="text-center py-8 text-xs text-walnut-800/70">
+            <p class="text-3xl mb-2 text-walnut-900/30">♡</p>
+            <p class="font-bold text-sm text-walnut-900">Danh sách yêu thích đang trống</p>
+            <p class="mt-1 text-walnut-800/70">Hãy bấm vào biểu tượng trái tim ở các trang sản phẩm để lưu lại tại đây nhé.</p>
+          </div>
+        `;
+      } else {
+        wishlistContainer.innerHTML = wishItems.map((item: any) => `
+          <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-3.5 flex items-center justify-between gap-4">
+            <div>
+              <h4 class="font-semibold text-xs text-walnut-900">${item.name}</h4>
+              <p class="font-bold text-clay-700 text-xs mt-0.5">${new Intl.NumberFormat('vi-VN').format(item.price)} ₫</p>
+            </div>
+            <div class="flex items-center gap-3">
+              <a href="/san-pham/${item.slug}" class="text-xs uppercase tracking-wider text-walnut-900 font-semibold hover:text-clay-600 underline">
+                Xem sản phẩm →
+              </a>
+              <button type="button" data-remove-wishlist="${item.slug}" class="text-xs text-red-500 hover:text-red-700 p-1 cursor-pointer font-bold" title="Xóa khỏi yêu thích">
+                ✕
+              </button>
+            </div>
+          </div>
+        `).join('');
+
+        wishlistContainer.querySelectorAll<HTMLButtonElement>('[data-remove-wishlist]').forEach((btn) => {
+          btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const slugToRemove = btn.dataset.removeWishlist;
+            const updated = wishItems.filter((i: any) => i.slug !== slugToRemove);
+            localStorage.setItem('user_wishlist', JSON.stringify(updated));
+            localStorage.setItem('user_wishlist_slugs', JSON.stringify(updated.map((i: any) => i.slug)));
+            window.dispatchEvent(new Event('wishlist:changed'));
+            openProfileModal('wishlist');
+          });
+        });
+      }
+    }
+
     switchProfileTab(initialTab);
     profileModal?.classList.remove('hidden');
   };
