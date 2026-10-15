@@ -57,6 +57,61 @@ authRouter.post('/register', async (req: Request, res: Response) => {
   }
 });
 
+// POST /api/auth/google - Xử lý đăng nhập / tự động tạo tài khoản bằng Google
+authRouter.post('/google', async (req: Request, res: Response) => {
+  try {
+    const { email, fullname, avatar_url } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Thiếu thông tin email từ Google.' });
+    }
+
+    // Kiểm tra xem tài khoản đã tồn tại trong database chưa
+    let user = await prisma.users.findUnique({
+      where: { email },
+      include: { roles: true },
+    });
+
+    // Nếu chưa có, tự động tạo mới người dùng với vai trò customer
+    if (!user) {
+      let customerRole = await prisma.roles.findFirst({
+        where: { name: 'customer' },
+      });
+
+      if (!customerRole) {
+        customerRole = await prisma.roles.findFirst();
+      }
+
+      user = await prisma.users.create({
+        data: {
+          email,
+          full_name: fullname || email.split('@')[0],
+          avatar_url: avatar_url || null,
+          password_hash: 'GOOGLE_OAUTH_ACCOUNT',
+          role_id: customerRole ? customerRole.id : 1,
+          status: true,
+        },
+        include: { roles: true },
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: 'Đăng nhập Google thành công!',
+      user: {
+        id: Number(user.id),
+        email: user.email,
+        full_name: user.full_name,
+        avatar: user.avatar_url,
+        role: user.roles?.name || 'customer',
+      },
+    });
+  } catch (error: any) {
+    console.error('Lỗi đăng nhập Google:', error);
+    return res.status(500).json({ success: false, message: 'Lỗi máy chủ khi xử lý Google Login.', error: error.message });
+  }
+});
+
 // POST /api/auth/login
 authRouter.post('/login', async (req: Request, res: Response) => {
   try {
