@@ -455,21 +455,6 @@ const isHome = Astro.url.pathname === '/';
     transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
   }
 
-  /* Header nền sáng: cuộn trang chủ HOẶC trang con */
-  #site-header[data-overlay='true'].is-scrolled,
-  #site-header[data-overlay='false'] {
-    --line-color: #2f6f42;
-    --panel-bg: #ffffff;
-    --panel-border: #ececec;
-    --panel-text: #4b5563;
-    --panel-text-hover: #111111;
-    --panel-hover-bg: #f3f4f6;
-    --panel-muted: #9ca3af;
-    --panel-divider: #e5e5e5;
-    --panel-accent: #ea580c;
-    --panel-danger: #dc2626;
-    color: #111111;
-  }
 
   #site-header[data-overlay='true'] .navbar-container {
     background-color: transparent;
@@ -477,18 +462,12 @@ const isHome = Astro.url.pathname === '/';
 
   #site-header[data-overlay='true'].is-scrolled .navbar-container,
   #site-header[data-overlay='false'] .navbar-container {
-    background-color: rgba(255, 255, 255, 0.94);
+    background-color: rgba(23, 53, 36, 0.97);
     backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.25);
   }
 
-  #site-header[data-overlay='true'].is-scrolled .nav-link,
-  #site-header[data-overlay='false'] .nav-link,
-  #site-header[data-overlay='true'].is-scrolled .logo-mark,
-  #site-header[data-overlay='false'] .logo-mark {
-    color: #222222;
-  }
 
   .nav-item:hover .nav-link,
   .nav-link:hover {
@@ -500,10 +479,6 @@ const isHome = Astro.url.pathname === '/';
   }
   .icon-btn:hover {
     color: var(--line-color, #fbbf24);
-  }
-  #site-header[data-overlay='true'].is-scrolled .icon-btn:hover,
-  #site-header[data-overlay='false'] .icon-btn:hover {
-    background-color: rgba(0, 0, 0, 0.05);
   }
 
   /* ===== Dropdown: mở bằng hover (chuột) và focus-within (bàn phím) ===== */
