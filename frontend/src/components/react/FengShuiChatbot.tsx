@@ -136,13 +136,19 @@ export default function FengShuiChatbot() {
     setIsLoading(true);
 
     try {
+      let replyText = '';
       const geminiApiKey = import.meta.env.PUBLIC_GEMINI_API_KEY;
       if (!geminiApiKey) {
         throw new Error('Chưa cấu hình API Key. Vui lòng thêm PUBLIC_GEMINI_API_KEY vào file .env');
       }
       const modelsToTry = ['gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
 
-      const geminiHistory = newMessages.slice(1).map((m) => ({
+      // Lọc bỏ các tin nhắn thông báo lỗi trước đó khỏi ngữ cảnh gửi lên AI
+      const validHistory = newMessages
+        .filter((m) => !m.content.startsWith('⚠️'))
+        .slice(1);
+
+      const geminiHistory = validHistory.map((m) => ({
         role: m.role === 'assistant' ? 'model' : 'user',
         parts: [{ text: m.content }],
       }));
