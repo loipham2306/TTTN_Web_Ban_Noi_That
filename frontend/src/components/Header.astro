@@ -115,7 +115,7 @@ const isItemActive = (item: MenuItem): boolean => {
   class="fixed inset-x-0 top-0 z-50 transition-all duration-300"
 >
   {/* TOP ANNOUNCEMENT BAR */}
-  <div id="header-topbar" class="border-b border-white/10 bg-[#0f2418]/90 py-1.5 text-[11px] text-neutral-300 backdrop-blur-md transition-all duration-300">
+  <div id="header-topbar" class="border-b border-white/10 bg-[#0f2418] py-1.5 text-[11px] text-neutral-300 transition-all duration-300">
     <div class="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-8">
       <div class="hidden items-center gap-5 md:flex">
         <span class="flex items-center gap-1.5">
@@ -360,7 +360,7 @@ const isItemActive = (item: MenuItem): boolean => {
   </div>
 
   {/* THANH TÌM KIẾM NHANH */}
-  <div id="quick-search-bar" class="hidden border-b border-neutral-800 bg-[#173524]/95 px-4 py-4 shadow-xl backdrop-blur-xl sm:px-8">
+  <div id="quick-search-bar" class="hidden border-b border-white/10 bg-[#173524] px-4 py-4 shadow-xl sm:px-8">
     <div class="mx-auto max-w-3xl">
       <form data-desktop-search role="search" class="flex items-center gap-3 border-b border-white/20 pb-2">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5 text-neutral-400">
@@ -523,16 +523,17 @@ const isItemActive = (item: MenuItem): boolean => {
   }
 
 
-  #site-header[data-overlay='true'] .navbar-container {
-    background-color: transparent;
-  }
-
+  /* Menu luôn đồng nhất màu xanh đặc (#173524) 100%, không bị nhìn xuyên thấu hay nhạt màu khi cuộn */
+  #site-header,
+  .navbar-container,
+  #site-header[data-overlay='true'] .navbar-container,
   #site-header[data-overlay='true'].is-scrolled .navbar-container,
   #site-header[data-overlay='false'] .navbar-container {
-    background-color: rgba(23, 53, 36, 0.97);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.25);
+    background-color: #173524 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
   }
 
 
