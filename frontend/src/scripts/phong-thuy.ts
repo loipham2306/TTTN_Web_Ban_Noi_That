@@ -199,7 +199,7 @@ export const goiAITuVanPhongThuy = async (
     return 'Vui lòng thêm biến môi trường PUBLIC_GEMINI_API_KEY vào file .env để kích hoạt tư vấn AI.';
   }
   const prompt = `Gia chủ sinh năm ${namSinh} (${gioiTinh === 'nam' ? 'Nam mạng' : 'Nữ mạng'}), thuộc cung ${cung}, mệnh ${nguHanh}. Đang hoàn thiện không gian: ${loaiPhongLabel}.
-Hãy đóng vai Chuyên gia Phong Thủy Nội Thất cao cấp, đưa ra lời luận giải ngắn gọn (khoảng 3 đoạn văn):
+Hãy đóng vai Chuyên gia Phong Thủy của thương hiệu KTUFA Luxury Furniture, đưa ra lời luận giải ngắn gọn (khoảng 3 đoạn văn):
 1. Nhận định phong thủy tổng quan cho căn phòng này của gia chủ.
 2. Cách kê đồ đạc chính (hướng, vị trí tựa lưng, ánh sáng) để chiêu tài đón lộc.
 3. Lời khuyên chọn chất liệu & màu sắc nội thất tương sinh.
