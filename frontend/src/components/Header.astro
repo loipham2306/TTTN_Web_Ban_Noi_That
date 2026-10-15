@@ -87,6 +87,26 @@ const secondary: MenuLink[] = [
 ];
 
 const isHome = Astro.url.pathname === '/';
+const currentPath = Astro.url.pathname;
+
+const isItemActive = (item: MenuItem): boolean => {
+  if (item.href === '/') {
+    return currentPath === '/';
+  }
+  if (item.href && item.href !== '#' && !item.href.startsWith('/#')) {
+    if (currentPath === item.href || currentPath.startsWith(item.href + '/')) {
+      return true;
+    }
+  }
+  if (item.children) {
+    return item.children.some((child) => {
+      if (child.href.startsWith('/#')) return false;
+      const [path] = child.href.split('?');
+      return currentPath === path || currentPath.startsWith(path + '/');
+    });
+  }
+  return false;
+};
 ---
 
 <header
@@ -144,38 +164,63 @@ const isHome = Astro.url.pathname === '/';
 
       {/* KHỐI GIỮA */}
       <nav class="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-6 whitespace-nowrap lg:flex xl:gap-9" aria-label="Menu chính máy tính">
-        {menu.map((item) => (
-          <div class="nav-item group relative">
-            <a
-              href={item.href || '#'}
-              class="nav-link flex items-center gap-1.5 whitespace-nowrap py-2 text-[12px] font-medium uppercase tracking-[0.18em] transition-colors duration-200"
-              aria-haspopup={item.children ? 'true' : undefined}
-            >
-              <span class="hover-line-center whitespace-nowrap">{item.label}</span>
-              {item.children && (
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-3 w-3 shrink-0 opacity-60 transition-transform duration-200 group-hover:rotate-180">
-                  <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-              )}
-            </a>
+        {menu.map((item) => {
+          const active = isItemActive(item);
+          return (
+            <div class:list={['nav-item group relative', active && 'is-active']}>
+              <a
+                href={item.href || '#'}
+                class:list={[
+                  'nav-link flex items-center gap-1.5 whitespace-nowrap py-2 text-[12px] font-medium uppercase tracking-[0.18em] transition-colors duration-200',
+                  active ? 'text-amber-400 font-semibold is-active' : 'text-white/90 hover:text-amber-400',
+                ]}
+                aria-haspopup={item.children ? 'true' : undefined}
+                aria-current={active ? 'page' : undefined}
+              >
+                <span class:list={['hover-line-center whitespace-nowrap', active && 'is-active']}>{item.label}</span>
+                {item.children && (
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    class:list={[
+                      'h-3 w-3 shrink-0 transition-transform duration-200 group-hover:rotate-180',
+                      active ? 'text-amber-400 opacity-90' : 'opacity-60',
+                    ]}
+                  >
+                    <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                )}
+              </a>
 
-            {item.children && (
-              <div class="dropdown-menu invisible absolute left-1/2 top-full -translate-x-1/2 pt-2 transition-all duration-200">
-                <div class="panel-card w-max min-w-[240px] rounded-xl p-2 shadow-2xl backdrop-blur-xl">
-                  <ul>
-                    {item.children.map((child) => (
-                      <li>
-                        <a href={child.href} class="panel-link whitespace-nowrap">
-                          <span>{child.label}</span>
-                        </a>
-                      </li>
-                    ))}
-                  </ul>
+              {item.children && (
+                <div class="dropdown-menu invisible absolute left-1/2 top-full -translate-x-1/2 pt-2 transition-all duration-200">
+                  <div class="panel-card w-max min-w-[240px] rounded-xl p-2 shadow-2xl backdrop-blur-xl">
+                    <ul>
+                      {item.children.map((child) => {
+                        const childActive = currentPath === child.href;
+                        return (
+                          <li>
+                            <a
+                              href={child.href}
+                              class:list={[
+                                'panel-link whitespace-nowrap',
+                                childActive && 'panel-link--accent font-semibold bg-white/10 text-amber-400',
+                              ]}
+                            >
+                              <span>{child.label}</span>
+                            </a>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
-        ))}
+              )}
+            </div>
+          );
+        })}
       </nav>
 
       {/* KHỐI PHẢI: TÌM KIẾM, TÀI KHOẢN, GIỎ HÀNG */}
@@ -378,29 +423,51 @@ const isHome = Astro.url.pathname === '/';
 
     <nav class="mt-6 flex-1 overflow-y-auto" aria-label="Danh mục điện thoại">
       <ul class="flex flex-col">
-        {menu.map((item) => (
-          <li class="border-b border-white/10">
-            {item.children ? (
-              <details class="menu-group">
-                <summary class="flex cursor-pointer items-center justify-between gap-4 py-3.5">
-                  <span class="text-sm font-medium uppercase tracking-[0.15em] text-white">{item.label}</span>
-                  <span class="menu-plus text-lg leading-none text-neutral-400" aria-hidden="true">+</span>
-                </summary>
-                <ul class="flex flex-col gap-2.5 pb-4 pl-4 text-xs">
-                  {item.children.map((child) => (
-                    <li>
-                      <a href={child.href} class="text-neutral-400 transition-colors hover:text-white">{child.label}</a>
-                    </li>
-                  ))}
-                </ul>
-              </details>
-            ) : (
-              <a href={item.href} class="block py-3.5 text-sm font-medium uppercase tracking-[0.15em] text-white transition-colors hover:text-amber-300">
-                {item.label}
-              </a>
-            )}
-          </li>
-        ))}
+        {menu.map((item) => {
+          const active = isItemActive(item);
+          return (
+            <li class:list={['border-b border-white/10', active && 'bg-white/5']}>
+              {item.children ? (
+                <details class="menu-group" open={active}>
+                  <summary class="flex cursor-pointer items-center justify-between gap-4 py-3.5">
+                    <span class:list={['text-sm font-medium uppercase tracking-[0.15em]', active ? 'text-amber-400 font-bold' : 'text-white']}>
+                      {item.label}
+                    </span>
+                    <span class="menu-plus text-lg leading-none text-neutral-400" aria-hidden="true">+</span>
+                  </summary>
+                  <ul class="flex flex-col gap-2.5 pb-4 pl-4 text-xs">
+                    {item.children.map((child) => {
+                      const childActive = currentPath === child.href;
+                      return (
+                        <li>
+                          <a
+                            href={child.href}
+                            class:list={[
+                              'transition-colors',
+                              childActive ? 'text-amber-400 font-semibold' : 'text-neutral-400 hover:text-white',
+                            ]}
+                          >
+                            {child.label}
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </details>
+              ) : (
+                <a
+                  href={item.href}
+                  class:list={[
+                    'block py-3.5 text-sm font-medium uppercase tracking-[0.15em] transition-colors',
+                    active ? 'text-amber-400 font-bold' : 'text-white hover:text-amber-300',
+                  ]}
+                >
+                  {item.label}
+                </a>
+              )}
+            </li>
+          );
+        })}
       </ul>
 
       {/* Khối tài khoản trên mobile */}
@@ -472,6 +539,19 @@ const isHome = Astro.url.pathname === '/';
   .nav-item:hover .nav-link,
   .nav-link:hover {
     color: var(--line-color, #fbbf24) !important;
+  }
+
+  /* Trạng thái tab đang hoạt động (active menu sáng đèn) */
+  .nav-item.is-active .nav-link,
+  .nav-link.is-active,
+  .nav-link[aria-current='page'] {
+    color: #fbbf24 !important;
+  }
+
+  .hover-line-center.is-active::after,
+  .nav-item.is-active .hover-line-center::after {
+    width: 100% !important;
+    background-color: #fbbf24 !important;
   }
 
   .icon-btn {

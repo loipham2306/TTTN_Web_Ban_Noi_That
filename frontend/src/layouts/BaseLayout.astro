@@ -2,6 +2,7 @@
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import ContactFab from '../components/ContactFab.astro';
+import FengShuiChatbot from '../components/react/FengShuiChatbot';
 import '../styles/global.css';
 
 interface Props {
@@ -34,6 +35,7 @@ href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;7
 </main>
 <Footer />
 {!Astro.url.pathname.startsWith('/admin') && <ContactFab />}
+{!Astro.url.pathname.startsWith('/admin') && <FengShuiChatbot client:load />}
 
 <!-- global.css an.grid > * / article[data-product] khi JS chua chay.
 Neu nguoi dung tat JS thi phai ep hien, khong duoc de trang trang. -->
