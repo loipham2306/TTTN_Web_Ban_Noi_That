@@ -95,7 +95,7 @@ const isHome = Astro.url.pathname === '/';
   class="fixed inset-x-0 top-0 z-50 transition-all duration-300"
 >
   {/* TOP ANNOUNCEMENT BAR */}
-  <div id="header-topbar" class="border-b border-white/10 bg-black/75 py-1.5 text-[11px] text-neutral-300 backdrop-blur-md transition-all duration-300">
+  <div id="header-topbar" class="border-b border-white/10 bg-[#0f2418]/90 py-1.5 text-[11px] text-neutral-300 backdrop-blur-md transition-all duration-300">
     <div class="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-8">
       <div class="hidden items-center gap-5 md:flex">
         <span class="flex items-center gap-1.5">
@@ -315,7 +315,7 @@ const isHome = Astro.url.pathname === '/';
   </div>
 
   {/* THANH TÌM KIẾM NHANH */}
-  <div id="quick-search-bar" class="hidden border-b border-neutral-800 bg-[#121214]/95 px-4 py-4 shadow-xl backdrop-blur-xl sm:px-8">
+  <div id="quick-search-bar" class="hidden border-b border-neutral-800 bg-[#173524]/95 px-4 py-4 shadow-xl backdrop-blur-xl sm:px-8">
     <div class="mx-auto max-w-3xl">
       <form data-desktop-search role="search" class="flex items-center gap-3 border-b border-white/20 pb-2">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5 text-neutral-400">
@@ -340,7 +340,7 @@ const isHome = Astro.url.pathname === '/';
   <div id="menu-backdrop" class="absolute inset-0 bg-black/70 backdrop-blur-sm" aria-hidden="true"></div>
 
   <aside
-    class="absolute left-0 top-0 flex h-full w-full max-w-sm flex-col bg-[#141416] px-6 py-6 text-white shadow-2xl"
+    class="absolute left-0 top-0 flex h-full w-full max-w-sm flex-col bg-[#173524] px-6 py-6 text-white shadow-2xl"
     aria-label="Menu chính trên điện thoại"
   >
     <div class="flex shrink-0 items-center justify-between border-b border-white/10 pb-4">
@@ -442,8 +442,8 @@ const isHome = Astro.url.pathname === '/';
   /* ===== Biến màu: tối (overlay trang chủ) là mặc định ===== */
   #site-header {
     --line-color: #fbbf24;
-    --panel-bg: rgba(20, 20, 22, 0.96);
-    --panel-border: #262626;
+    --panel-bg: rgba(23, 53, 36, 0.97);
+    --panel-border: #24472f;
     --panel-text: #d4d4d4;
     --panel-text-hover: #ffffff;
     --panel-hover-bg: rgba(255, 255, 255, 0.1);
@@ -458,6 +458,7 @@ const isHome = Astro.url.pathname === '/';
   /* Header nền sáng: cuộn trang chủ HOẶC trang con */
   #site-header[data-overlay='true'].is-scrolled,
   #site-header[data-overlay='false'] {
+    --line-color: #2f6f42;
     --panel-bg: #ffffff;
     --panel-border: #ececec;
     --panel-text: #4b5563;

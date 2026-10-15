@@ -2,6 +2,7 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProductCard from '../components/ProductCard.astro';
 import { products } from '../data/products';
+import { CONTACT } from '../data/contact';
 
 const spaces = [
   { name: 'Phòng khách', href: '/san-pham?khong-gian=phong-khach' },
@@ -141,19 +142,19 @@ const featured = products.slice(0, 4);
     </div>
   </section>
 
-  {/* SHOWROOM */}
-  <section id="showroom" class="scroll-mt-20 bg-black text-sand-50">
+  {/* SHOWROOM (nền sáng) */}
+  <section id="showroom" class="scroll-mt-20 border-t border-walnut-900/10 bg-sand-100 text-walnut-900">
     <div class="mx-auto grid max-w-7xl gap-8 px-4 py-14 lg:grid-cols-2 lg:items-center">
       <div>
-        <p class="text-xs uppercase tracking-[0.3em] text-sand-200/70">Ghé thăm showroom</p>
-        <p class="mt-2 font-display text-xl sm:text-2xl text-sand-50">615 Âu Cơ, TP. Hồ Chí Minh</p>
+        <p class="text-xs uppercase tracking-[0.3em] text-walnut-800/80">Ghé thăm showroom</p>
+        <p class="mt-2 font-display text-xl sm:text-2xl text-walnut-900">615 Âu Cơ, TP. Hồ Chí Minh</p>
         <div class="mt-6 flex flex-wrap gap-3">
-          <a href="tel:1900636884" class="border border-sand-50/30 px-6 py-2.5 text-xs uppercase tracking-[0.2em] transition hover:border-sand-50 rounded-sm">Hotline</a>
-          <a href="#" class="border border-sand-50/30 px-6 py-2.5 text-xs uppercase tracking-[0.2em] transition hover:border-sand-50 rounded-sm">Zalo</a>
-          <a href="#" class="border border-sand-50/30 px-6 py-2.5 text-xs uppercase tracking-[0.2em] transition hover:border-sand-50 rounded-sm">Messenger</a>
+          <a href={`tel:${CONTACT.phone}`} class="border border-walnut-900/30 px-6 py-2.5 text-xs uppercase tracking-[0.2em] text-walnut-900 transition hover:border-clay-600 hover:bg-clay-600 hover:text-sand-50 rounded-sm">Hotline</a>
+          <a href={CONTACT.zalo} target="_blank" rel="noopener noreferrer" class="border border-walnut-900/30 px-6 py-2.5 text-xs uppercase tracking-[0.2em] text-walnut-900 transition hover:border-clay-600 hover:bg-clay-600 hover:text-sand-50 rounded-sm">Zalo</a>
+          <a href={CONTACT.messenger} target="_blank" rel="noopener noreferrer" class="border border-walnut-900/30 px-6 py-2.5 text-xs uppercase tracking-[0.2em] text-walnut-900 transition hover:border-clay-600 hover:bg-clay-600 hover:text-sand-50 rounded-sm">Messenger</a>
         </div>
       </div>
-      <div class="overflow-hidden rounded-lg">
+      <div class="overflow-hidden rounded-lg border border-walnut-900/10">
         <iframe
           title="Bản đồ showroom 615 Âu Cơ"
           src="https://maps.google.com/maps?q=615%20%C3%82u%20C%C6%A1&z=16&output=embed"

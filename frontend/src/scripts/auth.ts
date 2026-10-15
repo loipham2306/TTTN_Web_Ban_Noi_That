@@ -7,7 +7,7 @@ export interface AuthUser {
   role?: 'customer' | 'admin';
 }
 
-export const AUTH_KEY = 'auth_user';
+export const AUTH_KEY = 'current_user';
 export const AUTH_EVENT = 'auth:changed';
 
 export function readUser(): AuthUser | null {

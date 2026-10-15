@@ -1,45 +1,50 @@
 @import "tailwindcss";
 
 @theme {
-/* Nền và chữ */
---color-sand-50: #ffffff;
---color-sand-100: #f4f4f4;
---color-sand-200: #e8e8e8;
---color-walnut-800: #4f4f4f;
---color-walnut-900: #111111;
+  /* Nền và chữ: kem ấm + xanh rêu đậm */
+  --color-sand-50: #f8f7f1;
+  --color-sand-100: #f0eee3;
+  --color-sand-200: #e1ddc9;
+  --color-walnut-800: #2f4a38;
+  --color-walnut-900: #173524;
 
-/* Điểm nhấn */
---color-clay-500: #4f4f4f;
---color-clay-600: #333333;
---color-olive-700: #808080;
---color-danger-600: #a3012c;
+  /* Điểm nhấn (nút chính, liên kết) */
+  --color-clay-500: #3f8a52;
+  --color-clay-600: #2f6f42;
+  --color-olive-700: #6b7f5a;
+  --color-danger-600: #a3012c;
 
-/* Chữ */
---font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
---font-display: "Lora", ui-serif, Georgia, serif;
+  /* Chữ */
+  --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Lora", ui-serif, Georgia, serif;
 
-/* Chuyển động dùng chung (luxury easing) */
---ease-lux: cubic-bezier(0.16, 1, 0.3, 1);
---ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
+  /* Chuyển động dùng chung (luxury easing) */
+  --ease-lux: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-soft: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @layer base {
-html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+  html {
+    -webkit-text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
 
-body {
-background-color: var(--color-sand-50);
-color: var(--color-walnut-900);
-font-family: var(--font-sans);
-}
+  body {
+    background-color: var(--color-sand-50);
+    color: var(--color-walnut-900);
+    font-family: var(--font-sans);
+  }
 
-h1, h2, h3 { font-family: var(--font-display); }
+  h1, h2, h3 {
+    font-family: var(--font-display);
+  }
 }
 
 /* ==========================================================================
-   HIỆU ỨNG TÁI SỬ DỤNG CHO TOÀN BỘ WEBSITE 
+   HIỆU ỨNG TÁI SỬ DỤNG CHO TOÀN BỘ WEBSITE
    ========================================================================== */
 
-/* 1. Hiệu ứng gạch chân dãn từ giữa sang 2 bên (Expanding Center Underline) */
+/* 1. Gạch chân dãn từ giữa sang 2 bên */
 .hover-line-center {
   position: relative;
   display: inline-flex;
@@ -64,7 +69,7 @@ h1, h2, h3 { font-family: var(--font-display); }
   width: 100%;
 }
 
-/* 2. Biến thể màu vàng ánh kim luxury (Luxury Gold Underline) */
+/* 2. Biến thể màu vàng ánh kim */
 .hover-line-gold {
   position: relative;
   display: inline-flex;
@@ -90,7 +95,7 @@ h1, h2, h3 { font-family: var(--font-display); }
 }
 
 /* ==========================================================================
-   MOTION SYSTEM — hiệu ứng chuyển động dùng chung cho cả User & Admin
+   MOTION SYSTEM: hiệu ứng chuyển động dùng chung cho cả User và Admin.
    Tất cả đều tôn trọng prefers-reduced-motion ở cuối file.
    ========================================================================== */
 
@@ -130,43 +135,42 @@ h1, h2, h3 { font-family: var(--font-display); }
 }
 
 /* ---------- 1. Hiệu ứng lúc tải trang (Entrance) ---------- */
-/* ---------- 1. Hiệu ứng lúc tải trang (Entrance) ---------- */
 @media (prefers-reduced-motion: no-preference) {
-/* Delay 0.45s = bắt đầu SAU khi page loader tan (loader tắt ~0.45s) */
-#site-header { animation: lux-fade-down var(--dur-2) var(--ease-lux) 0.45s both; }
-main { animation: lux-fade-in var(--dur-3) var(--ease-lux) 0.45s both; }
-main > section:first-child,
-main >.space-y-8 >:first-child { animation: lux-fade-up var(--dur-3) var(--ease-lux) 0.55s both; }
-footer { animation: lux-fade-in var(--dur-3) var(--ease-lux) 0.55s both; }
+  /* Delay 0.45s = bắt đầu SAU khi page loader tan (loader tắt ~0.45s) */
+  #site-header { animation: lux-fade-down var(--dur-2) var(--ease-lux) 0.45s both; }
+  main { animation: lux-fade-in var(--dur-3) var(--ease-lux) 0.45s both; }
+  main > section:first-child,
+  main > .space-y-8 > :first-child { animation: lux-fade-up var(--dur-3) var(--ease-lux) 0.55s both; }
+  footer { animation: lux-fade-in var(--dur-3) var(--ease-lux) 0.55s both; }
 }
-/* ---------- 2. Scroll reveal (IntersectionObserver — chạy mọi trình duyệt) ---------- */
+
+/* ---------- 2. Scroll reveal (IntersectionObserver) ---------- */
 @media (prefers-reduced-motion: no-preference) {
-/* Trạng thái chờ: ẩn, đợi JS gắn.is-visible */
-.lux-reveal,
-.grid > *,
-article[data-product] {
-opacity: 0;
+  /* Trạng thái chờ: ẩn, đợi JS gắn .is-visible */
+  .lux-reveal,
+  .grid > *,
+  article[data-product] {
+    opacity: 0;
+  }
+
+  /* Vào khung nhìn thì chạy 1 lần.
+     fill-mode: backwards giữ trạng thái "from" trong lúc chờ delay (để stagger),
+     khi chạy xong KHÔNG giữ fill nên hover nâng card vẫn hoạt động bình thường. */
+  .lux-reveal.is-visible,
+  .grid > *.is-visible,
+  article[data-product].is-visible {
+    opacity: 1;
+    animation: lux-fade-up 0.9s var(--ease-lux) backwards;
+    animation-delay: var(--lux-delay, 0s);
+  }
+
+  .lux-reveal--fade.is-visible  { animation-name: lux-fade-in; }
+  .lux-reveal--zoom.is-visible  { animation-name: lux-zoom-in; }
+  .lux-reveal--left.is-visible  { animation-name: lux-fade-up; }
+  .lux-reveal--right.is-visible { animation-name: lux-fade-up; }
 }
 
-/* Vào khung nhìn → chạy 1 lần.
-fill-mode: backwards giữ trạng thái "from" trong lúc chờ delay (để stagger),
-khi chạy xong KHÔNG giữ fill ⇒ hover nâng card vẫn hoạt động bình thường. */
-.lux-reveal.is-visible,
-.grid > *.is-visible,
-article[data-product].is-visible {
-opacity: 1;
-animation: lux-fade-up 0.9s var(--ease-lux) backwards;
-animation-delay: var(--lux-delay, 0s);
-}
-
-.lux-reveal--fade.is-visible { animation-name: lux-fade-in; }
-.lux-reveal--zoom.is-visible { animation-name: lux-zoom-in; }
-.lux-reveal--left.is-visible { animation-name: lux-fade-up; }
-.lux-reveal--right.is-visible { animation-name: lux-fade-up; }
-}
-
-
-/* ---------- 3. Card nâng khi hover (lift) ---------- */
+/* ---------- 3. Card nâng khi hover ---------- */
 .lux-card,
 article[data-product] {
   transition: transform var(--dur-2) var(--ease-lux),
@@ -177,7 +181,7 @@ article[data-product] {
 .lux-card:hover,
 article[data-product]:hover {
   transform: translateY(-8px);
-  box-shadow: 0 26px 50px -28px rgba(17, 17, 17, 0.45);
+  box-shadow: 0 26px 50px -28px rgba(23, 53, 36, 0.4);
 }
 article[data-product] > a { display: block; }
 
@@ -207,9 +211,9 @@ img.no-anim { animation: none !important; }
   background: linear-gradient(100deg, transparent 20%, rgba(255, 255, 255, 0.7) 50%, transparent 80%);
   animation: lux-shimmer 1.6s var(--ease-soft) infinite;
 }
-.skeleton-text  { height: 0.85rem; margin: 0.35rem 0; }
-.skeleton-line  { height: 1rem; }
-.skeleton-block { min-height: 8rem; }
+.skeleton-text   { height: 0.85rem; margin: 0.35rem 0; }
+.skeleton-line   { height: 1rem; }
+.skeleton-block  { min-height: 8rem; }
 .skeleton-circle { border-radius: 9999px; }
 
 /* ---------- 6. Page loader (thuần CSS, tự tắt sau khi trang hiện) ---------- */
@@ -219,12 +223,9 @@ img.no-anim { animation: none !important; }
     position: fixed;
     inset: 0;
     z-index: 9999;
-    background: radial-gradient(circle at 50% 45%, #ffffff 0%, var(--color-sand-100) 100%);
+    background: radial-gradient(circle at 50% 45%, var(--color-sand-50) 0%, var(--color-sand-100) 100%);
     pointer-events: none;
     animation: lux-loader-backdrop-out 0.3s var(--ease-soft) 0.2s both;
-    .lux-reveal { transition: none; }
-    .lux-reveal { opacity: 0; transform: translateY(16px); transition-delay: var(--lux-delay, 0ms); }
-.lux-reveal.is-visible { opacity: 1; transform: none; }
   }
   body::after {
     content: "";
@@ -237,7 +238,7 @@ img.no-anim { animation: none !important; }
     margin: -23px 0 0 -23px;
     border-radius: 9999px;
     border: 2px solid var(--color-sand-200);
-    border-top-color: var(--color-walnut-900);
+    border-top-color: var(--color-clay-600);
     pointer-events: none;
     animation: lux-spin 0.9s linear infinite,
                lux-loader-mark-out 0.25s var(--ease-soft) 0.2s both;

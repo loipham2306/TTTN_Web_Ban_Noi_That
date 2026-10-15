@@ -1,0 +1,96 @@
+---
+import { CONTACT } from '../data/contact';
+
+const ZALO_URL = CONTACT.zalo;
+const MESSENGER_URL = CONTACT.messenger;
+const PHONE = CONTACT.phone;
+---
+
+<div id="contact-fab" data-open="true" class="fixed bottom-6 right-4 z-40 flex flex-col items-center gap-3 sm:right-6">
+  <div data-fab-list class="flex flex-col items-center gap-3">
+    <a href={ZALO_URL} target="_blank" rel="noopener noreferrer" class="fab-btn" aria-label="Chat qua Zalo" title="Chat qua Zalo">
+      <span class="text-[11px] font-bold tracking-tight text-[#0068ff]">Zalo</span>
+    </a>
+
+    <a href={MESSENGER_URL} target="_blank" rel="noopener noreferrer" class="fab-btn" aria-label="Chat qua Messenger" title="Chat qua Messenger">
+      <svg viewBox="0 0 24 24" class="h-6 w-6" aria-hidden="true">
+        <path fill="#0084ff" d="M12 2C6.48 2 2 6.14 2 11.25c0 2.9 1.45 5.48 3.72 7.17V22l3.4-1.87c.9.25 1.86.39 2.88.39 5.52 0 10-4.14 10-9.27S17.52 2 12 2Z" />
+        <path fill="#fff" d="m6.5 14.2 3.4-3.6 2.6 2.4 4.9-2.6-3.5 3.7-2.6-2.4-4.8 2.5Z" />
+      </svg>
+    </a>
+
+    <a href={`tel:${PHONE}`} class="fab-btn" aria-label="Gọi hotline 1900 636 884" title="Gọi hotline 1900 636 884">
+      <svg viewBox="0 0 24 24" class="h-5 w-5" aria-hidden="true">
+        <path fill="#0068ff" d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25c1.1.37 2.3.57 3.6.57a1 1 0 0 1 1 1V20a1 1 0 0 1-1 1C10.6 21 3 13.4 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.25.2 2.45.57 3.6a1 1 0 0 1-.25 1l-2.22 2.2Z" />
+      </svg>
+    </a>
+  </div>
+
+  <button
+    id="contact-fab-toggle"
+    type="button"
+    aria-label="Mở hoặc đóng nút liên hệ"
+    aria-expanded="true"
+    class="flex h-12 w-12 items-center justify-center rounded-full bg-[#f97316] text-white shadow-lg transition-transform hover:scale-105"
+  >
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-close h-5 w-5" aria-hidden="true">
+      <path d="M6 6l12 12M18 6 6 18" stroke-linecap="round" />
+    </svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="icon-chat h-5 w-5" aria-hidden="true">
+      <path d="M4 5h16v11H9l-5 4V5Z" stroke-linejoin="round" />
+    </svg>
+  </button>
+</div>
+
+<style>
+  .fab-btn {
+    display: flex;
+    height: 2.75rem;
+    width: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9999px;
+    background: #ffffff;
+    box-shadow: 0 6px 18px -4px rgba(0, 0, 0, 0.25);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  .fab-btn:hover {
+    transform: scale(1.08);
+  }
+
+  [data-fab-list] {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  [data-open='false'] [data-fab-list] {
+    opacity: 0;
+    transform: translateY(8px);
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  [data-open='false'] .icon-close {
+    display: none;
+  }
+  [data-open='true'] .icon-chat {
+    display: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fab-btn,
+    [data-fab-list] {
+      transition-duration: 0.01ms !important;
+    }
+  }
+</style>
+
+<script>
+  const fab = document.getElementById('contact-fab');
+  const toggle = document.getElementById('contact-fab-toggle');
+
+  toggle?.addEventListener('click', () => {
+    if (!fab) return;
+    const willOpen = fab.dataset.open === 'false';
+    fab.dataset.open = String(willOpen);
+    toggle.setAttribute('aria-expanded', String(willOpen));
+  });
+</script>
