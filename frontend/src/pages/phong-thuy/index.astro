@@ -1,103 +1,262 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import { LOAI_PHONG, NHAN_XET, AI_HOOK } from '../../scripts/phong-thuy';
+import { LOAI_PHONG, NHAN_XET } from '../../scripts/phong-thuy';
 
 const namHienTai = new Date().getFullYear();
 ---
 
-<BaseLayout title="Phong thủy | Nội Thất" description="Nhập năm sinh, giới tính và loại phòng để xem gợi ý hướng, màu sắc và cách bài trí theo cung mệnh.">
+<BaseLayout
+  title="Tư Vấn Phong Thủy AI & Nội Thất Hợp Mệnh | Nội Thất"
+  description="Nhập năm sinh, giới tính và loại phòng để AI Gemini phân tích cung mệnh, hướng cát, màu sắc và gợi ý sản phẩm nội thất phù hợp."
+>
 
-  <div class="border-b border-walnut-900/10 bg-sand-100">
+  {/* Hero Header */}
+  <div class="border-b border-walnut-900/10 bg-gradient-to-b from-sand-100 to-sand-50">
     <div class="mx-auto max-w-7xl px-4 py-8 sm:py-12">
       <nav class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">
         <a href="/" class="transition-colors hover:text-clay-600">Trang chủ</a>
         <span class="mx-2">/</span>
-        <span class="text-walnut-900">Phong thủy</span>
+        <span class="text-walnut-900">Phong thủy AI</span>
       </nav>
-      <h1 class="mt-4 font-display text-3xl tracking-tight sm:text-4xl">Tư vấn phong thủy</h1>
+      <div class="mt-4 flex flex-wrap items-center gap-3">
+        <h1 class="font-display text-3xl tracking-tight sm:text-4xl text-[#173524]">
+          Tư Vấn Phong Thủy & Bài Trí Nội Thất
+        </h1>
+        <span class="rounded-full bg-emerald-100 border border-emerald-300 px-3 py-1 text-xs font-semibold text-emerald-800 flex items-center gap-1.5">
+          <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          Tích hợp Gemini AI
+        </span>
+      </div>
       <p class="mt-3 max-w-2xl text-sm leading-relaxed text-walnut-800">
-        Điền năm sinh, giới tính và loại phòng bạn đang hoàn thiện. Kết quả gợi ý hướng tốt, màu sắc hợp và cách bài trí cơ bản theo cung mệnh.
+        Nhập năm sinh và loại không gian bạn đang hoàn thiện. Hệ thống AI kết hợp thuật toán Bát Trạch Á Đông sẽ luận giải chi tiết hướng kê đồ, màu sắc hợp mệnh và gợi ý những món nội thất phù hợp nhất từ cửa hàng.
       </p>
     </div>
   </div>
 
   <section class="mx-auto max-w-7xl px-4 py-10 sm:py-14">
-    <div class="grid gap-10 lg:grid-cols-2 lg:gap-16">
+    <div class="grid gap-10 lg:grid-cols-12 lg:gap-12">
 
-      <div>
-        <form data-kt-form novalidate class="flex flex-col gap-6">
-          <div>
-            <label for="kt-year" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Năm sinh (dương lịch)</label>
-            <input
-              id="kt-year"
-              name="namSinh"
-              type="number"
-              min="1930"
-              max={namHienTai}
-              inputmode="numeric"
-              placeholder="Ví dụ: 1990"
-              class="mt-2 w-full border border-walnut-900/20 bg-transparent px-4 py-3 text-sm outline-none transition-colors placeholder:text-walnut-800/50 focus:border-clay-600"
-            />
-            <p data-error-for="namSinh" class="mt-2 hidden text-xs text-danger-600"></p>
+      {/* CỘT TRÁI: Form nhập liệu nhanh (5 cột) */}
+      <div class="lg:col-span-5">
+        <div class="rounded-2xl border border-walnut-900/15 bg-white p-6 shadow-sm sm:p-8 sticky top-28">
+          <div class="flex items-center gap-2.5 pb-4 border-b border-walnut-900/10 mb-6">
+            <span class="text-xl">🔮</span>
+            <div>
+              <h2 class="font-display text-lg font-bold text-[#173524]">Thông tin bản mệnh</h2>
+              <p class="text-xs text-walnut-800/80">Điền thông tin để chuyên gia AI luận giải</p>
+            </div>
           </div>
 
-          <div>
-            <label for="kt-gender" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Giới tính</label>
-            <select id="kt-gender" name="gioiTinh" class="mt-2 w-full border border-walnut-900/20 bg-transparent px-4 py-3 text-sm text-walnut-900 outline-none transition-colors focus:border-clay-600">
-              <option value="">— Chọn giới tính —</option>
-              <option value="nam">Nam</option>
-              <option value="nu">Nữ</option>
-            </select>
-            <p data-error-for="gioiTinh" class="mt-2 hidden text-xs text-danger-600"></p>
-          </div>
+          <form data-kt-form novalidate class="flex flex-col gap-5">
+            <div>
+              <label for="kt-year" class="text-[11px] font-semibold uppercase tracking-[0.15em] text-walnut-800">
+                Năm sinh dương lịch <span class="text-danger-600">*</span>
+              </label>
+              <input
+                id="kt-year"
+                name="namSinh"
+                type="number"
+                min="1930"
+                max={namHienTai}
+                inputmode="numeric"
+                placeholder="Ví dụ: 1995, 2005..."
+                class="mt-2 w-full rounded-xl border border-walnut-900/20 bg-sand-50/50 px-4 py-3 text-sm text-walnut-900 outline-none transition-colors placeholder:text-walnut-800/40 focus:border-[#2f6f42] focus:bg-white focus:ring-1 focus:ring-[#2f6f42]"
+              />
+              <p data-error-for="namSinh" class="mt-2 hidden text-xs text-danger-600"></p>
+            </div>
 
-          <div>
-            <label for="kt-room" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Loại phòng</label>
-            <select id="kt-room" name="loaiPhong" class="mt-2 w-full border border-walnut-900/20 bg-transparent px-4 py-3 text-sm text-walnut-900 outline-none transition-colors focus:border-clay-600">
-              <option value="">— Chọn loại phòng —</option>
-              {LOAI_PHONG.map((room) => <option value={room.key}>{room.label}</option>)}
-            </select>
-            <p data-error-for="loaiPhong" class="mt-2 hidden text-xs text-danger-600"></p>
-          </div>
+            <div>
+              <label for="kt-gender" class="text-[11px] font-semibold uppercase tracking-[0.15em] text-walnut-800">
+                Giới tính <span class="text-danger-600">*</span>
+              </label>
+              <select
+                id="kt-gender"
+                name="gioiTinh"
+                class="mt-2 w-full rounded-xl border border-walnut-900/20 bg-sand-50/50 px-4 py-3 text-sm text-walnut-900 outline-none transition-colors focus:border-[#2f6f42] focus:bg-white focus:ring-1 focus:ring-[#2f6f42]"
+              >
+                <option value="">— Chọn giới tính —</option>
+                <option value="nam">Nam</option>
+                <option value="nu">Nữ</option>
+              </select>
+              <p data-error-for="gioiTinh" class="mt-2 hidden text-xs text-danger-600"></p>
+            </div>
 
-          <button type="submit" class="mt-2 w-fit bg-clay-600 px-8 py-4 text-xs uppercase tracking-[0.2em] text-sand-50 transition-colors hover:bg-clay-500">
-            Xem tư vấn
-          </button>
-        </form>
+            <div>
+              <label for="kt-room" class="text-[11px] font-semibold uppercase tracking-[0.15em] text-walnut-800">
+                Không gian cần tư vấn <span class="text-danger-600">*</span>
+              </label>
+              <select
+                id="kt-room"
+                name="loaiPhong"
+                class="mt-2 w-full rounded-xl border border-walnut-900/20 bg-sand-50/50 px-4 py-3 text-sm text-walnut-900 outline-none transition-colors focus:border-[#2f6f42] focus:bg-white focus:ring-1 focus:ring-[#2f6f42]"
+              >
+                <option value="">— Chọn không gian —</option>
+                {LOAI_PHONG.map((room) => (
+                  <option value={room.key}>{room.label}</option>
+                ))}
+              </select>
+              <p data-error-for="loaiPhong" class="mt-2 hidden text-xs text-danger-600"></p>
+            </div>
 
-        <p class="mt-6 text-xs leading-relaxed text-walnut-800">
-          Nếu bạn sinh vào tháng 1 hoặc tháng 2 dương lịch, nên đối chiếu lại theo năm âm lịch vì thời điểm Tết có thể lệch một năm.
-        </p>
+            <button
+              type="submit"
+              data-kt-submit-btn
+              class="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#173524] to-[#2f4a38] py-3.5 px-6 text-sm font-semibold text-white shadow-md transition-all hover:scale-[1.01] hover:shadow-lg active:scale-[0.99]"
+            >
+              <svg class="h-4 w-4 text-amber-300" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 2L14.4 8.6L21 11L14.4 13.4L12 20L9.6 13.4L3 11L9.6 8.6L12 2Z" />
+              </svg>
+              <span>Xem Luận Giải AI & Sản Phẩm</span>
+            </button>
+          </form>
+
+          <p class="mt-5 text-[11px] leading-relaxed text-walnut-800/80 bg-sand-50 p-3 rounded-lg border border-walnut-900/5">
+            💡 <em>Lưu ý: Nếu bạn sinh vào tháng 1 hoặc 2 dương lịch trước Tết Nguyên Đán, nên tính theo năm âm lịch để quẻ mệnh chính xác nhất.</em>
+          </p>
+        </div>
       </div>
 
-      <div data-kt-result class="h-fit border border-walnut-900/10 p-6 sm:p-8">
-        <p data-kt-placeholder class="text-sm leading-relaxed text-walnut-800">
-          Điền thông tin bên trái rồi bấm “Xem tư vấn” để nhận gợi ý theo cung mệnh.
-        </p>
+      {/* CỘT PHẢI: Kết quả Studio AI & Sản phẩm (7 cột) */}
+      <div class="lg:col-span-7">
 
-        <div data-kt-output class="hidden">
-          <p class="text-[11px] uppercase tracking-[0.25em] text-walnut-800">Cung mệnh</p>
-          <p data-kt-cung class="mt-2 font-display text-2xl tracking-tight text-walnut-900"></p>
-          <p data-kt-tom-tat class="mt-2 text-sm text-walnut-800"></p>
-
-          <div class="mt-8">
-            <p class="text-[11px] uppercase tracking-[0.25em] text-walnut-800">Bốn hướng tốt</p>
-            <dl data-kt-huong class="mt-4 flex flex-col gap-3 text-sm"></dl>
+        {/* Trạng thái chưa bấm: Placeholder */}
+        <div data-kt-placeholder class="rounded-2xl border border-walnut-900/10 bg-white/70 p-8 sm:p-12 text-center">
+          <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-sand-100 text-3xl shadow-inner">
+            ☯️
           </div>
-
-          <div class="mt-8">
-            <p class="text-[11px] uppercase tracking-[0.25em] text-walnut-800">Màu sắc hợp</p>
-            <p data-kt-mau class="mt-3 text-sm text-walnut-900"></p>
+          <h3 class="mt-5 font-display text-xl font-bold text-[#173524]">Studio Tư Vấn Phong Thủy Trực Quan</h3>
+          <p class="mt-2 text-sm leading-relaxed text-walnut-800 max-w-md mx-auto">
+            Vui lòng điền thông tin bên trái và bấm <strong>“Xem Luận Giải AI & Sản Phẩm”</strong> để nhận phân tích bản mệnh, hướng tốt và các món nội thất thịnh vượng dành riêng cho bạn.
+          </p>
+          <div class="mt-8 grid grid-cols-3 gap-3 max-w-md mx-auto text-left">
+            <div class="p-3 bg-white rounded-xl border border-walnut-900/10 shadow-xs">
+              <span class="text-base">🧭</span>
+              <p class="mt-1 font-bold text-xs text-walnut-900">Bát Trạch</p>
+              <p class="text-[11px] text-walnut-800/80">4 hướng cát đại lợi</p>
+            </div>
+            <div class="p-3 bg-white rounded-xl border border-walnut-900/10 shadow-xs">
+              <span class="text-base">🎨</span>
+              <p class="mt-1 font-bold text-xs text-walnut-900">Màu Tương Sinh</p>
+              <p class="text-[11px] text-walnut-800/80">Ngũ hành kích tài lộc</p>
+            </div>
+            <div class="p-3 bg-white rounded-xl border border-walnut-900/10 shadow-xs">
+              <span class="text-base">🛋️</span>
+              <p class="mt-1 font-bold text-xs text-walnut-900">Nội Thất Gợi Ý</p>
+              <p class="text-[11px] text-walnut-800/80">Sản phẩm thực tế</p>
+            </div>
           </div>
-
-          <div class="mt-8">
-            <p class="text-[11px] uppercase tracking-[0.25em] text-walnut-800">Gợi ý bài trí</p>
-            <ul data-kt-goi-y class="mt-4 flex list-disc flex-col gap-2 pl-5 text-sm leading-relaxed text-walnut-800"></ul>
-          </div>
-
-          <p class="mt-8 border-t border-walnut-900/10 pt-5 text-xs leading-relaxed text-walnut-800">{NHAN_XET}</p>
-          <p class="mt-2 text-xs leading-relaxed text-walnut-800">{AI_HOOK}</p>
         </div>
+
+        {/* Trạng thái Loading đang gọi AI */}
+        <div data-kt-loading class="hidden rounded-2xl border border-emerald-500/20 bg-white p-8 sm:p-12 text-center">
+          <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-2xl animate-spin">
+            🔮
+          </div>
+          <h3 class="mt-4 font-display text-lg font-bold text-[#173524]">Chuyên Gia Phong Thủy AI Đang Luận Giải...</h3>
+          <p class="mt-1 text-xs text-walnut-800">Đang tra cứu quái số Bát Trạch và lựa chọn sản phẩm phù hợp trong kho hàng</p>
+          <div class="mt-6 flex justify-center gap-1.5">
+            <span class="h-2 w-2 rounded-full bg-emerald-600 animate-bounce" style="animation-delay: 0ms"></span>
+            <span class="h-2 w-2 rounded-full bg-emerald-600 animate-bounce" style="animation-delay: 150ms"></span>
+            <span class="h-2 w-2 rounded-full bg-emerald-600 animate-bounce" style="animation-delay: 300ms"></span>
+          </div>
+        </div>
+
+        {/* Khung kết quả hiển thị */}
+        <div data-kt-output class="hidden space-y-6">
+
+          {/* 1. Thẻ Bát Trạch & Cung Mệnh */}
+          <div class="rounded-2xl border border-[#2f4a38]/20 bg-gradient-to-br from-white via-white to-emerald-50/30 p-6 sm:p-8 shadow-sm">
+            <div class="flex flex-wrap items-start justify-between gap-4 border-b border-walnut-900/10 pb-5">
+              <div>
+                <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-[#3f8a52]">Quẻ Mệnh Bát Trạch</p>
+                <h3 data-kt-cung class="mt-1 font-display text-2xl font-bold tracking-tight text-[#173524] sm:text-3xl"></h3>
+                <p data-kt-tom-tat class="mt-1 text-sm font-medium text-walnut-800"></p>
+              </div>
+              <div class="rounded-xl bg-[#173524] px-4 py-2.5 text-center text-white">
+                <span class="block text-[10px] uppercase tracking-wider text-amber-300">Ngũ Hành</span>
+                <span data-kt-ngu-hanh-badge class="text-sm font-bold"></span>
+              </div>
+            </div>
+
+            {/* Hướng tốt */}
+            <div class="mt-6">
+              <p class="text-xs font-bold uppercase tracking-[0.15em] text-[#173524] flex items-center gap-1.5">
+                <span>🧭</span> Bốn hướng đại cát nên đón nhận:
+              </p>
+              <dl data-kt-huong class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-sm"></dl>
+            </div>
+
+            {/* Màu sắc hợp */}
+            <div class="mt-6 pt-5 border-t border-walnut-900/10">
+              <p class="text-xs font-bold uppercase tracking-[0.15em] text-[#173524] flex items-center gap-1.5">
+                <span>🎨</span> Màu sắc tương sinh & tương hợp:
+              </p>
+              <div data-kt-mau class="mt-2.5 flex flex-wrap gap-2 text-sm"></div>
+            </div>
+          </div>
+
+          {/* 2. Thẻ Luận Giải Chuyên Sâu Của AI Gemini */}
+          <div class="rounded-2xl border border-emerald-600/30 bg-white p-6 sm:p-8 shadow-sm relative overflow-hidden">
+            <div class="flex items-center justify-between gap-3 pb-4 border-b border-emerald-600/10">
+              <div class="flex items-center gap-2.5">
+                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 text-sm">
+                  ✨
+                </div>
+                <div>
+                  <h4 class="font-display text-base font-bold text-[#173524]">Lời Luận Giải Từ Chuyên Gia AI</h4>
+                  <p class="text-[11px] text-emerald-800">Phân tích bài trí chuyên biệt cho không gian của bạn</p>
+                </div>
+              </div>
+              <span class="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded border border-emerald-200">
+                Gemini 3.5
+              </span>
+            </div>
+
+            <div data-kt-ai-text class="mt-4 text-sm leading-relaxed text-walnut-900 whitespace-pre-line space-y-2"></div>
+          </div>
+
+          {/* 3. Thẻ Sản Phẩm Nội Thất Gợi Ý Hợp Mệnh (Kèm ảnh trực quan) */}
+          <div class="rounded-2xl border border-walnut-900/10 bg-white p-6 sm:p-8 shadow-sm">
+            <div class="flex items-center justify-between pb-4 border-b border-walnut-900/10">
+              <div>
+                <h4 class="font-display text-base font-bold text-[#173524] flex items-center gap-2">
+                  <span>🛋️</span> Sản Phẩm Nội Thất Hợp Bản Mệnh
+                </h4>
+                <p class="text-xs text-walnut-800/80">Được chọn lọc theo chất liệu & màu sắc tương sinh</p>
+              </div>
+              <a href="/san-pham" class="text-xs font-semibold text-clay-600 hover:text-clay-500 transition-colors">
+                Xem tất cả →
+              </a>
+            </div>
+
+            <div data-kt-products-grid class="mt-5 grid grid-cols-1 sm:grid-cols-3 gap-4">
+              {/* Sẽ được Javascript render động danh sách sản phẩm có hình ảnh, giá tiền */}
+            </div>
+          </div>
+
+          {/* 4. Nút bấm tương tác tiếp nối với Chatbot */}
+          <div class="rounded-2xl bg-gradient-to-r from-[#173524] to-[#2f4a38] p-5 text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-md">
+            <div>
+              <p class="font-bold text-sm flex items-center gap-1.5">
+                <span>💬</span> Bạn muốn hỏi chi tiết hơn về cách kê đồ?
+              </p>
+              <p class="text-xs text-emerald-200/90 mt-0.5">
+                Bấm nút để trò chuyện trực tiếp 1-1 với Chuyên gia AI về căn phòng này.
+              </p>
+            </div>
+            <button
+              type="button"
+              data-kt-ask-more-btn
+              class="w-full sm:w-auto flex-shrink-0 rounded-xl bg-amber-400 hover:bg-amber-300 text-neutral-900 font-bold px-4 py-2.5 text-xs transition-all shadow-sm active:scale-95 flex items-center justify-center gap-1.5"
+            >
+              <span>Chat Với Chuyên Gia AI</span>
+              <span>→</span>
+            </button>
+          </div>
+
+          <p class="text-center text-xs text-walnut-800/70 pt-2">{NHAN_XET}</p>
+        </div>
+
       </div>
 
     </div>
@@ -106,18 +265,23 @@ const namHienTai = new Date().getFullYear();
 </BaseLayout>
 
 <script>
-  import { tuVanPhongThuy } from '../../scripts/phong-thuy';
+  import { tuVanPhongThuy, goiAITuVanPhongThuy } from '../../scripts/phong-thuy';
   import { initAuthForm, required } from '../../scripts/validate';
+  import { formatVnd } from '../../scripts/cart';
   import type { Rule } from '../../scripts/validate';
 
   const form = document.querySelector<HTMLFormElement>('[data-kt-form]');
   const placeholderEl = document.querySelector<HTMLElement>('[data-kt-placeholder]');
+  const loadingEl = document.querySelector<HTMLElement>('[data-kt-loading]');
   const outputEl = document.querySelector<HTMLElement>('[data-kt-output]');
   const cungEl = document.querySelector<HTMLElement>('[data-kt-cung]');
   const tomTatEl = document.querySelector<HTMLElement>('[data-kt-tom-tat]');
+  const nguHanhBadgeEl = document.querySelector<HTMLElement>('[data-kt-ngu-hanh-badge]');
   const huongEl = document.querySelector<HTMLElement>('[data-kt-huong]');
   const mauEl = document.querySelector<HTMLElement>('[data-kt-mau]');
-  const goiYEl = document.querySelector<HTMLElement>('[data-kt-goi-y]');
+  const aiTextEl = document.querySelector<HTMLElement>('[data-kt-ai-text]');
+  const productsGridEl = document.querySelector<HTMLElement>('[data-kt-products-grid]');
+  const askMoreBtn = document.querySelector<HTMLButtonElement>('[data-kt-ask-more-btn]');
 
   const namHienTai = new Date().getFullYear();
 
@@ -131,53 +295,105 @@ const namHienTai = new Date().getFullYear();
     return null;
   };
 
-  const renderResult = () => {
+  let currentConsultContext = '';
+
+  const renderResult = async () => {
     if (!form) return;
 
     const data = new FormData(form);
-    const result = tuVanPhongThuy({
-      namSinh: Number(data.get('namSinh')),
-      gioiTinh: data.get('gioiTinh') === 'nu' ? 'nu' : 'nam',
-      loaiPhong: String(data.get('loaiPhong') ?? ''),
-    });
+    const namSinh = Number(data.get('namSinh'));
+    const gioiTinh = data.get('gioiTinh') === 'nu' ? 'nu' : 'nam';
+    const loaiPhong = String(data.get('loaiPhong') ?? '');
 
-    if (cungEl) cungEl.textContent = result.cung + ' · quái số ' + result.quaiSo;
-    if (tomTatEl) tomTatEl.textContent = result.nhomMenh + ' · ngũ hành ' + result.nguHanh;
+    const roomSelect = form.querySelector<HTMLSelectElement>('#kt-room');
+    const loaiPhongLabel = roomSelect?.options[roomSelect.selectedIndex]?.text || 'Phòng';
+
+    // 1. Tính toán Bát Trạch & Lấy sản phẩm gợi ý
+    const result = tuVanPhongThuy({ namSinh, gioiTinh, loaiPhong });
+
+    // Hiển thị trạng thái Loading
+    placeholderEl?.classList.add('hidden');
+    outputEl?.classList.add('hidden');
+    loadingEl?.classList.remove('hidden');
+
+    // Cập nhật Cung Mệnh & Hướng
+    if (cungEl) cungEl.textContent = `${result.cung} (Quái số ${result.quaiSo})`;
+    if (tomTatEl) tomTatEl.textContent = `${result.nhomMenh} · Năm sinh ${namSinh}`;
+    if (nguHanhBadgeEl) nguHanhBadgeEl.textContent = `Hành ${result.nguHanh}`;
 
     if (huongEl) {
-      huongEl.textContent = '';
+      huongEl.innerHTML = '';
       result.huongTot.forEach((item) => {
-        const row = document.createElement('div');
-        row.className = 'flex items-center justify-between gap-4 border-b border-walnut-900/10 pb-2';
-
-        const dt = document.createElement('dt');
-        dt.className = 'text-walnut-800';
-        dt.textContent = item.vaiTro;
-
-        const dd = document.createElement('dd');
-        dd.className = 'text-walnut-900';
-        dd.textContent = item.huong;
-
-        row.appendChild(dt);
-        row.appendChild(dd);
-        huongEl.appendChild(row);
+        const div = document.createElement('div');
+        div.className = 'flex items-center justify-between p-2.5 rounded-lg bg-sand-50/70 border border-walnut-900/5';
+        div.innerHTML = `
+          <span class="text-walnut-800 text-xs font-medium">${item.vaiTro}</span>
+          <span class="font-bold text-[#173524] text-xs">${item.huong}</span>
+        `;
+        huongEl.appendChild(div);
       });
     }
 
-    if (mauEl) mauEl.textContent = result.mauSac.join(' · ');
-
-    if (goiYEl) {
-      goiYEl.textContent = '';
-      result.goiY.forEach((line) => {
-        const li = document.createElement('li');
-        li.textContent = line;
-        goiYEl.appendChild(li);
+    if (mauEl) {
+      mauEl.innerHTML = '';
+      result.mauSac.forEach((colorName) => {
+        const span = document.createElement('span');
+        span.className = 'rounded-md bg-emerald-50 border border-emerald-200/80 px-2.5 py-1 text-xs font-semibold text-[#173524]';
+        span.textContent = colorName;
+        mauEl.appendChild(span);
       });
     }
 
-    placeholderEl?.classList.add('hidden');
-    outputEl?.classList.remove('hidden');
+    // Render danh sách sản phẩm gợi ý kèm hình ảnh trực quan
+    if (productsGridEl) {
+      productsGridEl.innerHTML = '';
+      result.sanPhamGoiY.forEach((prod) => {
+        const card = document.createElement('div');
+        card.className = 'group flex flex-col justify-between rounded-xl border border-walnut-900/10 bg-white p-3 shadow-xs hover:shadow-md transition-all';
+        card.innerHTML = `
+          <div>
+            <div class="aspect-[4/3] w-full overflow-hidden rounded-lg bg-sand-200 flex items-center justify-center text-walnut-900/30">
+              <svg class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <p class="mt-2 text-[10px] font-bold uppercase tracking-wider text-[#3f8a52]">${prod.material}</p>
+            <h5 class="mt-0.5 text-xs font-bold text-walnut-900 line-clamp-1 group-hover:text-clay-600 transition-colors">${prod.name}</h5>
+            <p class="mt-1 text-xs font-semibold text-walnut-900">${formatVnd(prod.price)}</p>
+          </div>
+          <a href="/san-pham/${prod.slug}" class="mt-3 block w-full rounded-lg bg-sand-100 hover:bg-[#173524] hover:text-white py-1.5 text-center text-[11px] font-semibold text-walnut-900 transition-colors">
+            Xem Chi Tiết
+          </a>
+        `;
+        productsGridEl.appendChild(card);
+      });
+    }
+
+    // 2. Gọi AI Gemini luận giải chuyên sâu
+    currentConsultContext = `Tôi sinh năm ${namSinh} (${gioiTinh === 'nam' ? 'Nam' : 'Nữ'}), mệnh ${result.nguHanh} (cung ${result.cung}). Tôi đang tìm hiểu về phong thủy cho ${loaiPhongLabel}.`;
+
+    try {
+      const aiReply = await goiAITuVanPhongThuy(namSinh, gioiTinh, loaiPhongLabel, result.cung, result.nguHanh);
+      if (aiTextEl) {
+        aiTextEl.textContent = aiReply;
+      }
+    } catch (e) {
+      if (aiTextEl) {
+        aiTextEl.textContent = 'Gia chủ có bản mệnh tốt. Khi bài trí đồ đạc nên ưu tiên hướng Sinh Khí, tựa lưng vững chắc và chọn các gam màu tương sinh ngũ hành.';
+      }
+    } finally {
+      loadingEl?.classList.add('hidden');
+      outputEl?.classList.remove('hidden');
+    }
   };
+
+  // Nút bấm "Hỏi thêm AI về căn phòng này"
+  askMoreBtn?.addEventListener('click', () => {
+    const customPrompt = currentConsultContext 
+      ? `${currentConsultContext} Hãy tư vấn thêm cho tôi các kích thước Lỗ Ban và mẹo sắp xếp chi tiết.` 
+      : 'Tư vấn phong thủy nội thất cho tôi';
+    window.dispatchEvent(new CustomEvent('open-fengshui-chat', { detail: { query: customPrompt } }));
+  });
 
   if (form) {
     initAuthForm(
