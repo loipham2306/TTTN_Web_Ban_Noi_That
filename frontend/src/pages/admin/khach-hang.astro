@@ -23,13 +23,13 @@ const initialCustomers = [
       <div class="flex items-center gap-2">
         <button 
           type="button" 
-          onclick="alert('Đã xuất danh sách khách hàng ra file Excel')"
-          class="inline-flex items-center gap-1.5 border border-walnut-900/20 bg-sand-50 px-3.5 py-2 text-xs font-semibold text-walnut-900 hover:bg-sand-100 shadow-sm"
+          id="btn-export-excel"
+          class="inline-flex items-center gap-1.5 border border-walnut-900/20 bg-sand-50 px-3.5 py-2 text-xs font-semibold text-walnut-900 hover:bg-sand-100 shadow-sm cursor-pointer transition-colors"
         >
-          <svg class="h-4 w-4 text-walnut-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="h-4 w-4 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
-          Xuất File Excel
+          Xuất File Excel (CSV)
         </button>
       </div>
     </div>
@@ -42,7 +42,7 @@ const initialCustomers = [
       </div>
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Hội viên VIP (Kim Cương / Vàng)</p>
-        <p class="text-2xl font-bold text-purple-700 mt-1">24 khách</p>
+        <p id="stat-vip-customers" class="text-2xl font-bold text-purple-700 mt-1">24 khách</p>
       </div>
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Chi tiêu trung bình</p>
@@ -54,22 +54,27 @@ const initialCustomers = [
       </div>
     </div>
 
-    <!-- Table -->
+    <!-- Table Container -->
     <div class="rounded border border-walnut-900/10 bg-sand-50 overflow-hidden shadow-sm">
       <div class="p-4 border-b border-walnut-900/10 flex flex-col sm:flex-row gap-3 items-center justify-between">
         <input 
           id="search-customer"
           type="text" 
           placeholder="Tìm theo tên, số điện thoại, email..." 
-          class="w-full sm:w-80 rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-1.5 text-xs text-walnut-900 placeholder:text-walnut-800/50 focus:border-walnut-900 focus:outline-none"
+          class="w-full sm:w-80 rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-2 text-xs text-walnut-900 placeholder:text-walnut-800/50 focus:border-clay-600 focus:outline-none"
         />
-        <select class="rounded border border-walnut-900/20 bg-sand-50 px-3 py-1.5 text-xs text-walnut-900">
-          <option>Tất cả thứ hạng hội viên</option>
-          <option>Kim Cương</option>
-          <option>Vàng</option>
-          <option>Bạc</option>
-          <option>Đồng</option>
-        </select>
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <select id="filter-tier" class="rounded border border-walnut-900/20 bg-sand-50 px-3 py-2 text-xs text-walnut-900 outline-none focus:border-clay-600 cursor-pointer">
+            <option value="">Tất cả thứ hạng hội viên</option>
+            <option value="Kim Cương">Hạng Kim Cương</option>
+            <option value="Vàng">Hạng Vàng</option>
+            <option value="Bạc">Hạng Bạc</option>
+            <option value="Đồng">Hạng Đồng</option>
+          </select>
+          <button type="button" id="btn-reset-filter" class="text-xs text-walnut-800/70 hover:text-clay-600 underline whitespace-nowrap cursor-pointer">
+            Xóa lọc
+          </button>
+        </div>
       </div>
 
       <div class="overflow-x-auto">
@@ -89,105 +94,370 @@ const initialCustomers = [
           </thead>
           <tbody id="customers-table-body" class="divide-y divide-walnut-900/10">
             {initialCustomers.map((c) => (
-              <tr class="hover:bg-sand-100/50" data-customer-row data-name={c.name} data-email={c.email} data-phone={c.phone}>
-                <td class="py-3 px-4 font-mono font-bold text-walnut-900">{c.id}</td>
+              <tr 
+                class="hover:bg-sand-100/50 transition-colors" 
+                data-customer-row 
+                data-id={c.id}
+                data-name={c.name} 
+                data-email={c.email} 
+                data-phone={c.phone}
+                data-tier={c.tier}
+                data-orders={c.orders}
+                data-spent={c.spent}
+                data-date={c.date}
+                data-status={c.status}
+              >
+                <td class="py-3 px-4 font-mono font-bold text-walnut-900" data-col="id">{c.id}</td>
                 <td class="py-3 px-4">
                   <div class="flex items-center gap-2.5">
-                    <div class="h-7 w-7 rounded-full bg-sand-200 text-walnut-900 flex items-center justify-center font-bold text-[10px]">
+                    <div class="h-7 w-7 rounded-full bg-sand-200 text-walnut-900 flex items-center justify-center font-bold text-[10px]" data-col="avatar">
                       {c.name.split(' ').map((n: string) => n[0]).slice(-2).join('')}
                     </div>
-                    <span class="font-bold text-walnut-900">{c.name}</span>
+                    <span class="font-bold text-walnut-900" data-col="name">{c.name}</span>
                   </div>
                 </td>
                 <td class="py-3 px-4">
-                  <p class="font-medium text-walnut-900">{c.phone}</p>
-                  <p class="text-[10px] text-walnut-800/60">{c.email}</p>
+                  <p class="font-medium text-walnut-900" data-col="phone">{c.phone}</p>
+                  <p class="text-[10px] text-walnut-800/60" data-col="email">{c.email}</p>
                 </td>
-                <td class="py-3 px-4">
+                <td class="py-3 px-4" data-col="tier">
                   <span class={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold border ${c.tierColor}`}>
                     {c.tier}
                   </span>
                 </td>
-                <td class="py-3 px-4 font-semibold text-walnut-900">{c.orders} đơn</td>
-                <td class="py-3 px-4 font-bold text-clay-600">{c.spent}</td>
-                <td class="py-3 px-4 text-walnut-800/80">{c.date}</td>
-                <td class="py-3 px-4">
+                <td class="py-3 px-4 font-semibold text-walnut-900" data-col="orders">{c.orders} đơn</td>
+                <td class="py-3 px-4 font-bold text-clay-600" data-col="spent">{c.spent}</td>
+                <td class="py-3 px-4 text-walnut-800/80" data-col="date">{c.date}</td>
+                <td class="py-3 px-4" data-col="status">
                   <span class={`inline-block px-2 py-0.5 rounded text-[10px] font-medium ${c.status === 'Hoạt động' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}`}>
                     {c.status}
                   </span>
                 </td>
                 <td class="py-3 px-4 text-right">
-                  <button type="button" class="text-xs font-semibold text-clay-600 hover:underline">
-                    Xem chi tiết
-                  </button>
+                  <div class="inline-flex items-center gap-2">
+                    <button 
+                      type="button" 
+                      data-btn-view-customer
+                      class="px-2.5 py-1 text-xs font-semibold text-clay-600 bg-sand-100 hover:bg-clay-600 hover:text-sand-50 rounded border border-clay-600/20 transition-colors cursor-pointer"
+                    >
+                      Xem chi tiết
+                    </button>
+                    <button 
+                      type="button" 
+                      data-btn-toggle-customer-status
+                      class="p-1 text-walnut-800 hover:text-amber-700 transition-colors rounded hover:bg-sand-200/50 cursor-pointer"
+                      title="Đổi trạng thái tài khoản"
+                    >
+                      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </button>
+                    <button 
+                      type="button" 
+                      data-btn-delete-customer
+                      class="p-1 text-walnut-800 hover:text-danger-600 transition-colors rounded hover:bg-sand-200/50 cursor-pointer"
+                      title="Xóa tài khoản"
+                    >
+                      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      <p id="customers-empty-msg" class="hidden py-10 text-center text-xs text-walnut-800/70 border-t border-walnut-900/10">
+        Không tìm thấy khách hàng nào phù hợp với bộ lọc tìm kiếm.
+      </p>
     </div>
 
   </div>
+
+  <!-- MODAL: XEM CHI TIẾT & CHỈNH SỬA KHÁCH HÀNG -->
+  <div id="customer-modal" class="fixed inset-0 z-50 hidden bg-walnut-900/60 backdrop-blur-sm overflow-y-auto p-4 flex items-center justify-center">
+    <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-lg p-6 sm:p-8 shadow-xl relative my-8">
+      <div class="flex items-center justify-between border-b border-walnut-900/10 pb-4">
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.2em] text-walnut-800">Hồ sơ khách hàng</p>
+          <h2 id="modal-cust-code" class="text-xl font-display text-walnut-900 mt-0.5">KH-1001</h2>
+        </div>
+        <button type="button" id="btn-close-cust-modal" class="text-walnut-800 hover:text-danger-600 p-1 cursor-pointer">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="customer-detail-form" class="mt-6 flex flex-col gap-4">
+        <input type="hidden" id="modal-hidden-id" value="" />
+
+        <!-- User header card -->
+        <div class="flex items-center gap-3.5 bg-sand-100/60 p-3.5 border border-walnut-900/10 rounded">
+          <div id="modal-avatar" class="h-12 w-12 rounded-full bg-walnut-900 text-sand-50 flex items-center justify-center font-bold text-sm">
+            VA
+          </div>
+          <div class="flex-1">
+            <h3 id="modal-display-name" class="font-bold text-walnut-900 text-base">Nguyễn Văn An</h3>
+            <p id="modal-display-email" class="text-xs text-walnut-800/70">an.nguyen@gmail.com</p>
+          </div>
+          <span id="modal-badge-preview" class="inline-block px-2.5 py-1 text-[10px] font-semibold rounded border bg-purple-100 text-purple-800 border-purple-300">
+            Kim Cương
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="modal-input-name" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Họ và tên *</label>
+            <input 
+              type="text" 
+              id="modal-input-name" 
+              required
+              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-3.5 py-2 text-xs outline-none focus:border-clay-600"
+            />
+          </div>
+
+          <div>
+            <label for="modal-input-phone" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Số điện thoại</label>
+            <input 
+              type="text" 
+              id="modal-input-phone" 
+              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-3.5 py-2 text-xs outline-none focus:border-clay-600"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="modal-select-tier" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Hạng thành viên</label>
+            <select id="modal-select-tier" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 cursor-pointer font-medium">
+              <option value="Kim Cương">Hạng Kim Cương (VIP)</option>
+              <option value="Vàng">Hạng Vàng</option>
+              <option value="Bạc">Hạng Bạc</option>
+              <option value="Đồng">Hạng Đồng</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="modal-select-status" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Trạng thái tài khoản</label>
+            <select id="modal-select-status" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 cursor-pointer font-medium">
+              <option value="Hoạt động">🟢 Đang hoạt động</option>
+              <option value="Tạm khóa">🔴 Tạm khóa tài khoản</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Shopping summary stats -->
+        <div class="grid grid-cols-2 gap-3 bg-sand-100/40 p-3 rounded border border-walnut-900/10">
+          <div>
+            <p class="text-[10px] uppercase text-walnut-800/60 font-semibold">Tổng đơn hàng</p>
+            <p id="modal-cust-orders" class="text-sm font-bold text-walnut-900 mt-0.5">4 đơn</p>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase text-walnut-800/60 font-semibold">Tổng tích lũy chi tiêu</p>
+            <p id="modal-cust-spent" class="text-sm font-bold text-clay-600 mt-0.5">82.500.000 ₫</p>
+          </div>
+        </div>
+
+        <div>
+          <p class="text-[11px] text-walnut-800/70">
+            Ngày đăng ký tài khoản: <strong id="modal-cust-date" class="text-walnut-900 font-medium">12/01/2026</strong>
+          </p>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 border-t border-walnut-900/10 pt-4 mt-2">
+          <button 
+            type="button" 
+            id="btn-cancel-cust-modal" 
+            class="border border-walnut-900/20 px-5 py-2 text-xs uppercase tracking-[0.15em] text-walnut-800 hover:border-walnut-900 cursor-pointer"
+          >
+            Đóng
+          </button>
+          <button 
+            type="submit" 
+            class="bg-clay-600 px-6 py-2 text-xs uppercase tracking-[0.15em] text-sand-50 hover:bg-clay-500 shadow-sm cursor-pointer font-semibold"
+          >
+            Lưu thay đổi
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: XÁC NHẬN XÓA TÀI KHOẢN KHÁCH HÀNG -->
+  <div id="delete-customer-modal" class="fixed inset-0 z-50 hidden bg-walnut-900/60 backdrop-blur-sm p-4 flex items-center justify-center">
+    <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-sm p-6 shadow-xl text-center">
+      <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-danger-600/10 text-danger-600">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      </div>
+      <h3 class="mt-4 font-display text-lg text-walnut-900">Xóa tài khoản khách hàng</h3>
+      <p id="delete-customer-msg" class="mt-2 text-xs text-walnut-800/80">Bạn có chắc chắn muốn xóa tài khoản này khỏi hệ thống không?</p>
+      <div class="mt-6 flex justify-center gap-3">
+        <button type="button" id="btn-cancel-delete-cust" class="border border-walnut-900/20 px-4 py-2 text-xs uppercase tracking-[0.15em] text-walnut-800 hover:border-walnut-900 cursor-pointer">
+          Hủy bỏ
+        </button>
+        <button type="button" id="btn-confirm-delete-cust" class="bg-danger-600 px-4 py-2 text-xs uppercase tracking-[0.15em] text-sand-50 hover:bg-danger-500 shadow-sm cursor-pointer">
+          Xác nhận xóa
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST THÔNG BÁO -->
+  <div id="cust-toast" class="fixed bottom-6 right-6 z-50 hidden translate-y-4 rounded bg-walnut-900 px-5 py-3 text-xs uppercase tracking-[0.15em] text-sand-50 shadow-lg transition-all duration-300 border border-emerald-500/40">
+    <span id="cust-toast-msg">Đã cập nhật thông tin khách hàng thành công!</span>
+  </div>
+
 </AdminLayout>
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    const tableBody = document.getElementById('customers-table-body');
-    const totalEl = document.getElementById('stat-total-customers');
+    const tableBody = document.getElementById('customers-table-body') as HTMLElement;
+    const totalEl = document.getElementById('stat-total-customers') as HTMLElement;
+    const vipEl = document.getElementById('stat-vip-customers') as HTMLElement;
     const searchInput = document.getElementById('search-customer') as HTMLInputElement | null;
+    const filterTierSelect = document.getElementById('filter-tier') as HTMLSelectElement | null;
+    const resetFilterBtn = document.getElementById('btn-reset-filter') as HTMLButtonElement | null;
+    const emptyMsg = document.getElementById('customers-empty-msg') as HTMLElement;
+    const btnExportExcel = document.getElementById('btn-export-excel') as HTMLButtonElement | null;
+
+    // Modal elements
+    const custModal = document.getElementById('customer-modal') as HTMLElement;
+    const custModalCode = document.getElementById('modal-cust-code') as HTMLElement;
+    const custForm = document.getElementById('customer-detail-form') as HTMLFormElement;
+    const btnCloseCustModal = document.getElementById('btn-close-cust-modal') as HTMLButtonElement;
+    const btnCancelCustModal = document.getElementById('btn-cancel-cust-modal') as HTMLButtonElement;
+
+    // Modal inputs
+    const hiddenId = document.getElementById('modal-hidden-id') as HTMLInputElement;
+    const modalAvatar = document.getElementById('modal-avatar') as HTMLElement;
+    const modalDisplayName = document.getElementById('modal-display-name') as HTMLElement;
+    const modalDisplayEmail = document.getElementById('modal-display-email') as HTMLElement;
+    const modalBadgePreview = document.getElementById('modal-badge-preview') as HTMLElement;
+    const modalInputName = document.getElementById('modal-input-name') as HTMLInputElement;
+    const modalInputPhone = document.getElementById('modal-input-phone') as HTMLInputElement;
+    const modalSelectTier = document.getElementById('modal-select-tier') as HTMLSelectElement;
+    const modalSelectStatus = document.getElementById('modal-select-status') as HTMLSelectElement;
+    const modalCustOrders = document.getElementById('modal-cust-orders') as HTMLElement;
+    const modalCustSpent = document.getElementById('modal-cust-spent') as HTMLElement;
+    const modalCustDate = document.getElementById('modal-cust-date') as HTMLElement;
+
+    // Delete modal
+    const deleteModal = document.getElementById('delete-customer-modal') as HTMLElement;
+    const deleteMsg = document.getElementById('delete-customer-msg') as HTMLElement;
+    const btnCancelDelete = document.getElementById('btn-cancel-delete-cust') as HTMLButtonElement;
+    const btnConfirmDelete = document.getElementById('btn-confirm-delete-cust') as HTMLButtonElement;
+    let targetRowToDelete: HTMLTableRowElement | null = null;
+
+    // Toast
+    const toast = document.getElementById('cust-toast') as HTMLElement;
+    const toastMsg = document.getElementById('cust-toast-msg') as HTMLElement;
+
+    const showToast = (msg: string) => {
+      toastMsg.textContent = msg;
+      toast.classList.remove('hidden');
+      requestAnimationFrame(() => toast.classList.remove('translate-y-4'));
+      setTimeout(() => {
+        toast.classList.add('translate-y-4');
+        setTimeout(() => toast.classList.add('hidden'), 300);
+      }, 3000);
+    };
+
+    const TIER_COLORS: Record<string, string> = {
+      'Kim Cương': 'bg-purple-100 text-purple-800 border-purple-300',
+      'Vàng': 'bg-amber-100 text-amber-800 border-amber-300',
+      'Bạc': 'bg-slate-100 text-slate-800 border-slate-300',
+      'Đồng': 'bg-orange-100 text-orange-800 border-orange-300',
+    };
 
     // Load registered customers from localStorage and prepend to table
     const registered = JSON.parse(localStorage.getItem('registered_customers') || '[]');
 
     if (tableBody && registered.length > 0) {
-      if (totalEl) totalEl.textContent = `${86 + registered.length} tài khoản`;
-
       registered.forEach((u: any, idx: number) => {
         const tr = document.createElement('tr');
-        tr.className = 'hover:bg-sand-100/50 bg-emerald-50/40';
-        tr.dataset.customerRow = '';
+        tr.className = 'hover:bg-sand-100/50 bg-emerald-50/40 transition-colors';
+        tr.setAttribute('data-customer-row', '');
+        tr.dataset.id = `KH-NEW${idx + 1}`;
         tr.dataset.name = u.name;
         tr.dataset.email = u.email;
-        tr.dataset.phone = u.phone;
+        tr.dataset.phone = u.phone || 'Chưa cập nhật';
+        tr.dataset.tier = u.tier || 'Vàng';
+        tr.dataset.orders = String(u.orders || 0);
+        tr.dataset.spent = u.spent || '0 ₫';
+        tr.dataset.date = u.date || new Date().toLocaleDateString('vi-VN');
+        tr.dataset.status = u.status || 'Hoạt động';
+
+        const tierColor = TIER_COLORS[tr.dataset.tier] || TIER_COLORS['Bạc'];
 
         tr.innerHTML = `
-          <td class="py-3 px-4 font-mono font-bold text-emerald-800">
-            KH-NEW${idx + 1}
+          <td class="py-3 px-4 font-mono font-bold text-emerald-800" data-col="id">
+            ${tr.dataset.id}
             <span class="ml-1 inline-block bg-emerald-600 text-white text-[9px] px-1 py-0.2 rounded">Mới</span>
           </td>
           <td class="py-3 px-4">
             <div class="flex items-center gap-2.5">
-              <div class="h-7 w-7 rounded-full bg-emerald-700 text-sand-50 flex items-center justify-center font-bold text-[10px]">
+              <div class="h-7 w-7 rounded-full bg-emerald-700 text-sand-50 flex items-center justify-center font-bold text-[10px]" data-col="avatar">
                 ${(u.name || 'KH').split(' ').map((n: string) => n[0]).slice(-2).join('')}
               </div>
               <div>
-                <p class="font-bold text-walnut-900">${u.name}</p>
+                <p class="font-bold text-walnut-900" data-col="name">${u.name}</p>
                 <p class="text-[10px] text-emerald-700 font-medium">Tài khoản vừa tạo</p>
               </div>
             </div>
           </td>
           <td class="py-3 px-4">
-            <p class="font-medium text-walnut-900">${u.phone || 'Chưa cập nhật'}</p>
-            <p class="text-[10px] text-walnut-800/60">${u.email}</p>
+            <p class="font-medium text-walnut-900" data-col="phone">${tr.dataset.phone}</p>
+            <p class="text-[10px] text-walnut-800/60" data-col="email">${u.email}</p>
           </td>
-          <td class="py-3 px-4">
-            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold border bg-slate-100 text-slate-800 border-slate-300">
-              ${u.tier || 'Bạc'}
+          <td class="py-3 px-4" data-col="tier">
+            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold border ${tierColor}">
+              ${tr.dataset.tier}
             </span>
           </td>
-          <td class="py-3 px-4 font-semibold text-walnut-900">${u.orders || 0} đơn</td>
-          <td class="py-3 px-4 font-bold text-clay-600">${u.spent || '0 ₫'}</td>
-          <td class="py-3 px-4 text-walnut-800/80">${u.date || new Date().toLocaleDateString('vi-VN')}</td>
-          <td class="py-3 px-4">
-            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-100 text-emerald-800">
-              Hoạt động
+          <td class="py-3 px-4 font-semibold text-walnut-900" data-col="orders">${tr.dataset.orders} đơn</td>
+          <td class="py-3 px-4 font-bold text-clay-600" data-col="spent">${tr.dataset.spent}</td>
+          <td class="py-3 px-4 text-walnut-800/80" data-col="date">${tr.dataset.date}</td>
+          <td class="py-3 px-4" data-col="status">
+            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium ${tr.dataset.status === 'Hoạt động' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
+              ${tr.dataset.status}
             </span>
           </td>
           <td class="py-3 px-4 text-right">
-            <button type="button" class="text-xs font-semibold text-clay-600 hover:underline">
-              Xem chi tiết
-            </button>
+            <div class="inline-flex items-center gap-2">
+              <button 
+                type="button" 
+                data-btn-view-customer
+                class="px-2.5 py-1 text-xs font-semibold text-clay-600 bg-sand-100 hover:bg-clay-600 hover:text-sand-50 rounded border border-clay-600/20 transition-colors cursor-pointer"
+              >
+                Xem chi tiết
+              </button>
+              <button 
+                type="button" 
+                data-btn-toggle-customer-status
+                class="p-1 text-walnut-800 hover:text-amber-700 transition-colors rounded hover:bg-sand-200/50 cursor-pointer"
+                title="Đổi trạng thái tài khoản"
+              >
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </button>
+              <button 
+                type="button" 
+                data-btn-delete-customer
+                class="p-1 text-walnut-800 hover:text-danger-600 transition-colors rounded hover:bg-sand-200/50 cursor-pointer"
+                title="Xóa tài khoản"
+              >
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
           </td>
         `;
 
@@ -195,17 +465,242 @@ const initialCustomers = [
       });
     }
 
-    // Filter by name/email/phone
-    searchInput?.addEventListener('input', () => {
-      const q = searchInput.value.toLowerCase().trim();
-      const rows = tableBody?.querySelectorAll<HTMLTableRowElement>('[data-customer-row]');
-      rows?.forEach((r) => {
+    const updateStats = () => {
+      const allRows = tableBody.querySelectorAll<HTMLTableRowElement>('[data-customer-row]');
+      const total = allRows.length;
+      if (totalEl) totalEl.textContent = `${total} tài khoản`;
+
+      let vipCount = 0;
+      allRows.forEach((r) => {
+        const tier = r.dataset.tier;
+        if (tier === 'Kim Cương' || tier === 'Vàng') vipCount++;
+      });
+      if (vipEl) vipEl.textContent = `${vipCount} khách`;
+    };
+
+    updateStats();
+
+    // Open detail modal
+    const openCustomerModal = (row: HTMLTableRowElement) => {
+      hiddenId.value = row.dataset.id || '';
+      custModalCode.textContent = row.dataset.id || '';
+
+      const name = row.dataset.name || '';
+      const email = row.dataset.email || '';
+      const phone = row.dataset.phone || '';
+      const tier = row.dataset.tier || 'Bạc';
+      const status = row.dataset.status || 'Hoạt động';
+
+      modalDisplayName.textContent = name;
+      modalDisplayEmail.textContent = email;
+      modalAvatar.textContent = name.split(' ').map(n => n[0]).slice(-2).join('');
+      modalInputName.value = name;
+      modalInputPhone.value = phone === 'Chưa cập nhật' ? '' : phone;
+      modalSelectTier.value = tier;
+      modalSelectStatus.value = status;
+
+      modalBadgePreview.textContent = tier;
+      modalBadgePreview.className = `inline-block px-2.5 py-1 text-[10px] font-semibold rounded border ${TIER_COLORS[tier] || TIER_COLORS['Bạc']}`;
+
+      modalCustOrders.textContent = `${row.dataset.orders || 0} đơn`;
+      modalCustSpent.textContent = row.dataset.spent || '0 ₫';
+      modalCustDate.textContent = row.dataset.date || '';
+
+      custModal.classList.remove('hidden');
+    };
+
+    // Modal tier change preview badge
+    modalSelectTier?.addEventListener('change', () => {
+      const newTier = modalSelectTier.value;
+      modalBadgePreview.textContent = newTier;
+      modalBadgePreview.className = `inline-block px-2.5 py-1 text-[10px] font-semibold rounded border ${TIER_COLORS[newTier] || TIER_COLORS['Bạc']}`;
+    });
+
+    const closeCustomerModal = () => custModal.classList.add('hidden');
+    btnCloseCustModal?.addEventListener('click', closeCustomerModal);
+    btnCancelCustModal?.addEventListener('click', closeCustomerModal);
+
+    // Save Customer Form changes
+    custForm?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = hiddenId.value;
+      const targetRow = tableBody.querySelector<HTMLTableRowElement>(`[data-id="${id}"]`);
+      if (targetRow) {
+        const newName = modalInputName.value.trim();
+        const newPhone = modalInputPhone.value.trim() || 'Chưa cập nhật';
+        const newTier = modalSelectTier.value;
+        const newStatus = modalSelectStatus.value;
+
+        targetRow.dataset.name = newName;
+        targetRow.dataset.phone = newPhone;
+        targetRow.dataset.tier = newTier;
+        targetRow.dataset.status = newStatus;
+
+        const nameEl = targetRow.querySelector('[data-col="name"]');
+        if (nameEl) nameEl.textContent = newName;
+
+        const phoneEl = targetRow.querySelector('[data-col="phone"]');
+        if (phoneEl) phoneEl.textContent = newPhone;
+
+        const avatarEl = targetRow.querySelector('[data-col="avatar"]');
+        if (avatarEl) avatarEl.textContent = newName.split(' ').map(n => n[0]).slice(-2).join('');
+
+        const tierEl = targetRow.querySelector('[data-col="tier"]');
+        if (tierEl) {
+          tierEl.innerHTML = `<span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold border ${TIER_COLORS[newTier]}">${newTier}</span>`;
+        }
+
+        const statusEl = targetRow.querySelector('[data-col="status"]');
+        if (statusEl) {
+          statusEl.innerHTML = `<span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium ${newStatus === 'Hoạt động' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">${newStatus}</span>`;
+        }
+
+        // Update localStorage if it's a registered customer
+        const email = targetRow.dataset.email;
+        const regList = JSON.parse(localStorage.getItem('registered_customers') || '[]');
+        const regIdx = regList.findIndex((u: any) => u.email === email);
+        if (regIdx !== -1) {
+          regList[regIdx].name = newName;
+          regList[regIdx].phone = newPhone;
+          regList[regIdx].tier = newTier;
+          regList[regIdx].status = newStatus;
+          localStorage.setItem('registered_customers', JSON.stringify(regList));
+        }
+
+        updateStats();
+        closeCustomerModal();
+        showToast(`Đã cập nhật tài khoản "${newName}" thành công!`);
+      }
+    });
+
+    // Attach row events
+    const attachRowActions = (row: HTMLTableRowElement) => {
+      const viewBtn = row.querySelector('[data-btn-view-customer]');
+      const toggleBtn = row.querySelector('[data-btn-toggle-customer-status]');
+      const deleteBtn = row.querySelector('[data-btn-delete-customer]');
+
+      viewBtn?.addEventListener('click', () => {
+        openCustomerModal(row);
+      });
+
+      toggleBtn?.addEventListener('click', () => {
+        const curStatus = row.dataset.status || 'Hoạt động';
+        const nextStatus = curStatus === 'Hoạt động' ? 'Tạm khóa' : 'Hoạt động';
+        row.dataset.status = nextStatus;
+
+        const statusEl = row.querySelector('[data-col="status"]');
+        if (statusEl) {
+          statusEl.innerHTML = `<span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium ${nextStatus === 'Hoạt động' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">${nextStatus}</span>`;
+        }
+
+        const name = row.dataset.name || 'Khách hàng';
+        showToast(`Đã chuyển tài khoản "${name}" sang: ${nextStatus}`);
+      });
+
+      deleteBtn?.addEventListener('click', () => {
+        targetRowToDelete = row;
+        const name = row.dataset.name || 'tài khoản này';
+        deleteMsg.textContent = `Bạn có chắc chắn muốn xóa khách hàng "${name}" không?`;
+        deleteModal.classList.remove('hidden');
+      });
+    };
+
+    tableBody.querySelectorAll<HTMLTableRowElement>('[data-customer-row]').forEach(attachRowActions);
+
+    // Confirm Delete
+    btnCancelDelete?.addEventListener('click', () => {
+      deleteModal.classList.add('hidden');
+      targetRowToDelete = null;
+    });
+
+    btnConfirmDelete?.addEventListener('click', () => {
+      if (targetRowToDelete) {
+        const name = targetRowToDelete.dataset.name || '';
+        const email = targetRowToDelete.dataset.email || '';
+
+        targetRowToDelete.remove();
+        deleteModal.classList.add('hidden');
+        targetRowToDelete = null;
+
+        // Remove from localStorage
+        const regList = JSON.parse(localStorage.getItem('registered_customers') || '[]');
+        const updated = regList.filter((u: any) => u.email !== email);
+        localStorage.setItem('registered_customers', JSON.stringify(updated));
+
+        updateStats();
+        showToast(`Đã xóa tài khoản "${name}" khỏi hệ thống!`);
+      }
+    });
+
+    // Realtime Search and Filter
+    const applyFilter = () => {
+      const q = (searchInput?.value || '').toLowerCase().trim();
+      const selectedTier = filterTierSelect?.value || '';
+
+      let visibleCount = 0;
+      const rows = tableBody.querySelectorAll<HTMLTableRowElement>('[data-customer-row]');
+
+      rows.forEach((r) => {
         const name = (r.dataset.name || '').toLowerCase();
         const email = (r.dataset.email || '').toLowerCase();
         const phone = (r.dataset.phone || '').toLowerCase();
-        const match = !q || name.includes(q) || email.includes(q) || phone.includes(q);
-        r.classList.toggle('hidden', !match);
+        const tier = r.dataset.tier || '';
+
+        const matchQuery = !q || name.includes(q) || email.includes(q) || phone.includes(q);
+        const matchTier = !selectedTier || tier === selectedTier;
+
+        const isVisible = matchQuery && matchTier;
+        r.classList.toggle('hidden', !isVisible);
+        if (isVisible) visibleCount++;
       });
+
+      emptyMsg?.classList.toggle('hidden', visibleCount > 0);
+    };
+
+    searchInput?.addEventListener('input', applyFilter);
+    filterTierSelect?.addEventListener('change', applyFilter);
+    resetFilterBtn?.addEventListener('click', () => {
+      if (searchInput) searchInput.value = '';
+      if (filterTierSelect) filterTierSelect.value = '';
+      applyFilter();
+    });
+
+    // EXCEL / CSV EXPORT
+    btnExportExcel?.addEventListener('click', () => {
+      const rows = tableBody.querySelectorAll<HTMLTableRowElement>('[data-customer-row]');
+      if (!rows.length) {
+        alert('Không có dữ liệu khách hàng để xuất.');
+        return;
+      }
+
+      let csvContent = '\uFEFF'; // UTF-8 BOM so Excel opens Vietnamese characters correctly
+      csvContent += 'Mã KH,Họ và tên,Số điện thoại,Email,Hạng thành viên,Đơn mua,Tổng chi tiêu,Ngày đăng ký,Trạng thái\n';
+
+      rows.forEach((r) => {
+        const id = r.dataset.id || '';
+        const name = `"${(r.dataset.name || '').replace(/"/g, '""')}"`;
+        const phone = `"${r.dataset.phone || ''}"`;
+        const email = `"${r.dataset.email || ''}"`;
+        const tier = `"${r.dataset.tier || ''}"`;
+        const orders = `"${r.dataset.orders || '0'}"`;
+        const spent = `"${(r.dataset.spent || '0 ₫').replace(/"/g, '""')}"`;
+        const date = `"${r.dataset.date || ''}"`;
+        const status = `"${r.dataset.status || ''}"`;
+
+        csvContent += [id, name, phone, email, tier, orders, spent, date, status].join(',') + '\n';
+      });
+
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', `danh_sach_khach_hang_${new Date().toISOString().slice(0, 10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      showToast('Đã tải xuống file danh sách khách hàng thành công!');
     });
   });
 </script>

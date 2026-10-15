@@ -146,9 +146,9 @@
 
 /* ---------- 2. Scroll reveal (IntersectionObserver) ---------- */
 @media (prefers-reduced-motion: no-preference) {
-  /* Trạng thái chờ: ẩn, đợi JS gắn .is-visible */
+  /* Trạng thái chờ: ẩn, đợi JS gắn .is-visible (chỉ áp dụng cho thẻ sản phẩm / section trang chủ, KHÔNG áp dụng cho form hay modal) */
   .lux-reveal,
-  .grid > *,
+  main section:not(#danh-sach-san-pham) > .grid > *:not(form),
   article[data-product] {
     opacity: 0;
   }
@@ -157,7 +157,7 @@
      fill-mode: backwards giữ trạng thái "from" trong lúc chờ delay (để stagger),
      khi chạy xong KHÔNG giữ fill nên hover nâng card vẫn hoạt động bình thường. */
   .lux-reveal.is-visible,
-  .grid > *.is-visible,
+  main section:not(#danh-sach-san-pham) > .grid > *:not(form).is-visible,
   article[data-product].is-visible {
     opacity: 1;
     animation: lux-fade-up 0.9s var(--ease-lux) backwards;
@@ -168,6 +168,16 @@
   .lux-reveal--zoom.is-visible  { animation-name: lux-zoom-in; }
   .lux-reveal--left.is-visible  { animation-name: lux-fade-up; }
   .lux-reveal--right.is-visible { animation-name: lux-fade-up; }
+
+  /* Đảm bảo toàn bộ form, input, button và modal luôn luôn hiển thị 100% */
+  form,
+  form *,
+  form.grid > *,
+  form .grid > *,
+  [id*="modal"],
+  [id*="modal"] * {
+    opacity: 1 !important;
+  }
 }
 
 /* ---------- 3. Card nâng khi hover ---------- */

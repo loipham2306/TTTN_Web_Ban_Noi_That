@@ -2,26 +2,71 @@
 import AdminLayout from '../../layouts/AdminLayout.astro';
 
 const coupons = [
-  { code: 'NOITHATVIP20', discount: 'Giảm 20%', minOrder: '20.000.000 ₫', maxDiscount: '5.000.000 ₫', used: '34 / 50', expiry: '31/12/2026', status: 'Đang áp dụng', statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
-  { code: 'FREESHIP2026', discount: 'Freeship toàn quốc', minOrder: '10.000.000 ₫', maxDiscount: '500.000 ₫', used: '89 / 100', expiry: '30/11/2026', status: 'Đang áp dụng', statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
-  { code: 'TANXUAN10', discount: 'Giảm 10%', minOrder: '5.000.000 ₫', maxDiscount: '2.000.000 ₫', used: '50 / 50', expiry: '15/10/2026', status: 'Hết lượt', statusColor: 'bg-amber-100 text-amber-800 border-amber-300' },
-  { code: 'WELCOME100K', discount: 'Giảm 100.000 ₫', minOrder: '2.000.000 ₫', maxDiscount: '100.000 ₫', used: '128 / 200', expiry: '31/12/2026', status: 'Đang áp dụng', statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
+  { 
+    code: 'NOITHATVIP20', 
+    discount: 'Giảm 20%', 
+    minOrder: '20.000.000 ₫', 
+    maxDiscount: '5.000.000 ₫', 
+    limit: 50, 
+    used: 34, 
+    expiry: '2026-12-31', 
+    expiryDisplay: '31/12/2026', 
+    status: 'Đang áp dụng', 
+    statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' 
+  },
+  { 
+    code: 'FREESHIP2026', 
+    discount: 'Freeship toàn quốc', 
+    minOrder: '10.000.000 ₫', 
+    maxDiscount: '500.000 ₫', 
+    limit: 100, 
+    used: 89, 
+    expiry: '2026-11-30', 
+    expiryDisplay: '30/11/2026', 
+    status: 'Đang áp dụng', 
+    statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' 
+  },
+  { 
+    code: 'TANXUAN10', 
+    discount: 'Giảm 10%', 
+    minOrder: '5.000.000 ₫', 
+    maxDiscount: '2.000.000 ₫', 
+    limit: 50, 
+    used: 50, 
+    expiry: '2026-10-15', 
+    expiryDisplay: '15/10/2026', 
+    status: 'Hết lượt', 
+    statusColor: 'bg-amber-100 text-amber-800 border-amber-300' 
+  },
+  { 
+    code: 'WELCOME100K', 
+    discount: 'Giảm 100.000 ₫', 
+    minOrder: '2.000.000 ₫', 
+    maxDiscount: '100.000 ₫', 
+    limit: 200, 
+    used: 128, 
+    expiry: '2026-12-31', 
+    expiryDisplay: '31/12/2026', 
+    status: 'Đang áp dụng', 
+    statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' 
+  },
 ];
 ---
 
 <AdminLayout title="Quản Lý Mã Giảm Giá - Nội Thất">
   <div class="space-y-6">
 
+    <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-walnut-900/10 pb-6">
       <div>
-        <h1 class="font-serif text-2xl sm:text-3xl text-walnut-900">Mã Giảm Giá & Phiếu Ưu Đãi</h1>
+        <h1 class="font-sans font-bold text-2xl sm:text-3xl text-walnut-900">Mã Giảm Giá & Phiếu Ưu Đãi</h1>
         <p class="mt-1 text-sm text-walnut-800/80">Thiết lập các chiến dịch khuyến mãi, mã voucher và hạn mức áp dụng.</p>
       </div>
 
       <button 
         type="button" 
-        onclick="alert('Mở form tạo mã giảm giá mới')"
-        class="inline-flex items-center gap-2 bg-walnut-900 px-4 py-2 text-xs uppercase tracking-[0.15em] text-sand-50 transition-colors hover:bg-clay-600 shadow-sm"
+        id="btn-open-add-coupon"
+        class="inline-flex items-center gap-2 bg-walnut-900 px-4 py-2.5 text-xs uppercase tracking-[0.15em] text-sand-50 transition-colors hover:bg-clay-600 shadow-sm cursor-pointer font-medium"
       >
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -34,11 +79,11 @@ const coupons = [
     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Tổng voucher</p>
-        <p class="text-2xl font-bold text-walnut-900 mt-1">4 mã</p>
+        <p id="stat-total-coupons" class="text-2xl font-bold text-walnut-900 mt-1">{coupons.length} mã</p>
       </div>
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Lượt đã kích hoạt</p>
-        <p class="text-2xl font-bold text-clay-600 mt-1">301 lượt</p>
+        <p id="stat-used-coupons" class="text-2xl font-bold text-clay-600 mt-1">301 lượt</p>
       </div>
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Chi phí trợ giá</p>
@@ -46,7 +91,7 @@ const coupons = [
       </div>
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Trạng thái áp dụng</p>
-        <p class="text-2xl font-bold text-emerald-700 mt-1">3 mã còn hạn</p>
+        <p id="stat-active-coupons" class="text-2xl font-bold text-emerald-700 mt-1">3 mã còn hạn</p>
       </div>
     </div>
 
@@ -66,29 +111,53 @@ const coupons = [
               <th class="py-3 px-4 font-semibold text-right">Thao tác</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-walnut-900/10">
+          <tbody id="coupon-table-body" class="divide-y divide-walnut-900/10">
             {coupons.map((c) => (
-              <tr class="hover:bg-sand-100/50">
+              <tr 
+                class="hover:bg-sand-100/50 transition-colors"
+                data-coupon-row
+                data-code={c.code}
+                data-discount={c.discount}
+                data-min-order={c.minOrder}
+                data-max-discount={c.maxDiscount}
+                data-used={c.used}
+                data-limit={c.limit}
+                data-expiry={c.expiry}
+                data-expiry-display={c.expiryDisplay}
+                data-status={c.status}
+              >
                 <td class="py-3 px-4">
-                  <span class="font-mono font-bold text-xs bg-sand-100 border border-walnut-900/20 px-2 py-1 rounded text-walnut-900">
+                  <span class="font-mono font-bold text-xs bg-sand-100 border border-walnut-900/20 px-2.5 py-1 rounded text-walnut-900" data-col="code">
                     {c.code}
                   </span>
                 </td>
-                <td class="py-3 px-4 font-bold text-clay-600">{c.discount}</td>
-                <td class="py-3 px-4 text-walnut-900">{c.minOrder}</td>
-                <td class="py-3 px-4 text-walnut-800">{c.maxDiscount}</td>
-                <td class="py-3 px-4 font-medium text-walnut-900">{c.used}</td>
-                <td class="py-3 px-4 text-walnut-800">{c.expiry}</td>
-                <td class="py-3 px-4">
+                <td class="py-3 px-4 font-bold text-clay-600" data-col="discount">{c.discount}</td>
+                <td class="py-3 px-4 text-walnut-900 font-medium" data-col="min-order">{c.minOrder}</td>
+                <td class="py-3 px-4 text-walnut-800" data-col="max-discount">{c.maxDiscount}</td>
+                <td class="py-3 px-4 font-medium text-walnut-900" data-col="used">{c.used} / {c.limit}</td>
+                <td class="py-3 px-4 text-walnut-800" data-col="expiry">{c.expiryDisplay}</td>
+                <td class="py-3 px-4" data-col="status">
                   <span class={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold border ${c.statusColor}`}>
                     {c.status}
                   </span>
                 </td>
                 <td class="py-3 px-4 text-right">
                   <div class="flex items-center justify-end gap-2">
-                    <button type="button" class="text-xs font-semibold text-clay-600 hover:underline">Sửa</button>
+                    <button 
+                      type="button" 
+                      data-btn-edit-coupon
+                      class="text-xs font-semibold text-clay-600 hover:underline cursor-pointer"
+                    >
+                      Sửa
+                    </button>
                     <span class="text-walnut-800/30">|</span>
-                    <button type="button" class="text-xs font-semibold text-red-600 hover:underline">Tắt</button>
+                    <button 
+                      type="button" 
+                      data-btn-toggle-coupon
+                      class={`text-xs font-semibold cursor-pointer hover:underline ${c.status === 'Đang áp dụng' ? 'text-red-600' : 'text-emerald-700'}`}
+                    >
+                      {c.status === 'Đang áp dụng' ? 'Tắt' : 'Bật'}
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -99,4 +168,395 @@ const coupons = [
     </div>
 
   </div>
+
+  <!-- MODAL: TẠO / SỬA MÃ GIẢM GIÁ -->
+  <div id="coupon-modal" class="fixed inset-0 z-50 hidden bg-walnut-900/60 backdrop-blur-sm overflow-y-auto p-4 flex items-center justify-center">
+    <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-lg p-6 sm:p-8 shadow-xl relative my-8">
+      <div class="flex items-center justify-between border-b border-walnut-900/10 pb-4">
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.2em] text-walnut-800">Quản trị khuyến mãi</p>
+          <h2 id="coupon-modal-title" class="text-xl font-bold text-walnut-900 mt-1">Tạo Mã Giảm Giá Mới</h2>
+        </div>
+        <button type="button" id="btn-close-coupon-modal" class="text-walnut-800 hover:text-danger-600 p-1 cursor-pointer">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="coupon-form" class="mt-6 flex flex-col gap-4">
+        <input type="hidden" id="coupon-edit-origin-code" value="" />
+
+        <div>
+          <label for="coupon-code-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Mã Voucher (Viết hoa không dấu) *</label>
+          <div class="mt-1.5 flex gap-2">
+            <input 
+              type="text" 
+              id="coupon-code-input" 
+              required 
+              placeholder="VD: NOITHAT2026" 
+              class="w-full uppercase font-mono tracking-wider border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50 font-bold"
+            />
+            <button 
+              type="button" 
+              id="btn-gen-coupon-code" 
+              class="shrink-0 border border-walnut-900/20 bg-sand-100 px-3 py-2 text-[10px] font-semibold text-walnut-900 hover:bg-sand-200 cursor-pointer uppercase tracking-wider"
+            >
+              Tạo tự động
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="coupon-discount-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Mức giảm *</label>
+            <input 
+              type="text" 
+              id="coupon-discount-input" 
+              required 
+              placeholder="VD: Giảm 20% hoặc 500.000 ₫" 
+              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50"
+            />
+          </div>
+          <div>
+            <label for="coupon-min-order-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Đơn tối thiểu *</label>
+            <input 
+              type="text" 
+              id="coupon-min-order-input" 
+              required 
+              placeholder="VD: 5.000.000 ₫" 
+              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="coupon-max-discount-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Giảm tối đa</label>
+            <input 
+              type="text" 
+              id="coupon-max-discount-input" 
+              placeholder="VD: 1.000.000 ₫ hoặc Không giới hạn" 
+              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50"
+            />
+          </div>
+          <div>
+            <label for="coupon-limit-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Số lượt phát hành *</label>
+            <input 
+              type="number" 
+              id="coupon-limit-input" 
+              required 
+              min="1" 
+              placeholder="100" 
+              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="coupon-expiry-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Hạn sử dụng *</label>
+            <input 
+              type="date" 
+              id="coupon-expiry-input" 
+              required 
+              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50"
+            />
+          </div>
+          <div>
+            <label for="coupon-status-select" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Trạng thái áp dụng</label>
+            <select 
+              id="coupon-status-select" 
+              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-3 py-2 text-xs outline-none focus:border-clay-600 cursor-pointer"
+            >
+              <option value="Đang áp dụng">Đang áp dụng</option>
+              <option value="Đã tắt">Tạm tắt</option>
+              <option value="Hết lượt">Hết lượt</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 border-t border-walnut-900/10 pt-4 mt-2">
+          <button 
+            type="button" 
+            id="btn-cancel-coupon-modal" 
+            class="border border-walnut-900/20 px-5 py-2 text-xs uppercase tracking-[0.15em] text-walnut-800 hover:border-walnut-900 cursor-pointer"
+          >
+            Hủy
+          </button>
+          <button 
+            type="submit" 
+            class="bg-clay-600 px-6 py-2 text-xs uppercase tracking-[0.15em] text-sand-50 hover:bg-clay-500 shadow-sm cursor-pointer font-medium"
+          >
+            Lưu mã giảm giá
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="coupon-toast" class="fixed bottom-6 right-6 z-50 hidden translate-y-4 rounded bg-walnut-900 px-5 py-3 text-xs uppercase tracking-[0.15em] text-sand-50 shadow-lg transition-all duration-300 border border-emerald-500/40">
+    <span id="coupon-toast-msg">Đã cập nhật mã giảm giá thành công!</span>
+  </div>
+
 </AdminLayout>
+
+<script>
+  const initCouponPage = () => {
+    const tableBody = document.getElementById('coupon-table-body') as HTMLElement;
+    const totalCouponsEl = document.getElementById('stat-total-coupons') as HTMLElement;
+    const activeCouponsEl = document.getElementById('stat-active-coupons') as HTMLElement;
+
+    // Modals
+    const modal = document.getElementById('coupon-modal') as HTMLElement;
+    const modalTitle = document.getElementById('coupon-modal-title') as HTMLElement;
+    const btnOpenAdd = document.getElementById('btn-open-add-coupon') as HTMLButtonElement;
+    const btnCloseModal = document.getElementById('btn-close-coupon-modal') as HTMLButtonElement;
+    const btnCancelModal = document.getElementById('btn-cancel-coupon-modal') as HTMLButtonElement;
+    const form = document.getElementById('coupon-form') as HTMLFormElement;
+
+    // Form inputs
+    const originCodeInput = document.getElementById('coupon-edit-origin-code') as HTMLInputElement;
+    const codeInput = document.getElementById('coupon-code-input') as HTMLInputElement;
+    const discountInput = document.getElementById('coupon-discount-input') as HTMLInputElement;
+    const minOrderInput = document.getElementById('coupon-min-order-input') as HTMLInputElement;
+    const maxDiscountInput = document.getElementById('coupon-max-discount-input') as HTMLInputElement;
+    const limitInput = document.getElementById('coupon-limit-input') as HTMLInputElement;
+    const expiryInput = document.getElementById('coupon-expiry-input') as HTMLInputElement;
+    const statusSelect = document.getElementById('coupon-status-select') as HTMLSelectElement;
+    const btnGenCode = document.getElementById('btn-gen-coupon-code') as HTMLButtonElement;
+
+    // Toast
+    const toast = document.getElementById('coupon-toast') as HTMLElement;
+    const toastMsg = document.getElementById('coupon-toast-msg') as HTMLElement;
+
+    const showToast = (msg: string) => {
+      if (!toast || !toastMsg) return;
+      toastMsg.textContent = msg;
+      toast.classList.remove('hidden');
+      requestAnimationFrame(() => toast.classList.remove('translate-y-4'));
+      setTimeout(() => {
+        toast.classList.add('translate-y-4');
+        setTimeout(() => toast.classList.add('hidden'), 300);
+      }, 3000);
+    };
+
+    const updateStats = () => {
+      if (tableBody) {
+        const rows = tableBody.querySelectorAll<HTMLTableRowElement>('[data-coupon-row]');
+        if (totalCouponsEl) totalCouponsEl.textContent = `${rows.length} mã`;
+
+        let activeCount = 0;
+        rows.forEach((r) => {
+          if (r.dataset.status === 'Đang áp dụng') activeCount++;
+        });
+        if (activeCouponsEl) activeCouponsEl.textContent = `${activeCount} mã còn hạn`;
+      }
+    };
+
+    const openModal = (isEdit: boolean, row?: HTMLTableRowElement) => {
+      if (!modal) return;
+      if (isEdit && row) {
+        modalTitle.textContent = `Chỉnh sửa mã: ${row.dataset.code}`;
+        originCodeInput.value = row.dataset.code || '';
+        codeInput.value = row.dataset.code || '';
+        discountInput.value = row.dataset.discount || '';
+        minOrderInput.value = row.dataset.minOrder || '';
+        maxDiscountInput.value = row.dataset.maxDiscount || '';
+        limitInput.value = row.dataset.limit || '100';
+        expiryInput.value = row.dataset.expiry || new Date().toISOString().split('T')[0];
+        statusSelect.value = row.dataset.status || 'Đang áp dụng';
+      } else {
+        modalTitle.textContent = 'Tạo Mã Giảm Giá Mới';
+        form.reset();
+        originCodeInput.value = '';
+        limitInput.value = '100';
+        // default 30 days expiry
+        const d = new Date();
+        d.setDate(d.getDate() + 30);
+        expiryInput.value = d.toISOString().split('T')[0];
+        statusSelect.value = 'Đang áp dụng';
+      }
+      modal.classList.remove('hidden');
+    };
+
+    const closeModal = () => modal?.classList.add('hidden');
+
+    btnOpenAdd?.addEventListener('click', () => openModal(false));
+    btnCloseModal?.addEventListener('click', closeModal);
+    btnCancelModal?.addEventListener('click', closeModal);
+    modal?.addEventListener('click', (e) => {
+      if (e.target === modal) closeModal();
+    });
+
+    // Auto generator
+    btnGenCode?.addEventListener('click', () => {
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+      let res = 'NT';
+      for (let i = 0; i < 6; i++) {
+        res += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      codeInput.value = res;
+    });
+
+    const formatVnDate = (isoDate: string) => {
+      if (!isoDate) return '';
+      const parts = isoDate.split('-');
+      if (parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`;
+      return isoDate;
+    };
+
+    // Attach Row Actions
+    const attachRowActions = (row: HTMLTableRowElement) => {
+      const editBtn = row.querySelector('[data-btn-edit-coupon]');
+      const toggleBtn = row.querySelector('[data-btn-toggle-coupon]') as HTMLButtonElement | null;
+
+      editBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        openModal(true, row);
+      });
+
+      toggleBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        const current = row.dataset.status || 'Đang áp dụng';
+        const isCurrentlyActive = current === 'Đang áp dụng';
+        const nextStatus = isCurrentlyActive ? 'Đã tắt' : 'Đang áp dụng';
+        const nextColor = isCurrentlyActive 
+          ? 'bg-slate-100 text-slate-800 border-slate-300' 
+          : 'bg-emerald-100 text-emerald-800 border-emerald-300';
+
+        row.dataset.status = nextStatus;
+        const statusEl = row.querySelector('[data-col="status"]');
+        if (statusEl) {
+          statusEl.innerHTML = `<span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold border ${nextColor}">${nextStatus}</span>`;
+        }
+
+        toggleBtn.textContent = isCurrentlyActive ? 'Bật' : 'Tắt';
+        toggleBtn.className = `text-xs font-semibold cursor-pointer hover:underline ${isCurrentlyActive ? 'text-emerald-700' : 'text-red-600'}`;
+
+        updateStats();
+        showToast(`Đã chuyển trạng thái voucher "${row.dataset.code}" sang: ${nextStatus}`);
+      });
+    };
+
+    if (tableBody) {
+      tableBody.querySelectorAll<HTMLTableRowElement>('[data-coupon-row]').forEach(attachRowActions);
+    }
+
+    // Submit form
+    form?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const code = codeInput.value.trim().toUpperCase();
+      const discount = discountInput.value.trim();
+      const minOrder = minOrderInput.value.trim();
+      const maxDiscount = maxDiscountInput.value.trim() || 'Không giới hạn';
+      const limit = limitInput.value.trim();
+      const expiryIso = expiryInput.value;
+      const expiryDisplay = formatVnDate(expiryIso);
+      const status = statusSelect.value;
+      const originCode = originCodeInput.value.trim();
+
+      if (!code || !discount || !minOrder || !tableBody) return;
+
+      const statusColor = status === 'Đang áp dụng'
+        ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+        : status === 'Hết lượt'
+        ? 'bg-amber-100 text-amber-800 border-amber-300'
+        : 'bg-slate-100 text-slate-800 border-slate-300';
+
+      if (originCode) {
+        // Edit existing
+        const targetRow = tableBody.querySelector<HTMLTableRowElement>(`[data-code="${originCode}"]`);
+        if (targetRow) {
+          targetRow.dataset.code = code;
+          targetRow.dataset.discount = discount;
+          targetRow.dataset.minOrder = minOrder;
+          targetRow.dataset.maxDiscount = maxDiscount;
+          targetRow.dataset.limit = limit;
+          targetRow.dataset.expiry = expiryIso;
+          targetRow.dataset.expiryDisplay = expiryDisplay;
+          targetRow.dataset.status = status;
+
+          const colCode = targetRow.querySelector('[data-col="code"]');
+          if (colCode) colCode.textContent = code;
+          const colDiscount = targetRow.querySelector('[data-col="discount"]');
+          if (colDiscount) colDiscount.textContent = discount;
+          const colMinOrder = targetRow.querySelector('[data-col="min-order"]');
+          if (colMinOrder) colMinOrder.textContent = minOrder;
+          const colMaxDiscount = targetRow.querySelector('[data-col="max-discount"]');
+          if (colMaxDiscount) colMaxDiscount.textContent = maxDiscount;
+          const colUsed = targetRow.querySelector('[data-col="used"]');
+          if (colUsed) colUsed.textContent = `${targetRow.dataset.used || '0'} / ${limit}`;
+          const colExpiry = targetRow.querySelector('[data-col="expiry"]');
+          if (colExpiry) colExpiry.textContent = expiryDisplay;
+          const colStatus = targetRow.querySelector('[data-col="status"]');
+          if (colStatus) {
+            colStatus.innerHTML = `<span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold border ${statusColor}">${status}</span>`;
+          }
+
+          const toggleBtn = targetRow.querySelector('[data-btn-toggle-coupon]') as HTMLButtonElement | null;
+          if (toggleBtn) {
+            toggleBtn.textContent = status === 'Đang áp dụng' ? 'Tắt' : 'Bật';
+            toggleBtn.className = `text-xs font-semibold cursor-pointer hover:underline ${status === 'Đang áp dụng' ? 'text-red-600' : 'text-emerald-700'}`;
+          }
+
+          closeModal();
+          updateStats();
+          showToast(`Đã cập nhật mã giảm giá "${code}" thành công!`);
+        }
+      } else {
+        // Add new
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-sand-100/50 transition-colors bg-emerald-50/30';
+        tr.setAttribute('data-coupon-row', '');
+        tr.dataset.code = code;
+        tr.dataset.discount = discount;
+        tr.dataset.minOrder = minOrder;
+        tr.dataset.maxDiscount = maxDiscount;
+        tr.dataset.used = '0';
+        tr.dataset.limit = limit;
+        tr.dataset.expiry = expiryIso;
+        tr.dataset.expiryDisplay = expiryDisplay;
+        tr.dataset.status = status;
+
+        tr.innerHTML = `
+          <td class="py-3 px-4">
+            <span class="font-mono font-bold text-xs bg-sand-100 border border-walnut-900/20 px-2.5 py-1 rounded text-walnut-900" data-col="code">
+              ${code}
+            </span>
+          </td>
+          <td class="py-3 px-4 font-bold text-clay-600" data-col="discount">${discount}</td>
+          <td class="py-3 px-4 text-walnut-900 font-medium" data-col="min-order">${minOrder}</td>
+          <td class="py-3 px-4 text-walnut-800" data-col="max-discount">${maxDiscount}</td>
+          <td class="py-3 px-4 font-medium text-walnut-900" data-col="used">0 / ${limit}</td>
+          <td class="py-3 px-4 text-walnut-800" data-col="expiry">${expiryDisplay}</td>
+          <td class="py-3 px-4" data-col="status">
+            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold border ${statusColor}">
+              ${status}
+            </span>
+          </td>
+          <td class="py-3 px-4 text-right">
+            <div class="flex items-center justify-end gap-2">
+              <button type="button" data-btn-edit-coupon class="text-xs font-semibold text-clay-600 hover:underline cursor-pointer">Sửa</button>
+              <span class="text-walnut-800/30">|</span>
+              <button type="button" data-btn-toggle-coupon class="text-xs font-semibold cursor-pointer hover:underline ${status === 'Đang áp dụng' ? 'text-red-600' : 'text-emerald-700'}">${status === 'Đang áp dụng' ? 'Tắt' : 'Bật'}</button>
+            </div>
+          </td>
+        `;
+
+        attachRowActions(tr);
+        tableBody.prepend(tr);
+        closeModal();
+        updateStats();
+        showToast(`Đã tạo mã giảm giá mới "${code}" thành công!`);
+      }
+    });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCouponPage);
+  } else {
+    initCouponPage();
+  }
+</script>

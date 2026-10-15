@@ -1,7 +1,7 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 
-const categories = [
+const initialCategories = [
   { id: 1, name: 'Sofa & Phòng Khách', slug: 'sofa', count: 3, description: 'Sofa da bò Ý cao cấp, sofa vải linen Bắc Âu, góc chữ L', status: 'Hiển thị', image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80' },
   { id: 2, name: 'Bàn Ăn', slug: 'ban-an', count: 2, description: 'Bàn ăn đá tự nhiên Carrara, bàn gỗ sồi Nga nguyên tấm', status: 'Hiển thị', image: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=400&q=80' },
   { id: 3, name: 'Ghế & Đôn Thư Giãn', slug: 'ghe', count: 4, description: 'Ghế ăn bọc da, ghế thư giãn gỗ óc chó, công thái học Ergo', status: 'Hiển thị', image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=400&q=80' },
@@ -24,8 +24,8 @@ const categories = [
 
       <button 
         type="button" 
-        onclick="alert('Chức năng thêm danh mục mới sẽ mở form tạo phân loại')"
-        class="inline-flex items-center gap-2 bg-walnut-900 px-4 py-2 text-xs uppercase tracking-[0.15em] text-sand-50 transition-colors hover:bg-clay-600 shadow-sm"
+        id="btn-open-add-cat-modal"
+        class="inline-flex items-center gap-2 bg-walnut-900 px-4 py-2.5 text-xs uppercase tracking-[0.15em] text-sand-50 transition-colors hover:bg-clay-600 shadow-sm cursor-pointer"
       >
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -38,7 +38,7 @@ const categories = [
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Tổng danh mục</p>
-        <p class="text-2xl font-bold text-walnut-900 mt-1">7 nhóm</p>
+        <p id="stat-total-cats" class="text-2xl font-bold text-walnut-900 mt-1">{initialCategories.length} nhóm</p>
       </div>
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Tổng sản phẩm liên kết</p>
@@ -65,29 +65,49 @@ const categories = [
               <th class="py-3 px-4 font-semibold text-right">Thao tác</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-walnut-900/10">
-            {categories.map((c) => (
-              <tr class="hover:bg-sand-100/50">
+          <tbody id="cat-table-body" class="divide-y divide-walnut-900/10">
+            {initialCategories.map((c) => (
+              <tr 
+                class="hover:bg-sand-100/50 transition-colors"
+                data-cat-row
+                data-id={c.id}
+                data-name={c.name}
+                data-slug={c.slug}
+                data-count={c.count}
+                data-desc={c.description}
+                data-status={c.status}
+                data-image={c.image}
+              >
                 <td class="py-3 px-4">
                   <img src={c.image} alt={c.name} class="h-10 w-10 object-cover rounded border border-walnut-900/10" />
                 </td>
-                <td class="py-3 px-4 font-bold text-walnut-900">{c.name}</td>
-                <td class="py-3 px-4 font-mono text-clay-600">/{c.slug}</td>
-                <td class="py-3 px-4 font-semibold text-walnut-900">{c.count} sản phẩm</td>
-                <td class="py-3 px-4 text-walnut-800/80 max-w-xs truncate">{c.description}</td>
-                <td class="py-3 px-4">
-                  <span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-100 text-emerald-800 border border-emerald-300">
+                <td class="py-3 px-4 font-bold text-walnut-900" data-field="name">{c.name}</td>
+                <td class="py-3 px-4 font-mono text-clay-600" data-field="slug">/{c.slug}</td>
+                <td class="py-3 px-4 font-semibold text-walnut-900" data-field="count">{c.count} sản phẩm</td>
+                <td class="py-3 px-4 text-walnut-800/80 max-w-xs truncate" data-field="desc">{c.description}</td>
+                <td class="py-3 px-4" data-field="status">
+                  <span class={`inline-block px-2 py-0.5 rounded text-[10px] font-medium ${c.status === 'Hiển thị' ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' : 'bg-gray-100 text-gray-700 border border-gray-300'}`}>
                     {c.status}
                   </span>
                 </td>
                 <td class="py-3 px-4 text-right">
                   <div class="flex items-center justify-end gap-2">
-                    <button type="button" class="p-1 text-walnut-800 hover:text-clay-600" title="Chỉnh sửa">
+                    <button 
+                      type="button" 
+                      data-btn-edit-cat
+                      class="p-1.5 text-walnut-800 hover:text-clay-600 transition-colors rounded hover:bg-sand-200/50 cursor-pointer" 
+                      title="Chỉnh sửa danh mục"
+                    >
                       <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                       </svg>
                     </button>
-                    <button type="button" class="p-1 text-walnut-800 hover:text-red-600" title="Xóa">
+                    <button 
+                      type="button" 
+                      data-btn-delete-cat
+                      class="p-1.5 text-walnut-800 hover:text-red-600 transition-colors rounded hover:bg-sand-200/50 cursor-pointer" 
+                      title="Xóa danh mục"
+                    >
                       <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                       </svg>
@@ -102,4 +122,372 @@ const categories = [
     </div>
 
   </div>
+
+  <!-- MODAL: THÊM / CHỈNH SỬA DANH MỤC -->
+  <div id="cat-modal" class="fixed inset-0 z-50 hidden bg-walnut-900/60 backdrop-blur-sm overflow-y-auto p-4 flex items-center justify-center">
+    <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-lg p-6 sm:p-8 shadow-xl relative my-8">
+      <div class="flex items-center justify-between border-b border-walnut-900/10 pb-4">
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.2em] text-walnut-800">Quản trị phân loại</p>
+          <h2 id="cat-modal-title" class="text-xl font-display text-walnut-900 mt-1">Chỉnh sửa danh mục</h2>
+        </div>
+        <button type="button" id="btn-close-cat-modal" class="text-walnut-800 hover:text-danger-600 p-1 cursor-pointer">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="cat-form" class="mt-6 flex flex-col gap-4">
+        <input type="hidden" id="cat-form-mode" value="edit" />
+        <input type="hidden" id="cat-form-id" value="" />
+
+        <div>
+          <label for="cat-name-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Tên danh mục *</label>
+          <input 
+            type="text" 
+            id="cat-name-input" 
+            required 
+            placeholder="Ví dụ: Sofa & Phòng Khách" 
+            class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50"
+          />
+        </div>
+
+        <div>
+          <label for="cat-slug-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Đường dẫn URL (Slug) *</label>
+          <input 
+            type="text" 
+            id="cat-slug-input" 
+            required 
+            placeholder="sofa" 
+            class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm font-mono outline-none focus:border-clay-600 focus:bg-sand-50"
+          />
+        </div>
+
+        <div>
+          <label for="cat-desc-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Mô tả tóm tắt</label>
+          <textarea 
+            id="cat-desc-input" 
+            rows="2" 
+            placeholder="Mô tả các sản phẩm thuộc danh mục này..." 
+            class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50"
+          ></textarea>
+        </div>
+
+        <div>
+          <label for="cat-image-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Link hình ảnh đại diện</label>
+          <input 
+            type="url" 
+            id="cat-image-input" 
+            placeholder="https://images.unsplash.com/photo-..." 
+            class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50"
+          />
+        </div>
+
+        <div>
+          <label for="cat-status-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Trạng thái hiển thị</label>
+          <select 
+            id="cat-status-input" 
+            class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 cursor-pointer"
+          >
+            <option value="Hiển thị">Hiển thị trên Menu & Bộ lọc</option>
+            <option value="Tạm ẩn">Tạm ẩn</option>
+          </select>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 border-t border-walnut-900/10 pt-4 mt-2">
+          <button 
+            type="button" 
+            id="btn-cancel-cat-modal" 
+            class="border border-walnut-900/20 px-5 py-2.5 text-xs uppercase tracking-[0.15em] text-walnut-800 hover:border-walnut-900 cursor-pointer"
+          >
+            Hủy
+          </button>
+          <button 
+            type="submit" 
+            class="bg-clay-600 px-6 py-2.5 text-xs uppercase tracking-[0.15em] text-sand-50 hover:bg-clay-500 shadow-sm cursor-pointer font-medium"
+          >
+            Lưu danh mục
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: XÁC NHẬN XÓA DANH MỤC -->
+  <div id="delete-cat-modal" class="fixed inset-0 z-50 hidden bg-walnut-900/60 backdrop-blur-sm p-4 flex items-center justify-center">
+    <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-sm p-6 shadow-xl text-center">
+      <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-danger-600/10 text-danger-600">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      </div>
+      <h3 class="mt-4 font-display text-lg text-walnut-900">Xác nhận xóa danh mục</h3>
+      <p id="delete-cat-name-msg" class="mt-2 text-xs text-walnut-800/80">Bạn có chắc chắn muốn xóa danh mục này không?</p>
+      <div class="mt-6 flex justify-center gap-3">
+        <button type="button" id="btn-cancel-delete-cat" class="border border-walnut-900/20 px-4 py-2 text-xs uppercase tracking-[0.15em] text-walnut-800 hover:border-walnut-900 cursor-pointer">
+          Hủy bỏ
+        </button>
+        <button type="button" id="btn-confirm-delete-cat" class="bg-danger-600 px-4 py-2 text-xs uppercase tracking-[0.15em] text-sand-50 hover:bg-danger-500 shadow-sm cursor-pointer">
+          Xác nhận xóa
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST THÔNG BÁO -->
+  <div id="cat-toast" class="fixed bottom-6 right-6 z-50 hidden translate-y-4 rounded bg-walnut-900 px-5 py-3 text-xs uppercase tracking-[0.15em] text-sand-50 shadow-lg transition-all duration-300 border border-emerald-500/40">
+    <span id="cat-toast-msg">Đã cập nhật danh mục thành công!</span>
+  </div>
+
 </AdminLayout>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const tableBody = document.getElementById('cat-table-body') as HTMLElement;
+    const statTotalCats = document.getElementById('stat-total-cats') as HTMLElement;
+
+    // Modal elements
+    const catModal = document.getElementById('cat-modal') as HTMLElement;
+    const catModalTitle = document.getElementById('cat-modal-title') as HTMLElement;
+    const catForm = document.getElementById('cat-form') as HTMLFormElement;
+    const btnOpenAdd = document.getElementById('btn-open-add-cat-modal') as HTMLButtonElement;
+    const btnCloseModal = document.getElementById('btn-close-cat-modal') as HTMLButtonElement;
+    const btnCancelModal = document.getElementById('btn-cancel-cat-modal') as HTMLButtonElement;
+
+    // Form inputs
+    const formMode = document.getElementById('cat-form-mode') as HTMLInputElement;
+    const formId = document.getElementById('cat-form-id') as HTMLInputElement;
+    const nameInput = document.getElementById('cat-name-input') as HTMLInputElement;
+    const slugInput = document.getElementById('cat-slug-input') as HTMLInputElement;
+    const descInput = document.getElementById('cat-desc-input') as HTMLTextAreaElement;
+    const imageInput = document.getElementById('cat-image-input') as HTMLInputElement;
+    const statusSelect = document.getElementById('cat-status-input') as HTMLSelectElement;
+
+    // Delete modal
+    const deleteModal = document.getElementById('delete-cat-modal') as HTMLElement;
+    const deleteMsg = document.getElementById('delete-cat-name-msg') as HTMLElement;
+    const btnCancelDelete = document.getElementById('btn-cancel-delete-cat') as HTMLButtonElement;
+    const btnConfirmDelete = document.getElementById('btn-confirm-delete-cat') as HTMLButtonElement;
+    let targetRowToDelete: HTMLTableRowElement | null = null;
+
+    // Toast
+    const toast = document.getElementById('cat-toast') as HTMLElement;
+    const toastMsg = document.getElementById('cat-toast-msg') as HTMLElement;
+
+    const showToast = (msg: string) => {
+      toastMsg.textContent = msg;
+      toast.classList.remove('hidden');
+      requestAnimationFrame(() => toast.classList.remove('translate-y-4'));
+      setTimeout(() => {
+        toast.classList.add('translate-y-4');
+        setTimeout(() => toast.classList.add('hidden'), 300);
+      }, 3000);
+    };
+
+    const updateCountStat = () => {
+      if (statTotalCats && tableBody) {
+        const count = tableBody.querySelectorAll('tr').length;
+        statTotalCats.textContent = `${count} nhóm`;
+      }
+    };
+
+    // Auto generate slug from name
+    nameInput?.addEventListener('input', () => {
+      if (formMode.value === 'add') {
+        const slug = nameInput.value
+          .toLowerCase()
+          .normalize('NFD')
+          .replace(/[\u0300-\u036f]/g, '')
+          .replace(/[đĐ]/g, 'd')
+          .replace(/[^a-z0-9\s-]/g, '')
+          .trim()
+          .replace(/\s+/g, '-');
+        slugInput.value = slug;
+      }
+    });
+
+    const openModal = (mode: 'add' | 'edit', row?: HTMLTableRowElement) => {
+      formMode.value = mode;
+      if (mode === 'add') {
+        catModalTitle.textContent = 'Thêm danh mục mới';
+        formId.value = '';
+        nameInput.value = '';
+        slugInput.value = '';
+        descInput.value = '';
+        imageInput.value = 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80';
+        statusSelect.value = 'Hiển thị';
+      } else if (row) {
+        catModalTitle.textContent = 'Chỉnh sửa danh mục';
+        formId.value = row.dataset.id || '';
+        nameInput.value = row.dataset.name || '';
+        slugInput.value = row.dataset.slug || '';
+        descInput.value = row.dataset.desc || '';
+        imageInput.value = row.dataset.image || '';
+        statusSelect.value = row.dataset.status || 'Hiển thị';
+      }
+      catModal.classList.remove('hidden');
+    };
+
+    const closeModal = () => catModal.classList.add('hidden');
+    btnCloseModal?.addEventListener('click', closeModal);
+    btnCancelModal?.addEventListener('click', closeModal);
+
+    // Click "Thêm Danh Mục"
+    btnOpenAdd?.addEventListener('click', () => {
+      openModal('add');
+    });
+
+    // Attach row events for Edit & Delete
+    const attachRowEvents = (tr: HTMLTableRowElement) => {
+      const editBtn = tr.querySelector('[data-btn-edit-cat]');
+      const deleteBtn = tr.querySelector('[data-btn-delete-cat]');
+
+      editBtn?.addEventListener('click', () => {
+        openModal('edit', tr);
+      });
+
+      deleteBtn?.addEventListener('click', () => {
+        targetRowToDelete = tr;
+        const name = tr.dataset.name || 'danh mục này';
+        deleteMsg.textContent = `Bạn có chắc chắn muốn xóa danh mục "${name}" không?`;
+        deleteModal.classList.remove('hidden');
+      });
+    };
+
+    // Attach to existing rows
+    tableBody?.querySelectorAll<HTMLTableRowElement>('[data-cat-row]').forEach(attachRowEvents);
+
+    // Confirm Delete
+    btnCancelDelete?.addEventListener('click', () => {
+      deleteModal.classList.add('hidden');
+      targetRowToDelete = null;
+    });
+
+    btnConfirmDelete?.addEventListener('click', () => {
+      if (targetRowToDelete) {
+        const name = targetRowToDelete.dataset.name || '';
+        targetRowToDelete.remove();
+        deleteModal.classList.add('hidden');
+        targetRowToDelete = null;
+        updateCountStat();
+        showToast(`Đã xóa danh mục "${name}" thành công!`);
+      }
+    });
+
+    // Handle Form Submit (Add / Edit)
+    catForm?.addEventListener('submit', (e) => {
+      e.preventDefault();
+
+      const mode = formMode.value;
+      const id = formId.value || String(Date.now());
+      const name = nameInput.value.trim();
+      const slug = slugInput.value.trim();
+      const desc = descInput.value.trim();
+      const image = imageInput.value.trim() || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80';
+      const status = statusSelect.value;
+
+      if (!name || !slug) return;
+
+      if (mode === 'edit') {
+        const targetRow = tableBody.querySelector<HTMLTableRowElement>(`[data-id="${id}"]`);
+        if (targetRow) {
+          targetRow.dataset.name = name;
+          targetRow.dataset.slug = slug;
+          targetRow.dataset.desc = desc;
+          targetRow.dataset.image = image;
+          targetRow.dataset.status = status;
+
+          const imgEl = targetRow.querySelector('img');
+          if (imgEl) imgEl.src = image;
+
+          const nameEl = targetRow.querySelector('[data-field="name"]');
+          if (nameEl) nameEl.textContent = name;
+
+          const slugEl = targetRow.querySelector('[data-field="slug"]');
+          if (slugEl) slugEl.textContent = `/${slug}`;
+
+          const descEl = targetRow.querySelector('[data-field="desc"]');
+          if (descEl) descEl.textContent = desc;
+
+          const statusEl = targetRow.querySelector('[data-field="status"]');
+          if (statusEl) {
+            statusEl.innerHTML = `
+              <span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium ${
+                status === 'Hiển thị' 
+                  ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' 
+                  : 'bg-gray-100 text-gray-700 border border-gray-300'
+              }">
+                ${status}
+              </span>
+            `;
+          }
+
+          showToast(`Đã cập nhật danh mục "${name}" thành công!`);
+        }
+      } else {
+        // Add new category row
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-sand-100/50 transition-colors';
+        tr.setAttribute('data-cat-row', '');
+        tr.dataset.id = id;
+        tr.dataset.name = name;
+        tr.dataset.slug = slug;
+        tr.dataset.count = '0';
+        tr.dataset.desc = desc;
+        tr.dataset.status = status;
+        tr.dataset.image = image;
+
+        tr.innerHTML = `
+          <td class="py-3 px-4">
+            <img src="${image}" alt="${name}" class="h-10 w-10 object-cover rounded border border-walnut-900/10" />
+          </td>
+          <td class="py-3 px-4 font-bold text-walnut-900" data-field="name">${name}</td>
+          <td class="py-3 px-4 font-mono text-clay-600" data-field="slug">/${slug}</td>
+          <td class="py-3 px-4 font-semibold text-walnut-900" data-field="count">0 sản phẩm</td>
+          <td class="py-3 px-4 text-walnut-800/80 max-w-xs truncate" data-field="desc">${desc}</td>
+          <td class="py-3 px-4" data-field="status">
+            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium ${
+              status === 'Hiển thị' 
+                ? 'bg-emerald-100 text-emerald-800 border border-emerald-300' 
+                : 'bg-gray-100 text-gray-700 border border-gray-300'
+            }">
+              ${status}
+            </span>
+          </td>
+          <td class="py-3 px-4 text-right">
+            <div class="flex items-center justify-end gap-2">
+              <button 
+                type="button" 
+                data-btn-edit-cat
+                class="p-1.5 text-walnut-800 hover:text-clay-600 transition-colors rounded hover:bg-sand-200/50 cursor-pointer" 
+                title="Chỉnh sửa danh mục"
+              >
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </button>
+              <button 
+                type="button" 
+                data-btn-delete-cat
+                class="p-1.5 text-walnut-800 hover:text-red-600 transition-colors rounded hover:bg-sand-200/50 cursor-pointer" 
+                title="Xóa danh mục"
+              >
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          </td>
+        `;
+
+        attachRowEvents(tr);
+        tableBody.appendChild(tr);
+        updateCountStat();
+        showToast(`Đã thêm danh mục mới "${name}" thành công!`);
+      }
+
+      closeModal();
+    });
+  });
+</script>

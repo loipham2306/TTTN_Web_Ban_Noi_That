@@ -2,26 +2,71 @@
 import AdminLayout from '../../layouts/AdminLayout.astro';
 
 const campaigns = [
-  { id: 'CAM-101', title: 'Thông báo Bộ Sưu Tập Mới Thu - Đông 2026', recipients: '86 khách hàng', openRate: '68.5%', clickRate: '24.2%', date: '05/10/2026', status: 'Đã hoàn tất', statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
-  { id: 'CAM-102', title: 'Ưu Đãi Đặc Quyền Hội Viên Kim Cương & Vàng', recipients: '24 khách VIP', openRate: '87.5%', clickRate: '45.0%', date: '01/10/2026', status: 'Đã hoàn tất', statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
-  { id: 'CAM-103', title: 'Nhắc Nhở Hoàn Tất Giỏ Hàng & Mã Freeship', recipients: '15 khách hàng', openRate: '53.3%', clickRate: '33.3%', date: 'Hôm nay', status: 'Đang gửi tự động', statusColor: 'bg-blue-100 text-blue-800 border-blue-300' },
-  { id: 'CAM-104', title: 'Bản Tin Phong Thủy Nhà Ở Quý 4/2026', recipients: '120 đăng ký', openRate: '--', clickRate: '--', date: 'Dự kiến 15/10', status: 'Bản nháp', statusColor: 'bg-slate-100 text-slate-800 border-slate-300' },
+  { 
+    id: 'CAM-101', 
+    title: 'Thông báo Bộ Sưu Tập Mới Thu - Đông 2026', 
+    recipients: '86 khách hàng', 
+    targetAudience: 'Toàn bộ khách hàng', 
+    openRate: '68.5%', 
+    clickRate: '24.2%', 
+    date: '05/10/2026', 
+    status: 'Đã hoàn tất', 
+    statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    content: 'Chào quý khách, BST Thu - Đông 2026 của Nội Thất đã chính thức ra mắt với hơn 50 mẫu sofa da và bàn ăn gỗ óc chó cao cấp...'
+  },
+  { 
+    id: 'CAM-102', 
+    title: 'Ưu Đãi Đặc Quyền Hội Viên Kim Cương & Vàng', 
+    recipients: '24 khách VIP', 
+    targetAudience: 'Hội viên VIP (Gold & Diamond)', 
+    openRate: '87.5%', 
+    clickRate: '45.0%', 
+    date: '01/10/2026', 
+    status: 'Đã hoàn tất', 
+    statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    content: 'Tri ân khách hàng thân thiết, tặng mã giảm giá độc quyền 25% kèm miễn phí vận chuyển & lắp đặt toàn quốc...'
+  },
+  { 
+    id: 'CAM-103', 
+    title: 'Nhắc Nhở Hoàn Tất Giỏ Hàng & Mã Freeship', 
+    recipients: '15 khách hàng', 
+    targetAudience: 'Khách có giỏ hàng chưa thanh toán', 
+    openRate: '53.3%', 
+    clickRate: '33.3%', 
+    date: 'Hôm nay', 
+    status: 'Đang gửi tự động', 
+    statusColor: 'bg-blue-100 text-blue-800 border-blue-300',
+    content: 'Bạn vẫn còn các sản phẩm tuyệt vời đang chờ trong giỏ hàng. Nhập mã FREESHIP2026 để hoàn tất đơn hàng ngay...'
+  },
+  { 
+    id: 'CAM-104', 
+    title: 'Bản Tin Phong Thủy Nhà Ở Quý 4/2026', 
+    recipients: '120 đăng ký', 
+    targetAudience: 'Độc giả bản tin phong thủy', 
+    openRate: '--', 
+    clickRate: '--', 
+    date: 'Dự kiến 15/10', 
+    status: 'Bản nháp', 
+    statusColor: 'bg-slate-100 text-slate-800 border-slate-300',
+    content: 'Cẩm nang bố trí không gian sống hút tài lộc dịp cuối năm từ chuyên gia phong thủy hàng đầu...'
+  },
 ];
 ---
 
 <AdminLayout title="Email & Thông Báo Tiếp Thị - Nội Thất">
   <div class="space-y-6">
 
+    <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-walnut-900/10 pb-6">
       <div>
-        <h1 class="font-serif text-2xl sm:text-3xl text-walnut-900">Email & Thông Báo Khách Hàng</h1>
+        <h1 class="font-sans font-bold text-2xl sm:text-3xl text-walnut-900">Email & Thông Báo Khách Hàng</h1>
         <p class="mt-1 text-sm text-walnut-800/80">Quản lý các chiến dịch gửi email tự động, thông báo đẩy và chăm sóc sau mua.</p>
       </div>
 
       <button 
         type="button" 
-        onclick="alert('Mở trình soạn thảo chiến dịch Email Marketing')"
-        class="inline-flex items-center gap-2 bg-walnut-900 px-4 py-2 text-xs uppercase tracking-[0.15em] text-sand-50 transition-colors hover:bg-clay-600 shadow-sm"
+        id="btn-open-create-campaign"
+        class="inline-flex items-center gap-2 bg-walnut-900 px-4 py-2.5 text-xs uppercase tracking-[0.15em] text-sand-50 transition-colors hover:bg-clay-600 shadow-sm cursor-pointer font-medium"
       >
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -34,7 +79,7 @@ const campaigns = [
     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Email đã gửi trong tháng</p>
-        <p class="text-2xl font-bold text-walnut-900 mt-1">1.450 emails</p>
+        <p id="stat-total-sent" class="text-2xl font-bold text-walnut-900 mt-1">1.450 emails</p>
       </div>
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Tỷ lệ mở trung bình (Open)</p>
@@ -66,25 +111,57 @@ const campaigns = [
               <th class="py-3 px-4 font-semibold text-right">Thao tác</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-walnut-900/10">
+          <tbody id="campaign-table-body" class="divide-y divide-walnut-900/10">
             {campaigns.map((c) => (
-              <tr class="hover:bg-sand-100/50">
-                <td class="py-3 px-4 font-mono font-bold text-walnut-900">{c.id}</td>
-                <td class="py-3 px-4 font-bold text-walnut-900">{c.title}</td>
-                <td class="py-3 px-4 font-medium text-walnut-800">{c.recipients}</td>
-                <td class="py-3 px-4 font-semibold text-emerald-700">{c.openRate}</td>
-                <td class="py-3 px-4 font-semibold text-clay-600">{c.clickRate}</td>
-                <td class="py-3 px-4 text-walnut-800/80">{c.date}</td>
-                <td class="py-3 px-4">
+              <tr 
+                class="hover:bg-sand-100/50 transition-colors"
+                data-campaign-row
+                data-id={c.id}
+                data-title={c.title}
+                data-recipients={c.recipients}
+                data-audience={c.targetAudience}
+                data-open-rate={c.openRate}
+                data-click-rate={c.clickRate}
+                data-date={c.date}
+                data-status={c.status}
+                data-content={c.content}
+              >
+                <td class="py-3 px-4 font-mono font-bold text-walnut-900" data-col="id">{c.id}</td>
+                <td class="py-3 px-4 font-bold text-walnut-900 max-w-xs" data-col="title">{c.title}</td>
+                <td class="py-3 px-4 font-medium text-walnut-800" data-col="recipients">{c.recipients}</td>
+                <td class="py-3 px-4 font-semibold text-emerald-700" data-col="open-rate">{c.openRate}</td>
+                <td class="py-3 px-4 font-semibold text-clay-600" data-col="click-rate">{c.clickRate}</td>
+                <td class="py-3 px-4 text-walnut-800/80" data-col="date">{c.date}</td>
+                <td class="py-3 px-4" data-col="status">
                   <span class={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold border ${c.statusColor}`}>
                     {c.status}
                   </span>
                 </td>
                 <td class="py-3 px-4 text-right">
                   <div class="flex items-center justify-end gap-2">
-                    <button type="button" class="text-xs font-semibold text-clay-600 hover:underline">Chi tiết</button>
+                    <button 
+                      type="button" 
+                      data-btn-detail
+                      class="text-xs font-semibold text-clay-600 hover:underline cursor-pointer"
+                    >
+                      Chi tiết
+                    </button>
                     <span class="text-walnut-800/30">|</span>
-                    <button type="button" class="text-xs font-semibold text-walnut-800 hover:underline">Sao chép</button>
+                    <button 
+                      type="button" 
+                      data-btn-duplicate
+                      class="text-xs font-semibold text-walnut-800 hover:underline cursor-pointer"
+                    >
+                      Sao chép
+                    </button>
+                    <span class="text-walnut-800/30">|</span>
+                    <button 
+                      type="button" 
+                      data-btn-delete
+                      class="text-xs font-semibold text-red-600 hover:underline cursor-pointer"
+                    >
+                      Xóa
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -95,4 +172,389 @@ const campaigns = [
     </div>
 
   </div>
+
+  <!-- MODAL: TẠO CHIẾN DỊCH MỚI -->
+  <div id="create-campaign-modal" class="fixed inset-0 z-50 hidden bg-walnut-900/60 backdrop-blur-sm overflow-y-auto p-4 flex items-center justify-center">
+    <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-lg p-6 sm:p-8 shadow-xl relative my-8">
+      <div class="flex items-center justify-between border-b border-walnut-900/10 pb-4">
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.2em] text-walnut-800">Email Marketing</p>
+          <h2 class="text-xl font-bold text-walnut-900 mt-1">Soạn Chiến Dịch Email Mới</h2>
+        </div>
+        <button type="button" id="btn-close-create-modal" class="text-walnut-800 hover:text-danger-600 p-1 cursor-pointer">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="create-campaign-form" class="mt-6 flex flex-col gap-4">
+        <div>
+          <label for="cam-title-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Tiêu đề email *</label>
+          <input 
+            type="text" 
+            id="cam-title-input" 
+            required 
+            placeholder="VD: [Ưu đãi đặc biệt] Ra mắt Bộ Sưu Tập Nội Thất Mùa Lễ Hội" 
+            class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50"
+          />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="cam-audience-select" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Đối tượng nhận *</label>
+            <select 
+              id="cam-audience-select" 
+              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-3 py-2 text-xs outline-none focus:border-clay-600 cursor-pointer"
+            >
+              <option value="Toàn bộ khách hàng (150 khách)">Toàn bộ khách hàng (150 khách)</option>
+              <option value="Hội viên VIP (Gold & Diamond - 24 khách)">Hội viên VIP (Gold & Diamond - 24 khách)</option>
+              <option value="Khách giỏ hàng chưa thanh toán (18 khách)">Khách giỏ hàng chưa thanh toán (18 khách)</option>
+              <option value="Khách mới đăng ký trong tháng (35 khách)">Khách mới đăng ký trong tháng (35 khách)</option>
+            </select>
+          </div>
+          <div>
+            <label for="cam-action-type" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Phương thức gửi</label>
+            <select 
+              id="cam-action-type" 
+              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-3 py-2 text-xs outline-none focus:border-clay-600 cursor-pointer"
+            >
+              <option value="send-now">Gửi ngay lập tức</option>
+              <option value="draft">Lưu vào bản nháp</option>
+              <option value="schedule">Hẹn giờ tự động</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label for="cam-content-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Nội dung email (HTML / Văn bản) *</label>
+          <textarea 
+            id="cam-content-input" 
+            required 
+            rows="4" 
+            placeholder="Chào quý khách, chúng tôi trân trọng gửi tới bạn chương trình tri ân đặc quyền..." 
+            class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 p-3 text-xs outline-none focus:border-clay-600 focus:bg-sand-50 leading-relaxed"
+          ></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 border-t border-walnut-900/10 pt-4 mt-2">
+          <button 
+            type="button" 
+            id="btn-cancel-create-modal" 
+            class="border border-walnut-900/20 px-5 py-2 text-xs uppercase tracking-[0.15em] text-walnut-800 hover:border-walnut-900 cursor-pointer"
+          >
+            Hủy
+          </button>
+          <button 
+            type="submit" 
+            class="bg-clay-600 px-6 py-2 text-xs uppercase tracking-[0.15em] text-sand-50 hover:bg-clay-500 shadow-sm cursor-pointer font-medium"
+          >
+            Phát hành chiến dịch
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CHI TIẾT CHIẾN DỊCH -->
+  <div id="detail-campaign-modal" class="fixed inset-0 z-50 hidden bg-walnut-900/60 backdrop-blur-sm overflow-y-auto p-4 flex items-center justify-center">
+    <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-lg p-6 sm:p-8 shadow-xl relative my-8">
+      <div class="flex items-center justify-between border-b border-walnut-900/10 pb-4">
+        <div>
+          <span id="detail-cam-id" class="font-mono text-xs text-clay-600 font-bold">CAM-101</span>
+          <h2 id="detail-cam-title" class="text-lg font-bold text-walnut-900 mt-0.5">Tiêu đề chiến dịch</h2>
+        </div>
+        <button type="button" id="btn-close-detail-modal" class="text-walnut-800 hover:text-danger-600 p-1 cursor-pointer">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="mt-5 space-y-4 text-xs">
+        <!-- Stats summary -->
+        <div class="grid grid-cols-3 gap-3 text-center">
+          <div class="p-3 bg-sand-100 rounded border border-walnut-900/10">
+            <p class="text-[10px] uppercase text-walnut-800/70">Người nhận</p>
+            <p id="detail-cam-recipients" class="text-base font-bold text-walnut-900 mt-1">86 khách</p>
+          </div>
+          <div class="p-3 bg-sand-100 rounded border border-walnut-900/10">
+            <p class="text-[10px] uppercase text-walnut-800/70">Tỷ lệ mở</p>
+            <p id="detail-cam-open-rate" class="text-base font-bold text-emerald-700 mt-1">68.5%</p>
+          </div>
+          <div class="p-3 bg-sand-100 rounded border border-walnut-900/10">
+            <p class="text-[10px] uppercase text-walnut-800/70">Tỷ lệ Click</p>
+            <p id="detail-cam-click-rate" class="text-base font-bold text-clay-600 mt-1">24.2%</p>
+          </div>
+        </div>
+
+        <div class="p-3 bg-sand-100/50 rounded border border-walnut-900/10 space-y-1.5">
+          <div class="flex justify-between">
+            <span class="text-walnut-800/70">Phân khúc đối tượng:</span>
+            <span id="detail-cam-audience" class="font-bold text-walnut-900">Toàn bộ khách hàng</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-walnut-800/70">Thời gian triển khai:</span>
+            <span id="detail-cam-date" class="font-medium text-walnut-900">05/10/2026</span>
+          </div>
+          <div class="flex justify-between">
+            <span class="text-walnut-800/70">Trạng thái:</span>
+            <span id="detail-cam-status" class="font-bold text-emerald-700">Đã hoàn tất</span>
+          </div>
+        </div>
+
+        <div>
+          <p class="font-bold text-walnut-900 uppercase tracking-wider text-[10px] mb-1">Nội dung gửi khách hàng:</p>
+          <div id="detail-cam-content" class="p-3 bg-sand-100 rounded border border-walnut-900/10 text-walnut-800 leading-relaxed text-xs">
+            Nội dung chi tiết của email...
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between border-t border-walnut-900/10 pt-4 mt-6">
+        <button 
+          type="button" 
+          id="btn-test-mail" 
+          class="border border-clay-600 text-clay-600 px-4 py-2 text-xs uppercase tracking-[0.15em] hover:bg-clay-600 hover:text-sand-50 transition-colors cursor-pointer"
+        >
+          Gửi Test Thử Nghiệm
+        </button>
+        <button 
+          type="button" 
+          id="btn-close-detail-footer" 
+          class="bg-walnut-900 text-sand-50 px-5 py-2 text-xs uppercase tracking-[0.15em] hover:bg-walnut-800 cursor-pointer"
+        >
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="cam-toast" class="fixed bottom-6 right-6 z-50 hidden translate-y-4 rounded bg-walnut-900 px-5 py-3 text-xs uppercase tracking-[0.15em] text-sand-50 shadow-lg transition-all duration-300 border border-emerald-500/40">
+    <span id="cam-toast-msg">Đã thực hiện thành công!</span>
+  </div>
+
 </AdminLayout>
+
+<script>
+  const initCampaignPage = () => {
+    const tableBody = document.getElementById('campaign-table-body') as HTMLElement;
+    const totalSentEl = document.getElementById('stat-total-sent') as HTMLElement;
+
+    // Create Modal
+    const createModal = document.getElementById('create-campaign-modal') as HTMLElement;
+    const btnOpenCreate = document.getElementById('btn-open-create-campaign') as HTMLButtonElement;
+    const btnCloseCreate = document.getElementById('btn-close-create-modal') as HTMLButtonElement;
+    const btnCancelCreate = document.getElementById('btn-cancel-create-modal') as HTMLButtonElement;
+    const createForm = document.getElementById('create-campaign-form') as HTMLFormElement;
+
+    // Detail Modal
+    const detailModal = document.getElementById('detail-campaign-modal') as HTMLElement;
+    const btnCloseDetail = document.getElementById('btn-close-detail-modal') as HTMLButtonElement;
+    const btnCloseDetailFooter = document.getElementById('btn-close-detail-footer') as HTMLButtonElement;
+    const detailId = document.getElementById('detail-cam-id') as HTMLElement;
+    const detailTitle = document.getElementById('detail-cam-title') as HTMLElement;
+    const detailRecipients = document.getElementById('detail-cam-recipients') as HTMLElement;
+    const detailOpenRate = document.getElementById('detail-cam-open-rate') as HTMLElement;
+    const detailClickRate = document.getElementById('detail-cam-click-rate') as HTMLElement;
+    const detailAudience = document.getElementById('detail-cam-audience') as HTMLElement;
+    const detailDate = document.getElementById('detail-cam-date') as HTMLElement;
+    const detailStatus = document.getElementById('detail-cam-status') as HTMLElement;
+    const detailContent = document.getElementById('detail-cam-content') as HTMLElement;
+    const btnTestMail = document.getElementById('btn-test-mail') as HTMLButtonElement;
+
+    // Toast
+    const toast = document.getElementById('cam-toast') as HTMLElement;
+    const toastMsg = document.getElementById('cam-toast-msg') as HTMLElement;
+
+    const showToast = (msg: string) => {
+      if (!toast || !toastMsg) return;
+      toastMsg.textContent = msg;
+      toast.classList.remove('hidden');
+      requestAnimationFrame(() => toast.classList.remove('translate-y-4'));
+      setTimeout(() => {
+        toast.classList.add('translate-y-4');
+        setTimeout(() => toast.classList.add('hidden'), 300);
+      }, 3000);
+    };
+
+    // Close handlers
+    const closeCreate = () => createModal?.classList.add('hidden');
+    const closeDetail = () => detailModal?.classList.add('hidden');
+
+    btnOpenCreate?.addEventListener('click', () => {
+      createForm?.reset();
+      createModal?.classList.remove('hidden');
+    });
+    btnCloseCreate?.addEventListener('click', closeCreate);
+    btnCancelCreate?.addEventListener('click', closeCreate);
+
+    btnCloseDetail?.addEventListener('click', closeDetail);
+    btnCloseDetailFooter?.addEventListener('click', closeDetail);
+
+    [createModal, detailModal].forEach((m) => {
+      m?.addEventListener('click', (e) => {
+        if (e.target === m) m.classList.add('hidden');
+      });
+    });
+
+    btnTestMail?.addEventListener('click', () => {
+      showToast('Đã gửi email thử nghiệm thành công tới admin@noithat.vn!');
+    });
+
+    // Attach row events
+    const attachRowActions = (row: HTMLTableRowElement) => {
+      const detailBtn = row.querySelector('[data-btn-detail]');
+      const duplicateBtn = row.querySelector('[data-btn-duplicate]');
+      const deleteBtn = row.querySelector('[data-btn-delete]');
+
+      // View Detail
+      detailBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        detailId.textContent = row.dataset.id || '';
+        detailTitle.textContent = row.dataset.title || '';
+        detailRecipients.textContent = row.dataset.recipients || '';
+        detailOpenRate.textContent = row.dataset.openRate || '--';
+        detailClickRate.textContent = row.dataset.clickRate || '--';
+        detailAudience.textContent = row.dataset.audience || 'Tất cả khách hàng';
+        detailDate.textContent = row.dataset.date || '';
+        detailStatus.textContent = row.dataset.status || '';
+        detailContent.textContent = row.dataset.content || 'Nội dung chưa cập nhật';
+        detailModal?.classList.remove('hidden');
+      });
+
+      // Duplicate
+      duplicateBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (!tableBody) return;
+        const newId = `CAM-${Math.floor(100 + Math.random() * 900)}`;
+        const duplicatedTitle = `${row.dataset.title} (Bản sao)`;
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-sand-100/50 transition-colors bg-blue-50/20';
+        tr.setAttribute('data-campaign-row', '');
+        tr.dataset.id = newId;
+        tr.dataset.title = duplicatedTitle;
+        tr.dataset.recipients = row.dataset.recipients || '0 khách';
+        tr.dataset.audience = row.dataset.audience || '';
+        tr.dataset.openRate = '--';
+        tr.dataset.clickRate = '--';
+        tr.dataset.date = 'Hôm nay';
+        tr.dataset.status = 'Bản nháp';
+        tr.dataset.content = row.dataset.content || '';
+
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-mono font-bold text-walnut-900" data-col="id">${newId}</td>
+          <td class="py-3 px-4 font-bold text-walnut-900 max-w-xs" data-col="title">${duplicatedTitle}</td>
+          <td class="py-3 px-4 font-medium text-walnut-800" data-col="recipients">${row.dataset.recipients}</td>
+          <td class="py-3 px-4 font-semibold text-emerald-700" data-col="open-rate">--</td>
+          <td class="py-3 px-4 font-semibold text-clay-600" data-col="click-rate">--</td>
+          <td class="py-3 px-4 text-walnut-800/80" data-col="date">Hôm nay</td>
+          <td class="py-3 px-4" data-col="status">
+            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold border bg-slate-100 text-slate-800 border-slate-300">
+              Bản nháp
+            </span>
+          </td>
+          <td class="py-3 px-4 text-right">
+            <div class="flex items-center justify-end gap-2">
+              <button type="button" data-btn-detail class="text-xs font-semibold text-clay-600 hover:underline cursor-pointer">Chi tiết</button>
+              <span class="text-walnut-800/30">|</span>
+              <button type="button" data-btn-duplicate class="text-xs font-semibold text-walnut-800 hover:underline cursor-pointer">Sao chép</button>
+              <span class="text-walnut-800/30">|</span>
+              <button type="button" data-btn-delete class="text-xs font-semibold text-red-600 hover:underline cursor-pointer">Xóa</button>
+            </div>
+          </td>
+        `;
+
+        attachRowActions(tr);
+        tableBody.prepend(tr);
+        showToast(`Đã sao chép chiến dịch thành công thành "${newId}"!`);
+      });
+
+      // Delete
+      deleteBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (confirm(`Bạn có chắc chắn muốn xóa chiến dịch "${row.dataset.title}" không?`)) {
+          row.remove();
+          showToast(`Đã xóa chiến dịch "${row.dataset.title}"!`);
+        }
+      });
+    };
+
+    if (tableBody) {
+      tableBody.querySelectorAll<HTMLTableRowElement>('[data-campaign-row]').forEach(attachRowActions);
+    }
+
+    // Submit Create Form
+    createForm?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = (document.getElementById('cam-title-input') as HTMLInputElement)?.value.trim();
+      const audience = (document.getElementById('cam-audience-select') as HTMLSelectElement)?.value;
+      const actionType = (document.getElementById('cam-action-type') as HTMLSelectElement)?.value;
+      const content = (document.getElementById('cam-content-input') as HTMLTextAreaElement)?.value.trim();
+
+      if (!title || !content || !tableBody) return;
+
+      const newId = `CAM-${Math.floor(100 + Math.random() * 900)}`;
+      const recipientsCount = audience.match(/\((\d+)\s*khách/)?.[1] || '50';
+      const recipients = `${recipientsCount} khách hàng`;
+
+      let status = 'Đã hoàn tất';
+      let statusColor = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+      if (actionType === 'draft') {
+        status = 'Bản nháp';
+        statusColor = 'bg-slate-100 text-slate-800 border-slate-300';
+      } else if (actionType === 'schedule') {
+        status = 'Đang gửi tự động';
+        statusColor = 'bg-blue-100 text-blue-800 border-blue-300';
+      }
+
+      const tr = document.createElement('tr');
+      tr.className = 'hover:bg-sand-100/50 transition-colors bg-emerald-50/30';
+      tr.setAttribute('data-campaign-row', '');
+      tr.dataset.id = newId;
+      tr.dataset.title = title;
+      tr.dataset.recipients = recipients;
+      tr.dataset.audience = audience;
+      tr.dataset.openRate = actionType === 'send-now' ? '92.0%' : '--';
+      tr.dataset.clickRate = actionType === 'send-now' ? '41.5%' : '--';
+      tr.dataset.date = 'Vừa xong';
+      tr.dataset.status = status;
+      tr.dataset.content = content;
+
+      tr.innerHTML = `
+        <td class="py-3 px-4 font-mono font-bold text-walnut-900" data-col="id">${newId}</td>
+        <td class="py-3 px-4 font-bold text-walnut-900 max-w-xs" data-col="title">${title}</td>
+        <td class="py-3 px-4 font-medium text-walnut-800" data-col="recipients">${recipients}</td>
+        <td class="py-3 px-4 font-semibold text-emerald-700" data-col="open-rate">${tr.dataset.openRate}</td>
+        <td class="py-3 px-4 font-semibold text-clay-600" data-col="click-rate">${tr.dataset.clickRate}</td>
+        <td class="py-3 px-4 text-walnut-800/80" data-col="date">Vừa xong</td>
+        <td class="py-3 px-4" data-col="status">
+          <span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold border ${statusColor}">
+            ${status}
+          </span>
+        </td>
+        <td class="py-3 px-4 text-right">
+          <div class="flex items-center justify-end gap-2">
+            <button type="button" data-btn-detail class="text-xs font-semibold text-clay-600 hover:underline cursor-pointer">Chi tiết</button>
+            <span class="text-walnut-800/30">|</span>
+            <button type="button" data-btn-duplicate class="text-xs font-semibold text-walnut-800 hover:underline cursor-pointer">Sao chép</button>
+            <span class="text-walnut-800/30">|</span>
+            <button type="button" data-btn-delete class="text-xs font-semibold text-red-600 hover:underline cursor-pointer">Xóa</button>
+          </div>
+        </td>
+      `;
+
+      attachRowActions(tr);
+      tableBody.prepend(tr);
+      closeCreate();
+      showToast(`Đã tạo chiến dịch "${title}" thành công!`);
+    });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCampaignPage);
+  } else {
+    initCampaignPage();
+  }
+</script>

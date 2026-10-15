@@ -2,26 +2,77 @@
 import AdminLayout from '../../layouts/AdminLayout.astro';
 
 const reviews = [
-  { id: 1, customer: 'Nguyễn Văn An', product: 'Sofa Da Ý Milano Cao Cấp', rating: 5, comment: 'Sofa rất êm, da bò thật sờ mát tay và đường chỉ may tinh tế. Đóng gói cẩn thận!', date: '08/10/2026', status: 'Đã duyệt', statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
-  { id: 2, customer: 'Trần Thị Mai', product: 'Bàn Ăn Đá Marble Carrara', rating: 5, comment: 'Mặt đá vân tự nhiên cực kỳ sang, chân kim loại chắc chắn. Rất hài lòng.', date: '06/10/2026', status: 'Đã duyệt', statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
-  { id: 3, customer: 'Lê Hoàng Long', product: 'Ghế Thư Giãn Gỗ Óc Chó', rating: 4, comment: 'Ghế ngồi tựa lưng rất thoải mái, tuy nhiên giao hàng hơi trễ 1 ngày.', date: '05/10/2026', status: 'Đã duyệt', statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
-  { id: 4, customer: 'Phạm Minh Đức', product: 'Giường Ngủ Scandinavian', rating: 5, comment: 'Gỗ sồi thơm tự nhiên, dát giường rất chắc không phát ra tiếng kêu.', date: '03/10/2026', status: 'Đã duyệt', statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' },
-  { id: 5, customer: 'Vũ Hải Yến', product: 'Đèn Sàn Đồng Thau Chao Vải', rating: 3, comment: 'Đèn đẹp nhưng chao đèn hơi to so với góc đọc sách của mình.', date: '01/10/2026', status: 'Chờ duyệt', statusColor: 'bg-amber-100 text-amber-800 border-amber-300' },
+  { 
+    id: 1, 
+    customer: 'Nguyễn Văn An', 
+    product: 'Sofa Da Ý Milano Cao Cấp', 
+    rating: 5, 
+    comment: 'Sofa rất êm, da bò thật sờ mát tay và đường chỉ may tinh tế. Đóng gói cẩn thận!', 
+    date: '08/10/2026', 
+    status: 'Đã duyệt', 
+    statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    adminReply: 'Cảm ơn anh An đã tin tưởng thương hiệu Nội Thất! Chúc anh có những phút giây thư giãn tuyệt vời.'
+  },
+  { 
+    id: 2, 
+    customer: 'Trần Thị Mai', 
+    product: 'Bàn Ăn Đá Marble Carrara', 
+    rating: 5, 
+    comment: 'Mặt đá vân tự nhiên cực kỳ sang, chân kim loại chắc chắn. Rất hài lòng.', 
+    date: '06/10/2026', 
+    status: 'Đã duyệt', 
+    statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    adminReply: ''
+  },
+  { 
+    id: 3, 
+    customer: 'Lê Hoàng Long', 
+    product: 'Ghế Thư Giãn Gỗ Óc Chó', 
+    rating: 4, 
+    comment: 'Ghế ngồi tựa lưng rất thoải mái, tuy nhiên giao hàng hơi trễ 1 ngày.', 
+    date: '05/10/2026', 
+    status: 'Đã duyệt', 
+    statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    adminReply: 'Dạ Nội Thất thành thật xin lỗi anh Long về sự cố vận chuyển trễ ạ. Cửa hàng đã tặng anh voucher 10% cho lần mua kế tiếp.'
+  },
+  { 
+    id: 4, 
+    customer: 'Phạm Minh Đức', 
+    product: 'Giường Ngủ Scandinavian', 
+    rating: 5, 
+    comment: 'Gỗ sồi thơm tự nhiên, dát giường rất chắc không phát ra tiếng kêu.', 
+    date: '03/10/2026', 
+    status: 'Đã duyệt', 
+    statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
+    adminReply: ''
+  },
+  { 
+    id: 5, 
+    customer: 'Vũ Hải Yến', 
+    product: 'Đèn Sàn Đồng Thau Chao Vải', 
+    rating: 3, 
+    comment: 'Đèn đẹp nhưng chao đèn hơi to so với góc đọc sách của mình.', 
+    date: '01/10/2026', 
+    status: 'Chờ duyệt', 
+    statusColor: 'bg-amber-100 text-amber-800 border-amber-300',
+    adminReply: ''
+  },
 ];
 ---
 
 <AdminLayout title="Quản Lý Đánh Giá & Phản Hồi - Nội Thất">
   <div class="space-y-6">
 
+    <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-walnut-900/10 pb-6">
       <div>
-        <h1 class="font-serif text-2xl sm:text-3xl text-walnut-900">Đánh Giá & Phản Hồi Khách Hàng</h1>
+        <h1 class="font-sans font-bold text-2xl sm:text-3xl text-walnut-900">Đánh Giá & Phản Hồi Khách Hàng</h1>
         <p class="mt-1 text-sm text-walnut-800/80">Kiểm duyệt nhận xét, số sao đánh giá và tương tác giải đáp thắc mắc người mua.</p>
       </div>
 
       <div class="flex items-center gap-2">
-        <span class="inline-flex items-center gap-1 bg-amber-500/10 text-amber-900 border border-amber-500/30 px-3 py-1.5 rounded text-xs font-bold">
-          ⭐ Điểm trung bình: 4.8 / 5.0 (126 đánh giá)
+        <span class="inline-flex items-center gap-1.5 bg-amber-500/10 text-amber-900 border border-amber-500/30 px-3.5 py-2 rounded text-xs font-bold">
+          <span>⭐</span> Điểm trung bình: 4.8 / 5.0 (126 đánh giá)
         </span>
       </div>
     </div>
@@ -30,7 +81,7 @@ const reviews = [
     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Tổng nhận xét</p>
-        <p class="text-2xl font-bold text-walnut-900 mt-1">126 lượt</p>
+        <p id="stat-total-reviews" class="text-2xl font-bold text-walnut-900 mt-1">126 lượt</p>
       </div>
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Đánh giá 5 sao</p>
@@ -38,11 +89,11 @@ const reviews = [
       </div>
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Chờ duyệt</p>
-        <p class="text-2xl font-bold text-amber-700 mt-1">1 nhận xét mới</p>
+        <p id="stat-pending-reviews" class="text-2xl font-bold text-amber-700 mt-1">1 nhận xét mới</p>
       </div>
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Tỷ lệ phản hồi</p>
-        <p class="text-2xl font-bold text-clay-600 mt-1">98.5%</p>
+        <p id="stat-reply-rate" class="text-2xl font-bold text-clay-600 mt-1">98.5%</p>
       </div>
     </div>
 
@@ -61,13 +112,30 @@ const reviews = [
               <th class="py-3 px-4 font-semibold text-right">Hành động</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-walnut-900/10">
+          <tbody id="review-table-body" class="divide-y divide-walnut-900/10">
             {reviews.map((r) => (
-              <tr class="hover:bg-sand-100/50">
-                <td class="py-3 px-4 font-bold text-walnut-900">{r.customer}</td>
-                <td class="py-3 px-4 font-medium text-clay-600">{r.product}</td>
+              <tr 
+                class="hover:bg-sand-100/50 transition-colors"
+                data-review-row
+                data-id={r.id}
+                data-customer={r.customer}
+                data-product={r.product}
+                data-rating={r.rating}
+                data-comment={r.comment}
+                data-reply={r.adminReply}
+                data-status={r.status}
+              >
                 <td class="py-3 px-4">
-                  <div class="flex text-amber-500">
+                  <div class="flex items-center gap-2">
+                    <div class="h-7 w-7 rounded-full bg-walnut-900 text-sand-50 flex items-center justify-center font-bold text-[10px]">
+                      {r.customer.split(' ').map(n => n[0]).slice(-2).join('')}
+                    </div>
+                    <span class="font-bold text-walnut-900">{r.customer}</span>
+                  </div>
+                </td>
+                <td class="py-3 px-4 font-medium text-clay-600 max-w-[180px] truncate">{r.product}</td>
+                <td class="py-3 px-4">
+                  <div class="flex text-amber-500 text-sm">
                     {Array.from({ length: r.rating }).map(() => (
                       <span>★</span>
                     ))}
@@ -76,20 +144,44 @@ const reviews = [
                     ))}
                   </div>
                 </td>
-                <td class="py-3 px-4 text-walnut-900 max-w-sm">{r.comment}</td>
+                <td class="py-3 px-4 text-walnut-900 max-w-sm">
+                  <p>{r.comment}</p>
+                  <div class={`mt-1.5 p-2 bg-sand-100/80 rounded border-l-2 border-clay-600 text-[11px] text-walnut-800 ${r.adminReply ? '' : 'hidden'}`} data-col="reply-box">
+                    <p class="font-semibold text-clay-700 text-[10px] uppercase">Phản hồi từ Admin:</p>
+                    <p class="mt-0.5" data-col="reply-text">{r.adminReply}</p>
+                  </div>
+                </td>
                 <td class="py-3 px-4 text-walnut-800/70">{r.date}</td>
-                <td class="py-3 px-4">
+                <td class="py-3 px-4" data-col="status">
                   <span class={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold border ${r.statusColor}`}>
                     {r.status}
                   </span>
                 </td>
                 <td class="py-3 px-4 text-right">
                   <div class="flex items-center justify-end gap-2">
-                    <button type="button" class="text-xs font-semibold text-emerald-700 hover:underline">Duyệt</button>
+                    <button 
+                      type="button" 
+                      data-btn-approve
+                      class={`text-xs font-semibold cursor-pointer hover:underline ${r.status === 'Chờ duyệt' ? 'text-emerald-700 font-bold' : 'text-walnut-800/60'}`}
+                    >
+                      {r.status === 'Chờ duyệt' ? 'Duyệt' : 'Đã duyệt'}
+                    </button>
                     <span class="text-walnut-800/30">|</span>
-                    <button type="button" class="text-xs font-semibold text-clay-600 hover:underline">Phản hồi</button>
+                    <button 
+                      type="button" 
+                      data-btn-reply
+                      class="text-xs font-semibold text-clay-600 hover:underline cursor-pointer"
+                    >
+                      Phản hồi
+                    </button>
                     <span class="text-walnut-800/30">|</span>
-                    <button type="button" class="text-xs font-semibold text-red-600 hover:underline">Ẩn</button>
+                    <button 
+                      type="button" 
+                      data-btn-toggle-hide
+                      class={`text-xs font-semibold cursor-pointer hover:underline ${r.status === 'Đã ẩn' ? 'text-emerald-700' : 'text-red-600'}`}
+                    >
+                      {r.status === 'Đã ẩn' ? 'Hiện' : 'Ẩn'}
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -100,4 +192,212 @@ const reviews = [
     </div>
 
   </div>
+
+  <!-- MODAL: PHẢN HỒI ĐÁNH GIÁ -->
+  <div id="reply-modal" class="fixed inset-0 z-50 hidden bg-walnut-900/60 backdrop-blur-sm overflow-y-auto p-4 flex items-center justify-center">
+    <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-lg p-6 sm:p-8 shadow-xl relative my-8">
+      <div class="flex items-center justify-between border-b border-walnut-900/10 pb-4">
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.2em] text-walnut-800">Tương tác khách hàng</p>
+          <h2 id="reply-modal-title" class="text-xl font-bold text-walnut-900 mt-1">Phản Hồi Đánh Giá</h2>
+        </div>
+        <button type="button" id="btn-close-reply-modal" class="text-walnut-800 hover:text-danger-600 p-1 cursor-pointer">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Customer review quote -->
+      <div class="mt-4 p-3 bg-sand-100 rounded border border-walnut-900/10">
+        <div class="flex items-center justify-between text-xs">
+          <span id="reply-customer-name" class="font-bold text-walnut-900">Khách hàng</span>
+          <span id="reply-product-name" class="text-clay-600 font-medium">Sản phẩm</span>
+        </div>
+        <p id="reply-comment-quote" class="mt-2 text-xs text-walnut-800 italic">"Nội dung nhận xét..."</p>
+      </div>
+
+      <form id="reply-form" class="mt-5 flex flex-col gap-4">
+        <input type="hidden" id="reply-hidden-id" value="" />
+
+        <div>
+          <label for="reply-content-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Nội dung phản hồi từ Cửa hàng *</label>
+          <textarea 
+            id="reply-content-input" 
+            required 
+            rows="4" 
+            placeholder="Cảm ơn quý khách đã tin tưởng và ủng hộ sản phẩm của Nội Thất..." 
+            class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 p-3 text-xs outline-none focus:border-clay-600 focus:bg-sand-50 leading-relaxed"
+          ></textarea>
+        </div>
+
+        <div class="flex items-center justify-end gap-3 border-t border-walnut-900/10 pt-4 mt-2">
+          <button 
+            type="button" 
+            id="btn-cancel-reply-modal" 
+            class="border border-walnut-900/20 px-5 py-2 text-xs uppercase tracking-[0.15em] text-walnut-800 hover:border-walnut-900 cursor-pointer"
+          >
+            Đóng
+          </button>
+          <button 
+            type="submit" 
+            class="bg-clay-600 px-6 py-2 text-xs uppercase tracking-[0.15em] text-sand-50 hover:bg-clay-500 shadow-sm cursor-pointer font-medium"
+          >
+            Gửi phản hồi
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div id="review-toast" class="fixed bottom-6 right-6 z-50 hidden translate-y-4 rounded bg-walnut-900 px-5 py-3 text-xs uppercase tracking-[0.15em] text-sand-50 shadow-lg transition-all duration-300 border border-emerald-500/40">
+    <span id="review-toast-msg">Thao tác thành công!</span>
+  </div>
+
 </AdminLayout>
+
+<script>
+  const initReviewPage = () => {
+    const tableBody = document.getElementById('review-table-body') as HTMLElement;
+    const pendingEl = document.getElementById('stat-pending-reviews') as HTMLElement;
+
+    // Modal
+    const replyModal = document.getElementById('reply-modal') as HTMLElement;
+    const btnCloseReplyModal = document.getElementById('btn-close-reply-modal') as HTMLButtonElement;
+    const btnCancelReplyModal = document.getElementById('btn-cancel-reply-modal') as HTMLButtonElement;
+    const replyForm = document.getElementById('reply-form') as HTMLFormElement;
+    const replyHiddenId = document.getElementById('reply-hidden-id') as HTMLInputElement;
+    const replyCustomerName = document.getElementById('reply-customer-name') as HTMLElement;
+    const replyProductName = document.getElementById('reply-product-name') as HTMLElement;
+    const replyCommentQuote = document.getElementById('reply-comment-quote') as HTMLElement;
+    const replyContentInput = document.getElementById('reply-content-input') as HTMLTextAreaElement;
+
+    // Toast
+    const toast = document.getElementById('review-toast') as HTMLElement;
+    const toastMsg = document.getElementById('review-toast-msg') as HTMLElement;
+
+    const showToast = (msg: string) => {
+      if (!toast || !toastMsg) return;
+      toastMsg.textContent = msg;
+      toast.classList.remove('hidden');
+      requestAnimationFrame(() => toast.classList.remove('translate-y-4'));
+      setTimeout(() => {
+        toast.classList.add('translate-y-4');
+        setTimeout(() => toast.classList.add('hidden'), 300);
+      }, 3000);
+    };
+
+    const updateStats = () => {
+      if (tableBody && pendingEl) {
+        let pending = 0;
+        tableBody.querySelectorAll<HTMLTableRowElement>('[data-review-row]').forEach((r) => {
+          if (r.dataset.status === 'Chờ duyệt') pending++;
+        });
+        pendingEl.textContent = pending > 0 ? `${pending} nhận xét mới` : '0 nhận xét chờ duyệt';
+      }
+    };
+
+    const closeReplyModal = () => replyModal?.classList.add('hidden');
+    btnCloseReplyModal?.addEventListener('click', closeReplyModal);
+    btnCancelReplyModal?.addEventListener('click', closeReplyModal);
+    replyModal?.addEventListener('click', (e) => {
+      if (e.target === replyModal) closeReplyModal();
+    });
+
+    // Attach Row Actions
+    const attachRowActions = (row: HTMLTableRowElement) => {
+      const approveBtn = row.querySelector('[data-btn-approve]') as HTMLButtonElement | null;
+      const replyBtn = row.querySelector('[data-btn-reply]') as HTMLButtonElement | null;
+      const hideBtn = row.querySelector('[data-btn-toggle-hide]') as HTMLButtonElement | null;
+
+      // 1. Duyệt
+      approveBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        const current = row.dataset.status;
+        if (current === 'Chờ duyệt') {
+          row.dataset.status = 'Đã duyệt';
+          const statusCol = row.querySelector('[data-col="status"]');
+          if (statusCol) {
+            statusCol.innerHTML = '<span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold border bg-emerald-100 text-emerald-800 border-emerald-300">Đã duyệt</span>';
+          }
+          approveBtn.textContent = 'Đã duyệt';
+          approveBtn.className = 'text-xs font-semibold cursor-pointer text-walnut-800/60';
+          updateStats();
+          showToast(`Đã duyệt đánh giá của "${row.dataset.customer}"!`);
+        } else {
+          showToast(`Đánh giá này đã được duyệt và đang hiển thị trên website.`);
+        }
+      });
+
+      // 2. Phản hồi
+      replyBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        replyHiddenId.value = row.dataset.id || '';
+        replyCustomerName.textContent = `Khách hàng: ${row.dataset.customer}`;
+        replyProductName.textContent = row.dataset.product || '';
+        replyCommentQuote.textContent = `"${row.dataset.comment}"`;
+        replyContentInput.value = row.dataset.reply || '';
+        replyModal?.classList.remove('hidden');
+        replyContentInput.focus();
+      });
+
+      // 3. Ẩn / Hiện
+      hideBtn?.addEventListener('click', (e) => {
+        e.preventDefault();
+        const isHidden = row.dataset.status === 'Đã ẩn';
+        const nextStatus = isHidden ? 'Đã duyệt' : 'Đã ẩn';
+        const nextColor = isHidden 
+          ? 'bg-emerald-100 text-emerald-800 border-emerald-300' 
+          : 'bg-red-100 text-red-800 border-red-300';
+
+        row.dataset.status = nextStatus;
+        const statusCol = row.querySelector('[data-col="status"]');
+        if (statusCol) {
+          statusCol.innerHTML = `<span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold border ${nextColor}">${nextStatus}</span>`;
+        }
+
+        hideBtn.textContent = isHidden ? 'Ẩn' : 'Hiện';
+        hideBtn.className = `text-xs font-semibold cursor-pointer hover:underline ${isHidden ? 'text-red-600' : 'text-emerald-700'}`;
+
+        updateStats();
+        showToast(isHidden 
+          ? `Đã hiển thị lại đánh giá của "${row.dataset.customer}"` 
+          : `Đã tạm ẩn đánh giá của "${row.dataset.customer}" khỏi website`
+        );
+      });
+    };
+
+    if (tableBody) {
+      tableBody.querySelectorAll<HTMLTableRowElement>('[data-review-row]').forEach(attachRowActions);
+    }
+
+    // Submit reply
+    replyForm?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const id = replyHiddenId.value;
+      const replyText = replyContentInput.value.trim();
+      if (!replyText || !tableBody) return;
+
+      const targetRow = tableBody.querySelector<HTMLTableRowElement>(`[data-id="${id}"]`);
+      if (targetRow) {
+        targetRow.dataset.reply = replyText;
+        const replyBox = targetRow.querySelector('[data-col="reply-box"]');
+        const replyContentEl = targetRow.querySelector('[data-col="reply-text"]');
+        if (replyBox && replyContentEl) {
+          replyContentEl.textContent = replyText;
+          replyBox.classList.remove('hidden');
+        }
+
+        closeReplyModal();
+        showToast(`Đã gửi và lưu phản hồi cho khách hàng "${targetRow.dataset.customer}"!`);
+      }
+    });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initReviewPage);
+  } else {
+    initReviewPage();
+  }
+</script>

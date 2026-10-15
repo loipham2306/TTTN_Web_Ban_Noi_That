@@ -271,5 +271,24 @@ for (const g of navGroups) {
 
     </div>
   </div>
+
+  <style is:global>
+    /* Đảm bảo toàn bộ chữ tiếng Việt trong Admin dùng Be Vietnam Pro hiển thị chuẩn xác, không bị gãy/tách dấu */
+    body,
+    h1, h2, h3, h4, h5, h6,
+    .font-display,
+    .font-serif {
+      font-family: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif !important;
+    }
+
+    /* Đảm bảo toàn bộ phần tử, form và modal trong khu vực Admin luôn hiển thị đầy đủ */
+    .grid > *,
+    form,
+    form *,
+    [id*="modal"],
+    [id*="modal"] * {
+      opacity: 1 !important;
+    }
+  </style>
 </body>
 </html>
