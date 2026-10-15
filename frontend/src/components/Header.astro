@@ -11,7 +11,10 @@ interface MenuItem {
   children?: MenuLink[];
 }
 
-interface AccountLink extends MenuLink {
+interface AccountLink {
+  label: string;
+  href?: string;
+  tab?: string;
   icon: string; // thuộc tính "d" của thẻ <path> (viewBox 24x24)
 }
 
@@ -74,12 +77,12 @@ const guestMenu: AccountLink[] = [
   { label: 'Tư vấn phong thủy', href: '/phong-thuy', icon: ICON.star },
 ];
 
-// Menu khi ĐÃ đăng nhập (nút Đăng xuất và Trang quản trị nằm riêng trong markup)
+// Menu khi ĐÃ đăng nhập (bấm mở modal tương ứng trên trang, không chuyển sang /tai-khoan)
 const userMenu: AccountLink[] = [
-  { label: 'Tài khoản của tôi', href: '/tai-khoan', icon: ICON.user },
-  { label: 'Đơn hàng của tôi', href: '/tai-khoan/don-hang', icon: ICON.box },
-  { label: 'Danh sách yêu thích', href: '/tai-khoan/yeu-thich', icon: ICON.heart },
-  { label: 'Sổ địa chỉ giao hàng', href: '/tai-khoan/dia-chi', icon: ICON.pin },
+  { label: 'Tài khoản của tôi', tab: 'profile', icon: ICON.user },
+  { label: 'Đơn hàng của tôi', tab: 'orders', icon: ICON.box },
+  { label: 'Danh sách yêu thích', tab: 'wishlist', icon: ICON.heart },
+  { label: 'Sổ địa chỉ giao hàng', tab: 'addresses', icon: ICON.pin },
 ];
 
 const secondary: MenuLink[] = [
@@ -256,12 +259,12 @@ const isHome = Astro.url.pathname === '/';
                 <ul>
                   {userMenu.map((item) => (
                     <li>
-                      <a href={item.href} class="panel-link">
+                      <button type="button" data-open-profile={item.tab} class="panel-link w-full text-left cursor-pointer">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-4 w-4 shrink-0" aria-hidden="true">
                           <path d={item.icon} stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                         <span>{item.label}</span>
-                      </a>
+                      </button>
                     </li>
                   ))}
                 </ul>
@@ -422,7 +425,11 @@ const isHome = Astro.url.pathname === '/';
           <ul class="mt-3 flex flex-col gap-3 text-xs text-neutral-300">
             <li class="admin-only"><a href="/admin" class="text-amber-300 transition-colors hover:text-amber-200">Trang quản trị</a></li>
             {userMenu.map((item) => (
-              <li><a href={item.href} class="transition-colors hover:text-white">{item.label}</a></li>
+              <li>
+                <button type="button" data-open-profile={item.tab} class="transition-colors hover:text-white text-left w-full cursor-pointer py-0.5">
+                  {item.label}
+                </button>
+              </li>
             ))}
             <li><button type="button" data-logout class="text-red-400 transition-colors hover:text-red-300">Đăng xuất</button></li>
           </ul>
@@ -436,6 +443,191 @@ const isHome = Astro.url.pathname === '/';
       </div>
     </nav>
   </aside>
+</div>
+
+{/* MODAL HỒ SƠ & TÀI KHOẢN CÁ NHÂN */}
+<div id="user-profile-modal" class="fixed inset-0 z-[100] hidden bg-black/75 backdrop-blur-md overflow-y-auto p-4 flex items-center justify-center">
+  <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden relative my-8 text-walnut-900">
+    <!-- Header Modal -->
+    <div class="bg-walnut-900 text-sand-50 p-6 sm:p-7 flex items-center justify-between relative overflow-hidden">
+      <div class="absolute -right-8 -bottom-8 w-44 h-44 rounded-full bg-clay-600/20 pointer-events-none"></div>
+
+      <div class="flex items-center gap-4 relative z-10">
+        <div id="profile-modal-avatar" class="h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-clay-600 text-sand-50 font-bold text-xl flex items-center justify-center border-2 border-sand-50/20 shadow-md overflow-hidden">
+          TC
+        </div>
+        <div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <h2 id="profile-modal-name" class="text-lg sm:text-xl font-bold tracking-tight text-white">Khách</h2>
+            <span id="profile-modal-tier" class="rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 px-2.5 py-0.5 text-[10px] uppercase font-bold tracking-wider">
+              Hội Viên VIP
+            </span>
+          </div>
+          <p id="profile-modal-email" class="text-xs text-sand-200/80 mt-1">khach@noithat.vn</p>
+        </div>
+      </div>
+
+      <button type="button" id="btn-close-profile-modal" class="text-sand-200 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors cursor-pointer relative z-10" aria-label="Đóng">
+        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="border-b border-walnut-900/10 bg-sand-100/80 px-6 flex items-center gap-4 sm:gap-6 text-xs uppercase tracking-wider font-semibold overflow-x-auto">
+      <button type="button" data-tab-btn="profile" class="profile-tab-button py-3.5 border-b-2 border-clay-600 text-clay-700 cursor-pointer transition-colors whitespace-nowrap">
+        Thông tin cá nhân
+      </button>
+      <button type="button" data-tab-btn="orders" class="profile-tab-button py-3.5 border-b-2 border-transparent text-walnut-800/70 hover:text-walnut-900 cursor-pointer transition-colors whitespace-nowrap">
+        Đơn hàng của tôi
+      </button>
+      <button type="button" data-tab-btn="wishlist" class="profile-tab-button py-3.5 border-b-2 border-transparent text-walnut-800/70 hover:text-walnut-900 cursor-pointer transition-colors whitespace-nowrap">
+        Yêu thích
+      </button>
+      <button type="button" data-tab-btn="addresses" class="profile-tab-button py-3.5 border-b-2 border-transparent text-walnut-800/70 hover:text-walnut-900 cursor-pointer transition-colors whitespace-nowrap">
+        Sổ địa chỉ
+      </button>
+    </div>
+
+    <!-- Tab Contents Container -->
+    <div class="p-6 sm:p-7 max-h-[60vh] overflow-y-auto">
+      
+      <!-- TAB 1: THÔNG TIN CÁ NHÂN -->
+      <div id="tab-pane-profile" class="tab-pane space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-3.5">
+            <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-semibold block">Họ và tên</span>
+            <p id="profile-info-name" class="mt-1 text-sm font-bold text-walnut-900">TC Vỹ</p>
+          </div>
+          <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-3.5">
+            <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-semibold block">Email liên hệ</span>
+            <p id="profile-info-email" class="mt-1 text-sm font-semibold text-walnut-900">admin@noithat.vn</p>
+          </div>
+          <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-3.5">
+            <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-semibold block">Số điện thoại</span>
+            <p id="profile-info-phone" class="mt-1 text-sm font-semibold text-walnut-900">0909 001 001</p>
+          </div>
+          <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-3.5">
+            <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-semibold block">Hạng thành viên</span>
+            <p id="profile-info-tier" class="mt-1 text-sm font-bold text-clay-700">Kim Cương (VIP)</p>
+          </div>
+        </div>
+
+        <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4 space-y-2">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-walnut-800/70">Tổng chi tiêu tích lũy:</span>
+            <span id="profile-info-spent" class="font-bold text-walnut-900 text-sm">91.400.000 ₫</span>
+          </div>
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-walnut-800/70">Đơn hàng hoàn tất:</span>
+            <span id="profile-info-orders" class="font-bold text-walnut-900">2 đơn hàng</span>
+          </div>
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-walnut-800/70">Bảo mật tài khoản:</span>
+            <span class="font-semibold text-emerald-700">✓ Đã xác thực 2 lớp (2FA)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: ĐƠN HÀNG CỦA TÔI -->
+      <div id="tab-pane-orders" class="tab-pane hidden space-y-3">
+        <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4 space-y-3">
+          <div class="flex items-center justify-between border-b border-walnut-900/10 pb-2.5">
+            <div>
+              <span class="font-mono text-xs font-bold text-walnut-900">#DH-8829</span>
+              <span class="text-[11px] text-walnut-800/60 ml-2">08/10/2026</span>
+            </div>
+            <span class="rounded bg-blue-100 text-blue-800 border border-blue-300 px-2 py-0.5 text-[10px] font-semibold">
+              Đang giao hàng
+            </span>
+          </div>
+          <div class="flex justify-between items-center text-xs">
+            <div>
+              <p class="font-semibold text-walnut-900">Sofa Da Ý Milano Cao Cấp (x1)</p>
+              <p class="text-[11px] text-walnut-800/70">Màu Nâu Bò, Da thật 100%</p>
+            </div>
+            <span class="font-bold text-clay-700 text-sm">58.900.000 ₫</span>
+          </div>
+        </div>
+
+        <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4 space-y-3">
+          <div class="flex items-center justify-between border-b border-walnut-900/10 pb-2.5">
+            <div>
+              <span class="font-mono text-xs font-bold text-walnut-900">#DH-8812</span>
+              <span class="text-[11px] text-walnut-800/60 ml-2">01/10/2026</span>
+            </div>
+            <span class="rounded bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 text-[10px] font-semibold">
+              Đã giao thành công
+            </span>
+          </div>
+          <div class="flex justify-between items-center text-xs">
+            <div>
+              <p class="font-semibold text-walnut-900">Bàn Ăn Đá Marble Carrara (x1)</p>
+              <p class="text-[11px] text-walnut-800/70">Mặt đá tự nhiên Ý</p>
+            </div>
+            <span class="font-bold text-clay-700 text-sm">32.500.000 ₫</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: DANH SÁCH YÊU THÍCH -->
+      <div id="tab-pane-wishlist" class="tab-pane hidden space-y-3">
+        <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-3.5 flex items-center justify-between gap-4">
+          <div>
+            <h4 class="font-semibold text-xs text-walnut-900">Ghế Thư Giãn Gỗ Óc Chó</h4>
+            <p class="font-bold text-clay-700 text-xs mt-0.5">18.900.000 ₫</p>
+          </div>
+          <a href="/san-pham/ghe-thu-gian-go-oc-cho" class="text-xs uppercase tracking-wider text-walnut-900 font-semibold hover:text-clay-600 underline">
+            Xem sản phẩm →
+          </a>
+        </div>
+
+        <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-3.5 flex items-center justify-between gap-4">
+          <div>
+            <h4 class="font-semibold text-xs text-walnut-900">Đèn Sàn Đồng Thau Chao Vải</h4>
+            <p class="font-bold text-clay-700 text-xs mt-0.5">7.900.000 ₫</p>
+          </div>
+          <a href="/san-pham/den-san-dong-thau" class="text-xs uppercase tracking-wider text-walnut-900 font-semibold hover:text-clay-600 underline">
+            Xem sản phẩm →
+          </a>
+        </div>
+      </div>
+
+      <!-- TAB 4: SỔ ĐỊA CHỈ -->
+      <div id="tab-pane-addresses" class="tab-pane hidden space-y-3">
+        <div class="rounded-lg border border-walnut-900/20 bg-sand-100/60 p-4 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-xs text-walnut-900">Địa chỉ nhận hàng mặc định</span>
+            <span class="rounded bg-emerald-100 text-emerald-800 px-2 py-0.5 text-[10px] font-semibold">Mặc định</span>
+          </div>
+          <p class="text-xs text-walnut-900 font-medium">Người nhận: <span id="address-recipient-name">Trương Chí Vỹ</span> — <span id="address-recipient-phone">0909 001 001</span></p>
+          <p class="text-xs text-walnut-800/80 leading-relaxed">615 Âu Cơ, Phường Phú Trung, Quận Tân Phú, TP. Hồ Chí Minh</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="border-t border-walnut-900/10 bg-sand-100/50 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+      <div>
+        <a href="/admin" id="profile-admin-link" class="hidden inline-flex items-center gap-1.5 font-bold text-amber-900 bg-amber-400/30 border border-amber-500/50 px-3.5 py-1.5 rounded hover:bg-amber-400/50 transition-colors">
+          <svg class="h-4 w-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+          <span>Trang quản trị (Admin)</span>
+        </a>
+      </div>
+      <div class="flex items-center gap-3 self-end sm:self-auto">
+        <button type="button" data-logout class="px-3 py-1.5 text-red-600 hover:underline font-semibold cursor-pointer">
+          Đăng xuất
+        </button>
+        <button type="button" id="btn-close-profile-modal-footer" class="bg-walnut-900 text-sand-50 px-5 py-2 uppercase tracking-wider text-[11px] font-semibold hover:bg-clay-600 transition-colors cursor-pointer rounded-sm shadow-sm">
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <style>
@@ -738,8 +930,13 @@ const isHome = Astro.url.pathname === '/';
     });
 
     document.querySelectorAll<HTMLAnchorElement>('[data-account-link]').forEach((a) => {
-      a.href = user ? '/tai-khoan' : '/dang-nhap';
-      a.setAttribute('aria-label', user ? 'Tài khoản của ' + user.name : 'Đăng nhập');
+      if (user) {
+        a.href = '#';
+        a.setAttribute('aria-label', 'Tài khoản của ' + user.name);
+      } else {
+        a.href = '/dang-nhap';
+        a.setAttribute('aria-label', 'Đăng nhập');
+      }
     });
   };
 
@@ -747,9 +944,139 @@ const isHome = Astro.url.pathname === '/';
   window.addEventListener(AUTH_EVENT, syncAuth);
   window.addEventListener('storage', syncAuth);
 
+  // ===== XỬ LÝ MODAL HỒ SƠ & TÀI KHOẢN CÁ NHÂN =====
+  const profileModal = document.getElementById('user-profile-modal');
+  const btnCloseProfile = document.getElementById('btn-close-profile-modal');
+  const btnCloseProfileFooter = document.getElementById('btn-close-profile-modal-footer');
+
+  const closeProfileModal = () => profileModal?.classList.add('hidden');
+  btnCloseProfile?.addEventListener('click', closeProfileModal);
+  btnCloseProfileFooter?.addEventListener('click', closeProfileModal);
+  profileModal?.addEventListener('click', (e) => {
+    if (e.target === profileModal) closeProfileModal();
+  });
+
+  // Chuyển tab trong modal
+  const switchProfileTab = (tabName: string) => {
+    document.querySelectorAll<HTMLButtonElement>('[data-tab-btn]').forEach((btn) => {
+      const isActive = btn.dataset.tabBtn === tabName;
+      btn.className = `profile-tab-button py-3.5 border-b-2 cursor-pointer transition-colors whitespace-nowrap ${
+        isActive 
+          ? 'border-clay-600 text-clay-700 font-bold' 
+          : 'border-transparent text-walnut-800/70 hover:text-walnut-900'
+      }`;
+    });
+
+    document.querySelectorAll<HTMLElement>('.tab-pane').forEach((pane) => {
+      pane.classList.toggle('hidden', pane.id !== `tab-pane-${tabName}`);
+    });
+  };
+
+  document.querySelectorAll<HTMLButtonElement>('[data-tab-btn]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      switchProfileTab(btn.dataset.tabBtn || 'profile');
+    });
+  });
+
+  // Mở modal và nạp thông tin người dùng
+  const openProfileModal = (initialTab = 'profile') => {
+    const user = readUser();
+    if (!user) {
+      window.location.href = '/dang-nhap';
+      return;
+    }
+
+    // Đọc thông tin chi tiết từ current_user nếu có
+    let fullUser: any = user;
+    try {
+      const raw = localStorage.getItem('current_user');
+      if (raw) fullUser = JSON.parse(raw);
+    } catch {}
+
+    const name = fullUser.name || 'Khách';
+    const email = fullUser.email || (user.role === 'admin' ? 'admin@noithat.vn' : 'khach@noithat.vn');
+    const phone = fullUser.phone && fullUser.phone !== 'Đăng nhập Google' ? fullUser.phone : '0909 001 001';
+    const tier = fullUser.tier || (user.role === 'admin' ? 'Quản Trị Viên' : 'Kim Cương (VIP)');
+    const spent = fullUser.spent || '91.400.000 ₫';
+    const orders = typeof fullUser.orders === 'number' ? `${fullUser.orders} đơn hàng` : '2 đơn hàng';
+    const avatar = fullUser.avatar || '';
+
+    // Cập nhật DOM Modal
+    const modalName = document.getElementById('profile-modal-name');
+    const modalEmail = document.getElementById('profile-modal-email');
+    const modalTier = document.getElementById('profile-modal-tier');
+    const modalAvatar = document.getElementById('profile-modal-avatar');
+    const adminLink = document.getElementById('profile-admin-link');
+
+    if (modalName) modalName.textContent = name;
+    if (modalEmail) modalEmail.textContent = email;
+    if (modalTier) modalTier.textContent = tier;
+    
+    if (modalAvatar) {
+      if (avatar) {
+        modalAvatar.innerHTML = `<img src="${avatar}" alt="${name}" class="h-full w-full object-cover rounded-full" />`;
+      } else {
+        const initials = name.split(' ').map((n: string) => n[0]).slice(-2).join('');
+        modalAvatar.textContent = initials || 'KH';
+      }
+    }
+
+    if (adminLink) {
+      adminLink.classList.toggle('hidden', user.role !== 'admin');
+    }
+
+    // Tab 1 Info
+    const infoName = document.getElementById('profile-info-name');
+    const infoEmail = document.getElementById('profile-info-email');
+    const infoPhone = document.getElementById('profile-info-phone');
+    const infoTier = document.getElementById('profile-info-tier');
+    const infoSpent = document.getElementById('profile-info-spent');
+    const infoOrders = document.getElementById('profile-info-orders');
+
+    if (infoName) infoName.textContent = name;
+    if (infoEmail) infoEmail.textContent = email;
+    if (infoPhone) infoPhone.textContent = phone;
+    if (infoTier) infoTier.textContent = tier;
+    if (infoSpent) infoSpent.textContent = spent;
+    if (infoOrders) infoOrders.textContent = orders;
+
+    // Address Info
+    const addrName = document.getElementById('address-recipient-name');
+    const addrPhone = document.getElementById('address-recipient-phone');
+    if (addrName) addrName.textContent = name;
+    if (addrPhone) addrPhone.textContent = phone;
+
+    switchProfileTab(initialTab);
+    profileModal?.classList.remove('hidden');
+  };
+
+  // Bắt sự kiện click vào nút tài khoản (nếu đã đăng nhập thì mở modal, không chuyển trang)
+  document.querySelectorAll<HTMLElement>('[data-account-link]').forEach((el) => {
+    el.addEventListener('click', (e) => {
+      const user = readUser();
+      if (user) {
+        e.preventDefault();
+        e.stopPropagation();
+        openProfileModal('profile');
+      }
+    });
+  });
+
+  // Bắt sự kiện click vào các nút mục trong menu dropdown (Tài khoản, Đơn hàng, Yêu thích, Sổ địa chỉ)
+  document.querySelectorAll<HTMLElement>('[data-open-profile]').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const tab = btn.dataset.openProfile || 'profile';
+      openProfileModal(tab);
+    });
+  });
+
+  // Xử lý Đăng xuất
   document.querySelectorAll<HTMLElement>('[data-logout]').forEach((btn) => {
     btn.addEventListener('click', () => {
       clearUser();
+      closeProfileModal();
       window.location.href = '/';
     });
   });

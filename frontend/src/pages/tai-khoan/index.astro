@@ -1,0 +1,260 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Tài Khoản Của Tôi | Nội Thất Cao Cấp">
+  <main class="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+
+    <!-- BREADCRUMB -->
+    <nav class="mb-8 flex items-center gap-2 text-xs text-walnut-800/70">
+      <a href="/" class="hover:text-walnut-900 transition-colors">Trang chủ</a>
+      <span>/</span>
+      <span class="text-walnut-900 font-medium">Hồ sơ cá nhân</span>
+    </nav>
+
+    <!-- ACCOUNT CARD -->
+    <div class="rounded-2xl border border-walnut-900/10 bg-sand-50 shadow-xl overflow-hidden text-walnut-900">
+      
+      <!-- Top banner -->
+      <div class="bg-walnut-900 text-sand-50 p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 relative overflow-hidden">
+        <div class="absolute -right-8 -bottom-8 w-44 h-44 rounded-full bg-clay-600/20 pointer-events-none"></div>
+
+        <div class="flex items-center gap-4 relative z-10">
+          <div id="page-user-avatar" class="h-16 w-16 rounded-full bg-clay-600 text-sand-50 font-bold text-2xl flex items-center justify-center border-2 border-sand-50/20 shadow-md overflow-hidden">
+            TC
+          </div>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h1 id="page-user-name" class="text-xl sm:text-2xl font-bold tracking-tight text-white">Khách</h1>
+              <span id="page-user-tier" class="rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 px-2.5 py-0.5 text-[10px] uppercase font-bold tracking-wider">
+                Hội Viên VIP
+              </span>
+            </div>
+            <p id="page-user-email" class="text-xs text-sand-200/80 mt-1">khach@noithat.vn</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 relative z-10">
+          <a href="/admin" id="page-admin-btn" class="hidden items-center gap-1.5 font-bold text-xs text-amber-900 bg-amber-400/30 border border-amber-500/50 px-3.5 py-2 rounded hover:bg-amber-400/50 transition-colors">
+            Trang quản trị (Admin)
+          </a>
+          <button type="button" data-logout class="border border-white/20 px-4 py-2 text-xs uppercase tracking-wider text-sand-100 hover:bg-white/10 rounded cursor-pointer transition-colors">
+            Đăng xuất
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <div class="border-b border-walnut-900/10 bg-sand-100/80 px-6 sm:px-8 flex items-center gap-6 text-xs uppercase tracking-wider font-semibold overflow-x-auto">
+        <button type="button" data-page-tab="profile" class="page-tab-btn py-4 border-b-2 border-clay-600 text-clay-700 font-bold cursor-pointer whitespace-nowrap">
+          Thông tin cá nhân
+        </button>
+        <button type="button" data-page-tab="orders" class="page-tab-btn py-4 border-b-2 border-transparent text-walnut-800/70 hover:text-walnut-900 cursor-pointer whitespace-nowrap">
+          Đơn hàng của tôi
+        </button>
+        <button type="button" data-page-tab="wishlist" class="page-tab-btn py-4 border-b-2 border-transparent text-walnut-800/70 hover:text-walnut-900 cursor-pointer whitespace-nowrap">
+          Yêu thích
+        </button>
+        <button type="button" data-page-tab="addresses" class="page-tab-btn py-4 border-b-2 border-transparent text-walnut-800/70 hover:text-walnut-900 cursor-pointer whitespace-nowrap">
+          Sổ địa chỉ
+        </button>
+      </div>
+
+      <!-- Content Area -->
+      <div class="p-6 sm:p-8">
+        <!-- TAB 1: PROFILE -->
+        <div id="page-pane-profile" class="page-tab-pane space-y-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4">
+              <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-semibold block">Họ và tên</span>
+              <p id="page-info-name" class="mt-1 text-sm font-bold text-walnut-900">TC Vỹ</p>
+            </div>
+            <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4">
+              <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-semibold block">Email</span>
+              <p id="page-info-email" class="mt-1 text-sm font-semibold text-walnut-900">admin@noithat.vn</p>
+            </div>
+            <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4">
+              <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-semibold block">Số điện thoại</span>
+              <p id="page-info-phone" class="mt-1 text-sm font-semibold text-walnut-900">0909 001 001</p>
+            </div>
+            <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4">
+              <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-semibold block">Cấp bậc thành viên</span>
+              <p id="page-info-tier" class="mt-1 text-sm font-bold text-clay-700">Kim Cương (VIP)</p>
+            </div>
+          </div>
+
+          <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-5 space-y-3">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-walnut-800/70">Tổng chi tiêu tích lũy:</span>
+              <span id="page-info-spent" class="font-bold text-walnut-900 text-sm">91.400.000 ₫</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-walnut-800/70">Số đơn hàng đã mua:</span>
+              <span id="page-info-orders" class="font-bold text-walnut-900">2 đơn hàng</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-walnut-800/70">Bảo mật tài khoản:</span>
+              <span class="font-semibold text-emerald-700">✓ Đã xác thực 2 lớp (2FA)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: ORDERS -->
+        <div id="page-pane-orders" class="page-tab-pane hidden space-y-4">
+          <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4 space-y-3">
+            <div class="flex items-center justify-between border-b border-walnut-900/10 pb-2.5">
+              <div>
+                <span class="font-mono text-xs font-bold text-walnut-900">#DH-8829</span>
+                <span class="text-[11px] text-walnut-800/60 ml-2">08/10/2026</span>
+              </div>
+              <span class="rounded bg-blue-100 text-blue-800 border border-blue-300 px-2.5 py-0.5 text-[10px] font-semibold">
+                Đang giao hàng
+              </span>
+            </div>
+            <div class="flex justify-between items-center text-xs">
+              <div>
+                <p class="font-semibold text-walnut-900">Sofa Da Ý Milano Cao Cấp (x1)</p>
+                <p class="text-[11px] text-walnut-800/70">Màu Nâu Bò, Da thật 100%</p>
+              </div>
+              <span class="font-bold text-clay-700 text-sm">58.900.000 ₫</span>
+            </div>
+          </div>
+
+          <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4 space-y-3">
+            <div class="flex items-center justify-between border-b border-walnut-900/10 pb-2.5">
+              <div>
+                <span class="font-mono text-xs font-bold text-walnut-900">#DH-8812</span>
+                <span class="text-[11px] text-walnut-800/60 ml-2">01/10/2026</span>
+              </div>
+              <span class="rounded bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-0.5 text-[10px] font-semibold">
+                Đã giao thành công
+              </span>
+            </div>
+            <div class="flex justify-between items-center text-xs">
+              <div>
+                <p class="font-semibold text-walnut-900">Bàn Ăn Đá Marble Carrara (x1)</p>
+                <p class="text-[11px] text-walnut-800/70">Mặt đá tự nhiên Ý</p>
+              </div>
+              <span class="font-bold text-clay-700 text-sm">32.500.000 ₫</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 3: WISHLIST -->
+        <div id="page-pane-wishlist" class="page-tab-pane hidden space-y-3">
+          <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4 flex items-center justify-between gap-4">
+            <div>
+              <h4 class="font-semibold text-xs text-walnut-900">Ghế Thư Giãn Gỗ Óc Chó</h4>
+              <p class="font-bold text-clay-700 text-xs mt-0.5">18.900.000 ₫</p>
+            </div>
+            <a href="/san-pham/ghe-thu-gian-go-oc-cho" class="text-xs uppercase tracking-wider text-walnut-900 font-semibold hover:text-clay-600 underline">
+              Xem chi tiết →
+            </a>
+          </div>
+
+          <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4 flex items-center justify-between gap-4">
+            <div>
+              <h4 class="font-semibold text-xs text-walnut-900">Đèn Sàn Đồng Thau Chao Vải</h4>
+              <p class="font-bold text-clay-700 text-xs mt-0.5">7.900.000 ₫</p>
+            </div>
+            <a href="/san-pham/den-san-dong-thau" class="text-xs uppercase tracking-wider text-walnut-900 font-semibold hover:text-clay-600 underline">
+              Xem chi tiết →
+            </a>
+          </div>
+        </div>
+
+        <!-- TAB 4: ADDRESSES -->
+        <div id="page-pane-addresses" class="page-tab-pane hidden space-y-3">
+          <div class="rounded-lg border border-walnut-900/20 bg-sand-100/60 p-5 space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-xs text-walnut-900">Địa chỉ nhận hàng mặc định</span>
+              <span class="rounded bg-emerald-100 text-emerald-800 px-2 py-0.5 text-[10px] font-semibold">Mặc định</span>
+            </div>
+            <p class="text-xs text-walnut-900 font-medium">Người nhận: <span id="page-addr-name">Trương Chí Vỹ</span> — <span id="page-addr-phone">0909 001 001</span></p>
+            <p class="text-xs text-walnut-800/80 leading-relaxed">615 Âu Cơ, Phường Phú Trung, Quận Tân Phú, TP. Hồ Chí Minh</p>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+</BaseLayout>
+
+<script>
+  import { readUser } from '../../scripts/auth';
+
+  const user = readUser();
+  if (!user) {
+    window.location.href = '/dang-nhap';
+  } else {
+    let fullUser: any = user;
+    try {
+      const raw = localStorage.getItem('current_user');
+      if (raw) fullUser = JSON.parse(raw);
+    } catch {}
+
+    const name = fullUser.name || 'Khách';
+    const email = fullUser.email || (user.role === 'admin' ? 'admin@noithat.vn' : 'khach@noithat.vn');
+    const phone = fullUser.phone && fullUser.phone !== 'Đăng nhập Google' ? fullUser.phone : '0909 001 001';
+    const tier = fullUser.tier || (user.role === 'admin' ? 'Quản Trị Viên' : 'Kim Cương (VIP)');
+    const spent = fullUser.spent || '91.400.000 ₫';
+    const orders = typeof fullUser.orders === 'number' ? `${fullUser.orders} đơn hàng` : '2 đơn hàng';
+    const avatar = fullUser.avatar || '';
+
+    const elName = document.getElementById('page-user-name');
+    const elEmail = document.getElementById('page-user-email');
+    const elTier = document.getElementById('page-user-tier');
+    const elAvatar = document.getElementById('page-user-avatar');
+    const adminBtn = document.getElementById('page-admin-btn');
+
+    if (elName) elName.textContent = name;
+    if (elEmail) elEmail.textContent = email;
+    if (elTier) elTier.textContent = tier;
+    if (adminBtn) adminBtn.classList.toggle('hidden', user.role !== 'admin');
+
+    if (elAvatar) {
+      if (avatar) {
+        elAvatar.innerHTML = `<img src="${avatar}" alt="${name}" class="h-full w-full object-cover rounded-full" />`;
+      } else {
+        elAvatar.textContent = name.split(' ').map((n: string) => n[0]).slice(-2).join('');
+      }
+    }
+
+    const infoName = document.getElementById('page-info-name');
+    const infoEmail = document.getElementById('page-info-email');
+    const infoPhone = document.getElementById('page-info-phone');
+    const infoTier = document.getElementById('page-info-tier');
+    const infoSpent = document.getElementById('page-info-spent');
+    const infoOrders = document.getElementById('page-info-orders');
+
+    if (infoName) infoName.textContent = name;
+    if (infoEmail) infoEmail.textContent = email;
+    if (infoPhone) infoPhone.textContent = phone;
+    if (infoTier) infoTier.textContent = tier;
+    if (infoSpent) infoSpent.textContent = spent;
+    if (infoOrders) infoOrders.textContent = orders;
+
+    const addrName = document.getElementById('page-addr-name');
+    const addrPhone = document.getElementById('page-addr-phone');
+    if (addrName) addrName.textContent = name;
+    if (addrPhone) addrPhone.textContent = phone;
+  }
+
+  // Page Tabs
+  const tabBtns = document.querySelectorAll<HTMLButtonElement>('[data-page-tab]');
+  tabBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const tab = btn.dataset.pageTab;
+      tabBtns.forEach((b) => {
+        b.className = 'page-tab-btn py-4 border-b-2 border-transparent text-walnut-800/70 hover:text-walnut-900 cursor-pointer whitespace-nowrap';
+      });
+      btn.className = 'page-tab-btn py-4 border-b-2 border-clay-600 text-clay-700 font-bold cursor-pointer whitespace-nowrap';
+
+      document.querySelectorAll<HTMLElement>('.page-tab-pane').forEach((pane) => {
+        pane.classList.toggle('hidden', pane.id !== `page-pane-${tab}`);
+      });
+    });
+  });
+</script>
