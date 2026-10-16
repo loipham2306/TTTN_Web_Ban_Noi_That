@@ -1,7 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProductCard from '../components/ProductCard.astro';
-import { products } from '../data/products';
+import { products as fallbackProducts } from '../data/products';
 import { CONTACT } from '../data/contact';
 
 const spaces = [
@@ -15,7 +15,31 @@ const spaces = [
 
 const projects = ['Căn hộ trung tâm', 'Nhà phố hiện đại', 'Biệt thự ven sông', 'Khách sạn boutique'];
 
-const featured = products.slice(0, 4);
+let liveProducts = fallbackProducts;
+try {
+  const res = await fetch('http://localhost:4000/api/products?limit=8', { signal: AbortSignal.timeout(2000) });
+  if (res.ok) {
+    const json = await res.json();
+    if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+      liveProducts = json.data.map((p: any) => ({
+        id: p.id,
+        slug: p.slug,
+        name: p.name,
+        category: p.category,
+        categoryLabel: p.categoryLabel,
+        space: p.space || 'phong-khach',
+        spaceLabel: p.spaceLabel || 'Phòng khách',
+        price: p.price,
+        material: p.material || '',
+        thumbnail: p.thumbnail,
+        image: p.thumbnail,
+        isNew: true,
+      }));
+    }
+  }
+} catch {}
+
+const featured = liveProducts.slice(0, 4);
 ---
 <BaseLayout title="Nội Thất Cao Cấp - Trang chủ">
 

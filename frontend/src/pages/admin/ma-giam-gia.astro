@@ -1,8 +1,9 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 
-const coupons = [
+const fallbackCoupons = [
   { 
+    id: 1,
     code: 'NOITHATVIP20', 
     discount: 'Giảm 20%', 
     minOrder: '20.000.000 ₫', 
@@ -15,6 +16,7 @@ const coupons = [
     statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' 
   },
   { 
+    id: 2,
     code: 'FREESHIP2026', 
     discount: 'Freeship toàn quốc', 
     minOrder: '10.000.000 ₫', 
@@ -27,6 +29,7 @@ const coupons = [
     statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' 
   },
   { 
+    id: 3,
     code: 'TANXUAN10', 
     discount: 'Giảm 10%', 
     minOrder: '5.000.000 ₫', 
@@ -39,6 +42,7 @@ const coupons = [
     statusColor: 'bg-amber-100 text-amber-800 border-amber-300' 
   },
   { 
+    id: 4,
     code: 'WELCOME100K', 
     discount: 'Giảm 100.000 ₫', 
     minOrder: '2.000.000 ₫', 
@@ -51,6 +55,29 @@ const coupons = [
     statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300' 
   },
 ];
+
+let coupons = fallbackCoupons;
+try {
+  const res = await fetch('http://localhost:4000/api/coupons', { signal: AbortSignal.timeout(2000) });
+  if (res.ok) {
+    const json = await res.json();
+    if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+      coupons = json.data.map((c: any) => ({
+        id: c.id,
+        code: c.code,
+        discount: c.discountType === 'percentage' ? `Giảm ${c.discountValue}%` : `Giảm ${Number(c.discountValue).toLocaleString('vi-VN')} ₫`,
+        minOrder: c.minOrderValue ? `${Number(c.minOrderValue).toLocaleString('vi-VN')} ₫` : '0 ₫',
+        maxDiscount: c.maxDiscountAmount ? `${Number(c.maxDiscountAmount).toLocaleString('vi-VN')} ₫` : 'Không giới hạn',
+        limit: c.usageLimit || 100,
+        used: c.usedCount || 0,
+        expiry: c.endDate ? new Date(c.endDate).toISOString().split('T')[0] : '2026-12-31',
+        expiryDisplay: c.endDate ? new Date(c.endDate).toLocaleDateString('vi-VN') : '31/12/2026',
+        status: !c.status ? 'Tạm ngưng' : (c.usedCount >= c.usageLimit ? 'Hết lượt' : 'Đang áp dụng'),
+        statusColor: !c.status ? 'bg-slate-100 text-slate-800 border-slate-300' : (c.usedCount >= c.usageLimit ? 'bg-amber-100 text-amber-800 border-amber-300' : 'bg-emerald-100 text-emerald-800 border-emerald-300'),
+      }));
+    }
+  }
+} catch {}
 ---
 
 <AdminLayout title="Quản Lý Mã Giảm Giá - Nội Thất">
@@ -116,6 +143,7 @@ const coupons = [
               <tr 
                 class="hover:bg-sand-100/50 transition-colors"
                 data-coupon-row
+                data-id={c.id}
                 data-code={c.code}
                 data-discount={c.discount}
                 data-min-order={c.minOrder}
@@ -435,6 +463,15 @@ const coupons = [
         toggleBtn.textContent = isCurrentlyActive ? 'Bật' : 'Tắt';
         toggleBtn.className = `text-xs font-semibold cursor-pointer hover:underline ${isCurrentlyActive ? 'text-emerald-700' : 'text-red-600'}`;
 
+        const couponId = row.dataset.id;
+        if (couponId) {
+          fetch(`http://localhost:4000/api/coupons/${couponId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: !isCurrentlyActive }),
+          }).catch(() => {});
+        }
+
         updateStats();
         showToast(`Đã chuyển trạng thái voucher "${row.dataset.code}" sang: ${nextStatus}`);
       });
@@ -445,7 +482,7 @@ const coupons = [
     }
 
     // Submit form
-    form?.addEventListener('submit', (e) => {
+    form?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const code = codeInput.value.trim().toUpperCase();
       const discount = discountInput.value.trim();
@@ -458,6 +495,55 @@ const coupons = [
       const originCode = originCodeInput.value.trim();
 
       if (!code || !discount || !minOrder || !tableBody) return;
+
+      const isPercentage = discount.includes('%');
+      const discountVal = parseFloat(discount.replace(/[^0-9.]/g, '')) || 0;
+      const minOrderVal = parseFloat(minOrder.replace(/[^0-9.]/g, '')) || 0;
+      const maxDiscountVal = maxDiscount.includes('Không') ? null : (parseFloat(maxDiscount.replace(/[^0-9.]/g, '')) || null);
+
+      let newIdFromApi = '';
+
+      try {
+        if (originCode) {
+          const targetRow = tableBody.querySelector<HTMLTableRowElement>(`[data-code="${originCode}"]`);
+          const couponId = targetRow?.dataset.id;
+          if (couponId) {
+            await fetch(`http://localhost:4000/api/coupons/${couponId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                code,
+                discountType: isPercentage ? 'percentage' : 'fixed_amount',
+                discountValue: discountVal,
+                minOrderValue: minOrderVal,
+                maxDiscountAmount: maxDiscountVal,
+                endDate: expiryIso ? new Date(expiryIso) : undefined,
+                usageLimit: limit ? parseInt(limit) : 100,
+                status: status === 'Đang áp dụng',
+              }),
+            });
+          }
+        } else {
+          const res = await fetch('http://localhost:4000/api/coupons', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              code,
+              discountType: isPercentage ? 'percentage' : 'fixed_amount',
+              discountValue: discountVal,
+              minOrderValue: minOrderVal,
+              maxDiscountAmount: maxDiscountVal,
+              endDate: expiryIso ? new Date(expiryIso) : undefined,
+              usageLimit: limit ? parseInt(limit) : 100,
+              status: status === 'Đang áp dụng',
+            }),
+          });
+          const json = await res.json();
+          if (json.success && json.data?.id) {
+            newIdFromApi = String(json.data.id);
+          }
+        }
+      } catch {}
 
       const statusColor = status === 'Đang áp dụng'
         ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
@@ -510,6 +596,7 @@ const coupons = [
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-sand-100/50 transition-colors bg-emerald-50/30';
         tr.setAttribute('data-coupon-row', '');
+        if (newIdFromApi) tr.dataset.id = newIdFromApi;
         tr.dataset.code = code;
         tr.dataset.discount = discount;
         tr.dataset.minOrder = minOrder;

@@ -1,8 +1,8 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 
-const initialCategories = [
-  { id: 1, name: 'Sofa & Phòng Khách', slug: 'sofa', count: 3, description: 'Sofa da bò Ý cao cấp, sofa vải linen Bắc Âu, góc chữ L', status: 'Hiển thị', image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80' },
+const fallbackCategories = [
+  { id: 1, name: 'Sofa & Phòng Khách', slug: 'sofa', count: 4, description: 'Sofa da bò Ý cao cấp, sofa vải linen Bắc Âu, góc chữ L', status: 'Hiển thị', image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80' },
   { id: 2, name: 'Bàn Ăn', slug: 'ban-an', count: 2, description: 'Bàn ăn đá tự nhiên Carrara, bàn gỗ sồi Nga nguyên tấm', status: 'Hiển thị', image: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=400&q=80' },
   { id: 3, name: 'Ghế & Đôn Thư Giãn', slug: 'ghe', count: 4, description: 'Ghế ăn bọc da, ghế thư giãn gỗ óc chó, công thái học Ergo', status: 'Hiển thị', image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=400&q=80' },
   { id: 4, name: 'Giường Ngủ Cao Cấp', slug: 'giuong-ngu', count: 2, description: 'Giường bọc nỉ nhung Velvet, giường gỗ sồi Scandinavian', status: 'Hiển thị', image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=400&q=80' },
@@ -10,6 +10,26 @@ const initialCategories = [
   { id: 6, name: 'Kệ Tivi & Kệ Sách', slug: 'ke-tu', count: 2, description: 'Kệ treo tường tối giản, kệ sách module gỗ thông', status: 'Hiển thị', image: 'https://images.unsplash.com/photo-1594026112284-02bb6f3352fe?auto=format&fit=crop&w=400&q=80' },
   { id: 7, name: 'Đèn Trang Trí & Chiếu Sáng', slug: 'den-trang-tri', count: 3, description: 'Đèn sàn đồng thau chao vải, đèn thả trần mây tre đan thủ công', status: 'Hiển thị', image: 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=400&q=80' },
 ];
+
+let categories = fallbackCategories;
+
+try {
+  const res = await fetch('http://localhost:4000/api/categories', { signal: AbortSignal.timeout(2000) });
+  if (res.ok) {
+    const json = await res.json();
+    if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+      categories = json.data.map((c: any) => ({
+        id: c.id,
+        name: c.name,
+        slug: c.slug,
+        count: c.productCount ?? 0,
+        description: `Danh mục ${c.name} cao cấp cho không gian nội thất.`,
+        status: c.status ? 'Hiển thị' : 'Tạm ẩn',
+        image: c.imageUrl || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80',
+      }));
+    }
+  }
+} catch {}
 ---
 
 <AdminLayout title="Quản Lý Danh Mục Sản Phẩm - Nội Thất">
@@ -38,7 +58,7 @@ const initialCategories = [
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Tổng danh mục</p>
-        <p id="stat-total-cats" class="text-2xl font-bold text-walnut-900 mt-1">{initialCategories.length} nhóm</p>
+        <p id="stat-total-cats" class="text-2xl font-bold text-walnut-900 mt-1">{categories.length} nhóm</p>
       </div>
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Tổng sản phẩm liên kết</p>
@@ -66,7 +86,7 @@ const initialCategories = [
             </tr>
           </thead>
           <tbody id="cat-table-body" class="divide-y divide-walnut-900/10">
-            {initialCategories.map((c) => (
+            {categories.map((c) => (
               <tr 
                 class="hover:bg-sand-100/50 transition-colors"
                 data-cat-row
@@ -491,9 +511,22 @@ const initialCategories = [
       targetRowToDelete = null;
     });
 
-    btnConfirmDelete?.addEventListener('click', () => {
+    btnConfirmDelete?.addEventListener('click', async () => {
       if (targetRowToDelete) {
         const name = targetRowToDelete.dataset.name || '';
+        const catId = targetRowToDelete.dataset.id;
+        if (catId) {
+          try {
+            const res = await fetch(`http://localhost:4000/api/categories/${catId}`, { method: 'DELETE' });
+            const json = await res.json();
+            if (!json.success) {
+              alert(json.message || 'Không thể xóa danh mục này!');
+              deleteModal.classList.add('hidden');
+              targetRowToDelete = null;
+              return;
+            }
+          } catch {}
+        }
         targetRowToDelete.remove();
         deleteModal.classList.add('hidden');
         targetRowToDelete = null;
@@ -503,11 +536,11 @@ const initialCategories = [
     });
 
     // Handle Form Submit (Add / Edit)
-    catForm?.addEventListener('submit', (e) => {
+    catForm?.addEventListener('submit', async (e) => {
       e.preventDefault();
 
       const mode = formMode.value;
-      const id = formId.value || String(Date.now());
+      const id = formId.value;
       const name = nameInput.value.trim();
       const slug = slugInput.value.trim();
       const desc = descInput.value.trim();
@@ -515,6 +548,40 @@ const initialCategories = [
       const status = statusSelect.value;
 
       if (!name || !slug) return;
+
+      let newIdFromApi = '';
+
+      try {
+        if (mode === 'edit') {
+          if (id) {
+            await fetch(`http://localhost:4000/api/categories/${id}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                name,
+                slug,
+                imageUrl: image,
+                status: status === 'Hiển thị',
+              }),
+            });
+          }
+        } else {
+          const res = await fetch('http://localhost:4000/api/categories', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name,
+              slug,
+              imageUrl: image,
+              status: status === 'Hiển thị',
+            }),
+          });
+          const json = await res.json();
+          if (json.success && json.data?.id) {
+            newIdFromApi = String(json.data.id);
+          }
+        }
+      } catch {}
 
       if (mode === 'edit') {
         const targetRow = tableBody.querySelector<HTMLTableRowElement>(`[data-id="${id}"]`);
@@ -557,7 +624,7 @@ const initialCategories = [
         const tr = document.createElement('tr');
         tr.className = 'hover:bg-sand-100/50 transition-colors';
         tr.setAttribute('data-cat-row', '');
-        tr.dataset.id = id;
+        tr.dataset.id = newIdFromApi || id || String(Date.now());
         tr.dataset.name = name;
         tr.dataset.slug = slug;
         tr.dataset.count = '0';

@@ -1,7 +1,23 @@
-﻿---
+---
 import AdminLayout from '../../layouts/AdminLayout.astro';
-import { products as initialProducts, categories, spaces, formatVnd } from '../../data/products';
+import { products as initialProducts, categories as initialCategories, spaces, formatVnd } from '../../data/products';
 import { productDetails } from '../../data/product-details';
+
+// Lấy danh mục từ MySQL (kèm fallback)
+let categories = initialCategories;
+try {
+  const catRes = await fetch('http://localhost:4000/api/categories', { signal: AbortSignal.timeout(2000) });
+  if (catRes.ok) {
+    const catJson = await catRes.json();
+    if (catJson.success && Array.isArray(catJson.data) && catJson.data.length > 0) {
+      categories = catJson.data.map((c: any) => ({
+        key: c.slug,
+        label: c.name,
+        id: c.id,
+      }));
+    }
+  }
+} catch {}
 
 const tonKhoDefault: Record<string, string> = {
   'ghe-ngoai-troi-go-teak': 'het-hang',
@@ -9,15 +25,48 @@ const tonKhoDefault: Record<string, string> = {
   'den-ban-gom': 'het-hang',
 };
 
-const rows = initialProducts.map((product) => ({
-  ...product,
-  status: tonKhoDefault[product.slug] ?? 'con-hang',
-  detail: productDetails[product.slug] ?? {
-    description: 'Sản phẩm thủ công cao cấp.',
-    dimensions: 'Kích thước tiêu chuẩn',
-    warranty: '12 tháng',
-  },
-}));
+// Lấy sản phẩm từ MySQL (kèm fallback)
+let rows: any[] = [];
+try {
+  const prodRes = await fetch('http://localhost:4000/api/products?limit=100', { signal: AbortSignal.timeout(2000) });
+  if (prodRes.ok) {
+    const prodJson = await prodRes.json();
+    if (prodJson.success && Array.isArray(prodJson.data) && prodJson.data.length > 0) {
+      rows = prodJson.data.map((p: any) => ({
+        id: p.id,
+        slug: p.slug,
+        name: p.name,
+        category: p.category,
+        categoryLabel: p.categoryLabel,
+        space: p.space || 'phong-khach',
+        spaceLabel: p.spaceLabel || 'Phòng khách',
+        price: p.price,
+        material: p.material || '',
+        image: p.thumbnail || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80',
+        status: (p.stock === 0) ? 'het-hang' : (p.status === false ? 'nhap' : 'con-hang'),
+        detail: {
+          description: p.shortDescription || 'Sản phẩm nội thất thiết kế cao cấp.',
+          dimensions: p.dimensions || 'Kích thước tiêu chuẩn',
+          warranty: p.warranty || '12 tháng',
+        },
+      }));
+    }
+  }
+} catch {}
+
+if (rows.length === 0) {
+  rows = initialProducts.map((product) => ({
+    ...product,
+    id: undefined,
+    image: (product as any).image || (product as any).thumbnail || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80',
+    status: tonKhoDefault[product.slug] ?? 'con-hang',
+    detail: productDetails[product.slug] ?? {
+      description: 'Sản phẩm thủ công cao cấp.',
+      dimensions: 'Kích thước tiêu chuẩn',
+      warranty: '12 tháng',
+    },
+  }));
+}
 
 const NHAN: Record<string, { label: string; cls: string }> = {
   'con-hang': { label: 'Đang bán', cls: 'bg-olive-700/20 text-emerald-800 border border-emerald-300' },
@@ -135,6 +184,7 @@ const stats = [
           {rows.map((row) => (
             <tr
               data-row
+              data-id={row.id}
               data-slug={row.slug}
               data-name={row.name}
               data-category={row.category}
@@ -142,9 +192,9 @@ const stats = [
               data-price={row.price}
               data-material={row.material}
               data-status={row.status}
-              data-desc={row.detail.description}
-              data-dimensions={row.detail.dimensions}
-              data-warranty={row.detail.warranty}
+              data-desc={row.detail?.description}
+              data-dimensions={row.detail?.dimensions}
+              data-warranty={row.detail?.warranty}
               class="border-b border-walnut-900/10 last:border-b-0 hover:bg-sand-100/30 transition-colors"
             >
               <td class="px-4 py-3.5 align-middle">
@@ -441,14 +491,18 @@ const stats = [
       mainImgFileInput?.click();
     });
 
-    // Handle Main Image Selection
+    // Handle Main Image Selection (Hỗ trợ Base64 FileReader lưu thẳng vào MySQL)
     mainImgFileInput?.addEventListener('change', (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
-        currentUploadedMainUrl = URL.createObjectURL(file);
-        mainPreview.src = currentUploadedMainUrl;
-        mainPreview.classList.remove('hidden');
-        mainPlaceholder.classList.add('hidden');
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          currentUploadedMainUrl = ev.target?.result as string;
+          mainPreview.src = currentUploadedMainUrl;
+          mainPreview.classList.remove('hidden');
+          mainPlaceholder.classList.add('hidden');
+        };
+        reader.readAsDataURL(file);
       }
     });
 
@@ -460,11 +514,15 @@ const stats = [
         const maxFiles = Math.min(files.length, 3);
         for (let i = 0; i < maxFiles; i++) {
           const file = files[i];
-          const imgUrl = URL.createObjectURL(file);
-          const thumb = document.createElement('div');
-          thumb.className = 'relative h-20 rounded border border-walnut-900/15 overflow-hidden group';
-          thumb.innerHTML = `<img src="${imgUrl}" alt="Ảnh chi tiết" class="w-full h-full object-cover" />`;
-          detailContainer.appendChild(thumb);
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            const imgUrl = ev.target?.result as string;
+            const thumb = document.createElement('div');
+            thumb.className = 'relative h-20 rounded border border-walnut-900/15 overflow-hidden group';
+            thumb.innerHTML = `<img src="${imgUrl}" alt="Ảnh chi tiết" class="w-full h-full object-cover" />`;
+            detailContainer.appendChild(thumb);
+          };
+          reader.readAsDataURL(file);
         }
       } else {
         detailContainer.innerHTML = '';
@@ -595,7 +653,6 @@ const stats = [
       }
     });
 
-    // SUBMIT FORM (ADD / EDIT)
     // SUBMIT FORM (ADD / EDIT) – ket noi API backend
     form?.addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -618,58 +675,137 @@ const stats = [
       const mainImgSrc = currentUploadedMainUrl || '';
       const CAT_MAP: Record<string, number> = { 'sofa': 1, 'ban-an': 2, 'ghe': 3, 'giuong': 4, 'tu-ke': 5, 'den': 6, 'trang-tri': 7 };
       const API = 'http://localhost:4000/api';
+
+      let newIdFromApi = '';
+
       try {
         if (mode === 'edit') {
           const targetRow = rows.find((r) => r.dataset.slug === origSlug);
           const productId = targetRow?.dataset.id;
           if (productId) {
-            await fetch(`${API}/products/${productId}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, slug, categoryId: CAT_MAP[cat] ?? 1, shortDescription: desc, status: status === 'con-hang', price, stock: status === 'het-hang' ? 0 : 10 }) });
+            await fetch(`${API}/products/${productId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                name,
+                slug,
+                categoryId: CAT_MAP[cat] ?? 1,
+                shortDescription: desc,
+                status: status === 'con-hang',
+                price,
+                stock: status === 'het-hang' ? 0 : 20,
+                material,
+                imageUrl: currentUploadedMainUrl || undefined,
+              }),
+            });
           }
         } else {
-          const res = await fetch(`${API}/products`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name, slug, categoryId: CAT_MAP[cat] ?? 1, shortDescription: desc, price, stock: 10, material, imageUrl: mainImgSrc || null }) });
+          const res = await fetch(`${API}/products`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name,
+              slug,
+              categoryId: CAT_MAP[cat] ?? 1,
+              shortDescription: desc,
+              price,
+              stock: status === 'het-hang' ? 0 : 20,
+              material,
+              imageUrl: mainImgSrc || null,
+            }),
+          });
           const json = await res.json();
-          if (json.success && json.data?.id) { (window as any).__pendingNewId = json.data.id; }
+          if (json.success && json.data?.id) {
+            newIdFromApi = String(json.data.id);
+          }
         }
       } catch { /* API offline – UI-only */ }
+
       if (mode === 'edit') {
         const targetRow = rows.find((r) => r.dataset.slug === origSlug);
         if (targetRow) {
-          targetRow.dataset.name = name; targetRow.dataset.slug = slug; targetRow.dataset.price = String(price);
-          targetRow.dataset.category = cat; targetRow.dataset.space = space; targetRow.dataset.material = material;
-          targetRow.dataset.status = status; targetRow.dataset.dimensions = dimensions; targetRow.dataset.warranty = warranty; targetRow.dataset.desc = desc;
-          if (currentUploadedMainUrl) { const imgEl = targetRow.querySelector('img'); if (imgEl) imgEl.src = currentUploadedMainUrl; }
+          targetRow.dataset.name = name;
+          targetRow.dataset.slug = slug;
+          targetRow.dataset.price = String(price);
+          targetRow.dataset.category = cat;
+          targetRow.dataset.space = space;
+          targetRow.dataset.material = material;
+          targetRow.dataset.status = status;
+          targetRow.dataset.dimensions = dimensions;
+          targetRow.dataset.warranty = warranty;
+          targetRow.dataset.desc = desc;
+          if (currentUploadedMainUrl) {
+            const imgEl = targetRow.querySelector('img');
+            if (imgEl) imgEl.src = currentUploadedMainUrl;
+          }
           targetRow.querySelector('td:nth-child(2) p:first-child')!.textContent = name;
           targetRow.querySelector('td:nth-child(2) p:last-child')!.textContent = '/' + slug;
           targetRow.querySelector('td:nth-child(3)')!.textContent = catLabel;
           targetRow.querySelector('td:nth-child(4)')!.textContent = spaceLabel;
           targetRow.querySelector('td:nth-child(5)')!.textContent = formatVndClient(price);
           const statusBtn = targetRow.querySelector('[data-btn-toggle-status]') as HTMLButtonElement;
-          statusBtn.textContent = status === 'con-hang' ? 'Dang ban' : status === 'het-hang' ? 'Het hang' : 'Nhap';
-          statusBtn.className = `inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer ${status === 'con-hang' ? 'bg-olive-700/20 text-emerald-800 border border-emerald-300' : status === 'het-hang' ? 'bg-danger-600/10 text-danger-600 border border-red-200' : 'bg-walnut-900/10 text-walnut-800 border border-walnut-900/20'}`;
-          showToast(`Da cap nhat san pham "${name}" thanh cong!`);
+          statusBtn.textContent = status === 'con-hang' ? 'Đang bán' : status === 'het-hang' ? 'Hết hàng' : 'Nháp';
+          statusBtn.className = `inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer ${
+            status === 'con-hang' ? 'bg-olive-700/20 text-emerald-800 border border-emerald-300' : status === 'het-hang' ? 'bg-danger-600/10 text-danger-600 border border-red-200' : 'bg-walnut-900/10 text-walnut-800 border border-walnut-900/20'
+          }`;
+          showToast(`Đã cập nhật sản phẩm "${name}" thành công!`);
         }
       } else {
         const tr = document.createElement('tr');
         tr.className = 'border-b border-walnut-900/10 last:border-b-0 hover:bg-sand-100/30 transition-colors';
-        tr.dataset.row = ''; tr.dataset.slug = slug; tr.dataset.name = name; tr.dataset.category = cat;
-        tr.dataset.space = space; tr.dataset.price = String(price); tr.dataset.material = material;
-        tr.dataset.status = status; tr.dataset.dimensions = dimensions; tr.dataset.warranty = warranty; tr.dataset.desc = desc;
-        setTimeout(() => { if ((window as any).__pendingNewId) { tr.dataset.id = String((window as any).__pendingNewId); (window as any).__pendingNewId = null; } }, 600);
-        tr.innerHTML = `<td class="px-4 py-3.5 align-middle"><img src="${mainImgSrc}" alt="${name}" class="h-12 w-12 rounded object-cover border border-walnut-900/10" loading="lazy" /></td><td class="px-4 py-3.5 align-middle"><p class="text-sm font-medium text-walnut-900">${name}</p><p class="mt-0.5 text-xs text-walnut-800/70">/${slug}</p></td><td class="px-4 py-3.5 align-middle text-sm text-walnut-800">${catLabel}</td><td class="px-4 py-3.5 align-middle text-sm text-walnut-800">${spaceLabel}</td><td class="px-4 py-3.5 align-middle text-sm font-semibold text-clay-600">${formatVndClient(price)}</td><td class="px-4 py-3.5 align-middle"><button type="button" data-btn-toggle-status class="inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer ${status === 'con-hang' ? 'bg-olive-700/20 text-emerald-800 border border-emerald-300' : status === 'het-hang' ? 'bg-danger-600/10 text-danger-600 border border-red-200' : 'bg-walnut-900/10 text-walnut-800 border border-walnut-900/20'}">${status === 'con-hang' ? 'Dang ban' : status === 'het-hang' ? 'Het hang' : 'Nhap'}</button></td><td class="px-4 py-3.5 align-middle text-right"><div class="inline-flex items-center gap-2"><button type="button" data-btn-edit class="p-1.5 text-walnut-800 hover:text-clay-600 transition-colors cursor-pointer"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg></button><button type="button" data-btn-delete class="p-1.5 text-walnut-800 hover:text-danger-600 transition-colors cursor-pointer"><svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg></button></div></td>`;
+        tr.dataset.row = '';
+        if (newIdFromApi) tr.dataset.id = newIdFromApi;
+        tr.dataset.slug = slug;
+        tr.dataset.name = name;
+        tr.dataset.category = cat;
+        tr.dataset.space = space;
+        tr.dataset.price = String(price);
+        tr.dataset.material = material;
+        tr.dataset.status = status;
+        tr.dataset.dimensions = dimensions;
+        tr.dataset.warranty = warranty;
+        tr.dataset.desc = desc;
+
+        tr.innerHTML = `
+          <td class="px-4 py-3.5 align-middle">
+            <img src="${mainImgSrc || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80'}" alt="${name}" class="h-12 w-12 rounded object-cover border border-walnut-900/10" loading="lazy" />
+          </td>
+          <td class="px-4 py-3.5 align-middle">
+            <p class="text-sm font-medium text-walnut-900">${name}</p>
+            <p class="mt-0.5 text-xs text-walnut-800/70">/${slug}</p>
+          </td>
+          <td class="px-4 py-3.5 align-middle text-sm text-walnut-800">${catLabel}</td>
+          <td class="px-4 py-3.5 align-middle text-sm text-walnut-800">${spaceLabel}</td>
+          <td class="px-4 py-3.5 align-middle text-sm font-semibold text-clay-600">${formatVndClient(price)}</td>
+          <td class="px-4 py-3.5 align-middle">
+            <button type="button" data-btn-toggle-status class="inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer ${
+              status === 'con-hang' ? 'bg-olive-700/20 text-emerald-800 border border-emerald-300' : status === 'het-hang' ? 'bg-danger-600/10 text-danger-600 border border-red-200' : 'bg-walnut-900/10 text-walnut-800 border border-walnut-900/20'
+            }">${status === 'con-hang' ? 'Đang bán' : status === 'het-hang' ? 'Hết hàng' : 'Nháp'}</button>
+          </td>
+          <td class="px-4 py-3.5 align-middle text-right">
+            <div class="inline-flex items-center gap-2">
+              <button type="button" data-btn-edit class="p-1.5 text-walnut-800 hover:text-clay-600 transition-colors cursor-pointer" title="Sửa sản phẩm">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+              </button>
+              <button type="button" data-btn-delete class="p-1.5 text-walnut-800 hover:text-danger-600 transition-colors cursor-pointer" title="Xóa sản phẩm">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+              </button>
+            </div>
+          </td>
+        `;
         attachRowEvents(tr);
         rows.unshift(tr);
-        showToast(`Da them san pham "${name}" thanh cong!`);
+        showToast(`Đã thêm sản phẩm "${name}" thành công!`);
       }
       closeModal();
       render();
     });
 
-
     // ATTACH ROW EVENTS (EDIT, DELETE, TOGGLE)
     const attachRowEvents = (rowEl: HTMLTableRowElement) => {
       // TOGGLE STATUS
       const toggleBtn = rowEl.querySelector('[data-btn-toggle-status]') as HTMLButtonElement | null;
-      toggleBtn?.addEventListener('click', () => {
+      toggleBtn?.addEventListener('click', async () => {
         const cur = rowEl.dataset.status ?? 'con-hang';
         const next = cur === 'con-hang' ? 'het-hang' : cur === 'het-hang' ? 'nhap' : 'con-hang';
         rowEl.dataset.status = next;
@@ -677,6 +813,20 @@ const stats = [
         toggleBtn.className = `inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer ${
           next === 'con-hang' ? 'bg-olive-700/20 text-emerald-800 border border-emerald-300' : next === 'het-hang' ? 'bg-danger-600/10 text-danger-600 border border-red-200' : 'bg-walnut-900/10 text-walnut-800 border border-walnut-900/20'
         }`;
+        
+        const productId = rowEl.dataset.id;
+        if (productId) {
+          try {
+            await fetch(`http://localhost:4000/api/products/${productId}`, {
+              method: 'PUT',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                status: next === 'con-hang',
+                stock: next === 'het-hang' ? 0 : 20,
+              }),
+            });
+          } catch {}
+        }
         showToast(`Đã đổi trạng thái sang "${toggleBtn.textContent}"`);
       });
 

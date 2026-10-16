@@ -1,4 +1,4 @@
-﻿import { Router, Request, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
 
 export const productsRouter = Router();
@@ -236,6 +236,20 @@ productsRouter.put('/:id', async (req: Request, res: Response) => {
             ...(price        ? { price: parseFloat(price), compare_at_price: comparePrice ? parseFloat(comparePrice) : variant.compare_at_price } : {}),
             ...(stock !== undefined ? { stock_quantity: parseInt(stock) } : {}),
           },
+        });
+      }
+    }
+
+    if (imageUrl) {
+      const existingImg = await prisma.product_images.findFirst({ where: { product_id: id } });
+      if (existingImg) {
+        await prisma.product_images.update({
+          where: { id: existingImg.id },
+          data: { image_url: imageUrl },
+        });
+      } else {
+        await prisma.product_images.create({
+          data: { product_id: id, image_url: imageUrl, is_thumbnail: true, sort_order: 0 },
         });
       }
     }

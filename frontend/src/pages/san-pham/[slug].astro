@@ -6,31 +6,31 @@ import { formatVnd }       from '../../scripts/cart';
 import ProductCard         from '../../components/ProductCard.astro';
 
 export async function getStaticPaths() {
-  return products.map((p) => ({
-    params: { slug: p.slug },
+  const slugs = new Set(products.map((p) => p.slug));
+  try {
+    const res = await fetch('http://localhost:4000/api/products?limit=100', {
+      signal: AbortSignal.timeout(2000),
+    });
+    if (res.ok) {
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data)) {
+        json.data.forEach((p: any) => slugs.add(p.slug));
+      }
+    }
+  } catch {}
+
+  return Array.from(slugs).map((slug) => ({
+    params: { slug },
   }));
 }
 
 const { slug } = Astro.params;
 
-const product = products.find((p) => p.slug === slug);
-if (!product) {
-  return Astro.redirect('/san-pham');
-}
-
-const detail = productDetails[slug] ?? {
-  description: product.description,
-  dimensions: 'Tiêu chuẩn',
-  warranty: '2 năm',
-  origin: 'Việt Nam',
-  gallery: [],
-};
-
 // Try fetching live data from backend API
 let apiProduct: any = null;
 try {
   const res = await fetch(`http://localhost:4000/api/products/${slug}`, {
-    signal: AbortSignal.timeout(1500),
+    signal: AbortSignal.timeout(2000),
   });
   if (res.ok) {
     const json = await res.json();
@@ -39,6 +39,31 @@ try {
 } catch {
   // API not available - use static data
 }
+
+const staticProduct = products.find((p) => p.slug === slug);
+const product = staticProduct || (apiProduct ? {
+  slug: apiProduct.slug,
+  name: apiProduct.name,
+  category: apiProduct.category?.slug || 'sofa',
+  categoryLabel: apiProduct.category?.name || 'Nội thất',
+  space: 'phong-khach',
+  spaceLabel: 'Phòng khách',
+  price: apiProduct.variants?.[0]?.price || 0,
+  material: apiProduct.variants?.[0]?.material || '',
+  thumbnail: apiProduct.images?.[0]?.url || null,
+} : null);
+
+if (!product) {
+  return Astro.redirect('/san-pham');
+}
+
+const detail = productDetails[slug as string] ?? {
+  description: apiProduct?.shortDescription || apiProduct?.content || 'Sản phẩm nội thất thiết kế cao cấp.',
+  dimensions: apiProduct?.variants?.[0]?.dimensions || 'Kích thước tiêu chuẩn',
+  warranty: '24 tháng',
+  origin: 'Việt Nam',
+  gallery: apiProduct?.images?.map((img: any) => img.url) || [],
+};
 
 const name         = apiProduct?.name       ?? product.name;
 const price        = apiProduct?.variants?.[0]?.price ?? product.price;
