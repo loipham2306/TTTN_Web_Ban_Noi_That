@@ -152,7 +152,7 @@ productsRouter.get('/:slug', async (req: Request, res: Response) => {
 // ================================================================
 productsRouter.post('/', async (req: Request, res: Response) => {
   try {
-    const { name, slug, categoryId, shortDescription, content, brand, price, comparePrice, stock, color, material, imageUrl } = req.body;
+    const { name, slug, categoryId, shortDescription, content, brand, price, comparePrice, stock, color, material, imageUrl, detailImages } = req.body;
 
     if (!name || !slug || !categoryId || !price) {
       return res.status(400).json({ success: false, message: 'Vui long dien day du ten, slug, danh muc va gia.' });
@@ -162,6 +162,18 @@ productsRouter.post('/', async (req: Request, res: Response) => {
     const existing = await prisma.products.findFirst({ where: { slug } });
     if (existing) {
       return res.status(409).json({ success: false, message: 'Slug nay da ton tai.' });
+    }
+
+    const allImagesToCreate: { image_url: string; is_thumbnail: boolean; sort_order: number }[] = [];
+    if (imageUrl) {
+      allImagesToCreate.push({ image_url: imageUrl, is_thumbnail: true, sort_order: 0 });
+    }
+    if (Array.isArray(detailImages)) {
+      detailImages.forEach((url: string, idx: number) => {
+        if (url && url !== imageUrl && !allImagesToCreate.some((img) => img.image_url === url)) {
+          allImagesToCreate.push({ image_url: url, is_thumbnail: false, sort_order: idx + 1 });
+        }
+      });
     }
 
     const product = await prisma.products.create({
@@ -183,9 +195,7 @@ productsRouter.post('/', async (req: Request, res: Response) => {
             material:        material || null,
           },
         },
-        product_images: imageUrl ? {
-          create: { image_url: imageUrl, is_thumbnail: true, sort_order: 0 },
-        } : undefined,
+        product_images: allImagesToCreate.length > 0 ? { create: allImagesToCreate } : undefined,
       },
       include: { product_variants: true, product_images: true },
     });
@@ -207,7 +217,7 @@ productsRouter.post('/', async (req: Request, res: Response) => {
 productsRouter.put('/:id', async (req: Request, res: Response) => {
   try {
     const id = BigInt(req.params.id);
-    const { name, slug, categoryId, shortDescription, content, brand, status, price, comparePrice, stock, imageUrl } = req.body;
+    const { name, slug, categoryId, shortDescription, content, brand, status, price, comparePrice, stock, imageUrl, detailImages } = req.body;
 
     const product = await prisma.products.findFirst({ where: { id } });
     if (!product) return res.status(404).json({ success: false, message: 'Khong tim thay san pham.' });
@@ -241,7 +251,7 @@ productsRouter.put('/:id', async (req: Request, res: Response) => {
     }
 
     if (imageUrl) {
-      const existingImg = await prisma.product_images.findFirst({ where: { product_id: id } });
+      const existingImg = await prisma.product_images.findFirst({ where: { product_id: id, is_thumbnail: true } });
       if (existingImg) {
         await prisma.product_images.update({
           where: { id: existingImg.id },
@@ -251,6 +261,20 @@ productsRouter.put('/:id', async (req: Request, res: Response) => {
         await prisma.product_images.create({
           data: { product_id: id, image_url: imageUrl, is_thumbnail: true, sort_order: 0 },
         });
+      }
+    }
+
+    if (Array.isArray(detailImages)) {
+      await prisma.product_images.deleteMany({
+        where: { product_id: id, is_thumbnail: false },
+      });
+      for (let i = 0; i < detailImages.length; i++) {
+        const dUrl = detailImages[i];
+        if (dUrl && dUrl !== imageUrl) {
+          await prisma.product_images.create({
+            data: { product_id: id, image_url: dUrl, is_thumbnail: false, sort_order: i + 1 },
+          });
+        }
       }
     }
 

@@ -78,6 +78,59 @@ const warranty     = detail.warranty;
 const brand        = apiProduct?.brand ?? null;
 const stock        = apiProduct?.variants?.[0]?.stock ?? 10;
 
+// BỘ SƯU TẬP ẢNH GÓC CHỤP (ẢNH CHÍNH + ẢNH CHI TIẾT)
+let galleryImages: string[] = [];
+if (thumbnail) {
+  galleryImages.push(thumbnail);
+}
+if (apiProduct?.images && Array.isArray(apiProduct.images)) {
+  apiProduct.images.forEach((img: any) => {
+    if (img?.url && !galleryImages.includes(img.url)) {
+      galleryImages.push(img.url);
+    }
+  });
+}
+if (detail.gallery && Array.isArray(detail.gallery)) {
+  detail.gallery.forEach((url: string) => {
+    if (url && !galleryImages.includes(url)) {
+      galleryImages.push(url);
+    }
+  });
+}
+
+// Bổ sung các góc chụp phối cảnh đa dạng nếu sản phẩm chỉ mới có 1 ảnh
+if (galleryImages.length === 1) {
+  const CATEGORY_PREVIEWS: Record<string, string[]> = {
+    'sofa': [
+      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1540574163026-643ea20ade25?auto=format&fit=crop&w=800&q=80',
+    ],
+    'ban-an': [
+      'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1577140917170-285929fb55b7?auto=format&fit=crop&w=800&q=80',
+    ],
+    'ghe': [
+      'https://images.unsplash.com/photo-1580481077198-c847ad43616b?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=800&q=80',
+    ],
+    'giuong': [
+      'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1540518614846-7ede433c4ef9?auto=format&fit=crop&w=800&q=80',
+    ],
+    'tu-ke': [
+      'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=800&q=80',
+    ],
+    'den': [
+      'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80',
+    ],
+  };
+  const extra = CATEGORY_PREVIEWS[catSlug] || CATEGORY_PREVIEWS['sofa'];
+  extra.forEach((url) => {
+    if (!galleryImages.includes(url)) galleryImages.push(url);
+  });
+}
+
 // RELATED PRODUCTS: Same category or space, excluding current product
 const sameCategory = products.filter((p) => p.slug !== slug && p.category === product.category);
 const sameSpace = products.filter((p) => p.slug !== slug && p.space === product.space && p.category !== product.category);
@@ -145,15 +198,18 @@ const reviews = [
     <!-- PRODUCT DETAIL -->
     <div class="grid grid-cols-1 gap-12 lg:grid-cols-2">
 
-      <!-- LEFT: IMAGES -->
+      <!-- LEFT: IMAGES & THUMBNAILS GALLERY -->
       <div class="space-y-4">
-        <div class="aspect-square w-full overflow-hidden bg-sand-100 rounded-lg border border-walnut-900/10 shadow-sm relative">
+        <!-- Main Large Image -->
+        <div class="aspect-square w-full overflow-hidden bg-sand-100 rounded-lg border border-walnut-900/10 shadow-sm relative group">
           {thumbnail ? (
             <img
+              id="main-product-image"
               src={thumbnail}
               alt={name}
-              class="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+              class="h-full w-full object-cover transition-all duration-300 group-hover:scale-105"
               loading="eager"
+              onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80';"
             />
           ) : (
             <div class="flex h-full w-full items-center justify-center bg-sand-200/50">
@@ -163,6 +219,42 @@ const reviews = [
             </div>
           )}
         </div>
+
+        <!-- BỘ SƯU TẬP ẢNH GÓC CHỤP CHI TIẾT (VỊ TRÍ CHÍNH XÁC KHOANH ĐỎ) -->
+        {galleryImages.length > 0 && (
+          <div class="pt-2">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-[11px] uppercase tracking-[0.2em] text-walnut-800 font-semibold">
+                Góc chụp chi tiết ({galleryImages.length} ảnh):
+              </span>
+              <span class="text-[10px] text-walnut-800/60 italic">Nhấp vào ảnh để đổi góc nhìn</span>
+            </div>
+            
+            <div class="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-thin">
+              {galleryImages.map((imgUrl, idx) => (
+                <button
+                  type="button"
+                  data-gallery-thumb
+                  data-img-src={imgUrl}
+                  class:list={[
+                    'relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border-2 transition-all cursor-pointer bg-sand-50 hover:opacity-100 group shadow-sm',
+                    idx === 0 ? 'border-clay-600 ring-2 ring-clay-600/30' : 'border-walnut-900/15 opacity-70 hover:border-walnut-900/50'
+                  ]}
+                  title={`Xem ảnh ${idx + 1}`}
+                  aria-label={`Xem ảnh ${idx + 1}`}
+                >
+                  <img
+                    src={imgUrl}
+                    alt={`${name} - Góc chụp ${idx + 1}`}
+                    class="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    loading="lazy"
+                    onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80';"
+                  />
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <!-- RIGHT: INFO -->
@@ -858,5 +950,31 @@ const reviews = [
     reviewList.prepend(newDiv);
     closeModal();
     showToast('Cảm ơn bạn! Đánh giá của bạn đã được ghi nhận thành công.');
+  });
+
+  // GALLERY THUMBNAIL INTERACTION
+  const mainProductImg = document.getElementById('main-product-image') as HTMLImageElement | null;
+  const galleryThumbs = document.querySelectorAll<HTMLButtonElement>('[data-gallery-thumb]');
+
+  galleryThumbs.forEach((thumbBtn) => {
+    thumbBtn.addEventListener('click', () => {
+      const newSrc = thumbBtn.dataset.imgSrc;
+      if (mainProductImg && newSrc) {
+        mainProductImg.style.transition = 'opacity 0.2s ease';
+        mainProductImg.style.opacity = '0.3';
+        setTimeout(() => {
+          mainProductImg.src = newSrc;
+          mainProductImg.style.opacity = '1';
+        }, 150);
+      }
+
+      galleryThumbs.forEach((btn) => {
+        btn.classList.remove('border-clay-600', 'ring-2', 'ring-clay-600/30');
+        btn.classList.add('border-walnut-900/15', 'opacity-70');
+      });
+
+      thumbBtn.classList.add('border-clay-600', 'ring-2', 'ring-clay-600/30');
+      thumbBtn.classList.remove('border-walnut-900/15', 'opacity-70');
+    });
   });
 </script>

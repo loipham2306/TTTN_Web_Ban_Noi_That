@@ -531,6 +531,7 @@ const stats = [
     const detailEmpty = document.getElementById('detail-previews-empty') as HTMLElement;
 
     let currentUploadedMainUrl = '';
+    let currentDetailImages: string[] = [];
 
     // Click dropzone to pick file
     mainDropzone?.addEventListener('click', (e) => {
@@ -664,12 +665,18 @@ const stats = [
           for (let i = 0; i < maxFiles; i++) {
             formData.append('images', files[i]);
           }
-          await fetch('http://localhost:4000/api/upload/multiple', {
+          const res = await fetch('http://localhost:4000/api/upload/multiple', {
             method: 'POST',
             body: formData,
           });
+          const json = await res.json();
+          if (json.success && Array.isArray(json.urls)) {
+            currentDetailImages = json.urls;
+            showToast(`Đã tải lên ${json.urls.length} ảnh chi tiết!`);
+          }
         } catch {}
       } else {
+        currentDetailImages = [];
         detailContainer.innerHTML = '';
         detailContainer.appendChild(detailEmpty);
       }
@@ -767,8 +774,10 @@ const stats = [
       
       // Reset image preview
       currentUploadedMainUrl = '';
+      currentDetailImages = [];
       mainPreview.src = '';
       mainImgFileInput.value = '';
+      detailImgFileInput.value = '';
       if (mainImgUrlInput) mainImgUrlInput.value = '';
       mainPreviewWrapper?.classList.add('hidden');
       mainUploadSpinner?.classList.add('hidden');
@@ -844,6 +853,7 @@ const stats = [
                 stock: status === 'het-hang' ? 0 : 20,
                 material,
                 imageUrl: currentUploadedMainUrl || undefined,
+                detailImages: currentDetailImages.length > 0 ? currentDetailImages : undefined,
               }),
             });
           }
@@ -860,6 +870,7 @@ const stats = [
               stock: status === 'het-hang' ? 0 : 20,
               material,
               imageUrl: mainImgSrc || null,
+              detailImages: currentDetailImages.length > 0 ? currentDetailImages : undefined,
             }),
           });
           const json = await res.json();
