@@ -1,0 +1,745 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+
+interface BannerItem {
+  id: number;
+  title: string;
+  subtitle: string;
+  description: string;
+  imageUrl: string;
+  linkUrl: string;
+  buttonText: string;
+  position: string;
+  displayOrder: number;
+  isActive: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+let banners: BannerItem[] = [];
+try {
+  const res = await fetch('http://localhost:4000/api/banners', {
+    signal: AbortSignal.timeout(2000),
+  });
+  if (res.ok) {
+    const json = await res.json();
+    if (json.success && Array.isArray(json.data)) {
+      banners = json.data;
+    }
+  }
+} catch {
+  banners = [];
+}
+
+const totalBanners = banners.length;
+const activeBanners = banners.filter((b) => b.isActive).length;
+const heroBanners = banners.filter((b) => b.position === 'hero').length;
+const promoBanners = banners.filter((b) => b.position === 'promo').length;
+---
+
+<AdminLayout title="Quản Lý Banner & Hình Ảnh Quảng Cáo - Nội Thất">
+  <div class="space-y-6">
+
+    <!-- Header -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-walnut-900/10 pb-6">
+      <div>
+        <h1 class="font-sans font-bold text-2xl sm:text-3xl text-walnut-900">Quản Lý Banner & Hình Ảnh Quảng Cáo</h1>
+        <p class="mt-1 text-sm text-walnut-800/80">Tùy biến hình ảnh, tiêu đề và nút kêu gọi hành động cho trang chủ và các chiến dịch mà không cần sửa mã nguồn.</p>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a 
+          href="/" 
+          target="_blank"
+          class="inline-flex items-center gap-1.5 border border-walnut-900/20 bg-sand-50 px-4 py-2.5 text-xs uppercase tracking-[0.15em] text-walnut-900 transition-colors hover:bg-sand-100 shadow-sm font-medium"
+        >
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+          <span>Xem Trang Chủ</span>
+        </a>
+
+        <button 
+          type="button" 
+          id="btn-open-create-banner"
+          class="inline-flex items-center gap-2 bg-walnut-900 px-4 py-2.5 text-xs uppercase tracking-[0.15em] text-sand-50 transition-colors hover:bg-clay-600 shadow-sm cursor-pointer font-medium"
+        >
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          <span>Thêm Banner Mới</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
+        <p class="text-xs uppercase text-walnut-800/70 font-medium">Tổng số Banner</p>
+        <p id="stat-total" class="text-2xl font-bold text-walnut-900 mt-1">{totalBanners} banner</p>
+      </div>
+      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
+        <p class="text-xs uppercase text-walnut-800/70 font-medium">Đang hiển thị</p>
+        <p id="stat-active" class="text-2xl font-bold text-emerald-700 mt-1">{activeBanners} đang bật</p>
+      </div>
+      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
+        <p class="text-xs uppercase text-walnut-800/70 font-medium">Hero Banner Trang Chủ</p>
+        <p id="stat-hero" class="text-2xl font-bold text-clay-600 mt-1">{heroBanners} vị trí</p>
+      </div>
+      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
+        <p class="text-xs uppercase text-walnut-800/70 font-medium">Quảng cáo & Khuyến mãi</p>
+        <p id="stat-promo" class="text-2xl font-bold text-walnut-900 mt-1">{promoBanners} vị trí</p>
+      </div>
+    </div>
+
+    <!-- Filter & Controls -->
+    <div class="flex flex-wrap items-center gap-3 bg-sand-50 p-4 border border-walnut-900/10">
+      <div class="relative w-full max-w-xs">
+        <input 
+          id="banner-search-input"
+          type="search" 
+          placeholder="Tìm theo tiêu đề banner..." 
+          class="w-full border border-walnut-900/20 bg-sand-100/50 pl-9 pr-4 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50"
+        />
+        <svg class="absolute left-3 top-2.5 h-4 w-4 text-walnut-800/50 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
+
+      <select 
+        id="filter-position-select"
+        class="border border-walnut-900/20 bg-sand-50 px-3 py-2 text-xs text-walnut-900 outline-none focus:border-clay-600 cursor-pointer"
+      >
+        <option value="">Tất cả vị trí</option>
+        <option value="hero">Hero Banner (Trang chủ)</option>
+        <option value="promo">Quảng cáo / Khuyến mãi</option>
+      </select>
+
+      <select 
+        id="filter-status-select"
+        class="border border-walnut-900/20 bg-sand-50 px-3 py-2 text-xs text-walnut-900 outline-none focus:border-clay-600 cursor-pointer"
+      >
+        <option value="">Tất cả trạng thái</option>
+        <option value="active">Đang hiển thị</option>
+        <option value="hidden">Đang ẩn</option>
+      </select>
+
+      <button 
+        type="button" 
+        id="btn-reset-filters"
+        class="text-xs uppercase tracking-[0.15em] text-walnut-800 underline underline-offset-4 hover:text-clay-600 cursor-pointer"
+      >
+        Xóa lọc
+      </button>
+
+      <p id="banner-count-badge" class="ml-auto text-xs font-semibold text-walnut-800 uppercase tracking-wider">
+        Hiển thị {banners.length} banner
+      </p>
+    </div>
+
+    <!-- Banner Grid / Cards -->
+    <div id="banner-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {banners.map((b) => (
+        <div 
+          class="rounded border border-walnut-900/10 bg-sand-50 overflow-hidden shadow-sm flex flex-col justify-between group hover:border-walnut-900/30 transition-all"
+          data-banner-card
+          data-id={b.id}
+          data-title={b.title}
+          data-subtitle={b.subtitle}
+          data-desc={b.description}
+          data-image={b.imageUrl}
+          data-link={b.linkUrl}
+          data-btn-text={b.buttonText}
+          data-position={b.position}
+          data-order={b.displayOrder}
+          data-active={b.isActive ? 'true' : 'false'}
+        >
+          <!-- Image with Overlay Badges -->
+          <div class="relative aspect-video w-full bg-sand-200 overflow-hidden border-b border-walnut-900/10">
+            <img 
+              src={b.imageUrl} 
+              alt={b.title} 
+              class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+              loading="lazy"
+              onerror="this.src='https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80'"
+            />
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none"></div>
+            
+            <!-- Badges -->
+            <div class="absolute top-3 left-3 flex flex-wrap gap-1.5">
+              <span class={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${b.position === 'hero' ? 'bg-clay-600 text-sand-50' : 'bg-walnut-900 text-sand-50'}`}>
+                {b.position === 'hero' ? 'Hero Trang Chủ' : 'Quảng Cáo / Khuyến Mãi'}
+              </span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-sand-50/90 text-walnut-900 backdrop-blur">
+                Thứ tự: #{b.displayOrder}
+              </span>
+            </div>
+
+            <div class="absolute top-3 right-3">
+              <span 
+                data-status-badge 
+                class={`px-2 py-0.5 rounded text-[10px] font-semibold border ${b.isActive ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-slate-100 text-slate-800 border-slate-300'}`}
+              >
+                {b.isActive ? '● Đang hiển thị' : '○ Đang ẩn'}
+              </span>
+            </div>
+
+            <!-- Title Preview on Image -->
+            <div class="absolute bottom-3 left-3 right-3 text-sand-50">
+              {b.subtitle && (
+                <p class="text-[10px] uppercase tracking-[0.2em] text-sand-200/90 font-medium truncate">{b.subtitle}</p>
+              )}
+              <h3 class="font-display text-base font-bold text-sand-50 leading-tight truncate">{b.title}</h3>
+            </div>
+          </div>
+
+          <!-- Content Details -->
+          <div class="p-4 flex-1 flex flex-col justify-between text-xs text-walnut-800 space-y-3">
+            <div>
+              <p class="text-walnut-900 font-medium line-clamp-2 leading-relaxed">
+                {b.description || 'Không có mô tả chi tiết.'}
+              </p>
+              <div class="mt-3 pt-3 border-t border-walnut-900/10 flex items-center justify-between text-[11px]">
+                <div class="truncate max-w-[180px]">
+                  <span class="text-walnut-800/60">Liên kết:</span> 
+                  <a href={b.linkUrl} target="_blank" class="text-clay-600 font-semibold hover:underline ml-1 truncate">
+                    {b.linkUrl}
+                  </a>
+                </div>
+                <span class="inline-block bg-sand-100 px-2 py-1 rounded text-[10px] text-walnut-900 font-semibold">
+                  Nút: {b.buttonText}
+                </span>
+              </div>
+            </div>
+
+            <!-- Card Actions -->
+            <div class="pt-3 border-t border-walnut-900/10 flex items-center justify-between gap-2">
+              <button 
+                type="button" 
+                data-btn-toggle-active
+                class={`px-3 py-1.5 rounded text-[11px] font-semibold transition-colors cursor-pointer border ${b.isActive ? 'border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100' : 'border-emerald-300 bg-emerald-50 text-emerald-900 hover:bg-emerald-100'}`}
+              >
+                {b.isActive ? 'Tắt hiển thị' : 'Bật hiển thị'}
+              </button>
+
+              <div class="flex items-center gap-2">
+                <button 
+                  type="button" 
+                  data-btn-edit-banner
+                  class="bg-sand-100 text-walnut-900 border border-walnut-900/20 px-3 py-1.5 rounded text-[11px] font-semibold hover:bg-walnut-900 hover:text-sand-50 transition-colors cursor-pointer"
+                >
+                  Sửa
+                </button>
+                <button 
+                  type="button" 
+                  data-btn-delete-banner
+                  class="bg-red-50 text-red-700 border border-red-200 px-3 py-1.5 rounded text-[11px] font-semibold hover:bg-red-600 hover:text-sand-50 transition-colors cursor-pointer"
+                >
+                  Xóa
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+
+    <!-- Empty State -->
+    <div id="banner-empty-state" class={`rounded border border-dashed border-walnut-900/20 bg-sand-50/50 p-12 text-center ${banners.length > 0 ? 'hidden' : ''}`}>
+      <svg class="mx-auto h-12 w-12 text-walnut-800/30" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+      </svg>
+      <h3 class="mt-3 text-base font-bold text-walnut-900">Chưa có banner nào trong hệ thống</h3>
+      <p class="mt-1 text-xs text-walnut-800/70 max-w-md mx-auto">
+        Tạo banner đầu tiên cho trang chủ hoặc chiến dịch tiếp thị để khách hàng thấy ngay khi truy cập trang web.
+      </p>
+      <button 
+        type="button" 
+        id="btn-empty-create"
+        class="mt-4 inline-flex items-center gap-2 bg-walnut-900 px-4 py-2 text-xs uppercase tracking-[0.15em] text-sand-50 transition-colors hover:bg-clay-600"
+      >
+        <span>+ Thêm Banner Ngay</span>
+      </button>
+    </div>
+
+  </div>
+
+  <!-- MODAL: THÊM / CHỈNH SỬA BANNER -->
+  <div id="banner-modal" class="fixed inset-0 z-50 hidden bg-walnut-900/60 backdrop-blur-sm overflow-y-auto p-4 flex items-center justify-center">
+    <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-2xl p-6 sm:p-8 shadow-2xl relative my-8">
+      
+      <div class="flex items-center justify-between border-b border-walnut-900/10 pb-4">
+        <div>
+          <p class="text-[10px] uppercase tracking-[0.2em] text-walnut-800 font-semibold" id="modal-eyebrow">Quản Lý Banner</p>
+          <h2 class="text-xl font-bold text-walnut-900 mt-0.5" id="modal-heading">Thêm Banner Quảng Cáo Mới</h2>
+        </div>
+        <button type="button" id="btn-close-modal" class="text-walnut-800 hover:text-danger-600 p-1 cursor-pointer">
+          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="banner-form" class="mt-6 space-y-4">
+        <input type="hidden" id="form-banner-id" value="" />
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="form-title" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Tiêu đề chính *</label>
+            <input 
+              type="text" 
+              id="form-title" 
+              required
+              placeholder="VD: NỘI THẤT CAO CẤP" 
+              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50"
+            />
+          </div>
+
+          <div>
+            <label for="form-subtitle" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Tiêu đề phụ</label>
+            <input 
+              type="text" 
+              id="form-subtitle" 
+              placeholder="VD: Bộ sưu tập 2026 / Ưu đãi đặc quyền" 
+              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label for="form-desc" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Mô tả ngắn</label>
+          <textarea 
+            id="form-desc" 
+            rows="2"
+            placeholder="Nội thất thiết kế cho không gian sống đẳng cấp — tuyển chọn từ những thương hiệu hàng đầu." 
+            class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50 resize-none"
+          ></textarea>
+        </div>
+
+        <!-- Position, Order, Button text, Link -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="form-position" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Vị trí hiển thị *</label>
+            <select 
+              id="form-position" 
+              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-3 py-2 text-xs outline-none focus:border-clay-600 cursor-pointer"
+            >
+              <option value="hero">Hero Banner (Đầu trang chủ)</option>
+              <option value="promo">Quảng cáo / Khuyến mãi giữa trang</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="form-order" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Thứ tự ưu tiên (Nhỏ đứng trước)</label>
+            <input 
+              type="number" 
+              id="form-order" 
+              value="1" 
+              min="0"
+              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label for="form-btn-text" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Tên nút bấm (CTA)</label>
+            <input 
+              type="text" 
+              id="form-btn-text" 
+              value="Khám phá ngay" 
+              placeholder="VD: Khám phá ngay / Mua ngay" 
+              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50"
+            />
+          </div>
+
+          <div>
+            <label for="form-link" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Đường dẫn khi nhấp (URL)</label>
+            <input 
+              type="text" 
+              id="form-link" 
+              value="/san-pham" 
+              placeholder="VD: /san-pham hoặc /san-pham?khong-gian=phong-khach" 
+              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50"
+            />
+          </div>
+        </div>
+
+        <!-- Banner Image Upload & Preview -->
+        <div class="pt-2 border-t border-walnut-900/10">
+          <label class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium mb-1.5">Hình ảnh Banner *</label>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+            <!-- Left: Upload or URL Input -->
+            <div class="space-y-3">
+              <!-- Upload box -->
+              <div 
+                id="banner-drop-zone"
+                class="border-2 border-dashed border-walnut-900/20 hover:border-clay-600 p-4 text-center rounded bg-sand-100/40 cursor-pointer transition-colors relative"
+              >
+                <input 
+                  type="file" 
+                  id="banner-file-input" 
+                  accept="image/*" 
+                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                />
+                <svg class="mx-auto h-8 w-8 text-walnut-800/50 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+                <p class="text-xs font-semibold text-walnut-900">Bấm để tải ảnh từ máy tính</p>
+                <p class="text-[10px] text-walnut-800/60 mt-0.5">JPG, PNG, WEBP (Tối đa 10MB)</p>
+              </div>
+
+              <!-- Or URL Input -->
+              <div>
+                <p class="text-[10px] uppercase tracking-wider text-walnut-800/70 mb-1">Hoặc dán trực tiếp liên kết ảnh (URL):</p>
+                <input 
+                  type="url" 
+                  id="form-image-url" 
+                  required
+                  placeholder="https://images.unsplash.com/... hoặc /uploads/..." 
+                  class="w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50 font-mono"
+                />
+              </div>
+            </div>
+
+            <!-- Right: Live Image Preview -->
+            <div>
+              <p class="text-[10px] uppercase tracking-wider text-walnut-800/70 mb-1">Xem trước ảnh:</p>
+              <div class="aspect-video w-full rounded border border-walnut-900/10 bg-sand-200 overflow-hidden relative">
+                <img 
+                  id="banner-preview-img" 
+                  src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=80" 
+                  alt="Xem trước" 
+                  class="h-full w-full object-cover"
+                />
+                <div id="banner-preview-empty" class="absolute inset-0 flex items-center justify-center bg-sand-200 text-walnut-800/40 text-xs hidden">
+                  Chưa có ảnh
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Checkbox -->
+        <div class="pt-2 flex items-center gap-2">
+          <input 
+            type="checkbox" 
+            id="form-is-active" 
+            checked
+            class="h-4 w-4 rounded border-walnut-900/30 text-walnut-900 focus:ring-clay-600 cursor-pointer"
+          />
+          <label for="form-is-active" class="text-xs font-semibold text-walnut-900 cursor-pointer">
+            Kích hoạt hiển thị banner này trên website ngay lập tức
+          </label>
+        </div>
+
+        <!-- Actions -->
+        <div class="pt-4 border-t border-walnut-900/10 flex items-center justify-end gap-3">
+          <button 
+            type="button" 
+            id="btn-cancel-modal"
+            class="px-4 py-2 border border-walnut-900/20 text-xs uppercase tracking-[0.15em] text-walnut-900 hover:bg-sand-200/50 transition-colors cursor-pointer"
+          >
+            Hủy bỏ
+          </button>
+          <button 
+            type="submit" 
+            id="btn-submit-form"
+            class="px-6 py-2 bg-walnut-900 text-sand-50 text-xs uppercase tracking-[0.15em] hover:bg-clay-600 transition-colors shadow-sm cursor-pointer font-medium"
+          >
+            Lưu Banner
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast-msg" class="fixed bottom-6 right-6 z-50 hidden rounded bg-walnut-900 px-5 py-3 text-xs text-sand-50 shadow-2xl border border-sand-50/20 flex items-center gap-2">
+    <span id="toast-icon">✓</span>
+    <span id="toast-text">Thông báo</span>
+  </div>
+
+</AdminLayout>
+
+<script>
+  // Toast Helper
+  const showToast = (text: string, isError = false) => {
+    const toast = document.getElementById('toast-msg');
+    const toastText = document.getElementById('toast-text');
+    const toastIcon = document.getElementById('toast-icon');
+    if (!toast || !toastText || !toastIcon) return;
+
+    toastText.textContent = text;
+    toastIcon.textContent = isError ? '✕' : '✓';
+    toast.className = `fixed bottom-6 right-6 z-50 rounded px-5 py-3 text-xs text-sand-50 shadow-2xl border border-sand-50/20 flex items-center gap-2 transition-all ${isError ? 'bg-red-800' : 'bg-walnut-900'}`;
+    toast.classList.remove('hidden');
+
+    setTimeout(() => {
+      toast.classList.add('hidden');
+    }, 3500);
+  };
+
+  // Modal Controls
+  const modal = document.getElementById('banner-modal');
+  const btnOpenCreate = document.getElementById('btn-open-create-banner');
+  const btnEmptyCreate = document.getElementById('btn-empty-create');
+  const btnCloseModal = document.getElementById('btn-close-modal');
+  const btnCancelModal = document.getElementById('btn-cancel-modal');
+  const bannerForm = document.getElementById('banner-form') as HTMLFormElement;
+
+  const formId = document.getElementById('form-banner-id') as HTMLInputElement;
+  const formTitle = document.getElementById('form-title') as HTMLInputElement;
+  const formSubtitle = document.getElementById('form-subtitle') as HTMLInputElement;
+  const formDesc = document.getElementById('form-desc') as HTMLTextAreaElement;
+  const formPosition = document.getElementById('form-position') as HTMLSelectElement;
+  const formOrder = document.getElementById('form-order') as HTMLInputElement;
+  const formBtnText = document.getElementById('form-btn-text') as HTMLInputElement;
+  const formLink = document.getElementById('form-link') as HTMLInputElement;
+  const formImageUrl = document.getElementById('form-image-url') as HTMLInputElement;
+  const formIsActive = document.getElementById('form-is-active') as HTMLInputElement;
+  const previewImg = document.getElementById('banner-preview-img') as HTMLImageElement;
+  const previewEmpty = document.getElementById('banner-preview-empty');
+  const fileInput = document.getElementById('banner-file-input') as HTMLInputElement;
+
+  const modalHeading = document.getElementById('modal-heading');
+  const modalEyebrow = document.getElementById('modal-eyebrow');
+
+  const openCreateModal = () => {
+    if (!modal) return;
+    if (modalHeading) modalHeading.textContent = 'Thêm Banner Quảng Cáo Mới';
+    if (modalEyebrow) modalEyebrow.textContent = 'Tạo Banner Mới';
+    bannerForm.reset();
+    formId.value = '';
+    formPosition.value = 'hero';
+    formOrder.value = '1';
+    formBtnText.value = 'Khám phá ngay';
+    formLink.value = '/san-pham';
+    formIsActive.checked = true;
+    formImageUrl.value = 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1920&q=80';
+    if (previewImg) previewImg.src = formImageUrl.value;
+    modal.classList.remove('hidden');
+  };
+
+  const closeModal = () => {
+    if (modal) modal.classList.add('hidden');
+  };
+
+  btnOpenCreate?.addEventListener('click', openCreateModal);
+  btnEmptyCreate?.addEventListener('click', openCreateModal);
+  btnCloseModal?.addEventListener('click', closeModal);
+  btnCancelModal?.addEventListener('click', closeModal);
+
+  // Sync image URL input to preview
+  formImageUrl?.addEventListener('input', () => {
+    const url = formImageUrl.value.trim();
+    if (url && previewImg) {
+      previewImg.src = url;
+      previewImg.classList.remove('hidden');
+      if (previewEmpty) previewEmpty.classList.add('hidden');
+    }
+  });
+
+  // Handle File Upload to /api/upload
+  fileInput?.addEventListener('change', async (e) => {
+    const target = e.target as HTMLInputElement;
+    const file = target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      showToast('Đang tải ảnh lên máy chủ...');
+      const res = await fetch('http://localhost:4000/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await res.json();
+      if (data.success && data.url) {
+        formImageUrl.value = data.url;
+        if (previewImg) previewImg.src = data.url;
+        showToast('Tải ảnh thành công!');
+      } else {
+        showToast(data.message || 'Lỗi tải ảnh', true);
+      }
+    } catch {
+      showToast('Không thể kết nối đến máy chủ tải ảnh.', true);
+    }
+  });
+
+  // Handle Form Submit (Create / Update)
+  bannerForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = formId.value.trim();
+    const payload = {
+      title: formTitle.value.trim(),
+      subtitle: formSubtitle.value.trim(),
+      description: formDesc.value.trim(),
+      position: formPosition.value,
+      displayOrder: Number(formOrder.value) || 0,
+      buttonText: formBtnText.value.trim() || 'Khám phá ngay',
+      linkUrl: formLink.value.trim() || '/san-pham',
+      imageUrl: formImageUrl.value.trim(),
+      isActive: formIsActive.checked,
+    };
+
+    if (!payload.title || !payload.imageUrl) {
+      showToast('Vui lòng nhập tiêu đề và liên kết hình ảnh.', true);
+      return;
+    }
+
+    try {
+      const isEdit = Boolean(id);
+      const url = isEdit ? `http://localhost:4000/api/banners/${id}` : 'http://localhost:4000/api/banners';
+      const method = isEdit ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        showToast(isEdit ? 'Đã cập nhật banner thành công!' : 'Đã tạo banner mới thành công!');
+        closeModal();
+        setTimeout(() => window.location.reload(), 700);
+      } else {
+        showToast(json.message || 'Lỗi khi lưu banner', true);
+      }
+    } catch {
+      showToast('Không thể kết nối đến máy chủ API.', true);
+    }
+  });
+
+  // Event Delegation for Cards (Edit, Toggle, Delete)
+  document.getElementById('banner-grid')?.addEventListener('click', async (e) => {
+    const target = e.target as HTMLElement;
+    const card = target.closest('[data-banner-card]') as HTMLElement;
+    if (!card) return;
+
+    const id = card.dataset.id;
+    if (!id) return;
+
+    // Toggle Active State
+    if (target.closest('[data-btn-toggle-active]')) {
+      try {
+        const res = await fetch(`http://localhost:4000/api/banners/${id}/toggle`, {
+          method: 'PATCH',
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast(json.message);
+          setTimeout(() => window.location.reload(), 500);
+        } else {
+          showToast(json.message || 'Lỗi đổi trạng thái', true);
+        }
+      } catch {
+        showToast('Lỗi kết nối máy chủ.', true);
+      }
+      return;
+    }
+
+    // Edit Banner
+    if (target.closest('[data-btn-edit-banner]')) {
+      if (!modal) return;
+      if (modalHeading) modalHeading.textContent = `Chỉnh Sửa Banner #${id}`;
+      if (modalEyebrow) modalEyebrow.textContent = 'Cập Nhật Banner';
+
+      formId.value = id;
+      formTitle.value = card.dataset.title || '';
+      formSubtitle.value = card.dataset.subtitle || '';
+      formDesc.value = card.dataset.desc || '';
+      formPosition.value = card.dataset.position || 'hero';
+      formOrder.value = card.dataset.order || '1';
+      formBtnText.value = card.dataset.btnText || 'Khám phá ngay';
+      formLink.value = card.dataset.link || '/san-pham';
+      formImageUrl.value = card.dataset.image || '';
+      formIsActive.checked = card.dataset.active === 'true';
+
+      if (previewImg && formImageUrl.value) {
+        previewImg.src = formImageUrl.value;
+      }
+
+      modal.classList.remove('hidden');
+      return;
+    }
+
+    // Delete Banner
+    if (target.closest('[data-btn-delete-banner]')) {
+      const bannerTitle = card.dataset.title || `Banner #${id}`;
+      if (!confirm(`Bạn có chắc chắn muốn xóa "${bannerTitle}" không? Thao tác này không thể hoàn tác.`)) {
+        return;
+      }
+
+      try {
+        const res = await fetch(`http://localhost:4000/api/banners/${id}`, {
+          method: 'DELETE',
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast('Đã xóa banner thành công!');
+          card.remove();
+          setTimeout(() => window.location.reload(), 500);
+        } else {
+          showToast(json.message || 'Lỗi khi xóa banner', true);
+        }
+      } catch {
+        showToast('Lỗi kết nối máy chủ.', true);
+      }
+      return;
+    }
+  });
+
+  // Search & Filtering
+  const searchInput = document.getElementById('banner-search-input') as HTMLInputElement;
+  const positionFilter = document.getElementById('filter-position-select') as HTMLSelectElement;
+  const statusFilter = document.getElementById('filter-status-select') as HTMLSelectElement;
+  const btnReset = document.getElementById('btn-reset-filters');
+  const countBadge = document.getElementById('banner-count-badge');
+
+  const filterCards = () => {
+    const query = (searchInput?.value || '').toLowerCase().trim();
+    const pos = positionFilter?.value || '';
+    const stat = statusFilter?.value || '';
+
+    const cards = document.querySelectorAll<HTMLElement>('[data-banner-card]');
+    let visibleCount = 0;
+
+    cards.forEach((c) => {
+      const title = (c.dataset.title || '').toLowerCase();
+      const subtitle = (c.dataset.subtitle || '').toLowerCase();
+      const cPos = c.dataset.position || '';
+      const cActive = c.dataset.active === 'true' ? 'active' : 'hidden';
+
+      const matchQuery = !query || title.includes(query) || subtitle.includes(query);
+      const matchPos = !pos || cPos === pos;
+      const matchStat = !stat || cActive === stat;
+
+      if (matchQuery && matchPos && matchStat) {
+        c.style.display = '';
+        visibleCount++;
+      } else {
+        c.style.display = 'none';
+      }
+    });
+
+    if (countBadge) {
+      countBadge.textContent = `Hiển thị ${visibleCount} banner`;
+    }
+  };
+
+  searchInput?.addEventListener('input', filterCards);
+  positionFilter?.addEventListener('change', filterCards);
+  statusFilter?.addEventListener('change', filterCards);
+
+  btnReset?.addEventListener('click', () => {
+    if (searchInput) searchInput.value = '';
+    if (positionFilter) positionFilter.value = '';
+    if (statusFilter) statusFilter.value = '';
+    filterCards();
+  });
+</script>

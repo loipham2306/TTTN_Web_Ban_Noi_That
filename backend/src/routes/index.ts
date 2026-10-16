@@ -8,6 +8,7 @@ import { uploadRouter }    from './upload.route.js';
 import { ordersRouter }    from './orders.route.js';
 import { reviewsRouter }   from './reviews.route.js';
 import { phongThuyRouter } from './phong-thuy.route.js';
+import { bannersRouter }   from './banners.route.js';
 
 const router = Router();
 
@@ -20,5 +21,6 @@ router.use('/upload',     uploadRouter);
 router.use('/orders',     ordersRouter);
 router.use('/reviews',    reviewsRouter);
 router.use('/phong-thuy', phongThuyRouter);
+router.use('/banners',    bannersRouter);
 
 export const apiRouter = router;
