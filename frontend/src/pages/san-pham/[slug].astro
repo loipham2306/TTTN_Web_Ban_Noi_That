@@ -71,7 +71,7 @@ const comparePrice = apiProduct?.variants?.[0]?.comparePrice ?? null;
 const material     = apiProduct?.variants?.[0]?.material ?? product.material;
 const catLabel     = apiProduct?.category?.name ?? product.categoryLabel;
 const catSlug      = apiProduct?.category?.slug ?? product.category;
-const thumbnail    = apiProduct?.images?.find((i: any) => i.isThumbnail)?.url ?? null;
+const thumbnail    = apiProduct?.images?.find((i: any) => i.isThumbnail)?.url || apiProduct?.images?.[0]?.url || (product as any)?.image || (product as any)?.thumbnail || null;
 const description  = apiProduct?.shortDescription ?? detail.description;
 const dimensions   = apiProduct?.variants?.[0]?.dimensions ?? detail.dimensions;
 const warranty     = detail.warranty;

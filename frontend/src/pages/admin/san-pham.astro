@@ -195,6 +195,7 @@ const stats = [
               data-desc={row.detail?.description}
               data-dimensions={row.detail?.dimensions}
               data-warranty={row.detail?.warranty}
+              data-image={row.image}
               class="border-b border-walnut-900/10 last:border-b-0 hover:bg-sand-100/30 transition-colors"
             >
               <td class="px-4 py-3.5 align-middle">
@@ -203,6 +204,7 @@ const stats = [
                   alt={row.name}
                   class="h-12 w-12 rounded object-cover border border-walnut-900/10"
                   loading="lazy"
+                  onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80';"
                 />
               </td>
               <td class="px-4 py-3.5 align-middle">
@@ -348,39 +350,77 @@ const stats = [
           <textarea id="prod-desc" rows="2" placeholder="Chi tiết chế tác, đệm mút, chất liệu..." class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50"></textarea>
         </div>
 
-        <!-- KHU VỰC HÌNH ẢNH SẢN PHẨM (CHÍNH XÁC NHƯ ẢNH MẪU 2) -->
+        <!-- KHU VỰC HÌNH ẢNH SẢN PHẨM -->
         <div class="sm:col-span-2 border-t border-walnut-900/10 pt-4 mt-1">
           <div class="flex items-center gap-2 mb-3">
             <svg class="h-4 w-4 text-clay-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <span class="text-xs font-bold uppercase tracking-wider text-walnut-900">Hình ảnh</span>
+            <span class="text-xs font-bold uppercase tracking-wider text-walnut-900">Hình ảnh sản phẩm</span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <!-- CỘT 1: ẢNH CHÍNH SẢN PHẨM -->
             <div>
-              <label class="block text-[11px] font-bold uppercase tracking-wider text-walnut-800 mb-1.5">Ảnh chính sản phẩm</label>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="block text-[11px] font-bold uppercase tracking-wider text-walnut-800">Ảnh chính sản phẩm *</label>
+                <span id="upload-status-badge" class="hidden text-[10px] text-clay-600 font-medium">Đang tải lên...</span>
+              </div>
+              
               <input 
                 type="file" 
                 id="prod-main-img-file" 
                 accept="image/*"
-                class="block w-full text-xs text-walnut-800 file:mr-2 file:py-1.5 file:px-3 file:border file:border-walnut-900/20 file:text-xs file:bg-sand-100 file:text-walnut-900 hover:file:bg-sand-200 rounded border border-walnut-900/20 bg-sand-100/40 p-1 cursor-pointer"
+                class="hidden"
               />
               
               <!-- Khung nét đứt bấm để chọn ảnh hoặc hiển thị preview ảnh chính -->
               <div 
                 id="main-dropzone" 
-                class="mt-2.5 border-2 border-dashed border-walnut-900/25 rounded p-3 text-center hover:border-clay-600 hover:bg-sand-100/50 transition-colors cursor-pointer flex flex-col items-center justify-center min-h-[110px] relative"
+                class="border-2 border-dashed border-walnut-900/25 rounded p-3 text-center hover:border-clay-600 hover:bg-sand-100/50 transition-colors cursor-pointer flex flex-col items-center justify-center min-h-[120px] relative bg-sand-100/30"
               >
-                <div id="main-dropzone-placeholder" class="flex flex-col items-center gap-1.5 text-walnut-800/60">
-                  <svg class="h-6 w-6 text-walnut-800/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                  <span class="text-xs font-medium text-walnut-800">📷 Chọn ảnh chính</span>
+                <!-- Placeholder khi chưa có ảnh -->
+                <div id="main-dropzone-placeholder" class="flex flex-col items-center gap-1.5 text-walnut-800/70">
+                  <div class="h-8 w-8 rounded-full bg-sand-200 flex items-center justify-center text-clay-600">
+                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <span class="text-xs font-medium text-walnut-900">Bấm để tải ảnh từ máy tính</span>
+                  <span class="text-[10px] text-walnut-800/50">JPG, PNG, WEBP (Tối đa 10MB)</span>
                 </div>
-                <img id="main-dropzone-preview" src="" alt="Xem trước ảnh chính" class="hidden max-h-24 w-auto object-cover rounded shadow-sm border border-walnut-900/10" />
+
+                <!-- Spinner tải ảnh -->
+                <div id="main-upload-spinner" class="hidden flex flex-col items-center gap-1.5 py-3">
+                  <div class="h-5 w-5 border-2 border-clay-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span class="text-xs text-clay-600 font-medium">Đang lưu ảnh lên hệ thống...</span>
+                </div>
+
+                <!-- Preview ảnh chính khi đã có -->
+                <div id="main-preview-wrapper" class="hidden flex flex-col items-center gap-1.5 w-full">
+                  <img 
+                    id="main-dropzone-preview" 
+                    src="" 
+                    alt="Xem trước ảnh chính" 
+                    class="max-h-24 w-auto object-contain rounded shadow-sm border border-walnut-900/10"
+                    onerror="this.parentElement.classList.add('hidden'); document.getElementById('main-dropzone-placeholder').classList.remove('hidden');"
+                  />
+                  <div class="flex items-center gap-3 mt-1">
+                    <span id="btn-change-main-img" class="text-[11px] text-clay-600 hover:underline font-medium cursor-pointer">Đổi ảnh</span>
+                    <span class="text-walnut-800/30">|</span>
+                    <span id="btn-remove-main-img" class="text-[11px] text-danger-600 hover:underline font-medium cursor-pointer">Xóa ảnh</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dán URL trực tiếp -->
+              <div class="mt-2">
+                <input 
+                  type="url" 
+                  id="prod-main-img-url" 
+                  placeholder="Hoặc dán link ảnh trực tiếp (https://...)" 
+                  class="w-full border border-walnut-900/20 bg-sand-100/50 px-2.5 py-1.5 text-xs outline-none focus:border-clay-600 focus:bg-sand-50 rounded text-walnut-900"
+                />
               </div>
             </div>
 
@@ -396,7 +436,7 @@ const stats = [
               />
 
               <!-- Preview các ảnh chi tiết -->
-              <div id="detail-previews-container" class="mt-2.5 grid grid-cols-3 gap-2 min-h-[110px] items-center border border-walnut-900/15 rounded p-2 bg-sand-50">
+              <div id="detail-previews-container" class="mt-2.5 grid grid-cols-3 gap-2 min-h-[120px] items-center border border-walnut-900/15 rounded p-2 bg-sand-50">
                 <p id="detail-previews-empty" class="col-span-3 text-center text-xs text-walnut-800/50 py-6">
                   Chưa có ảnh chi tiết nào được chọn
                 </p>
@@ -479,51 +519,156 @@ const stats = [
     const mainImgFileInput = document.getElementById('prod-main-img-file') as HTMLInputElement;
     const mainDropzone = document.getElementById('main-dropzone') as HTMLElement;
     const mainPlaceholder = document.getElementById('main-dropzone-placeholder') as HTMLElement;
+    const mainUploadSpinner = document.getElementById('main-upload-spinner') as HTMLElement;
+    const mainPreviewWrapper = document.getElementById('main-preview-wrapper') as HTMLElement;
     const mainPreview = document.getElementById('main-dropzone-preview') as HTMLImageElement;
+    const mainImgUrlInput = document.getElementById('prod-main-img-url') as HTMLInputElement;
+    const btnChangeMainImg = document.getElementById('btn-change-main-img') as HTMLElement;
+    const btnRemoveMainImg = document.getElementById('btn-remove-main-img') as HTMLElement;
+    const uploadStatusBadge = document.getElementById('upload-status-badge') as HTMLElement;
     const detailImgFileInput = document.getElementById('prod-detail-img-file') as HTMLInputElement;
     const detailContainer = document.getElementById('detail-previews-container') as HTMLElement;
     const detailEmpty = document.getElementById('detail-previews-empty') as HTMLElement;
 
     let currentUploadedMainUrl = '';
 
-    // Click dropzone triggers file input
-    mainDropzone?.addEventListener('click', () => {
+    // Click dropzone to pick file
+    mainDropzone?.addEventListener('click', (e) => {
+      if ((e.target as HTMLElement).closest('#main-preview-wrapper')) return;
       mainImgFileInput?.click();
     });
 
-    // Handle Main Image Selection (Hỗ trợ Base64 FileReader lưu thẳng vào MySQL)
-    mainImgFileInput?.addEventListener('change', (e) => {
-      const file = (e.target as HTMLInputElement).files?.[0];
-      if (file) {
+    btnChangeMainImg?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      mainImgFileInput?.click();
+    });
+
+    btnRemoveMainImg?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      currentUploadedMainUrl = '';
+      mainPreview.src = '';
+      mainImgFileInput.value = '';
+      if (mainImgUrlInput) mainImgUrlInput.value = '';
+      mainPreviewWrapper?.classList.add('hidden');
+      mainPlaceholder?.classList.remove('hidden');
+    });
+
+    // Handle Direct URL Input
+    mainImgUrlInput?.addEventListener('input', () => {
+      const val = mainImgUrlInput.value.trim();
+      if (val) {
+        currentUploadedMainUrl = val;
+        mainPreview.src = val;
+        mainPreviewWrapper?.classList.remove('hidden');
+        mainPlaceholder?.classList.add('hidden');
+      } else {
+        currentUploadedMainUrl = '';
+        mainPreview.src = '';
+        mainPreviewWrapper?.classList.add('hidden');
+        mainPlaceholder?.classList.remove('hidden');
+      }
+    });
+
+    // Upload file function
+    const uploadMainFile = async (file: File) => {
+      // Immediate local preview
+      const localUrl = URL.createObjectURL(file);
+      mainPreview.src = localUrl;
+      mainPlaceholder?.classList.add('hidden');
+      mainPreviewWrapper?.classList.add('hidden');
+      mainUploadSpinner?.classList.remove('hidden');
+      if (uploadStatusBadge) uploadStatusBadge.classList.remove('hidden');
+
+      try {
+        const formData = new FormData();
+        formData.append('image', file);
+        const res = await fetch('http://localhost:4000/api/upload', {
+          method: 'POST',
+          body: formData,
+        });
+        const json = await res.json();
+        if (json.success && json.url) {
+          currentUploadedMainUrl = json.url;
+          mainPreview.src = json.url;
+          if (mainImgUrlInput) mainImgUrlInput.value = json.url;
+          showToast('Đã tải và lưu ảnh lên máy chủ thành công!');
+        } else {
+          // Fallback to local base64
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            currentUploadedMainUrl = ev.target?.result as string;
+            mainPreview.src = currentUploadedMainUrl;
+          };
+          reader.readAsDataURL(file);
+        }
+      } catch (err) {
+        // Fallback to base64 if upload offline
         const reader = new FileReader();
         reader.onload = (ev) => {
           currentUploadedMainUrl = ev.target?.result as string;
           mainPreview.src = currentUploadedMainUrl;
-          mainPreview.classList.remove('hidden');
-          mainPlaceholder.classList.add('hidden');
         };
         reader.readAsDataURL(file);
+      } finally {
+        mainUploadSpinner?.classList.add('hidden');
+        mainPreviewWrapper?.classList.remove('hidden');
+        if (uploadStatusBadge) uploadStatusBadge.classList.add('hidden');
+      }
+    };
+
+    // Handle Main Image Selection via File Input
+    mainImgFileInput?.addEventListener('change', (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (file) {
+        uploadMainFile(file);
+      }
+    });
+
+    // Drag and Drop support on dropzone
+    mainDropzone?.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      mainDropzone.classList.add('border-clay-600', 'bg-sand-200/50');
+    });
+
+    mainDropzone?.addEventListener('dragleave', () => {
+      mainDropzone.classList.remove('border-clay-600', 'bg-sand-200/50');
+    });
+
+    mainDropzone?.addEventListener('drop', (e) => {
+      e.preventDefault();
+      mainDropzone.classList.remove('border-clay-600', 'bg-sand-200/50');
+      const file = e.dataTransfer?.files?.[0];
+      if (file && file.type.startsWith('image/')) {
+        uploadMainFile(file);
       }
     });
 
     // Handle Detail Images Selection
-    detailImgFileInput?.addEventListener('change', (e) => {
+    detailImgFileInput?.addEventListener('change', async (e) => {
       const files = (e.target as HTMLInputElement).files;
       if (files && files.length > 0) {
         detailContainer.innerHTML = '';
         const maxFiles = Math.min(files.length, 3);
         for (let i = 0; i < maxFiles; i++) {
           const file = files[i];
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            const imgUrl = ev.target?.result as string;
-            const thumb = document.createElement('div');
-            thumb.className = 'relative h-20 rounded border border-walnut-900/15 overflow-hidden group';
-            thumb.innerHTML = `<img src="${imgUrl}" alt="Ảnh chi tiết" class="w-full h-full object-cover" />`;
-            detailContainer.appendChild(thumb);
-          };
-          reader.readAsDataURL(file);
+          const localUrl = URL.createObjectURL(file);
+          const thumb = document.createElement('div');
+          thumb.className = 'relative h-20 rounded border border-walnut-900/15 overflow-hidden group';
+          thumb.innerHTML = `<img src="${localUrl}" alt="Ảnh chi tiết" class="w-full h-full object-cover" />`;
+          detailContainer.appendChild(thumb);
         }
+
+        // Upload to backend
+        try {
+          const formData = new FormData();
+          for (let i = 0; i < maxFiles; i++) {
+            formData.append('images', files[i]);
+          }
+          await fetch('http://localhost:4000/api/upload/multiple', {
+            method: 'POST',
+            body: formData,
+          });
+        } catch {}
       } else {
         detailContainer.innerHTML = '';
         detailContainer.appendChild(detailEmpty);
@@ -623,8 +768,11 @@ const stats = [
       // Reset image preview
       currentUploadedMainUrl = '';
       mainPreview.src = '';
-      mainPreview.classList.add('hidden');
-      mainPlaceholder.classList.remove('hidden');
+      mainImgFileInput.value = '';
+      if (mainImgUrlInput) mainImgUrlInput.value = '';
+      mainPreviewWrapper?.classList.add('hidden');
+      mainUploadSpinner?.classList.add('hidden');
+      mainPlaceholder?.classList.remove('hidden');
       detailContainer.innerHTML = '';
       detailContainer.appendChild(detailEmpty);
 
@@ -735,6 +883,7 @@ const stats = [
           targetRow.dataset.warranty = warranty;
           targetRow.dataset.desc = desc;
           if (currentUploadedMainUrl) {
+            targetRow.dataset.image = currentUploadedMainUrl;
             const imgEl = targetRow.querySelector('img');
             if (imgEl) imgEl.src = currentUploadedMainUrl;
           }
@@ -765,10 +914,17 @@ const stats = [
         tr.dataset.dimensions = dimensions;
         tr.dataset.warranty = warranty;
         tr.dataset.desc = desc;
+        tr.dataset.image = mainImgSrc;
 
         tr.innerHTML = `
           <td class="px-4 py-3.5 align-middle">
-            <img src="${mainImgSrc || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80'}" alt="${name}" class="h-12 w-12 rounded object-cover border border-walnut-900/10" loading="lazy" />
+            <img 
+              src="${mainImgSrc || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80'}" 
+              alt="${name}" 
+              class="h-12 w-12 rounded object-cover border border-walnut-900/10" 
+              loading="lazy" 
+              onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80';"
+            />
           </td>
           <td class="px-4 py-3.5 align-middle">
             <p class="text-sm font-medium text-walnut-900">${name}</p>
@@ -850,17 +1006,19 @@ const stats = [
         (document.getElementById('prod-desc') as HTMLTextAreaElement).value = rowEl.dataset.desc ?? '';
 
         // Pre-fill image preview
-        const currentImg = rowEl.querySelector('img')?.src;
-        if (currentImg) {
+        const currentImg = rowEl.dataset.image || rowEl.querySelector('img')?.src;
+        if (currentImg && currentImg.trim() !== '' && !currentImg.includes('broken')) {
           currentUploadedMainUrl = currentImg;
           mainPreview.src = currentImg;
-          mainPreview.classList.remove('hidden');
-          mainPlaceholder.classList.add('hidden');
+          if (mainImgUrlInput) mainImgUrlInput.value = currentImg;
+          mainPreviewWrapper?.classList.remove('hidden');
+          mainPlaceholder?.classList.add('hidden');
         } else {
           currentUploadedMainUrl = '';
           mainPreview.src = '';
-          mainPreview.classList.add('hidden');
-          mainPlaceholder.classList.remove('hidden');
+          if (mainImgUrlInput) mainImgUrlInput.value = '';
+          mainPreviewWrapper?.classList.add('hidden');
+          mainPlaceholder?.classList.remove('hidden');
         }
 
         detailContainer.innerHTML = '';

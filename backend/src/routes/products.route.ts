@@ -52,7 +52,7 @@ productsRouter.get('/', async (req: Request, res: Response) => {
             take: 1,
           },
           product_images: {
-            where: { is_thumbnail: true },
+            orderBy: [{ is_thumbnail: 'desc' }, { sort_order: 'asc' }],
             select: { image_url: true },
             take: 1,
           },
@@ -207,7 +207,7 @@ productsRouter.post('/', async (req: Request, res: Response) => {
 productsRouter.put('/:id', async (req: Request, res: Response) => {
   try {
     const id = BigInt(req.params.id);
-    const { name, slug, categoryId, shortDescription, content, brand, status, price, comparePrice, stock } = req.body;
+    const { name, slug, categoryId, shortDescription, content, brand, status, price, comparePrice, stock, imageUrl } = req.body;
 
     const product = await prisma.products.findFirst({ where: { id } });
     if (!product) return res.status(404).json({ success: false, message: 'Khong tim thay san pham.' });
