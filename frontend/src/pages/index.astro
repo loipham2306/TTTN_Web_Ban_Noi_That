@@ -83,38 +83,39 @@ const featured = liveProducts.slice(0, 4);
 
   {/* HERO (DYNAMIC BANNER TỪ CSDL) */}
   <section class="relative">
-    <div class="relative flex min-h-screen items-center justify-center bg-walnut-900 overflow-hidden">
-      <!-- Background Image with Dark Vignette/Overlay -->
+    <div class="relative flex min-h-screen items-center justify-center bg-neutral-950 overflow-hidden">
+      <!-- Background Image with Natural True Colors -->
       <div 
-        class="absolute inset-0 bg-cover bg-center transition-all duration-700 opacity-40 scale-105"
+        class="absolute inset-0 bg-cover bg-center transition-all duration-700 opacity-90 scale-100"
         style={`background-image: url('${heroBanner.imageUrl}');`}
       ></div>
-      <div class="absolute inset-0 bg-gradient-to-t from-walnut-900 via-walnut-900/60 to-walnut-900/40"></div>
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_40%,rgba(255,255,255,0.06),transparent_65%)]"></div>
+      <!-- Neutral Dark Vignette Overlay for Text Legibility (No Green Tint) -->
+      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/30"></div>
+      <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(0,0,0,0.2),rgba(0,0,0,0.6)_85%)]"></div>
 
-      <div class="relative flex flex-col items-center px-6 text-center max-w-4xl z-10">
+      <div class="relative flex flex-col items-center px-6 text-center max-w-4xl z-10 drop-shadow-md">
         {heroBanner.subtitle && (
-          <p class="text-[11px] uppercase tracking-[0.5em] text-sand-200/90 font-medium">
+          <p class="text-[11px] uppercase tracking-[0.5em] text-sand-100/90 font-medium">
             {heroBanner.subtitle}
           </p>
         )}
-        <h1 class="mt-6 font-display text-5xl font-medium uppercase tracking-[0.2em] text-sand-50 sm:text-7xl lg:text-8xl">
+        <h1 class="mt-6 font-display text-5xl font-medium uppercase tracking-[0.2em] text-white sm:text-7xl lg:text-8xl drop-shadow-lg">
           {heroBanner.title}
         </h1>
         {heroBanner.description && (
-          <p class="mt-8 max-w-xl text-sm leading-relaxed text-sand-50/80 font-light">
+          <p class="mt-8 max-w-xl text-sm leading-relaxed text-sand-50/90 font-light drop-shadow">
             {heroBanner.description}
           </p>
         )}
         <a 
           href={heroBanner.linkUrl} 
-          class="mt-10 inline-block border border-sand-50/80 px-8 py-3 text-[11px] uppercase tracking-[0.25em] text-sand-50 transition-colors hover:bg-sand-50 hover:text-walnut-900 rounded-sm shadow-sm"
+          class="mt-10 inline-block border border-white/80 bg-black/20 backdrop-blur-sm px-8 py-3 text-[11px] uppercase tracking-[0.25em] text-white transition-all hover:bg-white hover:text-neutral-900 rounded-sm shadow-md"
         >
           {heroBanner.buttonText}
         </a>
       </div>
 
-      <a href="#mua-theo-khong-gian" class="absolute bottom-7 flex flex-col items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-sand-50/70 transition-opacity hover:opacity-100 z-10">
+      <a href="#mua-theo-khong-gian" class="absolute bottom-7 flex flex-col items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-sand-50/80 transition-opacity hover:opacity-100 z-10 drop-shadow">
         Cuộn xuống
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="h-5 w-5 animate-bounce shrink-0">
           <path d="M12 5v14M6 13l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
