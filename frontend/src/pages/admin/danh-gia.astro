@@ -1,63 +1,50 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 
-const reviews = [
-  { 
-    id: 1, 
-    customer: 'Nguyễn Văn An', 
-    product: 'Sofa Da Ý Milano Cao Cấp', 
-    rating: 5, 
-    comment: 'Sofa rất êm, da bò thật sờ mát tay và đường chỉ may tinh tế. Đóng gói cẩn thận!', 
-    date: '08/10/2026', 
-    status: 'Đã duyệt', 
-    statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-    adminReply: 'Cảm ơn anh An đã tin tưởng thương hiệu Nội Thất! Chúc anh có những phút giây thư giãn tuyệt vời.'
-  },
-  { 
-    id: 2, 
-    customer: 'Trần Thị Mai', 
-    product: 'Bàn Ăn Đá Marble Carrara', 
-    rating: 5, 
-    comment: 'Mặt đá vân tự nhiên cực kỳ sang, chân kim loại chắc chắn. Rất hài lòng.', 
-    date: '06/10/2026', 
-    status: 'Đã duyệt', 
-    statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-    adminReply: ''
-  },
-  { 
-    id: 3, 
-    customer: 'Lê Hoàng Long', 
-    product: 'Ghế Thư Giãn Gỗ Óc Chó', 
-    rating: 4, 
-    comment: 'Ghế ngồi tựa lưng rất thoải mái, tuy nhiên giao hàng hơi trễ 1 ngày.', 
-    date: '05/10/2026', 
-    status: 'Đã duyệt', 
-    statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-    adminReply: 'Dạ Nội Thất thành thật xin lỗi anh Long về sự cố vận chuyển trễ ạ. Cửa hàng đã tặng anh voucher 10% cho lần mua kế tiếp.'
-  },
-  { 
-    id: 4, 
-    customer: 'Phạm Minh Đức', 
-    product: 'Giường Ngủ Scandinavian', 
-    rating: 5, 
-    comment: 'Gỗ sồi thơm tự nhiên, dát giường rất chắc không phát ra tiếng kêu.', 
-    date: '03/10/2026', 
-    status: 'Đã duyệt', 
-    statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-    adminReply: ''
-  },
-  { 
-    id: 5, 
-    customer: 'Vũ Hải Yến', 
-    product: 'Đèn Sàn Đồng Thau Chao Vải', 
-    rating: 3, 
-    comment: 'Đèn đẹp nhưng chao đèn hơi to so với góc đọc sách của mình.', 
-    date: '01/10/2026', 
-    status: 'Chờ duyệt', 
-    statusColor: 'bg-amber-100 text-amber-800 border-amber-300',
-    adminReply: ''
-  },
-];
+interface ReviewItem {
+  id: number;
+  customer: string;
+  product: string;
+  rating: number;
+  comment: string;
+  date: string;
+  status: string;
+  statusColor: string;
+  adminReply: string;
+}
+
+let reviews: ReviewItem[] = [];
+try {
+  const res = await fetch('http://localhost:4000/api/reviews', {
+    signal: AbortSignal.timeout(2000),
+  });
+  if (res.ok) {
+    const json = await res.json();
+    if (json.success && Array.isArray(json.data)) {
+      reviews = json.data.map((r: any) => ({
+        id: r.id,
+        customer: r.userName || 'Khách hàng',
+        product: r.productName || r.productSlug || 'Sản phẩm',
+        rating: r.rating || 5,
+        comment: r.comment || '',
+        date: new Date(r.createdAt).toLocaleDateString('vi-VN'),
+        status: r.isApproved ? 'Đã duyệt' : 'Chờ duyệt',
+        statusColor: r.isApproved ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-amber-100 text-amber-800 border-amber-300',
+        adminReply: r.adminReply || '',
+      }));
+    }
+  }
+} catch {
+  reviews = [];
+}
+
+const totalReviews = reviews.length;
+const fiveStarCount = reviews.filter((r) => r.rating === 5).length;
+const fiveStarPercent = totalReviews > 0 ? Math.round((fiveStarCount / totalReviews) * 100) : 0;
+const pendingCount = reviews.filter((r) => r.status === 'Chờ duyệt').length;
+const repliedCount = reviews.filter((r) => Boolean(r.adminReply)).length;
+const replyRate = totalReviews > 0 ? ((repliedCount / totalReviews) * 100).toFixed(1) + '%' : '0%';
+const avgRating = totalReviews > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / totalReviews).toFixed(1) : '5.0';
 ---
 
 <AdminLayout title="Quản Lý Đánh Giá & Phản Hồi - Nội Thất">
@@ -72,7 +59,7 @@ const reviews = [
 
       <div class="flex items-center gap-2">
         <span class="inline-flex items-center gap-1.5 bg-amber-500/10 text-amber-900 border border-amber-500/30 px-3.5 py-2 rounded text-xs font-bold">
-          <span>⭐</span> Điểm trung bình: 4.8 / 5.0 (126 đánh giá)
+          <span>⭐</span> Điểm trung bình: {avgRating} / 5.0 ({totalReviews} đánh giá)
         </span>
       </div>
     </div>
@@ -81,19 +68,19 @@ const reviews = [
     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Tổng nhận xét</p>
-        <p id="stat-total-reviews" class="text-2xl font-bold text-walnut-900 mt-1">126 lượt</p>
+        <p id="stat-total-reviews" class="text-2xl font-bold text-walnut-900 mt-1">{totalReviews} lượt</p>
       </div>
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Đánh giá 5 sao</p>
-        <p class="text-2xl font-bold text-emerald-700 mt-1">104 lượt (82%)</p>
+        <p class="text-2xl font-bold text-emerald-700 mt-1">{fiveStarCount} lượt ({fiveStarPercent}%)</p>
       </div>
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Chờ duyệt</p>
-        <p id="stat-pending-reviews" class="text-2xl font-bold text-amber-700 mt-1">1 nhận xét mới</p>
+        <p id="stat-pending-reviews" class="text-2xl font-bold text-amber-700 mt-1">{pendingCount} nhận xét mới</p>
       </div>
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Tỷ lệ phản hồi</p>
-        <p id="stat-reply-rate" class="text-2xl font-bold text-clay-600 mt-1">98.5%</p>
+        <p id="stat-reply-rate" class="text-2xl font-bold text-clay-600 mt-1">{replyRate}</p>
       </div>
     </div>
 
@@ -113,7 +100,14 @@ const reviews = [
             </tr>
           </thead>
           <tbody id="review-table-body" class="divide-y divide-walnut-900/10">
-            {reviews.map((r) => (
+            {reviews.length === 0 ? (
+              <tr>
+                <td colspan="7" class="py-12 text-center text-walnut-800 text-sm">
+                  Chưa có đánh giá nào trong hệ thống.
+                </td>
+              </tr>
+            ) : (
+              reviews.map((r) => (
               <tr 
                 class="hover:bg-sand-100/50 transition-colors"
                 data-review-row
@@ -185,7 +179,7 @@ const reviews = [
                   </div>
                 </td>
               </tr>
-            ))}
+            )))}
           </tbody>
         </table>
       </div>

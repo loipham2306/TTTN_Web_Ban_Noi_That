@@ -6,6 +6,7 @@ import { categoriesRouter }from './categories.route.js';
 import { couponsRouter }   from './coupons.route.js';
 import { uploadRouter }    from './upload.route.js';
 import { ordersRouter }    from './orders.route.js';
+import { reviewsRouter }   from './reviews.route.js';
 import { phongThuyRouter } from './phong-thuy.route.js';
 
 const router = Router();
@@ -17,6 +18,7 @@ router.use('/categories', categoriesRouter);
 router.use('/coupons',    couponsRouter);
 router.use('/upload',     uploadRouter);
 router.use('/orders',     ordersRouter);
+router.use('/reviews',    reviewsRouter);
 router.use('/phong-thuy', phongThuyRouter);
 
 export const apiRouter = router;

@@ -137,45 +137,46 @@ const sameSpace = products.filter((p) => p.slug !== slug && p.space === product.
 const otherProducts = products.filter((p) => p.slug !== slug && p.category !== product.category && p.space !== product.space);
 const relatedProducts = [...sameCategory, ...sameSpace, ...otherProducts].slice(0, 4);
 
-// SAMPLE CUSTOMER REVIEWS
-const reviews = [
-  {
-    id: 1,
-    name: 'Nguyễn Văn An',
-    rating: 5,
-    date: '08/10/2026',
-    verified: true,
-    comment: 'Sản phẩm hoàn thiện rất tỉ mỉ, chất liệu da và khung gỗ đầm chắc vượt ngoài mong đợi. Đội ngũ giao hàng lắp đặt tận nhà nhanh nhẹn và nhiệt tình.',
-    reply: 'Nội Thất cảm ơn anh An đã tin tưởng và ủng hộ thương hiệu! Chúc anh luôn có những phút giây thư giãn tuyệt vời trong không gian sống.',
-  },
-  {
-    id: 2,
-    name: 'Trần Thị Mai',
-    rating: 5,
-    date: '06/10/2026',
-    verified: true,
-    comment: 'Đường may và các góc cạnh rất sắc sảo, màu sắc sang trọng đúng chuẩn như hình mẫu. Đóng gói bảo bọc 3 lớp chống va đập cực kỳ kỹ lưỡng.',
-    reply: '',
-  },
-  {
-    id: 3,
-    name: 'Lê Hoàng Long',
-    rating: 4,
-    date: '05/10/2026',
-    verified: true,
-    comment: 'Kiểu dáng hiện đại, ngồi tựa êm ái thư giãn sau giờ làm việc. Shipper giao hơi trễ 1 ngày nhưng bộ phận CSKH đã gọi hỗ trợ voucher nên vẫn cho 4 sao hài lòng.',
-    reply: 'Nội Thất chân thành cảm ơn góp ý của anh Long. Chúng tôi đã làm việc lại với bên vận chuyển để tối ưu thời gian giao hàng tốt nhất.',
-  },
-  {
-    id: 4,
-    name: 'Phạm Minh Đức',
-    rating: 5,
-    date: '03/10/2026',
-    verified: true,
-    comment: 'Khung sườn chịu lực rất đầm và êm, không hề có tiếng cọt kẹt khi sử dụng. Mức giá hoàn toàn tương xứng với chất lượng cao cấp nhận được.',
-    reply: '',
-  },
-];
+// REVIEWS FROM MYSQL BACKEND
+interface ReviewItem {
+  id: number;
+  name: string;
+  rating: number;
+  date: string;
+  verified: boolean;
+  comment: string;
+  reply: string;
+}
+
+let reviews: ReviewItem[] = [];
+try {
+  const revRes = await fetch(`http://localhost:4000/api/reviews?productSlug=${slug}`, {
+    signal: AbortSignal.timeout(2000),
+  });
+  if (revRes.ok) {
+    const revJson = await revRes.json();
+    if (revJson.success && Array.isArray(revJson.data)) {
+      reviews = revJson.data.map((r: any) => ({
+        id: r.id,
+        name: r.userName || 'Khách hàng',
+        rating: r.rating || 5,
+        date: new Date(r.createdAt).toLocaleDateString('vi-VN'),
+        verified: true,
+        comment: r.comment || '',
+        reply: r.adminReply || '',
+      }));
+    }
+  }
+} catch {
+  reviews = [];
+}
+
+const totalReviews = reviews.length;
+const avgScore = totalReviews > 0 ? (reviews.reduce((acc, r) => acc + r.rating, 0) / totalReviews).toFixed(1) : '5.0';
+const fiveStarCount = reviews.filter((r) => r.rating === 5).length;
+const fourStarCount = reviews.filter((r) => r.rating === 4).length;
+const fiveStarPct = totalReviews > 0 ? Math.round((fiveStarCount / totalReviews) * 100) : 0;
+const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews) * 100) : 0;
 ---
 
 <BaseLayout
@@ -445,13 +446,15 @@ const reviews = [
         <div class="text-center md:text-left border-b md:border-b-0 md:border-r border-walnut-900/10 pb-6 md:pb-0 md:pr-8">
           <p class="text-xs uppercase tracking-wider text-walnut-800/70 font-medium">Điểm trung bình</p>
           <div class="mt-2 flex items-baseline justify-center md:justify-start gap-2">
-            <span class="text-4xl sm:text-5xl font-bold font-display text-walnut-900">4.9</span>
+            <span class="text-4xl sm:text-5xl font-bold font-display text-walnut-900">{avgScore}</span>
             <span class="text-sm text-walnut-800/60 font-semibold">/ 5.0</span>
           </div>
           <div class="mt-2 flex items-center justify-center md:justify-start text-amber-500 text-lg">
             <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
           </div>
-          <p class="mt-2 text-xs text-emerald-800 font-medium">✓ 100% Khách hàng đánh giá hài lòng</p>
+          <p class="mt-2 text-xs text-emerald-800 font-medium">
+            {totalReviews > 0 ? `✓ ${totalReviews} Khách hàng đánh giá hài lòng` : 'Chưa có lượt đánh giá nào'}
+          </p>
         </div>
 
         <!-- Rating Progress bars -->
@@ -459,16 +462,16 @@ const reviews = [
           <div class="flex items-center gap-3 text-xs">
             <span class="w-12 text-walnut-900 font-semibold">5 sao</span>
             <div class="flex-1 h-2 rounded-full bg-sand-200 overflow-hidden">
-              <div class="h-full bg-clay-600 rounded-full" style="width: 88%"></div>
+              <div class="h-full bg-clay-600 rounded-full" style={`width: ${fiveStarPct}%`}></div>
             </div>
-            <span class="w-8 text-right text-walnut-800/70">88%</span>
+            <span class="w-8 text-right text-walnut-800/70">{fiveStarPct}%</span>
           </div>
           <div class="flex items-center gap-3 text-xs">
             <span class="w-12 text-walnut-900 font-semibold">4 sao</span>
             <div class="flex-1 h-2 rounded-full bg-sand-200 overflow-hidden">
-              <div class="h-full bg-clay-600 rounded-full" style="width: 12%"></div>
+              <div class="h-full bg-clay-600 rounded-full" style={`width: ${fourStarPct}%`}></div>
             </div>
-            <span class="w-8 text-right text-walnut-800/70">12%</span>
+            <span class="w-8 text-right text-walnut-800/70">{fourStarPct}%</span>
           </div>
           <div class="flex items-center gap-3 text-xs">
             <span class="w-12 text-walnut-900 font-semibold">3 sao</span>
@@ -510,66 +513,72 @@ const reviews = [
 
       <!-- Filter Buttons -->
       <div class="mt-8 flex flex-wrap items-center gap-2" id="review-filters">
-        <button type="button" data-filter="all" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-walnut-900 text-sand-50 cursor-pointer transition-colors">Tất cả ({reviews.length})</button>
-        <button type="button" data-filter="5" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-sand-200/80 text-walnut-900 hover:bg-sand-200 cursor-pointer transition-colors">5 Sao (3)</button>
-        <button type="button" data-filter="4" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-sand-200/80 text-walnut-900 hover:bg-sand-200 cursor-pointer transition-colors">4 Sao (1)</button>
+        <button type="button" data-filter="all" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-walnut-900 text-sand-50 cursor-pointer transition-colors">Tất cả ({totalReviews})</button>
+        <button type="button" data-filter="5" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-sand-200/80 text-walnut-900 hover:bg-sand-200 cursor-pointer transition-colors">5 Sao ({fiveStarCount})</button>
+        <button type="button" data-filter="4" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-sand-200/80 text-walnut-900 hover:bg-sand-200 cursor-pointer transition-colors">4 Sao ({fourStarCount})</button>
         <button type="button" data-filter="has-reply" class="px-3.5 py-1.5 rounded-full text-xs font-semibold bg-sand-200/80 text-walnut-900 hover:bg-sand-200 cursor-pointer transition-colors">Có phản hồi từ Store</button>
       </div>
 
       <!-- Customer Reviews List -->
       <div class="mt-6 space-y-4" id="review-list">
-        {reviews.map((r) => (
-          <div 
-            class="rounded-lg border border-walnut-900/10 bg-sand-50 p-5 sm:p-6 transition-all hover:border-walnut-900/20"
-            data-review-item
-            data-rating={r.rating}
-            data-has-reply={r.reply ? 'true' : 'false'}
-          >
-            <div class="flex items-start justify-between gap-4">
-              <div class="flex items-center gap-3">
-                <div class="h-10 w-10 rounded-full bg-walnut-900 text-sand-50 font-bold flex items-center justify-center text-xs">
-                  {r.name.split(' ').map((n: string) => n[0]).slice(-2).join('')}
-                </div>
-                <div>
-                  <div class="flex items-center gap-2">
-                    <h3 class="font-bold text-sm text-walnut-900">{r.name}</h3>
-                    {r.verified && (
-                      <span class="inline-flex items-center gap-1 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 px-1.5 py-0.5 text-[10px] font-semibold">
-                        <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
-                        </svg>
-                        Đã mua hàng chính hãng
-                      </span>
-                    )}
-                  </div>
-                  <p class="text-[11px] text-walnut-800/60 mt-0.5">{r.date}</p>
-                </div>
-              </div>
-
-              <div class="flex text-amber-500 text-sm">
-                {Array.from({ length: r.rating }).map(() => (
-                  <span>★</span>
-                ))}
-                {Array.from({ length: 5 - r.rating }).map(() => (
-                  <span class="text-walnut-900/20">★</span>
-                ))}
-              </div>
-            </div>
-
-            <p class="mt-3.5 text-sm leading-relaxed text-walnut-900 font-normal">
-              {r.comment}
-            </p>
-
-            {r.reply && (
-              <div class="mt-4 rounded border-l-2 border-clay-600 bg-sand-100/70 p-3.5 text-xs text-walnut-800 space-y-1">
-                <div class="flex items-center gap-1.5 font-bold text-clay-700 uppercase tracking-wider text-[10px]">
-                  <span>💬 Phản hồi từ Quản trị viên Nội Thất:</span>
-                </div>
-                <p class="leading-relaxed">{r.reply}</p>
-              </div>
-            )}
+        {reviews.length === 0 ? (
+          <div class="rounded-lg border border-dashed border-walnut-900/20 bg-sand-50/50 p-8 text-center text-sm text-walnut-800">
+            Chưa có đánh giá nào cho sản phẩm này. Hãy là khách hàng đầu tiên chia sẻ trải nghiệm của bạn!
           </div>
-        ))}
+        ) : (
+          reviews.map((r) => (
+            <div 
+              class="rounded-lg border border-walnut-900/10 bg-sand-50 p-5 sm:p-6 transition-all hover:border-walnut-900/20"
+              data-review-item
+              data-rating={r.rating}
+              data-has-reply={r.reply ? 'true' : 'false'}
+            >
+              <div class="flex items-start justify-between gap-4">
+                <div class="flex items-center gap-3">
+                  <div class="h-10 w-10 rounded-full bg-walnut-900 text-sand-50 font-bold flex items-center justify-center text-xs">
+                    {r.name.split(' ').map((n: string) => n[0]).slice(-2).join('')}
+                  </div>
+                  <div>
+                    <div class="flex items-center gap-2">
+                      <h3 class="font-bold text-sm text-walnut-900">{r.name}</h3>
+                      {r.verified && (
+                        <span class="inline-flex items-center gap-1 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 px-1.5 py-0.5 text-[10px] font-semibold">
+                          <svg class="h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/>
+                          </svg>
+                          Đã mua hàng chính hãng
+                        </span>
+                      )}
+                    </div>
+                    <p class="text-[11px] text-walnut-800/60 mt-0.5">{r.date}</p>
+                  </div>
+                </div>
+
+                <div class="flex text-amber-500 text-sm">
+                  {Array.from({ length: r.rating }).map(() => (
+                    <span>★</span>
+                  ))}
+                  {Array.from({ length: 5 - r.rating }).map(() => (
+                    <span class="text-walnut-900/20">★</span>
+                  ))}
+                </div>
+              </div>
+
+              <p class="mt-3.5 text-sm leading-relaxed text-walnut-900 font-normal">
+                {r.comment}
+              </p>
+
+              {r.reply && (
+                <div class="mt-4 rounded border-l-2 border-clay-600 bg-sand-100/70 p-3.5 text-xs text-walnut-800 space-y-1">
+                  <div class="flex items-center gap-1.5 font-bold text-clay-700 uppercase tracking-wider text-[10px]">
+                    <span>💬 Phản hồi từ Quản trị viên Nội Thất:</span>
+                  </div>
+                  <p class="leading-relaxed">{r.reply}</p>
+                </div>
+              )}
+            </div>
+          ))
+        )}
       </div>
     </section>
 
