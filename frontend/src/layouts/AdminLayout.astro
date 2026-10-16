@@ -128,8 +128,24 @@ for (const g of navGroups) {
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Lora:ital,wght@0,400..700;1,400..700&display=swap" />
   <title>{title}</title>
+
+  <!-- BẢO VỆ ROUTE ADMIN (AUTHENTICATION & RBAC GUARD) -->
+  <script is:inline>
+    (function () {
+      try {
+        var token = localStorage.getItem('auth_token');
+        var userRaw = localStorage.getItem('current_user');
+        var user = userRaw ? JSON.parse(userRaw) : null;
+        if (!token || !user || (user.role !== 'admin' && user.role !== 'seller')) {
+          var target = window.location.pathname;
+          window.location.replace('/dang-nhap?redirect=' + encodeURIComponent(target) + '&error=admin_required');
+        }
+      } catch (e) {
+        window.location.replace('/dang-nhap?error=admin_required');
+      }
+    })();
+  </script>
 </head>
 <body class="min-h-screen bg-sand-100 text-walnut-900 flex flex-col font-sans">
   <div class="flex min-h-screen flex-col lg:flex-row">
@@ -229,12 +245,12 @@ for (const g of navGroups) {
 
           <!-- Admin Avatar & Profile -->
           <div class="flex items-center gap-2.5">
-            <div class="h-8 w-8 rounded-full bg-walnut-900 text-sand-50 flex items-center justify-center text-xs font-semibold shadow-sm">
+            <div id="admin-header-avatar" class="h-8 w-8 rounded-full bg-walnut-900 text-sand-50 flex items-center justify-center text-xs font-semibold shadow-sm">
               AD
             </div>
             <div class="hidden sm:block text-left">
-              <p class="text-xs font-bold text-walnut-900">Quản Trị Viên</p>
-              <p class="text-[10px] text-walnut-800">admin@noithat.vn</p>
+              <p id="admin-header-name" class="text-xs font-bold text-walnut-900">Quản Trị Viên</p>
+              <p id="admin-header-email" class="text-[10px] text-walnut-800">admin@noithat.vn</p>
             </div>
           </div>
 
@@ -249,6 +265,19 @@ for (const g of navGroups) {
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
             </svg>
           </a>
+
+          <!-- Logout Button -->
+          <button 
+            id="btn-admin-logout"
+            type="button"
+            title="Đăng xuất khỏi hệ thống quản trị"
+            class="inline-flex items-center gap-1.5 border border-red-200 bg-red-50/90 px-3 py-1.5 text-[11px] font-medium text-red-700 transition-colors hover:bg-red-100 hover:border-red-300 rounded-sm cursor-pointer shadow-sm"
+          >
+            <svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span class="hidden sm:inline">Đăng xuất</span>
+          </button>
         </div>
       </header>
 
@@ -295,5 +324,34 @@ for (const g of navGroups) {
       opacity: 1 !important;
     }
   </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      try {
+        const userRaw = localStorage.getItem('current_user');
+        if (userRaw) {
+          const u = JSON.parse(userRaw);
+          const nameEl = document.getElementById('admin-header-name');
+          const emailEl = document.getElementById('admin-header-email');
+          const avatarEl = document.getElementById('admin-header-avatar');
+          if (nameEl && u.name) nameEl.textContent = u.name;
+          if (emailEl && u.email) emailEl.textContent = u.email;
+          if (avatarEl && u.name) {
+            const initials = u.name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
+            avatarEl.textContent = initials || 'AD';
+          }
+        }
+      } catch (e) {}
+
+      const logoutBtn = document.getElementById('btn-admin-logout');
+      logoutBtn?.addEventListener('click', () => {
+        if (confirm('Bạn có chắc chắn muốn đăng xuất khỏi trang Quản trị viên?')) {
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('current_user');
+          window.location.href = '/dang-nhap';
+        }
+      });
+    });
+  </script>
 </body>
 </html>

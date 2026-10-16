@@ -71,6 +71,17 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           </button>
         </form>
 
+        <!-- HINT DÀNH CHO QUẢN TRỊ VIÊN -->
+        <div class="mt-5 rounded border border-walnut-900/10 bg-sand-100/50 p-3 text-[11px] text-walnut-800">
+          <p class="font-bold text-walnut-900 flex items-center gap-1.5">
+            <svg class="h-3.5 w-3.5 text-clay-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            Tài khoản Quản trị viên (Admin):
+          </p>
+          <p class="mt-1 font-mono text-[10px] text-walnut-700">Email: <span class="font-semibold text-walnut-900">admin@noithat.vn</span> | MK: <span class="font-semibold text-walnut-900">Admin@123456</span></p>
+        </div>
+
         <p class="mt-6 text-xs text-walnut-800 text-center">
           Chưa có tài khoản?
           <a href="/dang-ky" class="font-bold text-walnut-900 underline underline-offset-4 transition-colors hover:text-clay-600">Đăng ký ngay</a>
@@ -167,19 +178,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         status: 'Hoạt động',
       };
 
-      // 1. Lưu tài khoản vào danh sách khách hàng (LocalStorage)
-      const existing = JSON.parse(localStorage.getItem('registered_customers') || '[]');
-      if (!existing.some((u: any) => u.email === googleUser.email)) {
-        existing.unshift(googleUser);
-        localStorage.setItem('registered_customers', JSON.stringify(existing));
-      }
-
-      // 2. Lưu phiên người dùng hiện tại đang đăng nhập
-      localStorage.setItem('current_user', JSON.stringify(googleUser));
-
-      // 3. Đồng bộ vào Backend Database (nếu máy chủ Backend đang bật)
+      // 1. Gửi lên Backend để xác thực và lấy Token an toàn
       try {
-        await fetch('http://localhost:4000/api/auth/google', {
+        const res = await fetch('http://localhost:4000/api/auth/google', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -188,13 +189,32 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             avatar_url: googleUser.avatar,
           }),
         });
+
+        const data = await res.json();
+        if (data.success && data.token) {
+          localStorage.setItem('auth_token', data.token);
+          if (data.user) {
+            googleUser.role = data.user.role;
+          }
+        }
       } catch (e) {
-        // Nếu Backend chưa bật thì vẫn hoạt động bình thường trên Frontend
+        console.warn('Lỗi kết nối Backend Google Auth:', e);
       }
+
+      // 2. Lưu phiên người dùng hiện tại đang đăng nhập
+      localStorage.setItem('current_user', JSON.stringify(googleUser));
 
       showToast(`Xin chào ${googleUser.name}! Đăng nhập Google thành công.`);
       setTimeout(() => {
-        window.location.href = '/';
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirect = urlParams.get('redirect');
+        if (redirect) {
+          window.location.href = redirect;
+        } else if (googleUser.role === 'admin' || googleUser.role === 'seller') {
+          window.location.href = '/admin';
+        } else {
+          window.location.href = '/';
+        }
       }, 1000);
     }
 
@@ -230,6 +250,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       }
     }
 
+    // Kiểm tra thông báo từ URL (Ví dụ chuyển hướng do chưa có quyền Admin)
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('error') === 'admin_required') {
+      showToast('Khu vực Quản trị yêu cầu đăng nhập tài khoản Quản trị viên (Admin).', true);
+    } else if (urlParams.get('registered') === '1') {
+      showToast('Đăng ký tài khoản thành công! Vui lòng đăng nhập.');
+    }
+
     // Kiểm tra định kỳ để tải SDK Google
     let attempts = 0;
     const interval = setInterval(() => {
@@ -242,38 +270,17 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       }
     }, 200);
 
-    // Xử lý nút bấm dự phòng (khi chưa gán Client ID hoặc SDK chưa xong)
+    // Xử lý nút bấm dự phòng Google
     btnGoogle?.addEventListener('click', () => {
       const google = (window as any).google;
       if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID.trim() !== '' && google?.accounts?.id) {
-        // Kích hoạt popup chọn tài khoản Google
         google.accounts.id.prompt();
       } else {
-        // Khi người dùng chưa dán Client ID: Thông báo nhắc nhở và chạy tài khoản mẫu
-        showToast('Chưa phát hiện Google Client ID. Đang đăng nhập tài khoản thử nghiệm...');
-        const mockUser = {
-          name: 'Trương Chí Vỹ',
-          email: 'truongchivy2005@gmail.com',
-          phone: '0908 999 888',
-          tier: 'Vàng',
-          spent: '0 ₫',
-          orders: 0,
-          date: new Date().toLocaleDateString('vi-VN'),
-          status: 'Hoạt động',
-        };
-        const existing = JSON.parse(localStorage.getItem('registered_customers') || '[]');
-        if (!existing.some((u: any) => u.email === mockUser.email)) {
-          existing.unshift(mockUser);
-          localStorage.setItem('registered_customers', JSON.stringify(existing));
-        }
-        localStorage.setItem('current_user', JSON.stringify(mockUser));
-        setTimeout(() => {
-          window.location.href = '/';
-        }, 1200);
+        showToast('Vui lòng sử dụng biểu mẫu đăng nhập bên dưới.');
       }
     });
 
-    // SUBMIT LOGIN THÔNG THƯỜNG (EMAIL & MẬT KHẨU)
+    // SUBMIT LOGIN THÔNG THƯỜNG (EMAIL & MẬT KHẨU) - XÁC THỰC BẢO MẬT BACKEND
     form?.addEventListener('submit', async (e) => {
       e.preventDefault();
 
@@ -285,37 +292,64 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         return;
       }
 
-      const registered = JSON.parse(localStorage.getItem('registered_customers') || '[]');
-      const found = registered.find((u: any) => u.email === email);
-
-      if (found && found.password && found.password !== password) {
-        showToast('Mật khẩu không chính xác, vui lòng thử lại.', true);
-        return;
+      const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement;
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Đang xác thực...';
       }
 
-      const loggedInUser = found || {
-        name: email.split('@')[0],
-        email: email,
-        phone: 'Chưa cập nhật',
-        tier: 'Bạc',
-      };
-
-      localStorage.setItem('current_user', JSON.stringify(loggedInUser));
-
       try {
-        await fetch('http://localhost:4000/api/auth/login', {
+        const res = await fetch('http://localhost:4000/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
         });
-      } catch (err) {
-        // Backend offline, fallback to client state
-      }
 
-      showToast('Đăng nhập thành công! Đang chuyển về Trang chủ...');
-      setTimeout(() => {
-        window.location.href = '/';
-      }, 1000);
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          showToast(data.message || 'Email hoặc mật khẩu không chính xác.', true);
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Đăng nhập';
+          }
+          return;
+        }
+
+        // Lưu JWT Token và thông tin User an toàn vào Client
+        if (data.token) {
+          localStorage.setItem('auth_token', data.token);
+        }
+
+        const loggedInUser = {
+          id: data.user.id,
+          name: data.user.full_name || email.split('@')[0],
+          email: data.user.email,
+          phone: data.user.phone || 'Chưa cập nhật',
+          role: data.user.role || 'customer',
+        };
+
+        localStorage.setItem('current_user', JSON.stringify(loggedInUser));
+
+        showToast(`Đăng nhập thành công! Xin chào ${loggedInUser.name}`);
+
+        setTimeout(() => {
+          const redirect = urlParams.get('redirect');
+          if (redirect) {
+            window.location.href = redirect;
+          } else if (loggedInUser.role === 'admin' || loggedInUser.role === 'seller') {
+            window.location.href = '/admin';
+          } else {
+            window.location.href = '/';
+          }
+        }, 800);
+      } catch (err: any) {
+        showToast('Không thể kết nối đến máy chủ Backend. Vui lòng thử lại sau.', true);
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Đăng nhập';
+        }
+      }
     });
   });
 </script>

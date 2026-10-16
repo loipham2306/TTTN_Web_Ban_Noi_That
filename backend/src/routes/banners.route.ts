@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
+import { verifyToken, requireAdmin } from '../middlewares/auth.middleware.js';
 
 export const bannersRouter = Router();
 
@@ -53,8 +54,8 @@ bannersRouter.get('/', async (req: Request, res: Response) => {
   }
 });
 
-// POST /api/banners - Tạo banner mới
-bannersRouter.post('/', async (req: Request, res: Response) => {
+// POST /api/banners - Tạo banner mới (Yêu cầu quyền Admin)
+bannersRouter.post('/', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const {
       title,
@@ -115,8 +116,8 @@ bannersRouter.post('/', async (req: Request, res: Response) => {
   }
 });
 
-// PUT /api/banners/:id - Cập nhật banner
-bannersRouter.put('/:id', async (req: Request, res: Response) => {
+// PUT /api/banners/:id - Cập nhật banner (Yêu cầu quyền Admin)
+bannersRouter.put('/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
     if (!id) {
@@ -171,8 +172,8 @@ bannersRouter.put('/:id', async (req: Request, res: Response) => {
   }
 });
 
-// PATCH /api/banners/:id/toggle - Bật/tắt trạng thái hiển thị
-bannersRouter.patch('/:id/toggle', async (req: Request, res: Response) => {
+// PATCH /api/banners/:id/toggle - Bật/tắt trạng thái hiển thị (Yêu cầu quyền Admin)
+bannersRouter.patch('/:id/toggle', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
     if (!id) {
@@ -204,8 +205,8 @@ bannersRouter.patch('/:id/toggle', async (req: Request, res: Response) => {
   }
 });
 
-// DELETE /api/banners/:id - Xóa banner
-bannersRouter.delete('/:id', async (req: Request, res: Response) => {
+// DELETE /api/banners/:id - Xóa banner (Yêu cầu quyền Admin)
+bannersRouter.delete('/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const id = Number(req.params.id);
     if (!id) {

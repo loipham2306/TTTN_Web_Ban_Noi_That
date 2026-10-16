@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
+import { verifyToken, requireAdmin } from '../middlewares/auth.middleware.js';
 
 export const uploadRouter = Router();
 
@@ -58,9 +59,9 @@ const syncToFrontend = (filename: string) => {
 
 // ================================================================
 // POST /api/upload
-// Upload single image
+// Upload single image (Yêu cầu quyền Admin)
 // ================================================================
-uploadRouter.post('/', upload.single('image'), (req: Request, res: Response) => {
+uploadRouter.post('/', verifyToken, requireAdmin, upload.single('image'), (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'Vui lòng chọn một tệp hình ảnh.' });
@@ -86,9 +87,9 @@ uploadRouter.post('/', upload.single('image'), (req: Request, res: Response) => 
 
 // ================================================================
 // POST /api/upload/multiple
-// Upload multiple images
+// Upload multiple images (Yêu cầu quyền Admin)
 // ================================================================
-uploadRouter.post('/multiple', upload.array('images', 5), (req: Request, res: Response) => {
+uploadRouter.post('/multiple', verifyToken, requireAdmin, upload.array('images', 5), (req: Request, res: Response) => {
   try {
     const files = req.files as Express.Multer.File[];
     if (!files || files.length === 0) {

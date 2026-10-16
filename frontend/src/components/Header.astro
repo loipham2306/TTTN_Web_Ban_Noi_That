@@ -1102,7 +1102,7 @@ const isItemActive = (item: MenuItem): boolean => {
     }
 
     if (adminLink) {
-      adminLink.classList.toggle('hidden', user.role !== 'admin');
+      adminLink.classList.toggle('hidden', user.role !== 'admin' && user.role !== 'seller');
     }
 
     // Tab 1 Info

@@ -570,6 +570,14 @@ const stats = [
       }
     });
 
+    const getAuthHeaders = (contentType = 'application/json') => {
+      const token = localStorage.getItem('auth_token') || '';
+      const h: Record<string, string> = {};
+      if (contentType) h['Content-Type'] = contentType;
+      if (token) h['Authorization'] = `Bearer ${token}`;
+      return h;
+    };
+
     // Upload file function
     const uploadMainFile = async (file: File) => {
       // Immediate local preview
@@ -583,8 +591,10 @@ const stats = [
       try {
         const formData = new FormData();
         formData.append('image', file);
+        const token = localStorage.getItem('auth_token') || '';
         const res = await fetch('http://localhost:4000/api/upload', {
           method: 'POST',
+          headers: token ? { 'Authorization': `Bearer ${token}` } : {},
           body: formData,
         });
         const json = await res.json();
@@ -665,8 +675,10 @@ const stats = [
           for (let i = 0; i < maxFiles; i++) {
             formData.append('images', files[i]);
           }
+          const token = localStorage.getItem('auth_token') || '';
           const res = await fetch('http://localhost:4000/api/upload/multiple', {
             method: 'POST',
+            headers: token ? { 'Authorization': `Bearer ${token}` } : {},
             body: formData,
           });
           const json = await res.json();
@@ -842,7 +854,7 @@ const stats = [
           if (productId) {
             await fetch(`${API}/products/${productId}`, {
               method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
+              headers: getAuthHeaders(),
               body: JSON.stringify({
                 name,
                 slug,
@@ -860,7 +872,7 @@ const stats = [
         } else {
           const res = await fetch(`${API}/products`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: getAuthHeaders(),
             body: JSON.stringify({
               name,
               slug,
@@ -1069,7 +1081,7 @@ const stats = [
         // Try API delete
         const productId = removed.dataset.id;
         if (productId) {
-          try { await fetch(`http://localhost:4000/api/products/${productId}`, { method: 'DELETE' }); } catch { /* offline */ }
+          try { await fetch(`http://localhost:4000/api/products/${productId}`, { method: 'DELETE', headers: getAuthHeaders() }); } catch { /* offline */ }
         }
         showToast(`Da xoa "${removed.dataset.name}" khoi danh sach!`);
         deleteModal.classList.add('hidden');

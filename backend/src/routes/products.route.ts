@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
+import { verifyToken, requireAdmin } from '../middlewares/auth.middleware.js';
 
 export const productsRouter = Router();
 
@@ -150,7 +151,7 @@ productsRouter.get('/:slug', async (req: Request, res: Response) => {
 // ================================================================
 // POST /api/products  (Admin – them san pham moi)
 // ================================================================
-productsRouter.post('/', async (req: Request, res: Response) => {
+productsRouter.post('/', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { name, slug, categoryId, shortDescription, content, brand, price, comparePrice, stock, color, material, imageUrl, detailImages } = req.body;
 
@@ -214,7 +215,7 @@ productsRouter.post('/', async (req: Request, res: Response) => {
 // ================================================================
 // PUT /api/products/:id  (Admin – sua san pham)
 // ================================================================
-productsRouter.put('/:id', async (req: Request, res: Response) => {
+productsRouter.put('/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const id = BigInt(req.params.id);
     const { name, slug, categoryId, shortDescription, content, brand, status, price, comparePrice, stock, imageUrl, detailImages } = req.body;
@@ -288,7 +289,7 @@ productsRouter.put('/:id', async (req: Request, res: Response) => {
 // ================================================================
 // DELETE /api/products/:id  (Admin – xoa mem)
 // ================================================================
-productsRouter.delete('/:id', async (req: Request, res: Response) => {
+productsRouter.delete('/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const id = BigInt(req.params.id);
     const product = await prisma.products.findFirst({ where: { id, deleted_at: null } });

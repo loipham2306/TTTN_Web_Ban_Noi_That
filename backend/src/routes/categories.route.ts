@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
+import { verifyToken, requireAdmin } from '../middlewares/auth.middleware.js';
 
 export const categoriesRouter = Router();
 
@@ -34,9 +35,9 @@ categoriesRouter.get('/', async (_req: Request, res: Response) => {
 });
 
 // ================================================================
-// POST /api/categories - Thêm danh mục mới
+// POST /api/categories - Thêm danh mục mới (Yêu cầu quyền Admin)
 // ================================================================
-categoriesRouter.post('/', async (req: Request, res: Response) => {
+categoriesRouter.post('/', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { name, slug, imageUrl, status } = req.body;
 
@@ -72,9 +73,9 @@ categoriesRouter.post('/', async (req: Request, res: Response) => {
 });
 
 // ================================================================
-// PUT /api/categories/:id - Cập nhật danh mục
+// PUT /api/categories/:id - Cập nhật danh mục (Yêu cầu quyền Admin)
 // ================================================================
-categoriesRouter.put('/:id', async (req: Request, res: Response) => {
+categoriesRouter.put('/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id);
     const { name, slug, imageUrl, status } = req.body;
@@ -106,9 +107,9 @@ categoriesRouter.put('/:id', async (req: Request, res: Response) => {
 });
 
 // ================================================================
-// DELETE /api/categories/:id - Xóa danh mục
+// DELETE /api/categories/:id - Xóa danh mục (Yêu cầu quyền Admin)
 // ================================================================
-categoriesRouter.delete('/:id', async (req: Request, res: Response) => {
+categoriesRouter.delete('/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id);
 
