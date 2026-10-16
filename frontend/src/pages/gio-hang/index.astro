@@ -1,4 +1,4 @@
-﻿---
+---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 
@@ -176,6 +176,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
     window.addEventListener('storage', render);
     window.addEventListener(CART_EVENT, render);
+    window.addEventListener('auth:changed', render);
     render();
   }
 </script>

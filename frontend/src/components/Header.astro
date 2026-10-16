@@ -900,6 +900,12 @@ const isItemActive = (item: MenuItem): boolean => {
   onScroll();
   window.addEventListener('scroll', onScroll, { passive: true });
 
+  // Dọn dẹp key lưu trữ chung cũ trên trình duyệt để chuyển sang Database
+  try {
+    localStorage.removeItem('user_wishlist');
+    localStorage.removeItem('user_wishlist_slugs');
+  } catch {}
+
   // Mobile drawer
   const openMenu = (): void => {
     if (!menuPanel || !menuBtn) return;
@@ -984,6 +990,7 @@ const isItemActive = (item: MenuItem): boolean => {
   syncBadge();
   window.addEventListener(CART_EVENT, syncBadge);
   window.addEventListener('storage', syncBadge);
+  window.addEventListener(AUTH_EVENT, syncBadge);
 
   // ----- Trạng thái đăng nhập: hiện tên khách, đổi menu -----
   const authTargets = [
@@ -1126,13 +1133,33 @@ const isItemActive = (item: MenuItem): boolean => {
     if (addrName) addrName.textContent = name;
     if (addrPhone) addrPhone.textContent = phone;
 
-    // Wishlist Info (Đồng bộ trực tiếp các sản phẩm đã bấm Yêu thích)
+    // Wishlist Info (Đồng bộ trực tiếp từ Database API theo từng tài khoản)
     const wishlistContainer = document.getElementById('tab-pane-wishlist');
-    if (wishlistContainer) {
+    const renderWishlistItems = async () => {
+      if (!wishlistContainer) return;
+      wishlistContainer.innerHTML = '<div class="text-center py-6 text-xs text-walnut-800/60">Đang tải danh sách yêu thích từ máy chủ...</div>';
+
       let wishItems: any[] = [];
-      try {
-        wishItems = JSON.parse(localStorage.getItem('user_wishlist') || '[]');
-      } catch {}
+      const token = localStorage.getItem('auth_token');
+
+      if (token) {
+        try {
+          const res = await fetch('http://localhost:4000/api/wishlist', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            wishItems = json.data;
+          }
+        } catch (err) {
+          console.warn('Lỗi kết nối API Wishlist:', err);
+        }
+      } else {
+        // Fallback khách vãng lai
+        try {
+          wishItems = JSON.parse(localStorage.getItem('user_wishlist_guest') || '[]');
+        } catch {}
+      }
 
       if (wishItems.length === 0) {
         wishlistContainer.innerHTML = `
@@ -1161,18 +1188,37 @@ const isItemActive = (item: MenuItem): boolean => {
         `).join('');
 
         wishlistContainer.querySelectorAll<HTMLButtonElement>('[data-remove-wishlist]').forEach((btn) => {
-          btn.addEventListener('click', (e) => {
+          btn.addEventListener('click', async (e) => {
             e.preventDefault();
             const slugToRemove = btn.dataset.removeWishlist;
-            const updated = wishItems.filter((i: any) => i.slug !== slugToRemove);
-            localStorage.setItem('user_wishlist', JSON.stringify(updated));
-            localStorage.setItem('user_wishlist_slugs', JSON.stringify(updated.map((i: any) => i.slug)));
+            if (!slugToRemove) return;
+            btn.disabled = true;
+
+            if (token) {
+              try {
+                await fetch(`http://localhost:4000/api/wishlist/${slugToRemove}`, {
+                  method: 'DELETE',
+                  headers: { Authorization: `Bearer ${token}` },
+                });
+              } catch (e) {
+                console.error(e);
+              }
+            } else {
+              let guestList: any[] = [];
+              try { guestList = JSON.parse(localStorage.getItem('user_wishlist_guest') || '[]'); } catch {}
+              guestList = guestList.filter((i: any) => i.slug !== slugToRemove);
+              localStorage.setItem('user_wishlist_guest', JSON.stringify(guestList));
+            }
+
             window.dispatchEvent(new Event('wishlist:changed'));
-            openProfileModal('wishlist');
+            renderWishlistItems();
           });
         });
       }
-    }
+    };
+
+    renderWishlistItems();
+    window.addEventListener('wishlist:changed', renderWishlistItems);
 
     switchProfileTab(initialTab);
     profileModal?.classList.remove('hidden');

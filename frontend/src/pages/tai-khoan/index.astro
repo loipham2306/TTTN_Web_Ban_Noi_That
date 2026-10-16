@@ -241,14 +241,32 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     if (addrName) addrName.textContent = name;
     if (addrPhone) addrPhone.textContent = phone;
 
-    // Wishlist Render
-    const renderPageWishlist = () => {
+    // Wishlist Render (Đồng bộ theo từng tài khoản từ Database)
+    const renderPageWishlist = async () => {
       const wishlistPane = document.getElementById('page-pane-wishlist');
       if (!wishlistPane) return;
+      wishlistPane.innerHTML = '<div class="py-10 text-center text-xs text-walnut-800/60">Đang tải danh sách yêu thích từ máy chủ...</div>';
+
       let wishItems: any[] = [];
-      try {
-        wishItems = JSON.parse(localStorage.getItem('user_wishlist') || '[]');
-      } catch {}
+      const token = localStorage.getItem('auth_token');
+
+      if (token) {
+        try {
+          const res = await fetch('http://localhost:4000/api/wishlist', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            wishItems = json.data;
+          }
+        } catch (err) {
+          console.warn('Lỗi kết nối API Wishlist:', err);
+        }
+      } else {
+        try {
+          wishItems = JSON.parse(localStorage.getItem('user_wishlist_guest') || '[]');
+        } catch {}
+      }
 
       if (wishItems.length === 0) {
         wishlistPane.innerHTML = `
@@ -277,12 +295,28 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         `).join('');
 
         wishlistPane.querySelectorAll<HTMLButtonElement>('[data-remove-wishlist]').forEach((btn) => {
-          btn.addEventListener('click', (e) => {
+          btn.addEventListener('click', async (e) => {
             e.preventDefault();
             const slugToRemove = btn.dataset.removeWishlist;
-            const updated = wishItems.filter((i: any) => i.slug !== slugToRemove);
-            localStorage.setItem('user_wishlist', JSON.stringify(updated));
-            localStorage.setItem('user_wishlist_slugs', JSON.stringify(updated.map((i: any) => i.slug)));
+            if (!slugToRemove) return;
+            btn.disabled = true;
+
+            if (token) {
+              try {
+                await fetch(`http://localhost:4000/api/wishlist/${slugToRemove}`, {
+                  method: 'DELETE',
+                  headers: { Authorization: `Bearer ${token}` },
+                });
+              } catch (e) {
+                console.error(e);
+              }
+            } else {
+              let guestList: any[] = [];
+              try { guestList = JSON.parse(localStorage.getItem('user_wishlist_guest') || '[]'); } catch {}
+              guestList = guestList.filter((i: any) => i.slug !== slugToRemove);
+              localStorage.setItem('user_wishlist_guest', JSON.stringify(guestList));
+            }
+
             window.dispatchEvent(new Event('wishlist:changed'));
             renderPageWishlist();
           });

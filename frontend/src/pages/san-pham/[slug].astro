@@ -752,7 +752,7 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
   }
 
   // ==============================================================
-  // WISHLIST HEART TOGGLE
+  // WISHLIST HEART TOGGLE (ĐỒNG BỘ THEO TỪNG TÀI KHOẢN QUA DATABASE API)
   // ==============================================================
   const btnWishlist = document.getElementById('btn-toggle-wishlist') as HTMLButtonElement | null;
   const iconWishlist = document.getElementById('wishlist-icon') as SVGElement | null;
@@ -774,44 +774,83 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
     }
   };
 
-  // Check state on load
-  const getWishlist = (): any[] => {
-    try {
-      return JSON.parse(localStorage.getItem('user_wishlist') || '[]');
-    } catch {
-      return [];
+  // Khởi tạo trạng thái ban đầu
+  const checkWishlistStatus = async () => {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      try {
+        const res = await fetch('http://localhost:4000/api/wishlist', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          const isFav = json.data.some((i: any) => i.slug === currentSlug);
+          updateWishlistUI(isFav);
+          return;
+        }
+      } catch (e) {
+        console.warn('Lỗi kiểm tra wishlist:', e);
+      }
     }
-  };
-
-  const isFavorited = (slugStr: string): boolean => {
-    return getWishlist().some((item: any) => item.slug === slugStr);
+    // Khách vãng lai
+    try {
+      const guestList = JSON.parse(localStorage.getItem('user_wishlist_guest') || '[]');
+      updateWishlistUI(guestList.some((i: any) => i.slug === currentSlug));
+    } catch {}
   };
 
   if (currentSlug) {
-    updateWishlistUI(isFavorited(currentSlug));
+    checkWishlistStatus();
   }
 
-  btnWishlist?.addEventListener('click', () => {
-    const list = getWishlist();
-    const index = list.findIndex((item: any) => item.slug === currentSlug);
-    if (index > -1) {
-      list.splice(index, 1);
-      localStorage.setItem('user_wishlist', JSON.stringify(list));
-      localStorage.setItem('user_wishlist_slugs', JSON.stringify(list.map((i: any) => i.slug)));
-      window.dispatchEvent(new Event('wishlist:changed'));
-      updateWishlistUI(false);
-      showToast(`Đã bỏ "${currentName}" khỏi danh sách yêu thích!`);
+  btnWishlist?.addEventListener('click', async () => {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      btnWishlist.disabled = true;
+      try {
+        const res = await fetch('http://localhost:4000/api/wishlist/toggle', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ slug: currentSlug }),
+        });
+        const json = await res.json();
+        if (json.success) {
+          updateWishlistUI(json.isFavorited);
+          showToast(json.message);
+          window.dispatchEvent(new Event('wishlist:changed'));
+        } else {
+          showToast(json.message || 'Không thể cập nhật yêu thích.', true);
+        }
+      } catch (err) {
+        showToast('Lỗi kết nối máy chủ.', true);
+      } finally {
+        btnWishlist.disabled = false;
+      }
     } else {
-      list.unshift({
-        slug: currentSlug,
-        name: currentName,
-        price: currentPrice,
-      });
-      localStorage.setItem('user_wishlist', JSON.stringify(list));
-      localStorage.setItem('user_wishlist_slugs', JSON.stringify(list.map((i: any) => i.slug)));
+      // Khách vãng lai chưa đăng nhập
+      let guestList: any[] = [];
+      try {
+        guestList = JSON.parse(localStorage.getItem('user_wishlist_guest') || '[]');
+      } catch {}
+      const index = guestList.findIndex((item: any) => item.slug === currentSlug);
+      if (index > -1) {
+        guestList.splice(index, 1);
+        updateWishlistUI(false);
+        showToast(`Đã bỏ "${currentName}" khỏi danh sách yêu thích!`);
+      } else {
+        guestList.unshift({
+          slug: currentSlug,
+          name: currentName,
+          price: currentPrice,
+        });
+        updateWishlistUI(true);
+        showToast(`Đã thêm "${currentName}" vào danh sách yêu thích! ❤️`);
+      }
+      localStorage.setItem('user_wishlist_guest', JSON.stringify(guestList));
       window.dispatchEvent(new Event('wishlist:changed'));
-      updateWishlistUI(true);
-      showToast(`Đã thêm "${currentName}" vào danh sách yêu thích! ❤️`);
     }
   });
 

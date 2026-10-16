@@ -1,4 +1,4 @@
-﻿export interface CartItem {
+export interface CartItem {
   slug: string;
   name: string;
   price: number;
@@ -7,8 +7,22 @@
   category?: string;
 }
 
-const STORAGE_KEY = 'noithat_cart';
 export const CART_EVENT = 'cart:updated';
+
+// Xác định key giỏ hàng động theo tài khoản đang đăng nhập
+export const getCartKey = (): string => {
+  if (typeof window === 'undefined') return 'noithat_cart_guest';
+  try {
+    const raw = window.localStorage.getItem('current_user');
+    if (raw) {
+      const user = JSON.parse(raw);
+      if (user && user.email) {
+        return `noithat_cart_${user.email.trim().toLowerCase()}`;
+      }
+    }
+  } catch {}
+  return 'noithat_cart_guest';
+};
 
 export const formatVnd = (value: number): string => {
   return Number(value || 0).toLocaleString('vi-VN') + ' đ';
@@ -17,15 +31,15 @@ export const formatVnd = (value: number): string => {
 export const readCart = (): CartItem[] => {
   if (typeof window === 'undefined') return [];
   try {
-    let raw = window.localStorage.getItem(STORAGE_KEY);
-    // Tương thích ngược nếu còn lưu ở key cũ 'cart'
-    if (!raw) {
-      const legacy = window.localStorage.getItem('cart');
-      if (legacy) {
-        raw = legacy;
-        window.localStorage.removeItem('cart');
-      }
+    const key = getCartKey();
+
+    // Dọn dẹp key cũ dùng chung trên máy nếu còn sót lại
+    if (window.localStorage.getItem('noithat_cart') || window.localStorage.getItem('cart')) {
+      window.localStorage.removeItem('noithat_cart');
+      window.localStorage.removeItem('cart');
     }
+
+    const raw = window.localStorage.getItem(key);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
@@ -46,8 +60,38 @@ export const readCart = (): CartItem[] => {
 
 export const writeCart = (items: CartItem[]): void => {
   if (typeof window === 'undefined') return;
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
+  const key = getCartKey();
+  window.localStorage.setItem(key, JSON.stringify(items));
   window.dispatchEvent(new CustomEvent(CART_EVENT, { detail: items }));
+};
+
+// Tự động gộp giỏ hàng của khách vãng lai vào tài khoản khi vừa đăng nhập
+export const mergeGuestCartOnLogin = (): void => {
+  if (typeof window === 'undefined') return;
+  const userKey = getCartKey();
+  if (userKey === 'noithat_cart_guest') return;
+
+  try {
+    const guestRaw = window.localStorage.getItem('noithat_cart_guest');
+    if (!guestRaw) return;
+    const guestItems: CartItem[] = JSON.parse(guestRaw);
+    if (!Array.isArray(guestItems) || guestItems.length === 0) return;
+
+    const userItems = readCart();
+    for (const g of guestItems) {
+      const existing = userItems.find((u) => u.slug === g.slug);
+      if (existing) {
+        existing.qty = Math.min(99, existing.qty + g.qty);
+      } else {
+        userItems.push(g);
+      }
+    }
+    window.localStorage.setItem(userKey, JSON.stringify(userItems));
+    window.localStorage.removeItem('noithat_cart_guest');
+    window.dispatchEvent(new CustomEvent(CART_EVENT, { detail: userItems }));
+  } catch (e) {
+    console.warn('Lỗi gộp giỏ hàng khách:', e);
+  }
 };
 
 export const addToCart = (

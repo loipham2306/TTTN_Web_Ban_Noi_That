@@ -49,6 +49,19 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           <div class="h-px flex-1 bg-walnut-900/15"></div>
         </div>
 
+        <!-- CẢNH BÁO NỔI BẬT TRỰC TIẾP TRÊN FORM (RÕ NÉT, KHÔNG BỊ CHE BỞI CÁC NÚT NỔI) -->
+        <div id="login-alert-banner" class="hidden mb-5 rounded-lg border border-red-300 bg-red-50 p-4 text-xs text-red-900 shadow-sm transition-all duration-300">
+          <div class="flex items-start gap-3">
+            <svg class="h-5 w-5 text-red-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <div class="flex-1">
+              <p id="alert-banner-title" class="font-bold text-red-950 uppercase tracking-wider text-[11px]">Yêu cầu quyền Quản trị viên</p>
+              <p id="alert-banner-desc" class="mt-1 text-red-800 leading-relaxed text-xs">Khu vực Quản trị yêu cầu đăng nhập tài khoản Quản trị viên (Admin).</p>
+            </div>
+          </div>
+        </div>
+
         <form id="login-form" novalidate class="flex flex-col gap-4">
           <div>
             <label for="login-email" class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800">Email *</label>
@@ -71,16 +84,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           </button>
         </form>
 
-        <!-- HINT DÀNH CHO QUẢN TRỊ VIÊN -->
-        <div class="mt-5 rounded border border-walnut-900/10 bg-sand-100/50 p-3 text-[11px] text-walnut-800">
-          <p class="font-bold text-walnut-900 flex items-center gap-1.5">
-            <svg class="h-3.5 w-3.5 text-clay-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            Tài khoản Quản trị viên (Admin):
-          </p>
-          <p class="mt-1 font-mono text-[10px] text-walnut-700">Email: <span class="font-semibold text-walnut-900">admin@noithat.vn</span> | MK: <span class="font-semibold text-walnut-900">Admin@123456</span></p>
-        </div>
 
         <p class="mt-6 text-xs text-walnut-800 text-center">
           Chưa có tài khoản?
@@ -91,10 +94,19 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     </div>
   </section>
 
-  <!-- TOAST THÔNG BÁO -->
-  <div id="auth-toast" class="fixed bottom-6 right-6 z-50 hidden translate-y-4 rounded bg-walnut-900 px-6 py-4 text-xs font-medium text-sand-50 shadow-2xl transition-all duration-300 border border-sand-50/20">
-    <p id="toast-title" class="font-bold uppercase tracking-wider text-sand-50 mb-0.5">Thông báo</p>
-    <p id="toast-body" class="text-sand-200">Đăng nhập thành công! Đang chuyển về Trang chủ...</p>
+  <!-- TOAST THÔNG BÁO NỔI Ở PHÍA TRÊN BÊN PHẢI (TRÁNH BỊ CÁC NÚT ZALO / AI Ở GÓC DƯỚI CHE) -->
+  <div id="auth-toast" class="fixed top-6 right-6 z-[9999] hidden -translate-y-4 rounded-lg bg-walnut-900 px-6 py-4 text-xs font-medium text-sand-50 shadow-2xl transition-all duration-300 border border-sand-50/20 max-w-sm">
+    <div class="flex items-start gap-3">
+      <div id="toast-icon-wrap" class="shrink-0 mt-0.5">
+        <svg class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div>
+        <p id="toast-title" class="font-bold uppercase tracking-wider text-sand-50 mb-0.5">Thông báo</p>
+        <p id="toast-body" class="text-sand-200 leading-relaxed">Đăng nhập thành công! Đang chuyển về Trang chủ...</p>
+      </div>
+    </div>
   </div>
 
 </BaseLayout>
@@ -103,6 +115,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 <script is:inline src="https://accounts.google.com/gsi/client" async defer></script>
 
 <script>
+  import { mergeGuestCartOnLogin } from '../../scripts/cart';
   // =========================================================================
   // 1. CẤU HÌNH GOOGLE CLIENT ID
   // 👉 DÁN MÃ CÓ ĐUÔI ".apps.googleusercontent.com" VÀO GIỮA 2 DẤU "" DƯỚI ĐÂY:
@@ -122,16 +135,48 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     const btnGoogle = document.getElementById('btn-google-login') as HTMLButtonElement;
     const googleOfficialContainer = document.getElementById('google-btn-official') as HTMLElement;
 
+    const alertBanner = document.getElementById('login-alert-banner') as HTMLElement;
+    const alertTitle = document.getElementById('alert-banner-title') as HTMLElement;
+    const alertDesc = document.getElementById('alert-banner-desc') as HTMLElement;
+
     const toast = document.getElementById('auth-toast') as HTMLElement;
     const toastBody = document.getElementById('toast-body') as HTMLElement;
+    const toastTitle = document.getElementById('toast-title') as HTMLElement;
+    const iconWrap = document.getElementById('toast-icon-wrap') as HTMLElement;
+
+    const showAlertBanner = (title: string, desc: string) => {
+      if (alertBanner && alertTitle && alertDesc) {
+        alertTitle.textContent = title;
+        alertDesc.textContent = desc;
+        alertBanner.classList.remove('hidden');
+      }
+    };
 
     const showToast = (msg: string, isError = false) => {
-      toastBody.textContent = msg;
-      toast.className = `fixed bottom-6 right-6 z-50 rounded px-6 py-4 text-xs font-medium text-sand-50 shadow-2xl transition-all duration-300 border ${
-        isError ? 'bg-red-900 border-red-500' : 'bg-walnut-900 border-emerald-500/50'
-      }`;
-      toast.classList.remove('hidden');
-      requestAnimationFrame(() => toast.classList.remove('translate-y-4'));
+      if (toastBody) toastBody.textContent = msg;
+
+      if (toastTitle) {
+        toastTitle.textContent = isError ? 'Cảnh báo bảo mật' : 'Thông báo';
+      }
+
+      if (iconWrap) {
+        iconWrap.innerHTML = isError
+          ? `<svg class="h-4 w-4 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>`
+          : `<svg class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>`;
+      }
+
+      if (toast) {
+        toast.className = `fixed top-6 right-6 z-[9999] rounded-lg px-6 py-4 text-xs font-medium shadow-2xl transition-all duration-300 border max-w-sm ${
+          isError ? 'bg-red-950 border-red-500 shadow-red-950/50 text-red-50' : 'bg-walnut-900 border-emerald-500/50 shadow-walnut-950/50 text-sand-50'
+        }`;
+        toast.classList.remove('hidden');
+        requestAnimationFrame(() => toast.classList.remove('-translate-y-4'));
+
+        setTimeout(() => {
+          toast.classList.add('-translate-y-4');
+          setTimeout(() => toast.classList.add('hidden'), 300);
+        }, 5000);
+      }
     };
 
     // Hàm giải mã JWT Token từ Google gửi về để lấy họ tên, email, ảnh avatar
@@ -203,6 +248,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
       // 2. Lưu phiên người dùng hiện tại đang đăng nhập
       localStorage.setItem('current_user', JSON.stringify(googleUser));
+      try { mergeGuestCartOnLogin(); } catch {}
+      window.dispatchEvent(new Event('auth:changed'));
 
       showToast(`Xin chào ${googleUser.name}! Đăng nhập Google thành công.`);
       setTimeout(() => {
@@ -253,6 +300,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     // Kiểm tra thông báo từ URL (Ví dụ chuyển hướng do chưa có quyền Admin)
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('error') === 'admin_required') {
+      showAlertBanner(
+        'Yêu cầu quyền Quản trị viên',
+        'Khu vực Quản trị yêu cầu đăng nhập tài khoản Quản trị viên (Admin).'
+      );
       showToast('Khu vực Quản trị yêu cầu đăng nhập tài khoản Quản trị viên (Admin).', true);
     } else if (urlParams.get('registered') === '1') {
       showToast('Đăng ký tài khoản thành công! Vui lòng đăng nhập.');
@@ -288,6 +339,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       const password = passInput.value;
 
       if (!email || !password) {
+        showAlertBanner('Thiếu thông tin đăng nhập', 'Vui lòng nhập đầy đủ email và mật khẩu.');
         showToast('Vui lòng nhập đầy đủ email và mật khẩu.', true);
         return;
       }
@@ -308,7 +360,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         const data = await res.json();
 
         if (!res.ok || !data.success) {
-          showToast(data.message || 'Email hoặc mật khẩu không chính xác.', true);
+          const errMsg = data.message || 'Email hoặc mật khẩu không chính xác.';
+          showAlertBanner('Đăng nhập không thành công', errMsg);
+          showToast(errMsg, true);
           if (submitBtn) {
             submitBtn.disabled = false;
             submitBtn.textContent = 'Đăng nhập';
@@ -330,6 +384,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         };
 
         localStorage.setItem('current_user', JSON.stringify(loggedInUser));
+        try { mergeGuestCartOnLogin(); } catch {}
+        window.dispatchEvent(new Event('auth:changed'));
 
         showToast(`Đăng nhập thành công! Xin chào ${loggedInUser.name}`);
 
@@ -344,6 +400,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           }
         }, 800);
       } catch (err: any) {
+        console.error('Lỗi khi đăng nhập:', err);
         showToast('Không thể kết nối đến máy chủ Backend. Vui lòng thử lại sau.', true);
         if (submitBtn) {
           submitBtn.disabled = false;
