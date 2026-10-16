@@ -1,27 +1,61 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
+import { formatVnd } from '../../data/products';
+
+let liveOrders: any[] = [];
+try {
+  const res = await fetch('http://localhost:4000/api/orders', {
+    signal: AbortSignal.timeout(2000),
+  });
+  if (res.ok) {
+    const json = await res.json();
+    if (json.success && Array.isArray(json.data)) {
+      liveOrders = json.data;
+    }
+  }
+} catch {
+  liveOrders = [];
+}
+
+const totalRevenue = liveOrders
+  .filter((o: any) => o.orderStatus !== 'da-huy')
+  .reduce((acc: number, curr: any) => acc + (curr.total || 0), 0);
+
+const totalOrders = liveOrders.length;
+const uniqueCustomers = new Set(liveOrders.map((o: any) => o.phone || o.customerName)).size;
 
 const kpis = [
-  { label: 'Tổng doanh thu (Tháng này)', value: '485.600.000 ₫', change: '+18.4%', trend: 'up', icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' },
-  { label: 'Tổng số đơn hàng', value: '128 đơn', change: '+12.5%', trend: 'up', icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' },
-  { label: 'Khách hàng mới', value: '86 khách', change: '+9.2%', trend: 'up', icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z' },
-  { label: 'Lượt tư vấn AI Phong Thủy', value: '342 lượt', change: '+34.0%', trend: 'up', icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z' },
+  { 
+    label: 'Tổng doanh thu (Tháng này)', 
+    value: formatVnd(totalRevenue), 
+    change: totalRevenue > 0 ? '+100%' : '0%', 
+    trend: 'up', 
+    icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z' 
+  },
+  { 
+    label: 'Tổng số đơn hàng', 
+    value: `${totalOrders} đơn`, 
+    change: totalOrders > 0 ? `+${totalOrders}` : '0%', 
+    trend: 'up', 
+    icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z' 
+  },
+  { 
+    label: 'Khách hàng mới', 
+    value: `${uniqueCustomers} khách`, 
+    change: uniqueCustomers > 0 ? `+${uniqueCustomers}` : '0%', 
+    trend: 'up', 
+    icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z' 
+  },
+  { 
+    label: 'Lượt tư vấn AI Phong Thủy', 
+    value: '0 lượt', 
+    change: '0%', 
+    trend: 'up', 
+    icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z' 
+  },
 ];
 
-const recentOrders = [
-  { id: 'ORD-8821', customer: 'Nguyễn Văn An', phone: '0908 123 456', total: '24.500.000 ₫', status: 'Chờ xác nhận', statusColor: 'bg-amber-100 text-amber-800 border-amber-300', date: '10:30 Hôm nay' },
-  { id: 'ORD-8820', customer: 'Trần Thị Mai', phone: '0912 345 678', total: '48.900.000 ₫', status: 'Đang chuẩn bị', statusColor: 'bg-blue-100 text-blue-800 border-blue-300', date: '09:15 Hôm nay' },
-  { id: 'ORD-8819', customer: 'Lê Hoàng Long', phone: '0987 654 321', total: '15.200.000 ₫', status: 'Đang giao hàng', statusColor: 'bg-purple-100 text-purple-800 border-purple-300', date: 'Hôm qua' },
-  { id: 'ORD-8818', customer: 'Phạm Minh Đức', phone: '0933 888 999', total: '68.000.000 ₫', status: 'Đã hoàn thành', statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300', date: '08/10/2026' },
-  { id: 'ORD-8817', customer: 'Vũ Hải Yến', phone: '0901 222 333', total: '8.500.000 ₫', status: 'Đã hoàn thành', statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300', date: '07/10/2026' },
-];
-
-const topProducts = [
-  { name: 'Sofa Da Ý Milano Cao Cấp', category: 'Sofa', sales: '32 chiếc', revenue: '784.000.000 ₫', stock: 8, image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80' },
-  { name: 'Bàn Ăn Đá Marble Carrara', category: 'Bàn Ăn', sales: '24 bộ', revenue: '456.000.000 ₫', stock: 12, image: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=400&q=80' },
-  { name: 'Ghế Thư Giãn Gỗ Óc Chó', category: 'Ghế', sales: '41 chiếc', revenue: '348.500.000 ₫', stock: 15, image: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=400&q=80' },
-  { name: 'Giường Ngủ Scandinavian', category: 'Giường', sales: '18 chiếc', revenue: '306.000.000 ₫', stock: 5, image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=400&q=80' },
-];
+const recentOrders = liveOrders.slice(0, 5);
 ---
 
 <AdminLayout title="Trang Tổng Quan Quản Trị - Nội Thất">
@@ -95,29 +129,40 @@ const topProducts = [
         </div>
 
         <!-- Simulated CSS Bar Chart -->
-        <div class="mt-6 grid grid-cols-7 gap-3 sm:gap-6 items-end h-56 pt-6 border-b border-walnut-900/10 pb-2">
-          {[
-            { day: 'T2', val: 42, height: '55%' },
-            { day: 'T3', val: 68, height: '78%' },
-            { day: 'T4', val: 51, height: '62%' },
-            { day: 'T5', val: 89, height: '94%' },
-            { day: 'T6', val: 74, height: '82%' },
-            { day: 'T7', val: 95, height: '100%' },
-            { day: 'CN', val: 80, height: '88%' },
-          ].map((bar) => (
-            <div class="flex flex-col items-center gap-2 h-full justify-end group">
-              <span class="text-[11px] font-semibold text-walnut-800 opacity-0 group-hover:opacity-100 transition-opacity">{bar.val}M</span>
-              <div 
-                class="w-full rounded-t bg-walnut-900 group-hover:bg-clay-600 transition-all duration-300 relative" 
-                style={`height: ${bar.height};`}
-              ></div>
-              <span class="text-xs font-medium text-walnut-800 mt-1">{bar.day}</span>
+        <div class="mt-6 flex items-center justify-center h-56 pt-6 border-b border-walnut-900/10 pb-2">
+          {totalRevenue === 0 ? (
+            <div class="flex flex-col items-center justify-center text-center text-xs text-walnut-800/70 py-10">
+              <svg class="h-10 w-10 text-walnut-800/30 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+              </svg>
+              <span>Chưa có phát sinh giao dịch trong 7 ngày gần nhất</span>
             </div>
-          ))}
+          ) : (
+            <div class="w-full grid grid-cols-7 gap-3 sm:gap-6 items-end h-full">
+              {[
+                { day: 'T2', val: 0, height: '0%' },
+                { day: 'T3', val: 0, height: '0%' },
+                { day: 'T4', val: 0, height: '0%' },
+                { day: 'T5', val: 0, height: '0%' },
+                { day: 'T6', val: 0, height: '0%' },
+                { day: 'T7', val: 0, height: '0%' },
+                { day: 'CN', val: 0, height: '0%' },
+              ].map((bar) => (
+                <div class="flex flex-col items-center gap-2 h-full justify-end group">
+                  <span class="text-[11px] font-semibold text-walnut-800 opacity-0 group-hover:opacity-100 transition-opacity">{bar.val}M</span>
+                  <div 
+                    class="w-full rounded-t bg-walnut-900 group-hover:bg-clay-600 transition-all duration-300 relative" 
+                    style={`height: ${bar.height};`}
+                  ></div>
+                  <span class="text-xs font-medium text-walnut-800 mt-1">{bar.day}</span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div class="mt-4 flex items-center justify-between text-xs text-walnut-800/80">
-          <span>Trung bình: <strong>71.2 Triệu / ngày</strong></span>
+          <span>Trung bình: <strong>{totalRevenue > 0 ? `${(totalRevenue / 7 / 1000000).toFixed(1)} Triệu / ngày` : '0 Triệu / ngày'}</strong></span>
           <a href="/admin/doanh-thu" class="text-clay-600 hover:underline font-medium">Xem báo cáo chi tiết &rarr;</a>
         </div>
       </div>
@@ -131,22 +176,28 @@ const topProducts = [
           </div>
 
           <div class="mt-5 space-y-4">
-            {[
-              { name: 'Sofa & Phòng Khách', percent: 45, color: 'bg-walnut-900' },
-              { name: 'Bàn Ghế Ăn', percent: 25, color: 'bg-clay-600' },
-              { name: 'Giường & Tủ Áo', percent: 18, color: 'bg-olive-700' },
-              { name: 'Đèn & Trang Trí Decor', percent: 12, color: 'bg-amber-700' },
-            ].map((cat) => (
-              <div>
-                <div class="flex justify-between text-xs font-medium mb-1">
-                  <span class="text-walnut-900">{cat.name}</span>
-                  <span class="font-bold text-walnut-900">{cat.percent}%</span>
-                </div>
-                <div class="w-full bg-sand-200/60 rounded-full h-2 overflow-hidden">
-                  <div class={`h-2 rounded-full ${cat.color}`} style={`width: ${cat.percent}%`}></div>
-                </div>
+            {totalRevenue === 0 ? (
+              <div class="py-12 text-center text-xs text-walnut-800/70">
+                Chưa có dữ liệu doanh số theo danh mục
               </div>
-            ))}
+            ) : (
+              [
+                { name: 'Sofa & Phòng Khách', percent: 0, color: 'bg-walnut-900' },
+                { name: 'Bàn Ghế Ăn', percent: 0, color: 'bg-clay-600' },
+                { name: 'Giường & Tủ Áo', percent: 0, color: 'bg-olive-700' },
+                { name: 'Đèn & Trang Trí Decor', percent: 0, color: 'bg-amber-700' },
+              ].map((cat) => (
+                <div>
+                  <div class="flex justify-between text-xs font-medium mb-1">
+                    <span class="text-walnut-900">{cat.name}</span>
+                    <span class="font-bold text-walnut-900">{cat.percent}%</span>
+                  </div>
+                  <div class="w-full bg-sand-200/60 rounded-full h-2 overflow-hidden">
+                    <div class={`h-2 rounded-full ${cat.color}`} style={`width: ${cat.percent}%`}></div>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 
@@ -185,21 +236,29 @@ const topProducts = [
               </tr>
             </thead>
             <tbody class="divide-y divide-walnut-900/10">
-              {recentOrders.map((o) => (
-                <tr class="hover:bg-sand-100/50">
-                  <td class="py-3 font-semibold text-walnut-900">{o.id}</td>
-                  <td class="py-3">
-                    <p class="font-medium text-walnut-900">{o.customer}</p>
-                    <p class="text-[10px] text-walnut-800/60">{o.phone}</p>
-                  </td>
-                  <td class="py-3 font-semibold text-clay-600">{o.total}</td>
-                  <td class="py-3">
-                    <span class={`inline-block px-2 py-0.5 rounded text-[10px] font-medium border ${o.statusColor}`}>
-                      {o.status}
-                    </span>
+              {recentOrders.length === 0 ? (
+                <tr>
+                  <td colspan="4" class="py-8 text-center text-xs text-walnut-800/70">
+                    Chưa có đơn hàng nào phát sinh trong 24 giờ qua.
                   </td>
                 </tr>
-              ))}
+              ) : (
+                recentOrders.map((o: any) => (
+                  <tr class="hover:bg-sand-100/50">
+                    <td class="py-3 font-semibold text-walnut-900">{o.orderCode}</td>
+                    <td class="py-3">
+                      <p class="font-medium text-walnut-900">{o.customerName}</p>
+                      <p class="text-[10px] text-walnut-800/60">{o.phone}</p>
+                    </td>
+                    <td class="py-3 font-semibold text-clay-600">{formatVnd(o.total)}</td>
+                    <td class="py-3">
+                      <span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium border bg-amber-100 text-amber-800 border-amber-300">
+                        {o.orderStatus}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>
@@ -218,21 +277,9 @@ const topProducts = [
         </div>
 
         <div class="mt-4 space-y-3">
-          {topProducts.map((p) => (
-            <div class="flex items-center justify-between p-2 rounded hover:bg-sand-100 transition-colors">
-              <div class="flex items-center gap-3">
-                <img src={p.image} alt={p.name} class="h-11 w-11 rounded object-cover border border-walnut-900/10" />
-                <div>
-                  <p class="text-xs font-bold text-walnut-900">{p.name}</p>
-                  <p class="text-[11px] text-walnut-800/70">Danh mục: {p.category} &bull; Tồn kho: <strong class="text-walnut-900">{p.stock}</strong></p>
-                </div>
-              </div>
-              <div class="text-right">
-                <p class="text-xs font-bold text-clay-600">{p.revenue}</p>
-                <p class="text-[10px] text-emerald-700 font-medium">Đã bán: {p.sales}</p>
-              </div>
-            </div>
-          ))}
+          <div class="py-8 text-center text-xs text-walnut-800/70">
+            Chưa có dữ liệu sản phẩm bán ra.
+          </div>
         </div>
       </div>
 
@@ -248,7 +295,7 @@ const topProducts = [
         </a>
         <a href="/admin/don-hang" class="p-3 rounded border border-walnut-900/10 bg-sand-100 hover:bg-walnut-900 hover:text-sand-50 transition-all text-center group">
           <p class="text-xs font-bold">Đơn hàng</p>
-          <p class="text-[10px] opacity-70">5 đơn mới</p>
+          <p class="text-[10px] opacity-70">{totalOrders} đơn</p>
         </a>
         <a href="/admin/danh-muc" class="p-3 rounded border border-walnut-900/10 bg-sand-100 hover:bg-walnut-900 hover:text-sand-50 transition-all text-center group">
           <p class="text-xs font-bold">Danh mục</p>
@@ -256,7 +303,7 @@ const topProducts = [
         </a>
         <a href="/admin/khach-hang" class="p-3 rounded border border-walnut-900/10 bg-sand-100 hover:bg-walnut-900 hover:text-sand-50 transition-all text-center group">
           <p class="text-xs font-bold">Khách hàng</p>
-          <p class="text-[10px] opacity-70">86 thành viên</p>
+          <p class="text-[10px] opacity-70">{uniqueCustomers} thành viên</p>
         </a>
         <a href="/admin/ma-giam-gia" class="p-3 rounded border border-walnut-900/10 bg-sand-100 hover:bg-walnut-900 hover:text-sand-50 transition-all text-center group">
           <p class="text-xs font-bold">Mã giảm giá</p>
