@@ -118,7 +118,7 @@ const isItemActive = (item: MenuItem): boolean => {
   class="fixed inset-x-0 top-0 z-50 transition-all duration-300"
 >
   {/* TOP ANNOUNCEMENT BAR */}
-  <div id="header-topbar" class="border-b border-white/10 bg-[#0f2418]/90 py-1.5 text-[11px] text-neutral-300 backdrop-blur-md transition-all duration-300">
+  <div id="header-topbar" class="border-b border-white/10 bg-[#0f2418] py-1.5 text-[11px] text-neutral-300 transition-all duration-300">
     <div class="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-8">
       <div class="hidden items-center gap-5 md:flex">
         <span class="flex items-center gap-1.5">
@@ -155,13 +155,20 @@ const isItemActive = (item: MenuItem): boolean => {
           </svg>
         </button>
 
-        <a href="/" class="group flex flex-col">
-          <span class="logo-mark font-sans text-lg font-semibold uppercase tracking-[0.35em] transition sm:text-2xl">
-            Nội Thất
-          </span>
-          <span class="text-[9px] uppercase tracking-[0.45em] text-neutral-400 opacity-90 transition group-hover:text-amber-400">
-            Luxury Living
-          </span>
+        <a href="/" class="group flex h-16 sm:h-20 items-center gap-3">
+          <img
+            src="/images/logo1.jpg"
+            alt="KTUFA Logo"
+            class="h-16 w-auto object-contain transition-transform duration-300 group-hover:scale-105 sm:h-20"
+          />
+          <div class="flex flex-col">
+            <span class="logo-mark font-sans text-lg font-bold uppercase tracking-[0.2em] text-white transition sm:text-xl leading-tight">
+              KTUFA
+            </span>
+            <span class="text-[8px] uppercase tracking-[0.28em] text-neutral-300/90 transition group-hover:text-amber-400 sm:text-[9px]">
+              Luxury Furniture
+            </span>
+          </div>
         </a>
       </div>
 
@@ -363,7 +370,7 @@ const isItemActive = (item: MenuItem): boolean => {
   </div>
 
   {/* THANH TÌM KIẾM NHANH */}
-  <div id="quick-search-bar" class="hidden border-b border-neutral-800 bg-[#173524]/95 px-4 py-4 shadow-xl backdrop-blur-xl sm:px-8">
+  <div id="quick-search-bar" class="hidden border-b border-white/10 bg-[#173524] px-4 py-4 shadow-xl sm:px-8">
     <div class="mx-auto max-w-3xl">
       <form data-desktop-search role="search" class="flex items-center gap-3 border-b border-white/20 pb-2">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5 text-neutral-400">
@@ -392,10 +399,17 @@ const isItemActive = (item: MenuItem): boolean => {
     aria-label="Menu chính trên điện thoại"
   >
     <div class="flex shrink-0 items-center justify-between border-b border-white/10 pb-4">
-      <div class="flex flex-col">
-        <span class="text-lg font-semibold uppercase tracking-[0.32em] text-white">Nội Thất</span>
-        <span class="text-[9px] uppercase tracking-[0.4em] text-amber-400">Luxury Living</span>
-      </div>
+      <a href="/" class="flex items-center gap-3">
+        <img
+          src="/images/logo1.jpg"
+          alt="KTUFA Logo"
+          class="h-16 w-auto object-contain"
+        />
+        <div class="flex flex-col">
+          <span class="text-lg font-bold uppercase tracking-[0.2em] text-white leading-tight">KTUFA</span>
+          <span class="text-[8px] uppercase tracking-[0.28em] text-amber-400">Luxury Furniture</span>
+        </div>
+      </a>
       <button
         id="menu-close"
         type="button"
@@ -715,16 +729,17 @@ const isItemActive = (item: MenuItem): boolean => {
   }
 
 
-  #site-header[data-overlay='true'] .navbar-container {
-    background-color: transparent;
-  }
-
+  /* Menu luôn đồng nhất màu xanh đặc (#173524) 100%, không bị nhìn xuyên thấu hay nhạt màu khi cuộn */
+  #site-header,
+  .navbar-container,
+  #site-header[data-overlay='true'] .navbar-container,
   #site-header[data-overlay='true'].is-scrolled .navbar-container,
   #site-header[data-overlay='false'] .navbar-container {
-    background-color: rgba(23, 53, 36, 0.97);
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.25);
+    background-color: #173524 !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.35);
   }
 
 
