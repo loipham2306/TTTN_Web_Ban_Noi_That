@@ -154,12 +154,23 @@ for (const g of navGroups) {
     <aside class="shrink-0 bg-walnut-900 px-4 py-5 text-sand-50 lg:sticky lg:top-0 lg:h-screen lg:w-72 flex flex-col justify-between overflow-y-auto">
       <div>
         <!-- Logo & Brand Header -->
-        <div class="flex items-center justify-between pb-4 border-b border-sand-50/10">
-          <div>
-            <a href="/admin" class="text-base font-semibold uppercase tracking-[0.25em] text-sand-50 hover:text-sand-200 transition-colors">NỘI THẤT ADMIN</a>
-            <p class="mt-0.5 text-[10px] uppercase tracking-[0.2em] text-sand-200/70">Hệ Thống Quản Trị</p>
-          </div>
-          <span class="inline-flex items-center gap-1 rounded-full bg-emerald-950 border border-emerald-500/40 px-2 py-0.5 text-[10px] font-medium text-emerald-400">
+        <div class="flex items-center justify-between pb-5 border-b border-sand-50/10">
+          <a href="/admin" class="flex items-center gap-3.5 group">
+            <img
+              src="/images/logo1.jpg"
+              alt="KTUFA Logo"
+              class="h-14 sm:h-16 w-auto object-contain rounded-md shadow-sm transition-transform duration-300 group-hover:scale-105"
+            />
+            <div class="flex flex-col">
+              <span class="text-lg font-bold uppercase tracking-[0.2em] text-sand-50 leading-tight group-hover:text-amber-400 transition-colors sm:text-xl">
+                KTUFA
+              </span>
+              <span class="text-[10px] uppercase tracking-[0.22em] text-amber-400/90 font-medium">
+                Admin Portal
+              </span>
+            </div>
+          </a>
+          <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 px-2.5 py-1 text-[10px] font-medium text-emerald-400 shrink-0">
             <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
             Online
           </span>
@@ -287,9 +298,12 @@ for (const g of navGroups) {
       </main>
 
       <!-- FOOTER ADMIN -->
-      <footer class="border-t border-walnut-900/10 bg-sand-50/60 px-4 py-4 sm:px-8 text-xs text-walnut-800 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div>
-          <span class="font-medium">Hệ Thống Quản Trị Nội Thất Cao Cấp</span> &copy; {new Date().getFullYear()} — Thiết kế theo chuẩn Enterprise Architecture
+      <footer class="border-t border-walnut-900/10 bg-sand-50/80 px-4 py-4 sm:px-8 text-xs text-walnut-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="flex items-center gap-2">
+          <span class="font-bold text-walnut-900">KTUFA Luxury Furniture</span>
+          <span class="text-walnut-800/40">•</span>
+          <span>Hệ Thống Quản Trị &copy; {new Date().getFullYear()}</span>
+          <span class="hidden md:inline text-walnut-800/60">— Tiêu chuẩn Enterprise Architecture</span>
         </div>
         <div class="flex items-center gap-4 text-[11px]">
           <span class="flex items-center gap-1.5 text-emerald-700 font-medium">
@@ -299,7 +313,7 @@ for (const g of navGroups) {
           <span class="text-walnut-800/40">|</span>
           <a href="/admin/cai-dat" class="hover:text-clay-600 transition-colors">Cấu hình hệ thống</a>
           <span class="text-walnut-800/40">|</span>
-          <a href="/" class="hover:text-clay-600 transition-colors">Xem trang chủ</a>
+          <a href="/" target="_blank" class="hover:text-clay-600 transition-colors">Xem website</a>
         </div>
       </footer>
 
