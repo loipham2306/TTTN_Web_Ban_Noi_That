@@ -22,8 +22,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         <h1 class="font-display text-3xl tracking-tight sm:text-4xl text-walnut-900">Đăng ký thành viên</h1>
         <p class="mt-2 text-sm text-walnut-800/80">Điền thông tin bên dưới để tạo tài khoản mới.</p>
 
-        <!-- Nút Đăng nhập bằng Gmail (Google OAuth) -->
-        <div class="mt-6">
+        <!-- Nút Đăng ký nhanh bằng Gmail (Google OAuth) -->
+        <div class="mt-6 flex flex-col items-center gap-2">
+          <!-- Vùng hiển thị nút chính thức của Google SDK khi có Client ID -->
+          <div id="google-btn-official" class="w-full flex justify-center"></div>
+
+          <!-- Nút bấm hiển thị mặc định hoặc dự phòng -->
           <button
             type="button"
             id="btn-google-signup"
@@ -121,7 +125,23 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 </BaseLayout>
 
+<!-- Tải thư viện Google Identity Services (GSI) -->
+<script is:inline src="https://accounts.google.com/gsi/client" async defer></script>
+
 <script>
+  import { mergeGuestCartOnLogin } from '../../scripts/cart';
+
+  // =========================================================================
+  // 1. CẤU HÌNH GOOGLE CLIENT ID
+  // =========================================================================
+  const MANUAL_CLIENT_ID = "288589640244-4uhsc02mcfqitebqct2nhpgghpu70cv9.apps.googleusercontent.com";
+
+  const ENV_CLIENT_ID = (import.meta as any).env?.PUBLIC_GOOGLE_CLIENT_ID;
+  const GOOGLE_CLIENT_ID = 
+    MANUAL_CLIENT_ID && MANUAL_CLIENT_ID.trim() !== ""
+      ? MANUAL_CLIENT_ID.trim()
+      : (ENV_CLIENT_ID && !ENV_CLIENT_ID.includes("DÁN_") ? ENV_CLIENT_ID.trim() : "");
+
   document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('register-form') as HTMLFormElement;
     const nameInput = document.getElementById('reg-name') as HTMLInputElement;
@@ -131,6 +151,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     const confirmInput = document.getElementById('reg-confirm') as HTMLInputElement;
     const termsInput = document.getElementById('reg-terms') as HTMLInputElement;
     const btnGoogle = document.getElementById('btn-google-signup') as HTMLButtonElement;
+    const googleOfficialContainer = document.getElementById('google-btn-official') as HTMLElement;
 
     // Password strength elements
     const strengthContainer = document.getElementById('password-strength-container') as HTMLElement;
@@ -160,10 +181,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
       strengthContainer.classList.remove('hidden');
 
-      // Đánh giá tiêu chuẩn:
-      // Yếu: < 6 ký tự
-      // Trung bình: >= 6 ký tự và có cả chữ + số
-      // Mạnh: >= 8 ký tự và có chữ hoa, chữ thường, số/ký tự đặc biệt
       const hasLetters = /[a-zA-Z]/.test(val);
       const hasNumbers = /[0-9]/.test(val);
       const hasSpecial = /[^a-zA-Z0-9]/.test(val);
@@ -188,13 +205,42 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       }
     });
 
-    // GOOGLE FAST SIGNUP (GMAIL)
-    btnGoogle?.addEventListener('click', () => {
-      const googleUser = {
-        name: 'Trương Chí Vỹ (Google)',
-        email: 'truongchivy2005@gmail.com',
-        phone: '0908 999 888',
-        googleId: 'gg_10928374829',
+    // Hàm giải mã JWT Token từ Google gửi về để lấy họ tên, email, ảnh avatar thật
+    function parseJwt(token: string) {
+      try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(
+          atob(base64)
+            .split('')
+            .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+            .join('')
+        );
+        return JSON.parse(jsonPayload);
+      } catch (err) {
+        console.error('Lỗi giải mã token Google:', err);
+        return null;
+      }
+    }
+
+    // Xử lý sau khi người dùng chọn tài khoản Google thành công
+    async function handleGoogleSignupSuccess(response: any) {
+      if (!response || !response.credential) {
+        showToast('Không nhận được dữ liệu xác thực từ Google.', true);
+        return;
+      }
+
+      const payload = parseJwt(response.credential);
+      if (!payload || !payload.email) {
+        showToast('Lỗi đọc thông tin từ tài khoản Google.', true);
+        return;
+      }
+
+      const googleUser: any = {
+        name: payload.name || payload.email.split('@')[0],
+        email: payload.email,
+        avatar: payload.picture || '',
+        phone: 'Đăng ký Google',
         tier: 'Vàng',
         spent: '0 ₫',
         orders: 0,
@@ -202,19 +248,89 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         status: 'Hoạt động',
       };
 
-      // Save to registered customers list
-      const existing = JSON.parse(localStorage.getItem('registered_customers') || '[]');
-      if (!existing.some((u: any) => u.email === googleUser.email)) {
-        existing.unshift(googleUser);
-        localStorage.setItem('registered_customers', JSON.stringify(existing));
+      // 1. Gửi lên Backend để lưu vào database MySQL và cấp JWT Token
+      try {
+        const res = await fetch('http://localhost:4000/api/auth/google', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: googleUser.email,
+            fullname: googleUser.name,
+            avatar_url: googleUser.avatar,
+          }),
+        });
+
+        const data = await res.json();
+        if (data.success && data.token) {
+          localStorage.setItem('auth_token', data.token);
+          if (data.user) {
+            googleUser.role = data.user.role;
+          }
+        }
+      } catch (e) {
+        console.warn('Lỗi kết nối Backend Google Auth:', e);
       }
 
-      // Also set current user and redirect home
+      // 2. Lưu phiên người dùng hiện tại
       localStorage.setItem('current_user', JSON.stringify(googleUser));
-      showToast('Đăng nhập bằng Gmail thành công! Đang chuyển về Trang chủ...');
+      try { mergeGuestCartOnLogin(); } catch {}
+      window.dispatchEvent(new Event('auth:changed'));
+
+      showToast(`Xin chào ${googleUser.name}! Đăng ký thành công bằng Google.`);
       setTimeout(() => {
         window.location.href = '/';
       }, 1000);
+    }
+
+    // Khởi tạo thư viện Google Identity Services
+    function setupGoogleButton() {
+      const google = (window as any).google;
+      if (!google || !google.accounts) return;
+
+      if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID.trim() !== '') {
+        google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID.trim(),
+          callback: handleGoogleSignupSuccess,
+          auto_select: false,
+          cancel_on_tap_outside: true,
+        });
+
+        if (googleOfficialContainer) {
+          google.accounts.id.renderButton(googleOfficialContainer, {
+            theme: 'outline',
+            size: 'large',
+            width: 380,
+            text: 'signup_with',
+            locale: 'vi',
+            shape: 'rectangular',
+          });
+          if (btnGoogle) {
+            btnGoogle.style.display = 'none';
+          }
+        }
+      }
+    }
+
+    // Kiểm tra định kỳ để tải SDK Google
+    let attempts = 0;
+    const interval = setInterval(() => {
+      attempts++;
+      if ((window as any).google?.accounts?.id) {
+        clearInterval(interval);
+        setupGoogleButton();
+      } else if (attempts >= 25) {
+        clearInterval(interval);
+      }
+    }, 200);
+
+    // Xử lý nút bấm dự phòng Google
+    btnGoogle?.addEventListener('click', () => {
+      const google = (window as any).google;
+      if (GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID.trim() !== '' && google?.accounts?.id) {
+        google.accounts.id.prompt();
+      } else {
+        showToast('Vui lòng sử dụng biểu mẫu đăng ký bên dưới.');
+      }
     });
 
     // SUBMIT FORM REGISTER

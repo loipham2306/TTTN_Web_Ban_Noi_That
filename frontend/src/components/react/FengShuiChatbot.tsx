@@ -156,7 +156,6 @@ export default function FengShuiChatbot() {
 
       let apiSuccess = false;
       let lastErrorMessage = '';
-      let replyText = '';
 
       const contextPrompt = productContext
         ? `\n\n[NGỮ CẢNH HIỆN TẠI]: Khách hàng ĐANG MỞ XEM trang chi tiết sản phẩm: "${productContext}". Nếu khách hàng hỏi các đại từ như "món này", "sản phẩm này", "cái này có hợp mệnh tôi không", hãy luận giải trực tiếp sự tương hợp phong thủy của món "${productContext}" với bản mệnh của khách.`

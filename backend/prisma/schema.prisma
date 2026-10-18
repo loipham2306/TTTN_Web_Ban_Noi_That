@@ -277,10 +277,38 @@ model users {
   shopping_carts shopping_carts[]
   system_logs    system_logs[]
   user_addresses user_addresses[]
-  wishlists      wishlists[]
   roles          roles            @relation(fields: [role_id], references: [id], onUpdate: Restrict, map: "users_ibfk_1")
+  wishlists      wishlists[]
 
   @@index([role_id], map: "role_id")
+}
+
+model banners {
+  id            Int       @id @default(autoincrement()) @db.UnsignedInt
+  title         String    @db.VarChar(255)
+  subtitle      String?   @db.VarChar(255)
+  description   String?   @db.Text
+  image_url     String    @db.Text
+  link_url      String?   @default("/san-pham") @db.VarChar(255)
+  button_text   String?   @default("Khám phá ngay") @db.VarChar(100)
+  position      String    @default("hero") @db.VarChar(50)
+  display_order Int?      @default(0)
+  is_active     Boolean?  @default(true)
+  created_at    DateTime? @default(now()) @db.Timestamp(0)
+  updated_at    DateTime? @default(now()) @updatedAt @db.Timestamp(0)
+}
+
+model wishlists {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id    BigInt    @db.UnsignedBigInt
+  product_id BigInt    @db.UnsignedBigInt
+  created_at DateTime? @default(now()) @db.DateTime(0)
+  users      users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "wishlists_ibfk_1")
+  products   products  @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "wishlists_ibfk_2")
+
+  @@unique([user_id, product_id], map: "unique_user_product_wishlist")
+  @@index([user_id], map: "user_id")
+  @@index([product_id], map: "product_id")
 }
 
 enum chat_messages_sender_type {
@@ -314,32 +342,3 @@ enum orders_order_status {
   completed
   cancelled
 }
-
-model banners {
-  id            Int       @id @default(autoincrement()) @db.UnsignedInt
-  title         String    @db.VarChar(255)
-  subtitle      String?   @db.VarChar(255)
-  description   String?   @db.Text
-  image_url     String    @db.Text
-  link_url      String?   @default("/san-pham") @db.VarChar(255)
-  button_text   String?   @default("Khám phá ngay") @db.VarChar(100)
-  position      String    @default("hero") @db.VarChar(50)
-  display_order Int?      @default(0)
-  is_active     Boolean?  @default(true)
-  created_at    DateTime? @default(now()) @db.Timestamp(0)
-  updated_at    DateTime? @default(now()) @updatedAt @db.Timestamp(0)
-}
-
-model wishlists {
-  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
-  user_id    BigInt    @db.UnsignedBigInt
-  product_id BigInt    @db.UnsignedBigInt
-  created_at DateTime? @default(now()) @db.DateTime(0)
-  users      users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "wishlists_ibfk_1")
-  products   products  @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "wishlists_ibfk_2")
-
-  @@unique([user_id, product_id], map: "unique_user_product_wishlist")
-  @@index([user_id], map: "user_id")
-  @@index([product_id], map: "product_id")
-}
-
