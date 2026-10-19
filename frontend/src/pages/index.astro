@@ -77,7 +77,7 @@ try {
   }
 } catch {}
 
-const featured = liveProducts.slice(0, 4);
+const featured = liveProducts.slice(0, 6);
 ---
 <BaseLayout title="Nội Thất Cao Cấp - Trang chủ">
 
@@ -154,7 +154,7 @@ const featured = liveProducts.slice(0, 4);
           Xem tất cả →
         </a>
       </div>
-      <div class="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {featured.map((product) => <ProductCard product={product} />)}
       </div>
     </div>

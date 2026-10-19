@@ -79,6 +79,18 @@ async function main() {
           dimensions: p.dimensions,
         },
       });
+
+      const imgUrl = (p as any).image;
+      if (imgUrl) {
+        await prisma.product_images.create({
+          data: {
+            product_id: created.id,
+            image_url: imgUrl,
+            is_thumbnail: true,
+            sort_order: 0,
+          },
+        });
+      }
     }
   }
 

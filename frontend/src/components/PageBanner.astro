@@ -1,0 +1,159 @@
+---
+interface BreadcrumbItem {
+  label: string;
+  href?: string;
+}
+
+interface Props {
+  position: string;
+  fallbackTitle: string;
+  fallbackSubtitle?: string;
+  fallbackDescription?: string;
+  fallbackImage: string;
+  breadcrumbs?: BreadcrumbItem[];
+  badgeText?: string;
+  badgePulse?: boolean;
+  showCta?: boolean;
+}
+
+const {
+  position,
+  fallbackTitle,
+  fallbackSubtitle = '',
+  fallbackDescription = '',
+  fallbackImage,
+  breadcrumbs = [
+    { label: 'Trang chủ', href: '/' },
+    { label: fallbackTitle }
+  ],
+  badgeText,
+  badgePulse = false,
+  showCta = false,
+} = Astro.props;
+
+let banner = {
+  title: fallbackTitle,
+  subtitle: fallbackSubtitle,
+  description: fallbackDescription,
+  imageUrl: fallbackImage,
+  buttonText: 'Khám phá ngay',
+  linkUrl: '',
+};
+
+try {
+  const res = await fetch(`http://localhost:4000/api/banners?position=${encodeURIComponent(position)}&activeOnly=true`, {
+    signal: AbortSignal.timeout(2000),
+  });
+  if (res.ok) {
+    const json = await res.json();
+    if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+      const top = json.data[0];
+      banner = {
+        title: top.title || fallbackTitle,
+        subtitle: top.subtitle || fallbackSubtitle,
+        description: top.description || fallbackDescription,
+        imageUrl: top.imageUrl || fallbackImage,
+        buttonText: top.buttonText || 'Khám phá ngay',
+        linkUrl: top.linkUrl || '',
+      };
+    }
+  }
+} catch {
+  // Dùng fallback mặc định khi backend bận
+}
+---
+
+<section class="relative w-full overflow-hidden bg-[#173524] text-white border-b border-[#D8B670]/25 shadow-md">
+  <!-- Ảnh nền lớn toàn cảnh với hiệu ứng Overlay sang trọng -->
+  <div class="absolute inset-0">
+    <img
+      src={banner.imageUrl}
+      alt={banner.title}
+      class="h-full w-full object-cover object-center transform scale-100 hover:scale-105 transition-transform duration-1000 ease-out"
+      loading="eager"
+      onerror={`this.src='${fallbackImage}'`}
+    />
+    <!-- Lớp phủ Gradient đa tầng: xanh rêu thương hiệu + tối sang trọng -->
+    <div class="absolute inset-0 bg-gradient-to-r from-[#173524]/95 via-[#173524]/80 to-[#173524]/40"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30"></div>
+    <!-- Họa tiết tia sáng vàng gold tinh tế -->
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-[#D8B670]/15 via-transparent to-transparent pointer-events-none"></div>
+  </div>
+
+  <div class="relative mx-auto max-w-7xl px-4 py-12 sm:py-16 lg:py-20">
+    <!-- Breadcrumb điều hướng -->
+    {breadcrumbs && breadcrumbs.length > 0 && (
+      <nav class="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-sand-200/90" aria-label="Breadcrumb">
+        {breadcrumbs.map((bc, idx) => (
+          <div class="flex items-center gap-2">
+            {idx > 0 && <span class="text-[#D8B670]/60">/</span>}
+            {bc.href ? (
+              <a href={bc.href} class="hover:text-[#D8B670] transition-colors">
+                {bc.label}
+              </a>
+            ) : (
+              <span class="text-[#D8B670]">{bc.label}</span>
+            )}
+          </div>
+        ))}
+      </nav>
+    )}
+
+    <!-- Khối Tiêu đề + Phụ đề + Mô tả -->
+    <div class="mt-4 max-w-3xl">
+      <!-- Badge phụ đề hoặc tính năng -->
+      <div class="flex flex-wrap items-center gap-3">
+        {banner.subtitle && (
+          <span class="inline-block text-xs sm:text-sm font-bold uppercase tracking-[0.25em] text-[#D8B670] drop-shadow-xs">
+            {banner.subtitle}
+          </span>
+        )}
+
+        {badgeText && (
+          <span class="inline-flex items-center gap-1.5 rounded-none bg-emerald-950/70 border border-[#D8B670]/40 px-3 py-1 text-[11px] font-bold text-amber-300 shadow-sm backdrop-blur-xs">
+            {badgePulse && (
+              <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D8B670] opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-[#D8B670]"></span>
+              </span>
+            )}
+            {badgeText}
+          </span>
+        )}
+      </div>
+
+      <!-- Tiêu đề lớn -->
+      <h1 class="mt-2.5 font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-white leading-tight drop-shadow-md">
+        {banner.title}
+      </h1>
+
+      <!-- Đường kẻ vàng gold phân cách thương hiệu KTUFA -->
+      <div class="mt-3.5 h-1 w-20 bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-transparent"></div>
+
+      <!-- Mô tả chi tiết -->
+      {banner.description && (
+        <p class="mt-4 text-xs sm:text-sm md:text-base leading-relaxed text-sand-100/90 max-w-2xl drop-shadow-xs">
+          {banner.description}
+        </p>
+      )}
+
+      <!-- Nút hành động kêu gọi (CTA) nếu có -->
+      {showCta && banner.linkUrl && (
+        <div class="mt-6">
+          <a
+            href={banner.linkUrl}
+            class="inline-flex items-center gap-2 rounded-none bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] px-6 py-3 text-xs uppercase tracking-[0.15em] text-[#173524] font-bold shadow-lg hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white transition-all transform hover:-translate-y-0.5"
+          >
+            <span>{banner.buttonText || 'Khám phá ngay'}</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="h-4 w-4">
+              <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+        </div>
+      )}
+    </div>
+  </div>
+
+  <!-- Viền chân vàng Champagne đáy banner -->
+  <div class="h-1 w-full bg-gradient-to-r from-transparent via-[#D8B670]/40 to-transparent"></div>
+</section>

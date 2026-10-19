@@ -135,7 +135,7 @@ if (galleryImages.length === 1) {
 const sameCategory = products.filter((p) => p.slug !== slug && p.category === product.category);
 const sameSpace = products.filter((p) => p.slug !== slug && p.space === product.space && p.category !== product.category);
 const otherProducts = products.filter((p) => p.slug !== slug && p.category !== product.category && p.space !== product.space);
-const relatedProducts = [...sameCategory, ...sameSpace, ...otherProducts].slice(0, 4);
+const relatedProducts = [...sameCategory, ...sameSpace, ...otherProducts].slice(0, 3);
 
 // REVIEWS FROM MYSQL BACKEND
 interface ReviewItem {
@@ -603,7 +603,7 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
       </div>
 
       <!-- Related Products Grid -->
-      <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
+      <div class="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
         {relatedProducts.map((rp) => (
           <ProductCard product={rp} />
         ))}
@@ -703,7 +703,7 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
 </BaseLayout>
 
 <script>
-  import { addToCart, showCartToast } from '../../scripts/cart';
+  import { addToCart, showCartToast, flyToCart } from '../../scripts/cart';
 
   // CART & QUANTITY
   const btnAdd = document.getElementById('btn-add-to-cart') as HTMLButtonElement | null;
@@ -737,6 +737,8 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
     btnAdd.addEventListener('click', () => {
       const payload = getItemPayload(btnAdd);
       const qty = getQty();
+      const mainImg = document.getElementById('main-product-image');
+      flyToCart(mainImg, payload.thumbnail);
       addToCart(payload, qty);
       showCartToast(`Đã thêm ${qty} x "${payload.name}" vào giỏ hàng!`);
     });

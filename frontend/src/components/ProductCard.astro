@@ -1,5 +1,6 @@
 ---
 import type { Product } from '../data/products';
+import { getProductDetail } from '../data/product-details';
 import { formatVnd } from '../scripts/cart';
 
 interface Props {
@@ -7,73 +8,200 @@ interface Props {
 }
 
 const { product } = Astro.props;
+const detail = getProductDetail(product.slug);
+const imageSrc = (product as any).thumbnail || (product as any).image || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80';
+
+// Tính điểm đánh giá & giá tham khảo đồng nhất theo slug
+const hash = product.slug.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+const rating = (4.7 + ((hash % 4) * 0.1)).toFixed(1);
+const reviewCount = 12 + (hash % 45);
+const comparePrice = Math.round((product.price * 1.15) / 100000) * 100000;
 ---
 
 <article
-  class="group relative flex flex-col justify-between"
+  class="product-card group relative flex flex-col rounded-none bg-white p-4 sm:p-5 border border-walnut-900/10 shadow-xs transition-all duration-300 hover:shadow-2xl hover:border-walnut-900/30 overflow-hidden"
   data-product={product.slug}
   data-name={product.name}
   data-category={product.category}
+  data-category-label={product.categoryLabel}
   data-space={product.space}
+  data-space-label={product.spaceLabel}
   data-price={product.price}
+  data-material={product.material}
+  data-color={product.color || ''}
+  data-color-label={product.colorLabel || ''}
+  data-image={imageSrc}
+  data-dimensions={detail.dimensions}
+  data-warranty={detail.warranty}
+  data-description={detail.description}
 >
-  <a href={`/san-pham/${product.slug}`} class="block relative">
-    <div class="relative block aspect-[3/4] w-full overflow-hidden bg-sand-200 transition duration-500 group-hover:opacity-95 rounded-sm">
-      {(product as any).thumbnail || (product as any).image ? (
-        <img
-          src={(product as any).thumbnail || (product as any).image}
-          alt={product.name}
-          class="h-full w-full object-cover transition duration-500 group-hover:scale-105"
-          loading="lazy"
-          onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80';"
-        />
-      ) : (
-        <div class="flex h-full w-full items-center justify-center bg-sand-200 text-walnut-900/30">
-          <svg class="h-16 w-16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-        </div>
-      )}
+  <!-- 1. KHỐI HÌNH ẢNH VUÔNG SẮC CẠNH (ASPECT-SQUARE), THU NHỎ KHI HOVER ĐỂ CHỪA CHỖ CHO NÚT -->
+  <div class="relative w-full aspect-square overflow-hidden rounded-none bg-sand-200 transition-all duration-500 ease-out group-hover:max-h-[240px] sm:group-hover:max-h-[260px] md:group-hover:max-h-[280px]">
+    <a href={`/san-pham/${product.slug}`} class="block h-full w-full">
+      <img
+        src={imageSrc}
+        alt={product.name}
+        class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-108"
+        loading="lazy"
+        onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80';"
+      />
+    </a>
 
-      {product.isNew && (
-        <span class="absolute left-3 top-3 bg-sand-50/90 px-2 py-1 text-[10px] uppercase tracking-[0.2em] text-walnut-900 shadow-sm font-medium">
-          Mới
+    <!-- LỚP PHỦ MỜ KHI HOVER -->
+    <div class="pointer-events-none absolute inset-0 bg-black/20 opacity-0 backdrop-blur-[1px] transition-opacity duration-300 group-hover:opacity-100"></div>
+
+    <!-- BADGE "NEW" GÓC TRÊN BÊN PHẢI (VUÔNG VỨC, VÀNG CHAMPAGNE NHƯ LOGO) -->
+    {product.isNew && (
+      <div class="absolute right-3 top-3 z-10 flex px-2.5 py-1 rounded-none bg-gradient-to-r from-[#D8B670] to-[#C49E52] text-[11px] font-bold uppercase tracking-wider text-[#173524] shadow-sm pointer-events-none">
+        New
+      </div>
+    )}
+
+    <!-- BADGE CHẤT LIỆU GÓC TRÊN BÊN TRÁI (VUÔNG VỨC) -->
+    {product.material && (
+      <div class="absolute left-3 top-3 z-10 pointer-events-none">
+        <span class="rounded-none bg-white/95 backdrop-blur-xs px-2.5 py-1 text-[11px] font-medium tracking-wide text-walnut-900 shadow-xs border border-walnut-900/10">
+          {product.material}
         </span>
-      )}
+      </div>
+    )}
 
-      <!-- Quick Add to Cart button on hover -->
+    <!-- NÚT XEM NHANH (MẮT 👁️) NẰM CHÍNH GIỮA ẢNH KHI HOVER (VÀNG CHAMPAGNE NHƯ LOGO) -->
+    <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+      <button
+        type="button"
+        data-btn-quick-view
+        data-slug={product.slug}
+        data-name={product.name}
+        data-price={product.price}
+        data-category={product.categoryLabel}
+        data-category-slug={product.category}
+        data-space={product.spaceLabel || ''}
+        data-material={product.material}
+        data-image={imageSrc}
+        data-dimensions={detail.dimensions}
+        data-warranty={detail.warranty}
+        data-description={detail.description}
+        class="pointer-events-auto flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#E2C37E] to-[#C49E52] text-[#173524] shadow-xl opacity-0 scale-75 transition-all duration-300 group-hover:opacity-100 group-hover:scale-100 hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white hover:scale-110 active:scale-95 cursor-pointer ring-3 ring-white/90"
+        title="Xem nhanh thông số"
+        aria-label="Xem nhanh thông số"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="h-5 w-5 pointer-events-none">
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- 2. THÔNG TIN SẢN PHẨM CĂN GIỮA -->
+  <div class="mt-4 flex flex-1 flex-col text-center">
+    <!-- DANH MỤC: VÀNG CHAMPAGNE NHƯ LOGO -->
+    <p class="text-xs font-bold uppercase tracking-[0.2em] text-[#B88E28]">
+      {product.categoryLabel}
+    </p>
+
+    <!-- TÊN SẢN PHẨM -->
+    <h3 class="mt-1.5 text-base sm:text-lg font-bold text-walnut-900 transition-colors group-hover:text-[#B88E28] line-clamp-1">
+      <a href={`/san-pham/${product.slug}`} title={product.name}>
+        {product.name}
+      </a>
+    </h3>
+
+    <!-- GIÁ TIỀN: VÀNG CHAMPAGNE NHƯ LOGO -->
+    <div class="mt-2 flex items-center justify-center gap-2.5">
+      <span class="text-xs sm:text-sm text-neutral-400 line-through font-normal">
+        {formatVnd(comparePrice)}
+      </span>
+      <span class="text-base sm:text-lg font-bold text-[#B88E28]">
+        {formatVnd(product.price)}
+      </span>
+    </div>
+
+    <!-- 3. CỤM NÚT CHỨC NĂNG -->
+    <div class="overflow-hidden transition-all duration-500 ease-out max-h-0 opacity-0 group-hover:max-h-32 group-hover:opacity-100 group-hover:mt-3">
+      <!-- NÚT THÊM GIỎ HÀNG (VÀNG CHAMPAGNE NHƯ LOGO, CHỮ XANH ĐẬM KTUFA) -->
       <button
         type="button"
         data-quick-add
         data-slug={product.slug}
         data-name={product.name}
         data-price={product.price}
+        data-image={imageSrc}
         data-category={product.categoryLabel}
-        class="absolute bottom-3 right-3 flex h-10 w-10 items-center justify-center rounded-full bg-walnut-900 text-sand-50 opacity-0 shadow-lg transition-all duration-300 hover:bg-clay-600 hover:scale-110 active:scale-95 group-hover:opacity-100 z-10"
-        title="Thêm vào giỏ hàng"
-        aria-label="Thêm vào giỏ hàng"
+        class="flex w-full items-center justify-center gap-2 rounded-none bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] py-2.5 px-4 text-xs font-bold uppercase tracking-wider text-[#173524] shadow-md transition-all duration-200 hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white hover:shadow-lg active:scale-[0.99] cursor-pointer border border-[#E0C582]/50"
+        title="Thêm giỏ hàng"
+        aria-label="Thêm giỏ hàng"
       >
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5">
-          <path d="M5 8h14l-1.2 12H6.2L5 8Z" stroke-linejoin="round" />
-          <path d="M9 8V6.5a3 3 0 0 1 6 0V8" stroke-linecap="round" />
-          <path d="M12 11v6m-3-3h6" stroke-linecap="round" />
+        <svg viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4 pointer-events-none">
+          <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
         </svg>
+        <span>Thêm giỏ hàng</span>
       </button>
-    </div>
 
-    <div class="mt-4">
-      <p class="text-[11px] uppercase tracking-[0.2em] text-walnut-800/80">{product.categoryLabel}</p>
-      <h3 class="mt-1 text-sm font-medium text-walnut-900 transition-colors group-hover:text-clay-600 line-clamp-1">{product.name}</h3>
-      <p class="mt-1 text-sm font-semibold text-walnut-900">{formatVnd(product.price)}</p>
+      <!-- HÀNG ĐÁNH GIÁ SAO (TRÁI) & CHIA SẺ, YÊU THÍCH (PHẢI) -->
+      <div class="mt-2.5 flex items-center justify-between border-t border-neutral-100 pt-2 text-xs">
+        <!-- ĐÁNH GIÁ SAO -->
+        <div class="flex items-center gap-1" title={`Đánh giá ${rating}/5 (${reviewCount} nhận xét)`}>
+          <div class="flex text-amber-400">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <svg class="h-3.5 w-3.5 fill-current" viewBox="0 0 20 20">
+                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+              </svg>
+            ))}
+          </div>
+          <span class="font-bold text-walnut-900 text-xs ml-0.5">{rating}</span>
+        </div>
+
+        <!-- CÁC THAO TÁC PHỤ: CHIA SẺ & WISHLIST (SẮC CẠNH) -->
+        <div class="flex items-center gap-1.5">
+          <!-- NÚT CHIA SẺ (SHARE / COPY LINK) -->
+          <button
+            type="button"
+            data-btn-share
+            data-slug={product.slug}
+            data-name={product.name}
+            class="flex h-8 w-8 items-center justify-center rounded-none border border-neutral-200 bg-white text-neutral-600 shadow-2xs transition-all hover:bg-[#173524] hover:text-amber-300 hover:border-[#173524] active:scale-95 cursor-pointer"
+            title="Chia sẻ sản phẩm"
+            aria-label="Chia sẻ sản phẩm"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-3.5 w-3.5 pointer-events-none">
+              <circle cx="18" cy="5" r="3"></circle>
+              <circle cx="6" cy="12" r="3"></circle>
+              <circle cx="18" cy="19" r="3"></circle>
+              <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line>
+              <line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line>
+            </svg>
+          </button>
+
+          <!-- NÚT YÊU THÍCH (WISHLIST) -->
+          <button
+            type="button"
+            data-btn-wishlist
+            data-slug={product.slug}
+            data-name={product.name}
+            data-price={product.price}
+            data-image={imageSrc}
+            data-category={product.categoryLabel}
+            class="wishlist-btn flex h-8 w-8 items-center justify-center rounded-none border border-neutral-200 bg-white text-neutral-600 shadow-2xs transition-all hover:bg-rose-50 hover:text-rose-500 hover:border-rose-300 active:scale-95 cursor-pointer"
+            title="Thêm vào yêu thích"
+            aria-label="Thêm vào yêu thích"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-3.5 w-3.5 wishlist-icon transition-colors pointer-events-none">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+          </button>
+        </div>
+      </div>
     </div>
-  </a>
+  </div>
 </article>
 
 <script>
-  import { addToCart, showCartToast } from '../scripts/cart';
+  import { addToCart, showCartToast, flyToCart } from '../scripts/cart';
 
+  // 1. QUICK ADD TO CART
   document.querySelectorAll<HTMLButtonElement>('[data-quick-add]').forEach((btn) => {
-    // Avoid double attaching
     if (btn.dataset.initialized) return;
     btn.dataset.initialized = 'true';
 
@@ -84,10 +212,163 @@ const { product } = Astro.props;
       const slug = btn.dataset.slug || '';
       const name = btn.dataset.name || '';
       const price = Number(btn.dataset.price || 0);
+      const thumbnail = btn.dataset.image || '';
       const category = btn.dataset.category || '';
 
-      addToCart({ slug, name, price, category }, 1);
+      const card = btn.closest('.product-card');
+      const img = card ? card.querySelector<HTMLElement>('img') : btn;
+
+      flyToCart(img, thumbnail);
+      addToCart({ slug, name, price, thumbnail, category }, 1);
       showCartToast(`Đã thêm "${name}" vào giỏ hàng!`);
     });
   });
+
+  // 2. QUICK VIEW TRIGGER
+  document.querySelectorAll<HTMLButtonElement>('[data-btn-quick-view]').forEach((btn) => {
+    if (btn.dataset.initialized) return;
+    btn.dataset.initialized = 'true';
+
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const eventData = {
+        slug: btn.dataset.slug,
+        name: btn.dataset.name,
+        price: btn.dataset.price,
+        category: btn.dataset.category,
+        categorySlug: btn.dataset.categorySlug || '',
+        space: btn.dataset.space,
+        material: btn.dataset.material,
+        image: btn.dataset.image,
+        dimensions: btn.dataset.dimensions,
+        warranty: btn.dataset.warranty,
+        description: btn.dataset.description,
+      };
+
+      window.dispatchEvent(new CustomEvent('open-quick-view', { detail: eventData }));
+    });
+  });
+
+  // 3. SHARE TRIGGER (COPY LINK & NOTIFY)
+  document.querySelectorAll<HTMLButtonElement>('[data-btn-share]').forEach((btn) => {
+    if (btn.dataset.initialized) return;
+    btn.dataset.initialized = 'true';
+
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const slug = btn.dataset.slug || '';
+      const name = btn.dataset.name || 'Sản phẩm';
+      const shareUrl = `${window.location.origin}/san-pham/${slug}`;
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(shareUrl);
+        } else {
+          // Fallback cho context không HTTPS
+          const textArea = document.createElement('textarea');
+          textArea.value = shareUrl;
+          textArea.style.position = 'fixed';
+          textArea.style.opacity = '0';
+          document.body.appendChild(textArea);
+          textArea.focus();
+          textArea.select();
+          document.execCommand('copy');
+          document.body.removeChild(textArea);
+        }
+        showCartToast(`Đã sao chép liên kết "${name}"!`);
+      } catch (err) {
+        showCartToast(`Liên kết: ${shareUrl}`);
+      }
+    });
+  });
+
+  // 4. WISHLIST TRIGGER
+  const updateWishlistUI = () => {
+    let wishList: any[] = [];
+    try {
+      wishList = JSON.parse(localStorage.getItem('user_wishlist_guest') || '[]');
+    } catch {}
+
+    document.querySelectorAll<HTMLButtonElement>('[data-btn-wishlist]').forEach((btn) => {
+      const slug = btn.dataset.slug;
+      const isFav = wishList.some((item: any) => item.slug === slug);
+      const icon = btn.querySelector('.wishlist-icon') as SVGElement | null;
+      if (isFav) {
+        btn.classList.add('bg-rose-50', 'text-rose-600', 'border-rose-300');
+        btn.classList.remove('bg-white', 'text-neutral-600', 'border-neutral-200');
+        if (icon) {
+          icon.setAttribute('fill', '#e11d48');
+          icon.setAttribute('stroke', '#e11d48');
+        }
+        btn.title = 'Đã lưu trong yêu thích';
+      } else {
+        btn.classList.remove('bg-rose-50', 'text-rose-600', 'border-rose-300');
+        btn.classList.add('bg-white', 'text-neutral-600', 'border-neutral-200');
+        if (icon) {
+          icon.setAttribute('fill', 'none');
+          icon.setAttribute('stroke', 'currentColor');
+        }
+        btn.title = 'Thêm vào yêu thích';
+      }
+    });
+  };
+
+  document.querySelectorAll<HTMLButtonElement>('[data-btn-wishlist]').forEach((btn) => {
+    if (btn.dataset.initialized) return;
+    btn.dataset.initialized = 'true';
+
+    btn.addEventListener('click', async (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+
+      const slug = btn.dataset.slug || '';
+      const name = btn.dataset.name || '';
+      const price = Number(btn.dataset.price || 0);
+      const thumbnail = btn.dataset.image || '';
+      const category = btn.dataset.category || '';
+
+      const token = localStorage.getItem('auth_token');
+      let wishList: any[] = [];
+      try {
+        wishList = JSON.parse(localStorage.getItem('user_wishlist_guest') || '[]');
+      } catch {}
+
+      const idx = wishList.findIndex((item: any) => item.slug === slug);
+
+      if (idx > -1) {
+        wishList.splice(idx, 1);
+        showCartToast(`Đã xóa "${name}" khỏi danh sách yêu thích!`);
+      } else {
+        wishList.push({ slug, name, price, thumbnail, category });
+        showCartToast(`Đã thêm "${name}" vào danh sách yêu thích!`);
+      }
+
+      localStorage.setItem('user_wishlist_guest', JSON.stringify(wishList));
+
+      // Đồng bộ nếu đã đăng nhập
+      if (token) {
+        try {
+          await fetch('http://localhost:4000/api/wishlist/toggle', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`,
+            },
+            body: JSON.stringify({ slug }),
+          });
+        } catch {}
+      }
+
+      window.dispatchEvent(new Event('wishlist:changed'));
+      updateWishlistUI();
+    });
+  });
+
+  // Chạy cập nhật ban đầu & lắng nghe thay đổi
+  updateWishlistUI();
+  window.addEventListener('wishlist:changed', updateWishlistUI);
 </script>

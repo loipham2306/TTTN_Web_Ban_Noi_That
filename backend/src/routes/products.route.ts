@@ -10,7 +10,7 @@ export const productsRouter = Router();
 // ================================================================
 productsRouter.get('/', async (req: Request, res: Response) => {
   try {
-    const { category, minPrice, maxPrice, page = '1', limit = '12', search } = req.query;
+    const { category, minPrice, maxPrice, page = '1', limit = '12', search, material, color } = req.query;
 
     const pageNum  = Math.max(1, parseInt(page as string, 10));
     const limitNum = Math.min(50, parseInt(limit as string, 10));
@@ -26,17 +26,31 @@ productsRouter.get('/', async (req: Request, res: Response) => {
     }
 
     if (search) {
-      where.name = { contains: search as string };
+      const q = String(search).trim();
+      where.OR = [
+        { name: { contains: q } },
+        { brand: { contains: q } },
+        { short_description: { contains: q } },
+      ];
     }
 
+    const variantFilter: any = {};
     if (minPrice || maxPrice) {
+      variantFilter.price = {
+        ...(minPrice ? { gte: parseFloat(minPrice as string) } : {}),
+        ...(maxPrice ? { lte: parseFloat(maxPrice as string) } : {}),
+      };
+    }
+    if (material) {
+      variantFilter.material = { contains: String(material).trim() };
+    }
+    if (color) {
+      variantFilter.color = { contains: String(color).trim() };
+    }
+
+    if (Object.keys(variantFilter).length > 0) {
       where.product_variants = {
-        some: {
-          price: {
-            ...(minPrice ? { gte: parseFloat(minPrice as string) } : {}),
-            ...(maxPrice ? { lte: parseFloat(maxPrice as string) } : {}),
-          },
-        },
+        some: variantFilter,
       };
     }
 

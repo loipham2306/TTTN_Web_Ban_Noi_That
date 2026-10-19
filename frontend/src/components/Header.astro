@@ -91,10 +91,18 @@ const secondary: MenuLink[] = [
 
 const isHome = Astro.url.pathname === '/';
 const currentPath = Astro.url.pathname;
+const isProductsPage = currentPath === '/san-pham' || currentPath.startsWith('/san-pham');
 
 const isItemActive = (item: MenuItem): boolean => {
   if (item.href === '/') {
     return currentPath === '/';
+  }
+  const hasKhongGianParam = Astro.url.searchParams.has('khong-gian');
+  if (item.label === 'Không gian') {
+    return hasKhongGianParam;
+  }
+  if (item.label === 'Sản phẩm') {
+    return currentPath.startsWith('/san-pham') && !hasKhongGianParam;
   }
   if (item.href && item.href !== '#' && !item.href.startsWith('/#')) {
     if (currentPath === item.href || currentPath.startsWith(item.href + '/')) {
@@ -235,19 +243,21 @@ const isItemActive = (item: MenuItem): boolean => {
 
       {/* KHỐI PHẢI: TÌM KIẾM, TÀI KHOẢN, GIỎ HÀNG */}
       <div class="flex items-center gap-2 sm:gap-3">
-        <button
-          id="search-toggle-btn"
-          type="button"
-          class="icon-btn inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/10"
-          aria-label="Tìm kiếm sản phẩm"
-          aria-expanded="false"
-          aria-controls="quick-search-bar"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5">
-            <circle cx="11" cy="11" r="6" />
-            <path d="M15.5 15.5 20 20" stroke-linecap="round" />
-          </svg>
-        </button>
+        {!isProductsPage && (
+          <button
+            id="search-toggle-btn"
+            type="button"
+            class="icon-btn inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/10"
+            aria-label="Tìm kiếm sản phẩm"
+            aria-expanded="false"
+            aria-controls="quick-search-bar"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5">
+              <circle cx="11" cy="11" r="6" />
+              <path d="M15.5 15.5 20 20" stroke-linecap="round" />
+            </svg>
+          </button>
+        )}
 
         {/* TÀI KHOẢN (desktop): icon + tên khách + mũi tên, hover mở dropdown */}
         <div class="nav-item group relative hidden lg:block">
@@ -351,6 +361,7 @@ const isItemActive = (item: MenuItem): boolean => {
         {/* Giỏ hàng */}
         <a
           href="/gio-hang"
+          data-header-cart-btn
           class="icon-btn relative inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/10"
           aria-label="Giỏ hàng"
           title="Giỏ hàng"
@@ -369,25 +380,49 @@ const isItemActive = (item: MenuItem): boolean => {
     </div>
   </div>
 
-  {/* THANH TÌM KIẾM NHANH */}
-  <div id="quick-search-bar" class="hidden border-b border-white/10 bg-[#173524] px-4 py-4 shadow-xl sm:px-8">
-    <div class="mx-auto max-w-3xl">
-      <form data-desktop-search role="search" class="flex items-center gap-3 border-b border-white/20 pb-2">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5 text-neutral-400">
-          <circle cx="11" cy="11" r="6" />
-          <path d="M15.5 15.5 20 20" stroke-linecap="round" />
-        </svg>
-        <input
-          type="search"
-          name="q"
-          placeholder="Tìm sofa da, bàn ăn gỗ sồi, đèn trần nghệ thuật..."
-          class="w-full bg-transparent text-sm text-white placeholder-neutral-500 outline-none"
-        />
-        <button type="submit" class="text-xs uppercase tracking-widest text-amber-300 transition hover:text-amber-200">Tìm kiếm</button>
-        <button type="button" id="close-search-btn" class="ml-2 text-neutral-400 hover:text-white" aria-label="Đóng">✕</button>
-      </form>
+  {/* THANH TÌM KIẾM NHANH CAO CẤP VỚI GỢI Ý TRỰC TIẾP (LIVE SEARCH DROPDOWN) */}
+  {!isProductsPage && (
+    <div id="quick-search-bar" class="hidden border-b border-[#D8B670]/30 bg-[#173524]/98 backdrop-blur-md px-4 py-4 shadow-2xl sm:px-8 transition-all duration-300">
+      <div class="mx-auto max-w-3xl relative">
+        <form data-desktop-search role="search" class="flex items-center gap-3 border-b border-[#D8B670]/50 pb-2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5 text-[#D8B670] shrink-0">
+            <circle cx="11" cy="11" r="6" />
+            <path d="M15.5 15.5 20 20" stroke-linecap="round" />
+          </svg>
+          <input
+            type="search"
+            id="header-search-input"
+            name="q"
+            autocomplete="off"
+            placeholder="Tìm sofa da Ý, bàn ăn gỗ sồi, giường bọc nỉ, đèn trang trí..."
+            class="w-full bg-transparent text-sm text-white placeholder-neutral-400 outline-none font-medium"
+          />
+          <button
+            type="submit"
+            class="rounded-none bg-gradient-to-r from-[#D8B670] to-[#C49E52] px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-[#173524] transition-all hover:brightness-110 shadow-xs cursor-pointer shrink-0"
+          >
+            Tìm kiếm
+          </button>
+          <button
+            type="button"
+            id="close-search-btn"
+            class="ml-1 flex h-8 w-8 items-center justify-center rounded-full text-neutral-400 hover:bg-white/10 hover:text-white transition-colors cursor-pointer text-sm font-bold shrink-0"
+            aria-label="Đóng tìm kiếm"
+          >
+            ✕
+          </button>
+        </form>
+
+        {/* DROPDOWN GỢI Ý KẾT QUẢ TÌM KIẾM TỨC THÌ (LIVE PREVIEW) */}
+        <div
+          id="header-search-results"
+          class="hidden absolute top-full left-0 right-0 mt-2 bg-sand-50 rounded-none shadow-2xl border border-walnut-900/20 overflow-hidden z-50 text-walnut-900 max-h-[420px] overflow-y-auto"
+        >
+          <!-- Dynamic suggestions rendered via JS -->
+        </div>
+      </div>
     </div>
-  </div>
+  )}
 </header>
 
 {/* MOBILE DRAWER MENU */}
@@ -960,32 +995,137 @@ const isItemActive = (item: MenuItem): boolean => {
     if (active && header?.contains(active)) active.blur();
   });
 
-  // Thanh tìm kiếm nhanh
-  searchToggleBtn?.addEventListener('click', () => {
+  // Thanh tìm kiếm nhanh trên Header (hoạt động ở các trang ngoài /san-pham)
+  const headerSearchInput = document.getElementById('header-search-input') as HTMLInputElement | null;
+  const headerSearchResults = document.getElementById('header-search-results');
+  const desktopSearchForm = document.querySelector<HTMLFormElement>('[data-desktop-search]');
+  const menuSearchForm = document.querySelector<HTMLFormElement>('[data-menu-search]');
+
+  const openSearchBar = () => {
     if (!quickSearchBar) return;
-    const isHidden = quickSearchBar.classList.toggle('hidden');
-    searchToggleBtn.setAttribute('aria-expanded', String(!isHidden));
-    if (!isHidden) {
-      quickSearchBar.querySelector<HTMLInputElement>('input[name="q"]')?.focus();
+    quickSearchBar.classList.remove('hidden');
+    searchToggleBtn?.setAttribute('aria-expanded', 'true');
+    setTimeout(() => headerSearchInput?.focus(), 100);
+  };
+
+  const closeSearchBar = () => {
+    if (!quickSearchBar) return;
+    quickSearchBar.classList.add('hidden');
+    searchToggleBtn?.setAttribute('aria-expanded', 'false');
+    if (headerSearchResults) {
+      headerSearchResults.classList.add('hidden');
+      headerSearchResults.innerHTML = '';
+    }
+  };
+
+  searchToggleBtn?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (quickSearchBar?.classList.contains('hidden')) {
+      openSearchBar();
+    } else {
+      closeSearchBar();
     }
   });
 
-  closeSearchBtn?.addEventListener('click', () => {
-    quickSearchBar?.classList.add('hidden');
-    searchToggleBtn?.setAttribute('aria-expanded', 'false');
+  closeSearchBtn?.addEventListener('click', closeSearchBar);
+
+  document.addEventListener('click', (e) => {
+    const target = e.target as HTMLElement;
+    if (quickSearchBar && !quickSearchBar.contains(target) && !searchToggleBtn?.contains(target)) {
+      if (!quickSearchBar.classList.contains('hidden')) {
+        closeSearchBar();
+      }
+    }
   });
 
-  const handleSearchSubmit = (form: HTMLFormElement | null): void => {
-    form?.addEventListener('submit', (event) => {
-      event.preventDefault();
-      const input = form.querySelector<HTMLInputElement>('input[name="q"]');
-      const keyword = input?.value.trim() ?? '';
-      window.location.href = keyword ? '/san-pham?q=' + encodeURIComponent(keyword) : '/san-pham';
-    });
-  };
+  // Tìm kiếm tức thì với Debounce 250ms
+  let searchDebounceTimer: any = null;
+  headerSearchInput?.addEventListener('input', () => {
+    clearTimeout(searchDebounceTimer);
+    const query = headerSearchInput.value.trim();
 
-  handleSearchSubmit(document.querySelector<HTMLFormElement>('[data-menu-search]'));
-  handleSearchSubmit(document.querySelector<HTMLFormElement>('[data-desktop-search]'));
+    if (!query || query.length < 2) {
+      if (headerSearchResults) {
+        headerSearchResults.classList.add('hidden');
+        headerSearchResults.innerHTML = '';
+      }
+      return;
+    }
+
+    searchDebounceTimer = setTimeout(async () => {
+      try {
+        const res = await fetch(`http://localhost:4000/api/products?search=${encodeURIComponent(query)}&limit=5`);
+        if (!res.ok) return;
+        const json = await res.json();
+        const items = json.success && Array.isArray(json.data) ? json.data : [];
+
+        if (!headerSearchResults) return;
+        headerSearchResults.classList.remove('hidden');
+
+        if (items.length === 0) {
+          headerSearchResults.innerHTML = `
+            <div class="p-4 text-center text-xs text-walnut-800/80">
+              Không tìm thấy sản phẩm nào khớp với "<strong>${query}</strong>".
+            </div>
+          `;
+          return;
+        }
+
+        const formatPrice = (p: number) => Number(p || 0).toLocaleString('vi-VN') + ' ₫';
+
+        headerSearchResults.innerHTML = `
+          <div class="p-2 border-b border-walnut-900/10 bg-sand-100/60 flex items-center justify-between text-[11px] font-bold text-walnut-800 uppercase tracking-wider">
+            <span>Sản phẩm gợi ý (${items.length})</span>
+            <span class="text-[#B88E28]">KTUFA Luxury</span>
+          </div>
+          <div class="divide-y divide-walnut-900/10">
+            ${items.map((prod: any) => `
+              <a
+                href="/san-pham/${prod.slug}"
+                class="flex items-center gap-3 p-3 hover:bg-white transition-colors group cursor-pointer"
+              >
+                <div class="h-12 w-12 shrink-0 aspect-square rounded-none bg-sand-200 overflow-hidden border border-walnut-900/10">
+                  <img src="${prod.thumbnail || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=200&q=80'}" alt="${prod.name}" class="h-full w-full object-cover group-hover:scale-105 transition-transform" />
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h4 class="text-xs font-bold text-walnut-900 truncate group-hover:text-[#B88E28] transition-colors">${prod.name}</h4>
+                  <div class="flex items-center gap-2 mt-0.5">
+                    <span class="text-[11px] font-bold text-[#B88E28]">${formatPrice(prod.price)}</span>
+                    ${prod.categoryLabel ? `<span class="text-[9px] uppercase px-1.5 py-0.2 bg-sand-200 text-walnut-800 font-semibold">${prod.categoryLabel}</span>` : ''}
+                    ${prod.material ? `<span class="text-[9px] text-walnut-800/60 truncate">• ${prod.material}</span>` : ''}
+                  </div>
+                </div>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-4 w-4 text-walnut-800/40 group-hover:text-walnut-900 group-hover:translate-x-0.5 transition-all shrink-0">
+                  <path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </a>
+            `).join('')}
+          </div>
+          <a
+            href="/san-pham?q=${encodeURIComponent(query)}"
+            class="block p-3 text-center text-xs font-bold text-[#173524] bg-sand-100 hover:bg-sand-200 uppercase tracking-wider border-t border-walnut-900/10 transition-colors"
+          >
+            Xem tất cả kết quả cho "${query}" →
+          </a>
+        `;
+      } catch (err) {
+        console.warn('Lỗi tìm kiếm gợi ý:', err);
+      }
+    }, 250);
+  });
+
+  desktopSearchForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const q = headerSearchInput?.value.trim() || '';
+    if (q) window.location.href = `/san-pham?q=${encodeURIComponent(q)}`;
+  });
+
+  menuSearchForm?.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const input = menuSearchForm.querySelector('input[type="search"]') as HTMLInputElement | null;
+    const q = input?.value.trim() || '';
+    if (q) window.location.href = `/san-pham?q=${encodeURIComponent(q)}`;
+  });
 </script>
 
 <script>

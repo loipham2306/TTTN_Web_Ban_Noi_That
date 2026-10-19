@@ -1,0 +1,421 @@
+---
+---
+
+<!-- QUICK VIEW POPUP MODAL -->
+<div
+  id="quick-view-modal"
+  class="fixed inset-0 z-[100] hidden bg-walnut-900/60 backdrop-blur-sm p-4 overflow-y-auto flex items-center justify-center transition-opacity duration-300 opacity-0"
+  aria-hidden="true"
+  role="dialog"
+  aria-modal="true"
+>
+  <div
+    id="quick-view-dialog"
+    class="relative my-8 w-full max-w-2xl overflow-hidden rounded-none bg-sand-50 p-6 sm:p-8 shadow-2xl border border-walnut-900/15 transition-all duration-300 scale-95 max-h-[92vh] overflow-y-auto"
+  >
+    <!-- Nút đóng (X) bo tròn với hiệu ứng xoay 90 độ khi hover -->
+    <button
+      type="button"
+      id="btn-close-quick-view"
+      class="absolute right-4 top-4 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-sand-200/90 text-walnut-800 border border-walnut-900/10 shadow-sm hover:bg-walnut-900 hover:text-amber-300 hover:rotate-90 transition-all duration-300 cursor-pointer"
+      aria-label="Đóng xem nhanh"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="h-4 w-4 pointer-events-none">
+        <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 items-start">
+      <!-- CỘT TRÁI: ẢNH LỚN + NÚT CHUYỂN ẢNH 2 BÊN + CÁC ẢNH NHỎ BÊN DƯỚI -->
+      <div class="flex flex-col">
+        <!-- KHUNG ẢNH CHÍNH VUÔNG VỨC VỚI 2 NÚT CHUYỂN ẢNH -->
+        <div class="relative aspect-square w-full overflow-hidden rounded-none bg-sand-200 border border-walnut-900/10 shadow-inner group">
+          <img
+            id="qv-image"
+            src=""
+            alt=""
+            class="h-full w-full object-cover transition-all duration-300"
+          />
+
+          <!-- NÚT CHUYỂN ẢNH TRÁI (<) -->
+          <button
+            type="button"
+            id="qv-btn-prev"
+            class="absolute left-2 top-1/2 -translate-y-1/2 z-10 flex h-8 w-8 items-center justify-center rounded-none bg-white/90 text-walnut-900 border border-walnut-900/20 shadow-md hover:bg-[#173524] hover:text-amber-300 active:scale-95 transition-all cursor-pointer"
+            aria-label="Ảnh trước"
+            title="Ảnh trước"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="h-4 w-4">
+              <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+
+          <!-- NÚT CHUYỂN ẢNH PHẢI (>) -->
+          <button
+            type="button"
+            id="qv-btn-next"
+            class="absolute right-2 top-1/2 -translate-y-1/2 z-10 flex h-8 w-8 items-center justify-center rounded-none bg-white/90 text-walnut-900 border border-walnut-900/20 shadow-md hover:bg-[#173524] hover:text-amber-300 active:scale-95 transition-all cursor-pointer"
+            aria-label="Ảnh tiếp theo"
+            title="Ảnh tiếp theo"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="h-4 w-4">
+              <path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+
+          <!-- BADGE DANH MỤC TRÊN ẢNH -->
+          <div class="absolute left-2.5 top-2.5 pointer-events-none">
+            <span id="qv-category-badge" class="rounded-none bg-[#173524] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-300 shadow-sm border border-white/10">
+              Nội Thất
+            </span>
+          </div>
+
+          <!-- CHỈ SỐ ẢNH GÓC DƯỚI PHẢI (VÍ DỤ: 1/4) -->
+          <div class="absolute right-2.5 bottom-2.5 pointer-events-none">
+            <span id="qv-image-counter" class="rounded-none bg-black/60 backdrop-blur-xs px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
+              1 / 1
+            </span>
+          </div>
+        </div>
+
+        <!-- HÀNG CÁC HÌNH ẢNH NHỎ (THUMBNAILS) BÊN DƯỚI -->
+        <div id="qv-thumbnails" class="mt-2.5 grid grid-cols-4 gap-2 w-full">
+          <!-- Sẽ được render động khi mở popup -->
+        </div>
+      </div>
+
+      <!-- CỘT PHẢI: THÔNG SỐ VÀ HÀNH ĐỘNG (CÁC NÚT VUÔNG VỨC) -->
+      <div class="flex flex-col justify-between h-full">
+        <div>
+          <!-- DANH MỤC VÀ KHÔNG GIAN (ĐẶT BÊN TRÁI, CÓ PR-12 ĐỂ TRÁNH NÚT ĐÓNG) -->
+          <div class="flex flex-wrap items-center gap-2 pr-12">
+            <span id="qv-category" class="text-xs font-bold uppercase tracking-[0.2em] text-[#B88E28]"></span>
+            <span id="qv-space" class="text-[11px] font-semibold text-emerald-900 bg-emerald-700/10 border border-emerald-700/20 px-2.5 py-0.5 rounded-none"></span>
+          </div>
+
+          <h3 id="qv-name" class="mt-2 font-display text-xl font-bold tracking-tight text-walnut-900 sm:text-2xl leading-snug"></h3>
+          <p id="qv-price" class="mt-2 text-2xl font-bold font-display text-[#B88E28]"></p>
+
+          <p id="qv-description" class="mt-2.5 text-xs leading-relaxed text-walnut-800/80 line-clamp-3"></p>
+
+          <!-- BẢNG THÔNG SỐ CƠ BẢN (VUÔNG VỨC) -->
+          <div class="mt-4 rounded-none border border-walnut-900/10 bg-white/80 backdrop-blur-xs p-3.5 space-y-2 text-xs shadow-2xs">
+            <div class="flex items-center justify-between border-b border-walnut-900/10 pb-1.5">
+              <span class="text-walnut-800/70 font-medium">📐 Kích thước:</span>
+              <span id="qv-dimensions" class="font-bold text-walnut-900">Tiêu chuẩn</span>
+            </div>
+            <div class="flex items-center justify-between border-b border-walnut-900/10 pb-1.5">
+              <span class="text-walnut-800/70 font-medium">🌲 Chất liệu:</span>
+              <span id="qv-material" class="font-bold text-walnut-900">Cao cấp</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-walnut-800/70 font-medium">🛡️ Bảo hành:</span>
+              <span id="qv-warranty" class="font-bold text-walnut-900">24 tháng chính hãng</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CỤM NÚT THAO TÁC NỔI BẬT: CÁC NÚT ĐỀU VUÔNG VỨC SẮC CẠNH -->
+        <div class="mt-5 space-y-2.5 pt-3.5 border-t border-walnut-900/10">
+          <div class="flex items-center gap-3">
+            <!-- Tăng giảm số lượng (vuông vức) -->
+            <div class="flex items-center rounded-none border border-walnut-900/20 bg-white p-1 shadow-2xs">
+              <button
+                type="button"
+                id="qv-qty-minus"
+                class="flex h-9 w-9 items-center justify-center rounded-none text-walnut-900 hover:bg-sand-200 transition-colors font-bold text-base active:scale-95 cursor-pointer"
+                aria-label="Giảm số lượng"
+              >
+                −
+              </button>
+              <input
+                type="number"
+                id="qv-qty"
+                value="1"
+                min="1"
+                max="99"
+                class="w-9 text-center text-sm font-bold text-walnut-900 outline-none"
+                readonly
+              />
+              <button
+                type="button"
+                id="qv-qty-plus"
+                class="flex h-9 w-9 items-center justify-center rounded-none text-walnut-900 hover:bg-sand-200 transition-colors font-bold text-base active:scale-95 cursor-pointer"
+                aria-label="Tăng số lượng"
+              >
+                +
+              </button>
+            </div>
+
+            <!-- Nút Thêm vào giỏ hàng: VUÔNG VỨC, VÀNG CHAMPAGNE NHƯ LOGO KTUFA -->
+            <button
+              type="button"
+              id="qv-btn-add-cart"
+              class="flex-1 flex items-center justify-center gap-2 rounded-none bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] py-3.5 px-4 text-xs sm:text-sm uppercase tracking-wider text-[#173524] font-bold shadow-md hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer border border-[#E0C582]/50"
+            >
+              <svg viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4 pointer-events-none">
+                <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
+              </svg>
+              <span>Thêm vào giỏ</span>
+            </button>
+          </div>
+
+          <!-- Nút Xem chi tiết sản phẩm: VUÔNG VỨC SANG TRỌNG -->
+          <a
+            id="qv-detail-link"
+            href="#"
+            class="flex w-full items-center justify-center gap-2 rounded-none border border-walnut-900/20 bg-white py-2.5 px-4 text-xs font-bold uppercase tracking-wider text-walnut-900 shadow-2xs hover:bg-sand-100 hover:border-walnut-900 transition-all active:scale-[0.99]"
+          >
+            <span>Xem trang chi tiết đầy đủ</span>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="h-3.5 w-3.5 text-walnut-800">
+              <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  import { addToCart, showCartToast, formatVnd, flyToCart } from '../scripts/cart';
+
+  // Thư viện các góc chụp phối cảnh đa dạng theo từng loại sản phẩm
+  const CATEGORY_PREVIEWS: Record<string, string[]> = {
+    sofa: [
+      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1540574163026-643ea20ade25?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=800&q=80',
+    ],
+    'ban-an': [
+      'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1577140917170-285929fb55b7?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1530018607912-eff2daa1bac4?auto=format&fit=crop&w=800&q=80',
+    ],
+    ghe: [
+      'https://images.unsplash.com/photo-1580481077198-c847ad43616b?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80',
+    ],
+    giuong: [
+      'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1540518614846-7ede433c4ef9?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&q=80',
+    ],
+    'tu-ke': [
+      'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1558997519-83ea9252def8?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1594671581654-278554dd3460?auto=format&fit=crop&w=800&q=80',
+    ],
+    den: [
+      'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1534349762230-e0cadf78f5da?auto=format&fit=crop&w=800&q=80',
+    ],
+  };
+
+  let currentProduct: any = null;
+  let galleryList: string[] = [];
+  let currentImageIndex = 0;
+
+  const modal = document.getElementById('quick-view-modal');
+  const dialog = document.getElementById('quick-view-dialog');
+  const btnClose = document.getElementById('btn-close-quick-view');
+
+  const qvImage = document.getElementById('qv-image') as HTMLImageElement;
+  const qvCategoryBadge = document.getElementById('qv-category-badge');
+  const qvCategory = document.getElementById('qv-category');
+  const qvSpace = document.getElementById('qv-space');
+  const qvName = document.getElementById('qv-name');
+  const qvPrice = document.getElementById('qv-price');
+  const qvDescription = document.getElementById('qv-description');
+  const qvDimensions = document.getElementById('qv-dimensions');
+  const qvMaterial = document.getElementById('qv-material');
+  const qvWarranty = document.getElementById('qv-warranty');
+  const qvDetailLink = document.getElementById('qv-detail-link') as HTMLAnchorElement;
+
+  const btnPrev = document.getElementById('qv-btn-prev');
+  const btnNext = document.getElementById('qv-btn-next');
+  const imageCounter = document.getElementById('qv-image-counter');
+  const thumbnailsContainer = document.getElementById('qv-thumbnails');
+
+  const qtyInput = document.getElementById('qv-qty') as HTMLInputElement;
+  const btnMinus = document.getElementById('qv-qty-minus');
+  const btnPlus = document.getElementById('qv-qty-plus');
+  const btnAddCart = document.getElementById('qv-btn-add-cart');
+
+  // Cập nhật ảnh chính và highlight thumbnail tương ứng
+  const updateActiveImage = (idx: number) => {
+    if (!galleryList.length) return;
+    currentImageIndex = (idx + galleryList.length) % galleryList.length;
+
+    if (qvImage) {
+      qvImage.style.opacity = '0.5';
+      qvImage.src = galleryList[currentImageIndex];
+      setTimeout(() => {
+        qvImage.style.opacity = '1';
+      }, 150);
+    }
+
+    if (imageCounter) {
+      imageCounter.textContent = `${currentImageIndex + 1} / ${galleryList.length}`;
+    }
+
+    // Highlight thumbnail đang xem
+    if (thumbnailsContainer) {
+      const thumbs = thumbnailsContainer.querySelectorAll<HTMLButtonElement>('[data-thumb-idx]');
+      thumbs.forEach((th) => {
+        const i = Number(th.dataset.thumbIdx);
+        if (i === currentImageIndex) {
+          th.classList.add('border-2', 'border-[#173524]', 'ring-1', 'ring-[#173524]', 'opacity-100');
+          th.classList.remove('border-walnut-900/15', 'opacity-60');
+        } else {
+          th.classList.remove('border-2', 'border-[#173524]', 'ring-1', 'ring-[#173524]', 'opacity-100');
+          th.classList.add('border-walnut-900/15', 'opacity-60');
+        }
+      });
+    }
+  };
+
+  // Render danh sách ảnh nhỏ bên dưới
+  const renderThumbnails = () => {
+    if (!thumbnailsContainer) return;
+    thumbnailsContainer.innerHTML = '';
+
+    galleryList.forEach((url, i) => {
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.dataset.thumbIdx = String(i);
+      btn.className = `relative aspect-square w-full overflow-hidden rounded-none border transition-all cursor-pointer bg-sand-50 hover:opacity-100 ${
+        i === currentImageIndex
+          ? 'border-2 border-[#173524] ring-1 ring-[#173524] opacity-100'
+          : 'border-walnut-900/15 opacity-60'
+      }`;
+      btn.title = `Xem góc chụp ${i + 1}`;
+      btn.innerHTML = `<img src="${url}" alt="Thumbnail ${i + 1}" class="h-full w-full object-cover" loading="lazy" />`;
+      btn.addEventListener('click', () => updateActiveImage(i));
+      thumbnailsContainer.appendChild(btn);
+    });
+  };
+
+  // Nút mũi tên chuyển ảnh 2 bên
+  btnPrev?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    updateActiveImage(currentImageIndex - 1);
+  });
+
+  btnNext?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    updateActiveImage(currentImageIndex + 1);
+  });
+
+  const openModal = (data: any) => {
+    if (!modal) return;
+    currentProduct = data;
+
+    // Chuẩn bị danh sách ảnh phối cảnh
+    const mainImg = data.image || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80';
+    const list = [mainImg];
+    const catKey = data.categorySlug || 'sofa';
+    const previews = CATEGORY_PREVIEWS[catKey] || CATEGORY_PREVIEWS['sofa'];
+    if (previews) {
+      previews.forEach((url) => {
+        if (!list.includes(url)) list.push(url);
+      });
+    }
+    galleryList = list.slice(0, 4);
+    currentImageIndex = 0;
+
+    if (qvCategoryBadge) qvCategoryBadge.textContent = data.category || 'Nội Thất';
+    if (qvCategory) qvCategory.textContent = data.category || '';
+    if (qvSpace) {
+      if (data.space) {
+        qvSpace.textContent = data.space;
+        qvSpace.classList.remove('hidden');
+      } else {
+        qvSpace.classList.add('hidden');
+      }
+    }
+    if (qvName) qvName.textContent = data.name || '';
+    if (qvPrice) qvPrice.textContent = formatVnd(Number(data.price) || 0);
+    if (qvDescription) qvDescription.textContent = data.description || 'Sản phẩm nội thất cao cấp chế tác thủ công tỉ mỉ.';
+    if (qvDimensions) qvDimensions.textContent = data.dimensions || 'Kích thước tiêu chuẩn';
+    if (qvMaterial) qvMaterial.textContent = data.material || 'Gỗ / Da cao cấp';
+    if (qvWarranty) qvWarranty.textContent = data.warranty || '24 tháng chính hãng';
+    if (qvDetailLink) qvDetailLink.href = `/san-pham/${data.slug}`;
+    if (qtyInput) qtyInput.value = '1';
+
+    updateActiveImage(0);
+    renderThumbnails();
+
+    modal.classList.remove('hidden');
+    requestAnimationFrame(() => {
+      modal.classList.remove('opacity-0');
+      dialog?.classList.remove('scale-95');
+      dialog?.classList.add('scale-100');
+    });
+    document.body.style.overflow = 'hidden';
+  };
+
+  const closeModal = () => {
+    if (!modal) return;
+    modal.classList.add('opacity-0');
+    dialog?.classList.remove('scale-100');
+    dialog?.classList.add('scale-95');
+    setTimeout(() => {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+      currentProduct = null;
+    }, 250);
+  };
+
+  btnClose?.addEventListener('click', closeModal);
+  modal?.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
+  window.addEventListener('keydown', (e) => {
+    if (modal && !modal.classList.contains('hidden')) {
+      if (e.key === 'Escape') closeModal();
+      if (e.key === 'ArrowLeft') updateActiveImage(currentImageIndex - 1);
+      if (e.key === 'ArrowRight') updateActiveImage(currentImageIndex + 1);
+    }
+  });
+
+  // Tăng giảm số lượng trong popup
+  btnMinus?.addEventListener('click', () => {
+    if (!qtyInput) return;
+    let v = parseInt(qtyInput.value) || 1;
+    if (v > 1) qtyInput.value = String(v - 1);
+  });
+
+  btnPlus?.addEventListener('click', () => {
+    if (!qtyInput) return;
+    let v = parseInt(qtyInput.value) || 1;
+    if (v < 99) qtyInput.value = String(v + 1);
+  });
+
+  // Thêm vào giỏ từ popup (có hiệu ứng bay flyToCart)
+  btnAddCart?.addEventListener('click', () => {
+    if (!currentProduct) return;
+    const qty = parseInt(qtyInput?.value || '1') || 1;
+    flyToCart(qvImage, galleryList[currentImageIndex] || currentProduct.image);
+    addToCart(
+      {
+        slug: currentProduct.slug,
+        name: currentProduct.name,
+        price: Number(currentProduct.price) || 0,
+        thumbnail: galleryList[currentImageIndex] || currentProduct.image,
+        category: currentProduct.category,
+      },
+      qty
+    );
+    showCartToast(`Đã thêm ${qty} "${currentProduct.name}" vào giỏ hàng!`);
+    closeModal();
+  });
+
+  // Lắng nghe sự kiện mở Quick View từ bất kỳ thẻ sản phẩm nào
+  window.addEventListener('open-quick-view', ((e: CustomEvent) => {
+    if (e.detail) openModal(e.detail);
+  }) as EventListener);
+</script>

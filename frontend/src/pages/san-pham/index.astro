@@ -1,7 +1,16 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import ProductCard from '../../components/ProductCard.astro';
-import { products as fallbackProducts, categories as fallbackCategories, spaces, priceRanges, productsPerPage } from '../../data/products';
+import PageBanner from '../../components/PageBanner.astro';
+import {
+  products as fallbackProducts,
+  categories as fallbackCategories,
+  spaces,
+  materials,
+  colors,
+  priceRanges,
+  productsPerPage,
+} from '../../data/products';
 
 let categories = fallbackCategories;
 try {
@@ -23,117 +32,234 @@ try {
   if (prodRes.ok) {
     const prodJson = await prodRes.json();
     if (prodJson.success && Array.isArray(prodJson.data) && prodJson.data.length > 0) {
-      products = prodJson.data.map((p: any) => ({
-        id: p.id,
-        slug: p.slug,
-        name: p.name,
-        category: p.category,
-        categoryLabel: p.categoryLabel,
-        space: p.space || 'phong-khach',
-        spaceLabel: p.spaceLabel || 'Phòng khách',
-        price: p.price,
-        material: p.material || '',
-        thumbnail: p.thumbnail,
-        image: p.thumbnail,
-        isNew: false,
-      }));
+      products = prodJson.data.map((p: any) => {
+        const fallback = fallbackProducts.find((fp) => fp.slug === p.slug);
+        return {
+          id: p.id,
+          slug: p.slug,
+          name: p.name,
+          category: p.category,
+          categoryLabel: p.categoryLabel,
+          space: p.space || fallback?.space || 'phong-khach',
+          spaceLabel: p.spaceLabel || fallback?.spaceLabel || 'Phòng khách',
+          price: p.price,
+          material: p.material || fallback?.material || '',
+          color: p.color || fallback?.color || '',
+          colorLabel: p.colorLabel || fallback?.colorLabel || '',
+          thumbnail: p.thumbnail || fallback?.image || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80',
+          image: p.thumbnail || fallback?.image || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80',
+          isNew: p.isNew ?? (fallback?.isNew || false),
+        };
+      });
     }
   }
 } catch {}
 ---
 
-<BaseLayout title="Sản phẩm | Nội Thất" description="Danh sách sản phẩm nội thất: lọc theo danh mục, không gian và khoảng giá.">
+<BaseLayout title="Sản phẩm | Nội Thất" description="Danh sách sản phẩm nội thất cao cấp: tìm kiếm, lọc theo chất liệu, màu sắc, danh mục và khoảng giá.">
 
-  <section class="border-b border-walnut-900/10 bg-sand-100">
-    <div class="mx-auto max-w-7xl px-4 py-10 sm:py-14">
-      <nav class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">
-        <a href="/" class="transition-colors hover:text-clay-600">Trang chủ</a>
-        <span class="mx-2">/</span>
-        <span class="text-walnut-900">Sản phẩm</span>
-      </nav>
-      <h1 class="mt-4 font-display text-3xl tracking-tight sm:text-4xl">Tất cả sản phẩm</h1>
-      <p class="mt-3 max-w-2xl text-sm leading-relaxed text-walnut-800">
-        Tuyển chọn nội thất cho phòng khách, phòng ngủ, phòng ăn và không gian làm việc. Lọc theo danh mục, không gian và khoảng giá để tìm đúng món bạn cần.
-      </p>
-    </div>
-  </section>
+  <PageBanner
+    position="san-pham"
+    fallbackTitle="Tất Cả Sản Phẩm Nội Thất"
+    fallbackSubtitle="Bộ sưu tập thiết kế 2026"
+    fallbackDescription="Tuyển chọn nội thất tinh xảo cho phòng khách, phòng ngủ, phòng ăn và không gian làm việc — hòa quyện hoàn hảo giữa thẩm mỹ đương đại và công năng bền bỉ."
+    fallbackImage="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1920&q=80"
+    breadcrumbs={[
+      { label: 'Trang chủ', href: '/' },
+      { label: 'Sản phẩm' }
+    ]}
+    badgeText="500+ Mẫu Thiết Kế Mới"
+  />
 
   <section class="mx-auto max-w-7xl px-4 py-10 sm:py-14">
     <div class="flex flex-col gap-10 lg:flex-row lg:gap-12">
 
-      <aside class="lg:w-64 lg:shrink-0">
+      <!-- CỘT BỘ LỌC (SIDEBAR) -->
+      <aside class="lg:w-68 lg:shrink-0">
+        <!-- Nút mở bộ lọc trên mobile -->
         <button
           type="button"
           data-filter-toggle
-          class="inline-flex items-center gap-2 border border-walnut-900/20 px-5 py-3 text-xs uppercase tracking-[0.2em] text-walnut-900 transition-colors hover:border-walnut-900 lg:hidden"
+          class="inline-flex w-full items-center justify-center gap-2 border border-walnut-900/20 bg-white py-3 text-xs uppercase tracking-[0.2em] text-walnut-900 transition-colors hover:border-walnut-900 lg:hidden font-bold shadow-2xs"
           aria-expanded="false"
           aria-controls="filter-panel"
         >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-4 w-4">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="h-4 w-4">
             <path d="M4 6h16M7 12h10M10 18h4" stroke-linecap="round" />
           </svg>
-          Bộ lọc
+          <span>Bộ lọc & Tìm kiếm</span>
         </button>
 
-        <div id="filter-panel" data-filter-panel class="mt-4 hidden lg:mt-0 lg:block">
-          <fieldset class="border-t border-walnut-900/10 py-5">
-            <legend class="text-[11px] uppercase tracking-[0.25em] text-walnut-900">Danh mục</legend>
-            <div class="mt-4 flex flex-col gap-2.5">
+        <div id="filter-panel" data-filter-panel class="mt-4 hidden lg:mt-0 lg:block space-y-6">
+
+          <!-- 1. Ô TÌM KIẾM TRỰC TIẾP TRÊN TRANG SẢN PHẨM -->
+          <div class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
+            <label for="page-search-input" class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold block mb-2">
+              🔍 Tìm kiếm nhanh
+            </label>
+            <div class="relative">
+              <input
+                type="search"
+                id="page-search-input"
+                placeholder="Tên, chất liệu, mã..."
+                autocomplete="off"
+                class="w-full rounded-none border border-walnut-900/20 bg-sand-50/50 px-3.5 py-2 pl-9 pr-8 text-xs text-walnut-900 outline-none focus:border-[#B88E28] focus:bg-white focus:ring-1 focus:ring-[#B88E28] transition-all"
+              />
+              <svg class="absolute left-3 top-2.5 h-3.5 w-3.5 text-walnut-800/50 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <circle cx="11" cy="11" r="6" stroke-width="2" />
+                <path d="M15.5 15.5 20 20" stroke-width="2" stroke-linecap="round" />
+              </svg>
+              <button
+                type="button"
+                id="page-search-clear"
+                class="absolute right-2.5 top-2 h-4 w-4 rounded-full bg-walnut-800/10 text-walnut-800 flex items-center justify-center text-[10px] hover:bg-walnut-800 hover:text-white transition-colors hidden cursor-pointer font-bold"
+                title="Xóa tìm kiếm"
+              >
+                ✕
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. BỘ LỌC CHẤT LIỆU CAO CẤP -->
+          <fieldset class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
+            <legend class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold px-1">
+              🌲 Chất liệu cao cấp
+            </legend>
+            <div class="mt-3 flex flex-col gap-2.5 max-h-56 overflow-y-auto pr-1">
+              {materials.map((m) => (
+                <label class="flex cursor-pointer items-center justify-between text-xs text-walnut-800 transition-colors hover:text-walnut-900 group">
+                  <div class="flex items-center gap-2.5">
+                    <input
+                      type="checkbox"
+                      data-filter="material"
+                      value={m.key}
+                      class="h-3.5 w-3.5 rounded-none accent-[#173524] cursor-pointer"
+                    />
+                    <span class="group-hover:text-walnut-900 group-hover:font-medium transition-all">{m.label}</span>
+                  </div>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <!-- 3. BỘ LỌC MÀU SẮC (COLOR SWATCHES) -->
+          <fieldset class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
+            <legend class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold px-1">
+              🎨 Bảng màu sắc
+            </legend>
+            <div class="mt-3.5 grid grid-cols-4 gap-2.5">
+              {colors.map((c) => (
+                <label
+                  class="group relative flex flex-col items-center gap-1 cursor-pointer"
+                  title={c.label}
+                >
+                  <input
+                    type="checkbox"
+                    data-filter="color"
+                    value={c.key}
+                    class="peer sr-only"
+                  />
+                  <div
+                    class="h-7 w-7 rounded-none border transition-all duration-200 peer-checked:ring-2 peer-checked:ring-[#B88E28] peer-checked:border-white peer-checked:scale-110 shadow-2xs flex items-center justify-center hover:scale-105"
+                    style={`background-color: ${c.hex}; border-color: ${c.border || 'rgba(0,0,0,0.15)'};`}
+                  >
+                    <svg class="h-3.5 w-3.5 opacity-0 peer-checked:opacity-100 transition-opacity drop-shadow" style={`color: ${c.key === 'trang' || c.key === 'be' ? '#173524' : '#FFFFFF'}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                      <path d="M5 13l4 4L19 7" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                  </div>
+                  <span class="text-[10px] text-center text-walnut-800/80 group-hover:text-walnut-900 truncate max-w-full font-medium leading-tight">
+                    {c.label.split('/')[0]}
+                  </span>
+                </label>
+              ))}
+            </div>
+          </fieldset>
+
+          <!-- 4. BỘ LỌC DANH MỤC -->
+          <fieldset class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
+            <legend class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold px-1">
+              🛋️ Danh mục sản phẩm
+            </legend>
+            <div class="mt-3 flex flex-col gap-2.5">
               {categories.map((item) => (
-                <label class="flex cursor-pointer items-center gap-3 text-sm text-walnut-800 transition-colors hover:text-walnut-900">
-                  <input type="checkbox" data-filter="category" value={item.key} class="h-4 w-4 accent-[#333333]" />
+                <label class="flex cursor-pointer items-center gap-2.5 text-xs text-walnut-800 transition-colors hover:text-walnut-900">
+                  <input type="checkbox" data-filter="category" value={item.key} class="h-3.5 w-3.5 rounded-none accent-[#173524] cursor-pointer" />
                   <span>{item.label}</span>
                 </label>
               ))}
             </div>
           </fieldset>
 
-          <fieldset class="border-t border-walnut-900/10 py-5">
-            <legend class="text-[11px] uppercase tracking-[0.25em] text-walnut-900">Không gian</legend>
-            <div class="mt-4 flex flex-col gap-2.5">
+          <!-- 5. BỘ LỌC KHÔNG GIAN -->
+          <fieldset class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
+            <legend class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold px-1">
+              🏡 Không gian sống
+            </legend>
+            <div class="mt-3 flex flex-col gap-2.5">
               {spaces.map((item) => (
-                <label class="flex cursor-pointer items-center gap-3 text-sm text-walnut-800 transition-colors hover:text-walnut-900">
-                  <input type="checkbox" data-filter="space" value={item.key} class="h-4 w-4 accent-[#333333]" />
+                <label class="flex cursor-pointer items-center gap-2.5 text-xs text-walnut-800 transition-colors hover:text-walnut-900">
+                  <input type="checkbox" data-filter="space" value={item.key} class="h-3.5 w-3.5 rounded-none accent-[#173524] cursor-pointer" />
                   <span>{item.label}</span>
                 </label>
               ))}
             </div>
           </fieldset>
 
-          <fieldset class="border-y border-walnut-900/10 py-5">
-            <legend class="text-[11px] uppercase tracking-[0.25em] text-walnut-900">Khoảng giá</legend>
-            <div class="mt-4 flex flex-col gap-2.5">
-              <label class="flex cursor-pointer items-center gap-3 text-sm text-walnut-800 transition-colors hover:text-walnut-900">
-                <input type="radio" name="price" data-filter="price" value="" checked class="h-4 w-4 accent-[#333333]" />
-                <span>Tất cả</span>
+          <!-- 6. BỘ LỌC KHOẢNG GIÁ -->
+          <fieldset class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
+            <legend class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold px-1">
+              💰 Khoảng giá
+            </legend>
+            <div class="mt-3 flex flex-col gap-2.5">
+              <label class="flex cursor-pointer items-center gap-2.5 text-xs text-walnut-800 transition-colors hover:text-walnut-900">
+                <input type="radio" name="price" data-filter="price" value="" checked class="h-3.5 w-3.5 accent-[#173524] cursor-pointer" />
+                <span>Tất cả mức giá</span>
               </label>
               {priceRanges.map((item) => (
-                <label class="flex cursor-pointer items-center gap-3 text-sm text-walnut-800 transition-colors hover:text-walnut-900">
-                  <input type="radio" name="price" data-filter="price" value={item.key} class="h-4 w-4 accent-[#333333]" />
+                <label class="flex cursor-pointer items-center gap-2.5 text-xs text-walnut-800 transition-colors hover:text-walnut-900">
+                  <input type="radio" name="price" data-filter="price" value={item.key} class="h-3.5 w-3.5 accent-[#173524] cursor-pointer" />
                   <span>{item.label}</span>
                 </label>
               ))}
             </div>
           </fieldset>
 
+          <!-- NÚT XOÁ BỘ LỌC -->
           <button
             type="button"
             data-filter-reset
-            class="mt-5 text-xs uppercase tracking-[0.2em] text-walnut-800 underline underline-offset-4 transition-colors hover:text-clay-600"
+            class="w-full py-2.5 border border-walnut-900/20 bg-sand-100 text-xs uppercase tracking-[0.2em] font-bold text-walnut-900 transition-all hover:bg-walnut-900 hover:text-white cursor-pointer"
           >
-            Xoá bộ lọc
+            ✕ Xoá tất cả bộ lọc
           </button>
         </div>
       </aside>
 
+      <!-- KHỐI NỘI DUNG SẢN PHẨM -->
       <div class="min-w-0 flex-1">
+        <!-- THANH CÁC CHIP BỘ LỌC ĐANG CHỌN (ACTIVE FILTER TAGS) -->
+        <div id="active-filters-bar" class="mb-4 hidden rounded-none border border-walnut-900/10 bg-white p-3 shadow-2xs">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-walnut-800/70 mr-1">Đang lọc:</span>
+            <div id="active-filters-chips" class="flex flex-wrap items-center gap-2"></div>
+            <button
+              type="button"
+              id="btn-clear-all-chips"
+              class="ml-auto text-[11px] font-bold uppercase tracking-wider text-rose-600 hover:text-rose-800 underline cursor-pointer"
+            >
+              Xóa tất cả
+            </button>
+          </div>
+        </div>
+
+        <!-- HEADER ĐIỀU KHIỂN & SẮP XẾP -->
         <div class="flex flex-wrap items-center justify-between gap-4 border-b border-walnut-900/10 pb-4">
-          <p data-result-count class="text-xs uppercase tracking-[0.2em] text-walnut-800"></p>
-          <label class="flex items-center gap-3 text-xs uppercase tracking-[0.2em] text-walnut-800">
-            <span class="hidden sm:inline">Sắp xếp</span>
+          <p data-result-count class="text-xs uppercase tracking-[0.15em] font-bold text-walnut-800"></p>
+          <label class="flex items-center gap-2.5 text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold">
+            <span class="hidden sm:inline">Sắp xếp:</span>
             <select
               data-sort
-              class="border border-walnut-900/20 bg-transparent px-3 py-2 text-xs tracking-normal text-walnut-900 outline-none transition-colors focus:border-clay-600"
+              class="border border-walnut-900/20 bg-white px-3 py-1.5 text-xs tracking-normal text-walnut-900 outline-none transition-colors focus:border-[#B88E28] cursor-pointer"
             >
               <option value="default">Mặc định</option>
               <option value="price-asc">Giá: thấp → cao</option>
@@ -143,18 +269,34 @@ try {
           </label>
         </div>
 
+        <!-- DANH SÁCH SẢN PHẨM (GRID 3 CỘT) -->
         <div
           data-product-grid
           data-page-size={productsPerPage}
-          class="mt-8 grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
+          class="mt-8 grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3"
         >
           {products.map((product) => <ProductCard product={product} />)}
         </div>
 
-        <p data-empty class="mt-16 hidden text-center text-sm text-walnut-800">
-          Không tìm thấy sản phẩm phù hợp. Hãy thử bỏ vài bộ lọc.
-        </p>
+        <!-- TRẠNG THÁI RỖNG -->
+        <div data-empty class="mt-16 hidden rounded-none border border-dashed border-walnut-900/20 bg-white p-12 text-center shadow-xs">
+          <svg class="mx-auto h-12 w-12 text-walnut-800/30 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+          <h3 class="text-base font-bold text-walnut-900">Không tìm thấy sản phẩm phù hợp</h3>
+          <p class="mt-1.5 text-xs text-walnut-800/80 max-w-md mx-auto">
+            Hãy thử nới lỏng từ khóa tìm kiếm hoặc bỏ chọn một số tiêu chí chất liệu, màu sắc và mức giá.
+          </p>
+          <button
+            type="button"
+            data-filter-reset
+            class="mt-5 inline-flex items-center gap-1.5 rounded-none bg-[#173524] px-5 py-2.5 text-xs uppercase tracking-wider text-[#D8B670] font-bold shadow-xs hover:bg-walnut-900 transition-colors cursor-pointer border border-[#D8B670]/40"
+          >
+            Xem lại tất cả sản phẩm
+          </button>
+        </div>
 
+        <!-- PHÂN TRANG (9 SP / TRANG) -->
         <nav data-pagination aria-label="Phân trang" class="mt-14 flex flex-wrap items-center justify-center gap-2"></nav>
       </div>
 
@@ -168,18 +310,23 @@ try {
 
   if (grid) {
     const cards = Array.from(grid.querySelectorAll<HTMLElement>('[data-product]'));
-    const pageSize = Number(grid.dataset.pageSize) || 8;
+    const pageSize = Number(grid.dataset.pageSize) || 9;
     const countEl = document.querySelector<HTMLElement>('[data-result-count]');
     const paginationEl = document.querySelector<HTMLElement>('[data-pagination]');
     const emptyEl = document.querySelector<HTMLElement>('[data-empty]');
     const sortEl = document.querySelector<HTMLSelectElement>('[data-sort]');
     const panelEl = document.querySelector<HTMLElement>('[data-filter-panel]');
     const toggleEl = document.querySelector<HTMLButtonElement>('[data-filter-toggle]');
+    const pageSearchInput = document.getElementById('page-search-input') as HTMLInputElement | null;
+    const pageSearchClear = document.getElementById('page-search-clear');
+    const activeFiltersBar = document.getElementById('active-filters-bar');
+    const activeFiltersChips = document.getElementById('active-filters-chips');
+    const btnClearAllChips = document.getElementById('btn-clear-all-chips');
 
-    const BASE_BTN = 'h-10 min-w-10 border px-3 text-sm transition-colors';
-    const IDLE_BTN = BASE_BTN + ' border-walnut-900/20 text-walnut-900 hover:border-walnut-900';
-    const ACTIVE_BTN = BASE_BTN + ' border-walnut-900 bg-walnut-900 text-sand-50';
-    const OFF_BTN = BASE_BTN + ' border-walnut-900/10 text-walnut-900/30';
+    const BASE_BTN = 'h-10 min-w-10 border px-3 text-xs uppercase tracking-wider font-bold transition-all';
+    const IDLE_BTN = BASE_BTN + ' border-walnut-900/20 bg-white text-walnut-900 hover:border-[#B88E28] hover:text-[#B88E28] cursor-pointer';
+    const ACTIVE_BTN = BASE_BTN + ' border-[#173524] bg-[#173524] text-[#D8B670] shadow-sm';
+    const OFF_BTN = BASE_BTN + ' border-walnut-900/10 text-walnut-900/30 cursor-not-allowed';
 
     let page = 1;
     let sort = 'default';
@@ -199,18 +346,45 @@ try {
       priceRange = [Number(parts[0]), parts[1] ? Number(parts[1]) : Infinity];
     };
 
+    // Kiểm tra card có khớp với toàn bộ bộ lọc
     const matches = (card: HTMLElement) => {
       const pickedCategories = checkedValues('category');
       const pickedSpaces = checkedValues('space');
+      const pickedMaterials = checkedValues('material');
+      const pickedColors = checkedValues('color');
 
       if (pickedCategories.length && !pickedCategories.includes(card.dataset.category ?? '')) return false;
       if (pickedSpaces.length && !pickedSpaces.includes(card.dataset.space ?? '')) return false;
-      if (keyword && !String(card.dataset.name ?? '').toLowerCase().includes(keyword)) return false;
 
+      // Lọc chất liệu (so sánh chứa từ khóa chất liệu)
+      if (pickedMaterials.length) {
+        const cardMat = (card.dataset.material ?? '').toLowerCase();
+        const hasMat = pickedMaterials.some((pm) => cardMat.includes(pm.toLowerCase()));
+        if (!hasMat) return false;
+      }
+
+      // Lọc màu sắc (mã màu)
+      if (pickedColors.length) {
+        const cardColor = (card.dataset.color ?? '').toLowerCase();
+        if (!pickedColors.includes(cardColor)) return false;
+      }
+
+      // Lọc theo từ khóa tìm kiếm (tên hoặc mô tả hoặc chất liệu)
+      if (keyword) {
+        const name = String(card.dataset.name ?? '').toLowerCase();
+        const mat = String(card.dataset.material ?? '').toLowerCase();
+        const desc = String(card.dataset.description ?? '').toLowerCase();
+        if (!name.includes(keyword) && !mat.includes(keyword) && !desc.includes(keyword)) {
+          return false;
+        }
+      }
+
+      // Lọc khoảng giá
       if (priceRange) {
         const price = Number(card.dataset.price);
         if (price < priceRange[0] || price > priceRange[1]) return false;
       }
+
       return true;
     };
 
@@ -249,6 +423,69 @@ try {
       makePageButton('Sau', page + 1, { disabled: page === totalPages });
     };
 
+    // Render danh sách Chip các bộ lọc đang chọn
+    const renderActiveChips = () => {
+      if (!activeFiltersBar || !activeFiltersChips) return;
+      activeFiltersChips.innerHTML = '';
+
+      const chips: { label: string; onRemove: () => void }[] = [];
+
+      if (keyword) {
+        chips.push({
+          label: `Từ khóa: "${keyword}"`,
+          onRemove: () => {
+            keyword = '';
+            if (pageSearchInput) pageSearchInput.value = '';
+            pageSearchClear?.classList.add('hidden');
+            render();
+          },
+        });
+      }
+
+      // Checkboxes category, space, material, color
+      document.querySelectorAll<HTMLInputElement>('[data-filter="category"]:checked, [data-filter="space"]:checked, [data-filter="material"]:checked, [data-filter="color"]:checked').forEach((input) => {
+        const text = input.closest('label')?.textContent?.trim() || input.value;
+        chips.push({
+          label: text,
+          onRemove: () => {
+            input.checked = false;
+            render();
+          },
+        });
+      });
+
+      // Price filter
+      const priceChecked = document.querySelector<HTMLInputElement>('[data-filter="price"]:checked');
+      if (priceChecked && priceChecked.value) {
+        const text = priceChecked.closest('label')?.textContent?.trim() || priceChecked.value;
+        chips.push({
+          label: `Giá: ${text}`,
+          onRemove: () => {
+            const allRadio = document.querySelector<HTMLInputElement>('[data-filter="price"][value=""]');
+            if (allRadio) allRadio.checked = true;
+            readPriceRange();
+            render();
+          },
+        });
+      }
+
+      if (chips.length === 0) {
+        activeFiltersBar.classList.add('hidden');
+      } else {
+        activeFiltersBar.classList.remove('hidden');
+        chips.forEach((c) => {
+          const chipEl = document.createElement('span');
+          chipEl.className = 'inline-flex items-center gap-1.5 rounded-none bg-sand-100 border border-walnut-900/15 px-2.5 py-1 text-xs text-walnut-900 font-medium shadow-2xs';
+          chipEl.innerHTML = `
+            <span>${c.label}</span>
+            <button type="button" class="text-walnut-800/60 hover:text-rose-600 transition-colors cursor-pointer font-bold ml-0.5">✕</button>
+          `;
+          chipEl.querySelector('button')?.addEventListener('click', c.onRemove);
+          activeFiltersChips.appendChild(chipEl);
+        });
+      }
+    };
+
     const render = () => {
       const filtered = sortList(cards.filter(matches));
 
@@ -265,16 +502,18 @@ try {
 
       if (countEl) {
         countEl.textContent = filtered.length
-          ? (keyword ? 'Từ khoá "' + keyword + '" · ' : '') +
-            'Hiển thị ' + (start + 1) + '–' + (start + pageItems.length) + ' trên ' + filtered.length + ' sản phẩm'
+          ? (keyword ? `Từ khoá "${keyword}" · ` : '') +
+            `Hiển thị ${start + 1}–${start + pageItems.length} trên ${filtered.length} sản phẩm`
           : 'Không có sản phẩm phù hợp';
       }
 
       if (emptyEl) emptyEl.classList.toggle('hidden', filtered.length !== 0);
 
       renderPagination(totalPages);
+      renderActiveChips();
     };
 
+    // Lắng nghe thay đổi trên tất cả input bộ lọc
     document.querySelectorAll<HTMLInputElement>('[data-filter]').forEach((input) => {
       input.addEventListener('change', () => {
         page = 1;
@@ -283,27 +522,50 @@ try {
       });
     });
 
+    // Lắng nghe ô tìm kiếm trên trang sản phẩm
+    pageSearchInput?.addEventListener('input', () => {
+      keyword = pageSearchInput.value.trim().toLowerCase();
+      page = 1;
+      pageSearchClear?.classList.toggle('hidden', !keyword);
+      render();
+    });
+
+    pageSearchClear?.addEventListener('click', () => {
+      if (pageSearchInput) pageSearchInput.value = '';
+      keyword = '';
+      pageSearchClear.classList.add('hidden');
+      page = 1;
+      render();
+    });
+
     sortEl?.addEventListener('change', (event) => {
       sort = (event.target as HTMLSelectElement).value;
       page = 1;
       render();
     });
 
-    document.querySelectorAll<HTMLButtonElement>('[data-filter-reset]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll<HTMLInputElement>('[data-filter="category"], [data-filter="space"]').forEach((el) => {
-          el.checked = false;
-        });
-        const all = document.querySelector<HTMLInputElement>('[data-filter="price"][value=""]');
-        if (all) all.checked = true;
-
-        if (sortEl) sortEl.value = 'default';
-        sort = 'default';
-        page = 1;
-        readPriceRange();
-        render();
+    const resetAllFilters = () => {
+      document.querySelectorAll<HTMLInputElement>('[data-filter="category"], [data-filter="space"], [data-filter="material"], [data-filter="color"]').forEach((el) => {
+        el.checked = false;
       });
+      const all = document.querySelector<HTMLInputElement>('[data-filter="price"][value=""]');
+      if (all) all.checked = true;
+
+      if (pageSearchInput) pageSearchInput.value = '';
+      keyword = '';
+      pageSearchClear?.classList.add('hidden');
+
+      if (sortEl) sortEl.value = 'default';
+      sort = 'default';
+      page = 1;
+      readPriceRange();
+      render();
+    };
+
+    document.querySelectorAll<HTMLButtonElement>('[data-filter-reset]').forEach((btn) => {
+      btn.addEventListener('click', resetAllFilters);
     });
+    btnClearAllChips?.addEventListener('click', resetAllFilters);
 
     toggleEl?.addEventListener('click', () => {
       if (!panelEl) return;
@@ -311,21 +573,40 @@ try {
       toggleEl.setAttribute('aria-expanded', String(!isHidden));
     });
 
+    // Đọc URL Search Query ban đầu
     const params = new URLSearchParams(window.location.search);
 
     const keywordParam = (params.get('q') ?? '').trim().toLowerCase();
-    if (keywordParam) keyword = keywordParam;
+    if (keywordParam) {
+      keyword = keywordParam;
+      if (pageSearchInput) {
+        pageSearchInput.value = keywordParam;
+        pageSearchClear?.classList.remove('hidden');
+      }
+    }
 
     const categoryParams = (params.get('danh-muc') ?? '').split(',').filter(Boolean);
     const spaceParams = (params.get('khong-gian') ?? '').split(',').filter(Boolean);
+    const materialParams = (params.get('chat-lieu') ?? '').split(',').filter(Boolean);
+    const colorParams = (params.get('mau') ?? '').split(',').filter(Boolean);
 
-    categoryParams.forEach((value) => {
-      const box = document.querySelector<HTMLInputElement>('[data-filter="category"][value="' + value + '"]');
+    categoryParams.forEach((val) => {
+      const box = document.querySelector<HTMLInputElement>(`[data-filter="category"][value="${val}"]`);
       if (box) box.checked = true;
     });
 
-    spaceParams.forEach((value) => {
-      const box = document.querySelector<HTMLInputElement>('[data-filter="space"][value="' + value + '"]');
+    spaceParams.forEach((val) => {
+      const box = document.querySelector<HTMLInputElement>(`[data-filter="space"][value="${val}"]`);
+      if (box) box.checked = true;
+    });
+
+    materialParams.forEach((val) => {
+      const box = document.querySelector<HTMLInputElement>(`[data-filter="material"][value="${val}"]`);
+      if (box) box.checked = true;
+    });
+
+    colorParams.forEach((val) => {
+      const box = document.querySelector<HTMLInputElement>(`[data-filter="color"][value="${val}"]`);
       if (box) box.checked = true;
     });
 

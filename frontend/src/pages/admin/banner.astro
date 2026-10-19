@@ -34,6 +34,8 @@ try {
 const totalBanners = banners.length;
 const activeBanners = banners.filter((b) => b.isActive).length;
 const heroBanners = banners.filter((b) => b.position === 'hero').length;
+const sanPhamBanners = banners.filter((b) => b.position === 'san-pham').length;
+const phongThuyBanners = banners.filter((b) => b.position === 'phong-thuy').length;
 const promoBanners = banners.filter((b) => b.position === 'promo').length;
 ---
 
@@ -43,29 +45,55 @@ const promoBanners = banners.filter((b) => b.position === 'promo').length;
     <!-- Header -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-walnut-900/10 pb-6">
       <div>
-        <h1 class="font-sans font-bold text-2xl sm:text-3xl text-walnut-900">Quản Lý Banner & Hình Ảnh Quảng Cáo</h1>
-        <p class="mt-1 text-sm text-walnut-800/80">Tùy biến hình ảnh, tiêu đề và nút kêu gọi hành động cho trang chủ và các chiến dịch mà không cần sửa mã nguồn.</p>
+        <h1 class="font-sans font-bold text-2xl sm:text-3xl text-walnut-900">Quản Lý Banner Toàn Hệ Thống</h1>
+        <p class="mt-1 text-sm text-walnut-800/80">Quản lý tập trung banner đầu trang cho Trang Chủ, Menu Sản Phẩm, Menu Phong Thủy và các chiến dịch khuyến mãi.</p>
       </div>
 
-      <div class="flex items-center gap-3">
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Nút Xem Nhanh các Trang -->
         <a 
           href="/" 
           target="_blank"
-          class="inline-flex items-center gap-1.5 border border-walnut-900/20 bg-sand-50 px-4 py-2.5 text-xs uppercase tracking-[0.15em] text-walnut-900 transition-colors hover:bg-sand-100 shadow-sm font-medium"
+          class="inline-flex items-center gap-1.5 border border-walnut-900/20 bg-sand-50 px-3 py-2 text-xs uppercase tracking-[0.1em] text-walnut-900 transition-colors hover:bg-sand-100 shadow-xs font-semibold"
+          title="Xem trang chủ"
         >
-          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <span>Trang Chủ</span>
+          <svg class="h-3.5 w-3.5 text-walnut-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
           </svg>
-          <span>Xem Trang Chủ</span>
+        </a>
+
+        <a 
+          href="/san-pham" 
+          target="_blank"
+          class="inline-flex items-center gap-1.5 border border-emerald-900/20 bg-emerald-50/50 px-3 py-2 text-xs uppercase tracking-[0.1em] text-emerald-900 transition-colors hover:bg-emerald-100 shadow-xs font-semibold"
+          title="Xem menu sản phẩm"
+        >
+          <span>Sản Phẩm</span>
+          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
+        </a>
+
+        <a 
+          href="/phong-thuy" 
+          target="_blank"
+          class="inline-flex items-center gap-1.5 border border-purple-900/20 bg-purple-50/50 px-3 py-2 text-xs uppercase tracking-[0.1em] text-purple-900 transition-colors hover:bg-purple-100 shadow-xs font-semibold"
+          title="Xem menu phong thủy"
+        >
+          <span>Phong Thủy</span>
+          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+          </svg>
         </a>
 
         <button 
           type="button" 
           id="btn-open-create-banner"
-          class="inline-flex items-center gap-2 bg-walnut-900 px-4 py-2.5 text-xs uppercase tracking-[0.15em] text-sand-50 transition-colors hover:bg-clay-600 shadow-sm cursor-pointer font-medium"
+          class="inline-flex items-center gap-1.5 bg-[#173524] px-4 py-2 text-xs uppercase tracking-[0.15em] text-[#D8B670] transition-colors hover:bg-walnut-900 shadow-sm cursor-pointer font-bold border border-[#D8B670]/40"
         >
           <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
           </svg>
           <span>Thêm Banner Mới</span>
         </button>
@@ -73,22 +101,26 @@ const promoBanners = banners.filter((b) => b.position === 'promo').length;
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
-        <p class="text-xs uppercase text-walnut-800/70 font-medium">Tổng số Banner</p>
-        <p id="stat-total" class="text-2xl font-bold text-walnut-900 mt-1">{totalBanners} banner</p>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
+      <div class="rounded border border-walnut-900/10 bg-sand-50 p-3.5 shadow-2xs">
+        <p class="text-[11px] uppercase text-walnut-800/70 font-semibold">Tổng Banner</p>
+        <p id="stat-total" class="text-xl font-bold text-walnut-900 mt-1">{totalBanners} banner</p>
       </div>
-      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
-        <p class="text-xs uppercase text-walnut-800/70 font-medium">Đang hiển thị</p>
-        <p id="stat-active" class="text-2xl font-bold text-emerald-700 mt-1">{activeBanners} đang bật</p>
+      <div class="rounded border border-emerald-900/15 bg-emerald-50/40 p-3.5 shadow-2xs">
+        <p class="text-[11px] uppercase text-emerald-800/80 font-semibold">Đang hiển thị</p>
+        <p id="stat-active" class="text-xl font-bold text-emerald-700 mt-1">{activeBanners} đang bật</p>
       </div>
-      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
-        <p class="text-xs uppercase text-walnut-800/70 font-medium">Hero Banner Trang Chủ</p>
-        <p id="stat-hero" class="text-2xl font-bold text-clay-600 mt-1">{heroBanners} vị trí</p>
+      <div class="rounded border border-amber-900/15 bg-amber-50/40 p-3.5 shadow-2xs">
+        <p class="text-[11px] uppercase text-amber-900/80 font-semibold">Trang Chủ (Hero)</p>
+        <p id="stat-hero" class="text-xl font-bold text-[#B88E28] mt-1">{heroBanners} vị trí</p>
       </div>
-      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
-        <p class="text-xs uppercase text-walnut-800/70 font-medium">Quảng cáo & Khuyến mãi</p>
-        <p id="stat-promo" class="text-2xl font-bold text-walnut-900 mt-1">{promoBanners} vị trí</p>
+      <div class="rounded border border-emerald-900/15 bg-sand-50 p-3.5 shadow-2xs">
+        <p class="text-[11px] uppercase text-emerald-900/80 font-semibold">Menu Sản Phẩm</p>
+        <p id="stat-san-pham" class="text-xl font-bold text-emerald-900 mt-1">{sanPhamBanners} vị trí</p>
+      </div>
+      <div class="rounded border border-purple-900/15 bg-purple-50/30 p-3.5 shadow-2xs col-span-2 sm:col-span-1">
+        <p class="text-[11px] uppercase text-purple-900/80 font-semibold">Menu Phong Thủy</p>
+        <p id="stat-phong-thuy" class="text-xl font-bold text-purple-900 mt-1">{phongThuyBanners} vị trí</p>
       </div>
     </div>
 
@@ -110,8 +142,10 @@ const promoBanners = banners.filter((b) => b.position === 'promo').length;
         id="filter-position-select"
         class="border border-walnut-900/20 bg-sand-50 px-3 py-2 text-xs text-walnut-900 outline-none focus:border-clay-600 cursor-pointer"
       >
-        <option value="">Tất cả vị trí</option>
-        <option value="hero">Hero Banner (Trang chủ)</option>
+        <option value="">Tất cả vị trí hiển thị</option>
+        <option value="hero">Hero Banner (Đầu trang chủ)</option>
+        <option value="san-pham">Banner Đầu Menu Sản Phẩm</option>
+        <option value="phong-thuy">Banner Đầu Menu Phong Thủy</option>
         <option value="promo">Quảng cáo / Khuyến mãi</option>
       </select>
 
@@ -167,10 +201,27 @@ const promoBanners = banners.filter((b) => b.position === 'promo').length;
             
             <!-- Badges -->
             <div class="absolute top-3 left-3 flex flex-wrap gap-1.5">
-              <span class={`px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${b.position === 'hero' ? 'bg-clay-600 text-sand-50' : 'bg-walnut-900 text-sand-50'}`}>
-                {b.position === 'hero' ? 'Hero Trang Chủ' : 'Quảng Cáo / Khuyến Mãi'}
-              </span>
-              <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-sand-50/90 text-walnut-900 backdrop-blur">
+              {b.position === 'hero' && (
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-amber-700 text-sand-50 shadow-xs">
+                  Hero Trang Chủ
+                </span>
+              )}
+              {b.position === 'san-pham' && (
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#173524] text-amber-300 border border-amber-300/30 shadow-xs">
+                  Menu Sản Phẩm
+                </span>
+              )}
+              {b.position === 'phong-thuy' && (
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-purple-900 text-purple-100 border border-purple-400/30 shadow-xs">
+                  Menu Phong Thủy
+                </span>
+              )}
+              {b.position !== 'hero' && b.position !== 'san-pham' && b.position !== 'phong-thuy' && (
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-walnut-900 text-sand-50 shadow-xs">
+                  {b.position === 'promo' ? 'Khuyến Mãi' : b.position}
+                </span>
+              )}
+              <span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-sand-50/90 text-walnut-900 backdrop-blur shadow-2xs">
                 Thứ tự: #{b.displayOrder}
               </span>
             </div>
@@ -324,7 +375,9 @@ const promoBanners = banners.filter((b) => b.position === 'promo').length;
               id="form-position" 
               class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-3 py-2 text-xs outline-none focus:border-clay-600 cursor-pointer"
             >
-              <option value="hero">Hero Banner (Đầu trang chủ)</option>
+              <option value="hero">Hero Banner (Đầu trang chủ - /)</option>
+              <option value="san-pham">Banner Đầu Menu Sản Phẩm (/san-pham)</option>
+              <option value="phong-thuy">Banner Đầu Menu Phong Thủy (/phong-thuy)</option>
               <option value="promo">Quảng cáo / Khuyến mãi giữa trang</option>
             </select>
           </div>
@@ -531,6 +584,32 @@ const promoBanners = banners.filter((b) => b.position === 'promo').length;
   btnEmptyCreate?.addEventListener('click', openCreateModal);
   btnCloseModal?.addEventListener('click', closeModal);
   btnCancelModal?.addEventListener('click', closeModal);
+
+  // Auto-fill template defaults when switching position in create mode
+  formPosition?.addEventListener('change', () => {
+    if (formId.value) return; // Không tự ghi đè khi đang sửa banner có sẵn
+    const pos = formPosition.value;
+    if (pos === 'san-pham') {
+      if (!formTitle.value || formTitle.value.includes('NỘI THẤT')) formTitle.value = 'BỘ SƯU TẬP NỘI THẤT CAO CẤP';
+      if (!formSubtitle.value) formSubtitle.value = 'Bộ sưu tập thiết kế 2026';
+      formLink.value = '/san-pham';
+      formBtnText.value = 'Khám phá bộ sưu tập';
+      formImageUrl.value = 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1920&q=80';
+      if (previewImg) previewImg.src = formImageUrl.value;
+    } else if (pos === 'phong-thuy') {
+      if (!formTitle.value || formTitle.value.includes('NỘI THẤT')) formTitle.value = 'TƯ VẤN PHONG THỦY & BÀI TRÍ NỘI THẤT';
+      if (!formSubtitle.value) formSubtitle.value = 'Ứng Dụng Gemini AI & Bát Trạch';
+      formLink.value = '/phong-thuy';
+      formBtnText.value = 'Tra cứu cung mệnh ngay';
+      formImageUrl.value = 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=80';
+      if (previewImg) previewImg.src = formImageUrl.value;
+    } else if (pos === 'hero') {
+      formLink.value = '/san-pham';
+      formBtnText.value = 'Khám phá ngay';
+      formImageUrl.value = 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1920&q=80';
+      if (previewImg) previewImg.src = formImageUrl.value;
+    }
+  });
 
   // Sync image URL input to preview
   formImageUrl?.addEventListener('input', () => {

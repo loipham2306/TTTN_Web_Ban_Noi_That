@@ -6,7 +6,7 @@ const MESSENGER_URL = CONTACT.messenger;
 const PHONE = CONTACT.phone;
 ---
 
-<div id="contact-fab" data-open="true" class="fixed bottom-6 right-4 z-40 flex flex-col items-center gap-3 sm:right-6">
+<div id="contact-fab" data-open="false" class="fixed bottom-6 right-4 z-40 flex flex-col items-center gap-3 sm:right-6">
   <div data-fab-list class="flex flex-col items-center gap-3">
     <a href={ZALO_URL} target="_blank" rel="noopener noreferrer" class="fab-btn" aria-label="Chat qua Zalo" title="Chat qua Zalo">
       <span class="text-[11px] font-bold tracking-tight text-[#0068ff]">Zalo</span>
@@ -30,7 +30,7 @@ const PHONE = CONTACT.phone;
     id="contact-fab-toggle"
     type="button"
     aria-label="Mở hoặc đóng nút liên hệ"
-    aria-expanded="true"
+    aria-expanded="false"
     class="flex h-12 w-12 items-center justify-center rounded-full bg-[#f97316] text-white shadow-lg transition-transform hover:scale-105"
   >
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="icon-close h-5 w-5" aria-hidden="true">
