@@ -211,11 +211,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       }
 
       // Thông tin lấy trực tiếp từ Google thực tế
-      const googleUser = {
+      const googleUser: any = {
         name: payload.name || payload.email.split('@')[0],
         email: payload.email,
         avatar: payload.picture || '',
         phone: 'Đăng nhập Google',
+        role: 'customer',
         tier: 'Vàng',
         spent: '0 ₫',
         orders: 0,
@@ -240,9 +241,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           localStorage.setItem('auth_token', data.token);
           if (data.user) {
             googleUser.id = data.user.id;
-            googleUser.role = data.user.role;
+            googleUser.role = data.user.role || 'customer';
             if (data.user.full_name) googleUser.name = data.user.full_name;
             if (data.user.phone) googleUser.phone = data.user.phone;
+            if (data.user.avatar) googleUser.avatar = data.user.avatar;
           }
         }
       } catch (e) {

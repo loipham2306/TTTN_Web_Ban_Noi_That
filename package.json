@@ -10,6 +10,7 @@
     "dev:be": "npm --prefix backend run dev",
     "build:fe": "npm --prefix frontend run build",
     "build:be": "npm --prefix backend run build",
-    "install:all": "npm --prefix frontend install && npm --prefix backend install"
+    "install:all": "npm --prefix frontend install && npm --prefix backend install",
+    "tunnel": "ngrok http 4000"
   }
 }

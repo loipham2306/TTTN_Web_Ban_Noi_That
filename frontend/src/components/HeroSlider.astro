@@ -1,0 +1,278 @@
+---
+// Banner slide tự trượt - Giữ nguyên Style gốc của bạn
+interface Slide {
+  image: string;
+  alt: string;
+  eyebrow: string;
+  title: string;
+  text: string;
+  cta: string;
+  href: string;
+}
+
+const slides: Slide[] = [
+  {
+    image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1920&q=80',
+    alt: 'Phòng khách nội thất cao cấp',
+    eyebrow: 'Bộ sưu tập 2026',
+    title: 'NỘI THẤT',
+    text: 'Nội thất thiết kế cho không gian sống đẳng cấp — tuyển chọn từ những thương hiệu và xưởng chế tác hàng đầu.',
+    cta: 'KHÁM PHÁ NGAY',
+    href: '/san-pham',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1920&q=80',
+    alt: 'Sofa phòng khách',
+    eyebrow: 'Phòng khách',
+    title: 'SOFA & KỆ TIVI',
+    text: 'Không gian tiếp khách sang trọng, ấm cúng cho gia đình bạn.',
+    cta: 'XEM PHÒNG KHÁCH',
+    href: '/san-pham?khong-gian=phong-khach',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1920&q=80',
+    alt: 'Phòng ngủ thư thái',
+    eyebrow: 'Phòng ngủ',
+    title: 'PHÒNG NGỦ',
+    text: 'Giường, tủ và đèn ngủ cho một giấc ngủ trọn vẹn.',
+    cta: 'XEM PHÒNG NGỦ',
+    href: '/san-pham?khong-gian=phong-ngu',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=1920&q=80',
+    alt: 'Tư vấn phong thủy',
+    eyebrow: 'Phong thủy',
+    title: 'HÀI HÒA SINH KHÍ',
+    text: 'Trò chuyện cùng chuyên gia AI để chọn màu sắc và hướng đặt phù hợp bản mệnh.',
+    cta: 'TƯ VẤN PHONG THỦY',
+    href: '/phong-thuy',
+  },
+];
+
+const INTERVAL_MS = 6000; // thời gian mỗi slide (6 giây)
+---
+
+<section
+  class="relative w-full h-screen"
+  data-hero-slider
+  data-interval={INTERVAL_MS}
+  aria-roledescription="carousel"
+  aria-label="Banner trang chủ"
+>
+  <div class="relative min-h-screen w-full overflow-hidden bg-walnut-900">
+    {slides.map((s, i) => {
+      const Heading = i === 0 ? 'h1' : 'h2';
+      return (
+        <div
+          class:list={['slide absolute inset-0', i === 0 && 'is-active']}
+          data-slide
+          role="group"
+          aria-roledescription="slide"
+          aria-label={`${i + 1} / ${slides.length}`}
+          aria-hidden={i === 0 ? 'false' : 'true'}
+        >
+          <img
+            src={s.image}
+            alt={s.alt}
+            loading={i === 0 ? 'eager' : 'lazy'}
+            fetchpriority={i === 0 ? 'high' : undefined}
+            class="slide-img no-anim absolute inset-0 h-full w-full object-cover"
+          />
+          {/* Lớp phủ đen giữ nguyên style của bạn */}
+          <div class="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/60"></div>
+
+          {/* Nội dung ở giữa màn hình (Font chữ và Layout gốc) */}
+          <div class="relative flex min-h-screen items-center justify-center px-6">
+            <div class="slide-content flex max-w-4xl flex-col items-center text-center">
+              <p class="text-[11px] uppercase tracking-[0.5em] text-sand-50/80">{s.eyebrow}</p>
+              <Heading class="mt-6 font-display text-5xl font-medium uppercase tracking-[0.2em] text-sand-50 sm:text-6xl lg:text-8xl">
+                {s.title}
+              </Heading>
+              <p class="mt-8 max-w-xl text-sm leading-relaxed text-sand-50/80">{s.text}</p>
+              <a
+                href={s.href}
+                class="mt-10 inline-block rounded-sm border border-sand-50/70 px-8 py-3 text-[11px] uppercase tracking-[0.25em] text-sand-50 transition-colors hover:bg-sand-50 hover:text-walnut-900"
+              >
+                {s.cta}
+              </a>
+            </div>
+          </div>
+        </div>
+      );
+    })}
+
+    {slides.length > 1 && (
+      <>
+        {/* Chấm điều hướng - ĐÃ ĐƯỢC ĐƯA SANG GÓC TRÁI (Bottom Left) */}
+        <div class="absolute bottom-12 left-8 z-30 flex items-center gap-3 sm:left-12 sm:bottom-16">
+          {slides.map((s, i) => (
+            <button
+              type="button"
+              data-dot
+              aria-label={`Chuyển tới slide ${i + 1}`}
+              aria-current={i === 0 ? 'true' : 'false'}
+              class:list={[
+                'dot h-3 w-3 rounded-full border-[1.5px] border-white transition-colors duration-300',
+                i === 0 ? 'bg-white' : 'bg-transparent'
+              ]}
+            ></button>
+          ))}
+        </div>
+      </>
+    )}
+
+    {/* Nút Cuộn xuống giữ nguyên ở giữa đáy */}
+    <a
+      href="#mua-theo-khong-gian"
+      class="absolute bottom-7 left-1/2 z-30 flex -translate-x-1/2 flex-col items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-sand-50/70 transition-opacity hover:opacity-100"
+    >
+      Cuộn xuống
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="h-5 w-5 shrink-0 animate-bounce">
+        <path d="M12 5v14M6 13l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </a>
+  </div>
+</section>
+
+<style>
+  /* Chuyển slide bằng cách mờ dần */
+  .slide {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 1s ease, visibility 0s linear 1s;
+  }
+  .slide.is-active {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 1s ease;
+  }
+
+  /* Ảnh phóng nhẹ rồi thu về khi slide hiện ra */
+  .slide-img {
+    transform: scale(1.06);
+    transition: transform 7s ease-out;
+  }
+  .slide.is-active .slide-img {
+    transform: scale(1);
+  }
+
+  /* Chữ trượt lên lần lượt */
+  .slide-content > * {
+    opacity: 0;
+    transform: translateY(16px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .slide.is-active .slide-content > * {
+    opacity: 1;
+    transform: none;
+  }
+  .slide.is-active .slide-content > *:nth-child(1) { transition-delay: 0.35s; }
+  .slide.is-active .slide-content > *:nth-child(2) { transition-delay: 0.5s; }
+  .slide.is-active .slide-content > *:nth-child(3) { transition-delay: 0.65s; }
+  .slide.is-active .slide-content > *:nth-child(4) { transition-delay: 0.8s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .slide,
+    .slide.is-active,
+    .slide-img,
+    .slide-content > * {
+      transition-duration: 0.01ms !important;
+      transition-delay: 0s !important;
+    }
+  }
+</style>
+
+<script>
+  function initHeroSlider() {
+    const root = document.querySelector('[data-hero-slider]');
+
+    if (root) {
+      const slides = Array.from(root.querySelectorAll('[data-slide]'));
+      const dots = Array.from(root.querySelectorAll('[data-dot]'));
+
+      const interval = Number(root.dataset.interval) || 6000;
+      const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      let index = 0;
+      let timer; 
+
+      const show = (i) => {
+        index = (i + slides.length) % slides.length;
+
+        slides.forEach((slide, n) => {
+          const active = n === index;
+          if(active) {
+            slide.classList.add('is-active');
+          } else {
+            slide.classList.remove('is-active');
+          }
+          slide.setAttribute('aria-hidden', String(!active));
+        });
+
+        // Đổi màu chấm điều hướng
+        dots.forEach((dot, n) => {
+          const active = n === index;
+          if(active) {
+             dot.classList.add('bg-white');
+             dot.classList.remove('bg-transparent');
+          } else {
+             dot.classList.add('bg-transparent');
+             dot.classList.remove('bg-white');
+          }
+          dot.setAttribute('aria-current', String(active));
+        });
+      };
+
+      const stop = () => {
+        if (timer !== undefined) {
+          window.clearInterval(timer);
+          timer = undefined;
+        }
+      };
+
+      const start = () => {
+        stop();
+        if (reduceMotion || slides.length < 2) return;
+        timer = window.setInterval(() => show(index + 1), interval);
+      };
+
+      const go = (i) => {
+        show(i);
+        start();
+      };
+
+      dots.forEach((dot, n) => dot.addEventListener('click', () => go(n)));
+
+      // Đã comment lại để chuột nằm trong banner vẫn trượt bình thường
+      // root.addEventListener('mouseenter', stop);
+      // root.addEventListener('mouseleave', start);
+      // root.addEventListener('focusin', stop);
+      // root.addEventListener('focusout', start);
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) stop();
+        else start();
+      });
+
+      let startX = 0;
+      root.addEventListener('pointerdown', (e) => {
+        startX = e.clientX;
+      });
+      root.addEventListener('pointerup', (e) => {
+        const dx = e.clientX - startX;
+        if (Math.abs(dx) > 50) go(index + (dx < 0 ? 1 : -1));
+      });
+
+      root.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') go(index - 1);
+        if (e.key === 'ArrowRight') go(index + 1);
+      });
+
+      start();
+    }
+  }
+
+  // Khởi chạy khi load trang
+  initHeroSlider();
+  document.addEventListener('astro:page-load', initHeroSlider);
+</script>

@@ -10,6 +10,7 @@ import { reviewsRouter }   from './reviews.route.js';
 import { phongThuyRouter } from './phong-thuy.route.js';
 import { bannersRouter }   from './banners.route.js';
 import { wishlistRouter }  from './wishlist.route.js';
+import { sepayRouter }     from './sepay.route.js';
 
 const router = Router();
 
@@ -24,5 +25,6 @@ router.use('/reviews',    reviewsRouter);
 router.use('/phong-thuy', phongThuyRouter);
 router.use('/banners',    bannersRouter);
 router.use('/wishlist',   wishlistRouter);
+router.use('/sepay',      sepayRouter);
 
 export const apiRouter = router;

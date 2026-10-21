@@ -1,5 +1,6 @@
-﻿import { Router, Request, Response } from 'express';
+import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
+import { verifyToken } from '../middlewares/auth.middleware.js';
 
 export const ordersRouter = Router();
 
@@ -189,6 +190,67 @@ ordersRouter.get('/', async (_req: Request, res: Response) => {
     return res.json({ success: true, data: formatted });
   } catch (error: any) {
     console.error('Lỗi lấy danh sách đơn hàng:', error);
+    return res.status(500).json({ success: false, message: 'Lỗi máy chủ.', error: error.message });
+  }
+});
+
+// ================================================================
+// GET /api/orders/my-orders - Lấy danh sách đơn hàng của người dùng hiện tại
+// ================================================================
+ordersRouter.get('/my-orders', verifyToken, async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Chưa đăng nhập.' });
+    }
+
+    const userOrders = await prisma.orders.findMany({
+      where: {
+        OR: [
+          { user_id: BigInt(req.user.id) },
+          ...(req.user.email ? [{ users: { email: req.user.email } }] : []),
+        ],
+      },
+      include: {
+        order_items: true,
+      },
+      orderBy: { created_at: 'desc' },
+    });
+
+    const totalSpent = userOrders
+      .filter((o) => o.payment_status === 'paid' || o.order_status === 'completed')
+      .reduce((sum, o) => sum + Number(o.total_amount), 0);
+
+    const formatted = userOrders.map((o) => ({
+      id: Number(o.id),
+      orderCode: o.order_code,
+      createdAt: o.created_at,
+      total: Number(o.total_amount),
+      subtotal: Number(o.subtotal_amount),
+      shippingFee: Number(o.shipping_fee ?? 0),
+      paymentStatus: o.payment_status,
+      orderStatus: o.order_status,
+      paymentMethod: o.payment_method,
+      shippingAddress: o.shipping_address,
+      items: o.order_items.map((it) => ({
+        id: Number(it.id),
+        name: it.product_name,
+        qty: it.quantity,
+        price: Number(it.unit_price),
+        total: Number(it.total_price),
+      })),
+    }));
+
+    return res.json({
+      success: true,
+      data: formatted,
+      stats: {
+        ordersCount: userOrders.length,
+        completedCount: userOrders.filter((o) => o.payment_status === 'paid' || o.order_status === 'completed').length,
+        totalSpent,
+      },
+    });
+  } catch (error: any) {
+    console.error('Lỗi lấy danh sách đơn hàng của tôi:', error);
     return res.status(500).json({ success: false, message: 'Lỗi máy chủ.', error: error.message });
   }
 });
