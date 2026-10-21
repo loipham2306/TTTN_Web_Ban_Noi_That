@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import ProductCard from '../components/ProductCard.astro';
+import HeroSlider from '../components/HeroSlider.astro'; 
 import { products as fallbackProducts } from '../data/products';
 import { CONTACT } from '../data/contact';
 
@@ -39,90 +40,12 @@ try {
   }
 } catch {}
 
-interface HeroBanner {
-  title: string;
-  subtitle: string;
-  description: string;
-  imageUrl: string;
-  linkUrl: string;
-  buttonText: string;
-}
-
-let heroBanner: HeroBanner = {
-  title: 'NỘI THẤT',
-  subtitle: 'Bộ sưu tập 2026',
-  description: 'Nội thất thiết kế cho không gian sống đẳng cấp — tuyển chọn từ những thương hiệu và xưởng chế tác hàng đầu.',
-  imageUrl: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1920&q=80',
-  linkUrl: '/san-pham',
-  buttonText: 'Khám phá ngay',
-};
-
-try {
-  const bannerRes = await fetch('http://localhost:4000/api/banners?position=hero&activeOnly=true', {
-    signal: AbortSignal.timeout(2000),
-  });
-  if (bannerRes.ok) {
-    const bannerJson = await bannerRes.json();
-    if (bannerJson.success && Array.isArray(bannerJson.data) && bannerJson.data.length > 0) {
-      const topBanner = bannerJson.data[0];
-      heroBanner = {
-        title: topBanner.title,
-        subtitle: topBanner.subtitle || 'Bộ sưu tập 2026',
-        description: topBanner.description || '',
-        imageUrl: topBanner.imageUrl,
-        linkUrl: topBanner.linkUrl || '/san-pham',
-        buttonText: topBanner.buttonText || 'Khám phá ngay',
-      };
-    }
-  }
-} catch {}
-
-const featured = liveProducts.slice(0, 6);
+const featured = liveProducts.slice(0, 8);
 ---
 <BaseLayout title="Nội Thất Cao Cấp - Trang chủ">
 
-  {/* HERO (DYNAMIC BANNER TỪ CSDL) */}
-  <section class="relative">
-    <div class="relative flex min-h-screen items-center justify-center bg-neutral-950 overflow-hidden">
-      <!-- Background Image with Natural True Colors -->
-      <div 
-        class="absolute inset-0 bg-cover bg-center transition-all duration-700 opacity-90 scale-100"
-        style={`background-image: url('${heroBanner.imageUrl}');`}
-      ></div>
-      <!-- Neutral Dark Vignette Overlay for Text Legibility (No Green Tint) -->
-      <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/30"></div>
-      <div class="absolute inset-0 bg-[radial-gradient(circle_at_50%_45%,rgba(0,0,0,0.2),rgba(0,0,0,0.6)_85%)]"></div>
-
-      <div class="relative flex flex-col items-center px-6 text-center max-w-4xl z-10 drop-shadow-md">
-        {heroBanner.subtitle && (
-          <p class="text-[11px] uppercase tracking-[0.5em] text-sand-100/90 font-medium">
-            {heroBanner.subtitle}
-          </p>
-        )}
-        <h1 class="mt-6 font-display text-5xl font-medium uppercase tracking-[0.2em] text-white sm:text-7xl lg:text-8xl drop-shadow-lg">
-          {heroBanner.title}
-        </h1>
-        {heroBanner.description && (
-          <p class="mt-8 max-w-xl text-sm leading-relaxed text-sand-50/90 font-light drop-shadow">
-            {heroBanner.description}
-          </p>
-        )}
-        <a 
-          href={heroBanner.linkUrl} 
-          class="mt-10 inline-block border border-white/80 bg-black/20 backdrop-blur-sm px-8 py-3 text-[11px] uppercase tracking-[0.25em] text-white transition-all hover:bg-white hover:text-neutral-900 rounded-sm shadow-md"
-        >
-          {heroBanner.buttonText}
-        </a>
-      </div>
-
-      <a href="#mua-theo-khong-gian" class="absolute bottom-7 flex flex-col items-center gap-3 text-[10px] uppercase tracking-[0.4em] text-sand-50/80 transition-opacity hover:opacity-100 z-10 drop-shadow">
-        Cuộn xuống
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="h-5 w-5 animate-bounce shrink-0">
-          <path d="M12 5v14M6 13l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
-        </svg>
-      </a>
-    </div>
-  </section>
+  {/* HERO SLIDER - Banner trượt tự động */}
+  <HeroSlider />
 
   {/* MUA THEO KHÔNG GIAN */}
   <section id="mua-theo-khong-gian" class="mx-auto max-w-7xl px-4 py-16 sm:py-24 scroll-mt-24">
@@ -154,7 +77,9 @@ const featured = liveProducts.slice(0, 6);
           Xem tất cả →
         </a>
       </div>
-      <div class="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
+      
+      {/* GRID ĐÃ FIX: 2 thẻ mobile, 3 thẻ tablet, 4 thẻ desktop */}
+      <div class="mt-10 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4 md:gap-6 lg:gap-8">
         {featured.map((product) => <ProductCard product={product} />)}
       </div>
     </div>

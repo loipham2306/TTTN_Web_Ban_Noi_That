@@ -72,15 +72,17 @@ try {
   />
 
   <section class="mx-auto max-w-7xl px-4 py-10 sm:py-14">
-    <div class="flex flex-col gap-10 lg:flex-row lg:gap-12">
+    <div class="flex flex-col gap-8 lg:flex-row lg:gap-12">
 
-      <!-- CỘT BỘ LỌC (SIDEBAR) -->
-      <aside class="lg:w-68 lg:shrink-0">
+      <!-- 1. CỘT BỘ LỌC ĐÃ FIX LỖI STICKY -->
+      <!-- Đặt top-[96px] để tránh đụng Header xanh lá, và sticky ngay thẻ aside ngoài cùng -->
+      <aside class="sticky top-[96px] z-40 -mx-4 bg-sand-50 px-4 py-3 shadow-md lg:mx-0 lg:w-68 lg:shrink-0 lg:top-[120px] lg:h-max lg:bg-transparent lg:p-0 lg:shadow-none transition-all">
+        
         <!-- Nút mở bộ lọc trên mobile -->
         <button
           type="button"
           data-filter-toggle
-          class="inline-flex w-full items-center justify-center gap-2 border border-walnut-900/20 bg-white py-3 text-xs uppercase tracking-[0.2em] text-walnut-900 transition-colors hover:border-walnut-900 lg:hidden font-bold shadow-2xs"
+          class="inline-flex w-full items-center justify-center gap-2 border border-walnut-900/20 bg-white py-3 text-xs uppercase tracking-[0.2em] text-walnut-900 transition-colors hover:border-walnut-900 lg:hidden font-bold"
           aria-expanded="false"
           aria-controls="filter-panel"
         >
@@ -90,9 +92,10 @@ try {
           <span>Bộ lọc & Tìm kiếm</span>
         </button>
 
-        <div id="filter-panel" data-filter-panel class="mt-4 hidden lg:mt-0 lg:block space-y-6">
-
-          <!-- 1. Ô TÌM KIẾM TRỰC TIẾP TRÊN TRANG SẢN PHẨM -->
+        <!-- Khối nội dung bộ lọc -->
+        <div id="filter-panel" data-filter-panel class="mt-4 hidden lg:mt-0 lg:block space-y-6 max-h-[65vh] overflow-y-auto lg:max-h-none lg:overflow-visible pb-4 lg:pb-0 px-1">
+          
+          <!-- Ô TÌM KIẾM TRỰC TIẾP -->
           <div class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
             <label for="page-search-input" class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold block mb-2">
               🔍 Tìm kiếm nhanh
@@ -114,27 +117,18 @@ try {
                 id="page-search-clear"
                 class="absolute right-2.5 top-2 h-4 w-4 rounded-full bg-walnut-800/10 text-walnut-800 flex items-center justify-center text-[10px] hover:bg-walnut-800 hover:text-white transition-colors hidden cursor-pointer font-bold"
                 title="Xóa tìm kiếm"
-              >
-                ✕
-              </button>
+              >✕</button>
             </div>
           </div>
 
-          <!-- 2. BỘ LỌC CHẤT LIỆU CAO CẤP -->
+          <!-- BỘ LỌC CHẤT LIỆU CAO CẤP -->
           <fieldset class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
-            <legend class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold px-1">
-              🌲 Chất liệu cao cấp
-            </legend>
+            <legend class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold px-1">🌲 Chất liệu cao cấp</legend>
             <div class="mt-3 flex flex-col gap-2.5 max-h-56 overflow-y-auto pr-1">
               {materials.map((m) => (
                 <label class="flex cursor-pointer items-center justify-between text-xs text-walnut-800 transition-colors hover:text-walnut-900 group">
                   <div class="flex items-center gap-2.5">
-                    <input
-                      type="checkbox"
-                      data-filter="material"
-                      value={m.key}
-                      class="h-3.5 w-3.5 rounded-none accent-[#173524] cursor-pointer"
-                    />
+                    <input type="checkbox" data-filter="material" value={m.key} class="h-3.5 w-3.5 rounded-none accent-[#173524] cursor-pointer" />
                     <span class="group-hover:text-walnut-900 group-hover:font-medium transition-all">{m.label}</span>
                   </div>
                 </label>
@@ -142,23 +136,13 @@ try {
             </div>
           </fieldset>
 
-          <!-- 3. BỘ LỌC MÀU SẮC (COLOR SWATCHES) -->
+          <!-- BỘ LỌC MÀU SẮC (COLOR SWATCHES) -->
           <fieldset class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
-            <legend class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold px-1">
-              🎨 Bảng màu sắc
-            </legend>
+            <legend class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold px-1">🎨 Bảng màu sắc</legend>
             <div class="mt-3.5 grid grid-cols-4 gap-2.5">
               {colors.map((c) => (
-                <label
-                  class="group relative flex flex-col items-center gap-1 cursor-pointer"
-                  title={c.label}
-                >
-                  <input
-                    type="checkbox"
-                    data-filter="color"
-                    value={c.key}
-                    class="peer sr-only"
-                  />
+                <label class="group relative flex flex-col items-center gap-1 cursor-pointer" title={c.label}>
+                  <input type="checkbox" data-filter="color" value={c.key} class="peer sr-only" />
                   <div
                     class="h-7 w-7 rounded-none border transition-all duration-200 peer-checked:ring-2 peer-checked:ring-[#B88E28] peer-checked:border-white peer-checked:scale-110 shadow-2xs flex items-center justify-center hover:scale-105"
                     style={`background-color: ${c.hex}; border-color: ${c.border || 'rgba(0,0,0,0.15)'};`}
@@ -175,11 +159,9 @@ try {
             </div>
           </fieldset>
 
-          <!-- 4. BỘ LỌC DANH MỤC -->
+          <!-- BỘ LỌC DANH MỤC -->
           <fieldset class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
-            <legend class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold px-1">
-              🛋️ Danh mục sản phẩm
-            </legend>
+            <legend class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold px-1">🛋️ Danh mục sản phẩm</legend>
             <div class="mt-3 flex flex-col gap-2.5">
               {categories.map((item) => (
                 <label class="flex cursor-pointer items-center gap-2.5 text-xs text-walnut-800 transition-colors hover:text-walnut-900">
@@ -190,11 +172,9 @@ try {
             </div>
           </fieldset>
 
-          <!-- 5. BỘ LỌC KHÔNG GIAN -->
+          <!-- BỘ LỌC KHÔNG GIAN -->
           <fieldset class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
-            <legend class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold px-1">
-              🏡 Không gian sống
-            </legend>
+            <legend class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold px-1">🏡 Không gian sống</legend>
             <div class="mt-3 flex flex-col gap-2.5">
               {spaces.map((item) => (
                 <label class="flex cursor-pointer items-center gap-2.5 text-xs text-walnut-800 transition-colors hover:text-walnut-900">
@@ -205,11 +185,9 @@ try {
             </div>
           </fieldset>
 
-          <!-- 6. BỘ LỌC KHOẢNG GIÁ -->
+          <!-- BỘ LỌC KHOẢNG GIÁ -->
           <fieldset class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
-            <legend class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold px-1">
-              💰 Khoảng giá
-            </legend>
+            <legend class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold px-1">💰 Khoảng giá</legend>
             <div class="mt-3 flex flex-col gap-2.5">
               <label class="flex cursor-pointer items-center gap-2.5 text-xs text-walnut-800 transition-colors hover:text-walnut-900">
                 <input type="radio" name="price" data-filter="price" value="" checked class="h-3.5 w-3.5 accent-[#173524] cursor-pointer" />
@@ -237,30 +215,24 @@ try {
 
       <!-- KHỐI NỘI DUNG SẢN PHẨM -->
       <div class="min-w-0 flex-1">
-        <!-- THANH CÁC CHIP BỘ LỌC ĐANG CHỌN (ACTIVE FILTER TAGS) -->
+        
+        <!-- THANH CÁC CHIP BỘ LỌC ĐANG CHỌN -->
         <div id="active-filters-bar" class="mb-4 hidden rounded-none border border-walnut-900/10 bg-white p-3 shadow-2xs">
           <div class="flex flex-wrap items-center gap-2">
             <span class="text-[11px] font-bold uppercase tracking-wider text-walnut-800/70 mr-1">Đang lọc:</span>
             <div id="active-filters-chips" class="flex flex-wrap items-center gap-2"></div>
-            <button
-              type="button"
-              id="btn-clear-all-chips"
-              class="ml-auto text-[11px] font-bold uppercase tracking-wider text-rose-600 hover:text-rose-800 underline cursor-pointer"
-            >
+            <button type="button" id="btn-clear-all-chips" class="ml-auto text-[11px] font-bold uppercase tracking-wider text-rose-600 hover:text-rose-800 underline cursor-pointer">
               Xóa tất cả
             </button>
           </div>
         </div>
 
         <!-- HEADER ĐIỀU KHIỂN & SẮP XẾP -->
-        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-walnut-900/10 pb-4">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-walnut-900/10 pb-4 lg:pb-5">
           <p data-result-count class="text-xs uppercase tracking-[0.15em] font-bold text-walnut-800"></p>
           <label class="flex items-center gap-2.5 text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold">
             <span class="hidden sm:inline">Sắp xếp:</span>
-            <select
-              data-sort
-              class="border border-walnut-900/20 bg-white px-3 py-1.5 text-xs tracking-normal text-walnut-900 outline-none transition-colors focus:border-[#B88E28] cursor-pointer"
-            >
+            <select data-sort class="border border-walnut-900/20 bg-white px-3 py-1.5 text-xs tracking-normal text-walnut-900 outline-none transition-colors focus:border-[#B88E28] cursor-pointer">
               <option value="default">Mặc định</option>
               <option value="price-asc">Giá: thấp → cao</option>
               <option value="price-desc">Giá: cao → thấp</option>
@@ -269,11 +241,11 @@ try {
           </label>
         </div>
 
-        <!-- DANH SÁCH SẢN PHẨM (GRID 3 CỘT) -->
+        <!-- 2. DANH SÁCH SẢN PHẨM (GRID 2 CỘT MOBILE) -->
         <div
           data-product-grid
           data-page-size={productsPerPage}
-          class="mt-8 grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3"
+          class="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4 md:gap-x-6 lg:gap-x-8 lg:gap-y-12"
         >
           {products.map((product) => <ProductCard product={product} />)}
         </div>
@@ -287,23 +259,25 @@ try {
           <p class="mt-1.5 text-xs text-walnut-800/80 max-w-md mx-auto">
             Hãy thử nới lỏng từ khóa tìm kiếm hoặc bỏ chọn một số tiêu chí chất liệu, màu sắc và mức giá.
           </p>
-          <button
-            type="button"
-            data-filter-reset
-            class="mt-5 inline-flex items-center gap-1.5 rounded-none bg-[#173524] px-5 py-2.5 text-xs uppercase tracking-wider text-[#D8B670] font-bold shadow-xs hover:bg-walnut-900 transition-colors cursor-pointer border border-[#D8B670]/40"
-          >
+          <button type="button" data-filter-reset class="mt-5 inline-flex items-center gap-1.5 rounded-none bg-[#173524] px-5 py-2.5 text-xs uppercase tracking-wider text-[#D8B670] font-bold shadow-xs hover:bg-walnut-900 transition-colors cursor-pointer border border-[#D8B670]/40">
             Xem lại tất cả sản phẩm
           </button>
         </div>
 
-        <!-- PHÂN TRANG (9 SP / TRANG) -->
+        <!-- PHÂN TRANG -->
         <nav data-pagination aria-label="Phân trang" class="mt-14 flex flex-wrap items-center justify-center gap-2"></nav>
       </div>
 
     </div>
   </section>
-
 </BaseLayout>
+
+<!-- ĐOẠN CSS THẦN THÁNH SỬA LỖI STICKY CỦA TAILWIND -->
+<style is:global>
+  body, html {
+    overflow-x: clip !important;
+  }
+</style>
 
 <script>
   const grid = document.querySelector<HTMLElement>('[data-product-grid]');
@@ -346,7 +320,6 @@ try {
       priceRange = [Number(parts[0]), parts[1] ? Number(parts[1]) : Infinity];
     };
 
-    // Kiểm tra card có khớp với toàn bộ bộ lọc
     const matches = (card: HTMLElement) => {
       const pickedCategories = checkedValues('category');
       const pickedSpaces = checkedValues('space');
@@ -356,20 +329,17 @@ try {
       if (pickedCategories.length && !pickedCategories.includes(card.dataset.category ?? '')) return false;
       if (pickedSpaces.length && !pickedSpaces.includes(card.dataset.space ?? '')) return false;
 
-      // Lọc chất liệu (so sánh chứa từ khóa chất liệu)
       if (pickedMaterials.length) {
         const cardMat = (card.dataset.material ?? '').toLowerCase();
         const hasMat = pickedMaterials.some((pm) => cardMat.includes(pm.toLowerCase()));
         if (!hasMat) return false;
       }
 
-      // Lọc màu sắc (mã màu)
       if (pickedColors.length) {
         const cardColor = (card.dataset.color ?? '').toLowerCase();
         if (!pickedColors.includes(cardColor)) return false;
       }
 
-      // Lọc theo từ khóa tìm kiếm (tên hoặc mô tả hoặc chất liệu)
       if (keyword) {
         const name = String(card.dataset.name ?? '').toLowerCase();
         const mat = String(card.dataset.material ?? '').toLowerCase();
@@ -379,7 +349,6 @@ try {
         }
       }
 
-      // Lọc khoảng giá
       if (priceRange) {
         const price = Number(card.dataset.price);
         if (price < priceRange[0] || price > priceRange[1]) return false;
@@ -423,7 +392,6 @@ try {
       makePageButton('Sau', page + 1, { disabled: page === totalPages });
     };
 
-    // Render danh sách Chip các bộ lọc đang chọn
     const renderActiveChips = () => {
       if (!activeFiltersBar || !activeFiltersChips) return;
       activeFiltersChips.innerHTML = '';
@@ -442,7 +410,6 @@ try {
         });
       }
 
-      // Checkboxes category, space, material, color
       document.querySelectorAll<HTMLInputElement>('[data-filter="category"]:checked, [data-filter="space"]:checked, [data-filter="material"]:checked, [data-filter="color"]:checked').forEach((input) => {
         const text = input.closest('label')?.textContent?.trim() || input.value;
         chips.push({
@@ -454,7 +421,6 @@ try {
         });
       });
 
-      // Price filter
       const priceChecked = document.querySelector<HTMLInputElement>('[data-filter="price"]:checked');
       if (priceChecked && priceChecked.value) {
         const text = priceChecked.closest('label')?.textContent?.trim() || priceChecked.value;
@@ -513,7 +479,6 @@ try {
       renderActiveChips();
     };
 
-    // Lắng nghe thay đổi trên tất cả input bộ lọc
     document.querySelectorAll<HTMLInputElement>('[data-filter]').forEach((input) => {
       input.addEventListener('change', () => {
         page = 1;
@@ -522,7 +487,6 @@ try {
       });
     });
 
-    // Lắng nghe ô tìm kiếm trên trang sản phẩm
     pageSearchInput?.addEventListener('input', () => {
       keyword = pageSearchInput.value.trim().toLowerCase();
       page = 1;
@@ -573,7 +537,6 @@ try {
       toggleEl.setAttribute('aria-expanded', String(!isHidden));
     });
 
-    // Đọc URL Search Query ban đầu
     const params = new URLSearchParams(window.location.search);
 
     const keywordParam = (params.get('q') ?? '').trim().toLowerCase();

@@ -108,13 +108,13 @@ const comparePrice = Math.round((product.price * 1.15) / 100000) * 100000;
       </a>
     </h3>
 
-    <!-- GIÁ TIỀN: VÀNG CHAMPAGNE NHƯ LOGO -->
-    <div class="mt-2 flex items-center justify-center gap-2.5">
+    <!-- GIÁ TIỀN ĐÃ ĐƯỢC CHỈNH SỬA: XẾP THÀNH CỘT, GIÁ MỚI Ở TRÊN, GIÁ GỐC Ở DƯỚI -->
+    <div class="mt-2 flex flex-col items-center justify-center gap-0.5">
+      <span class="text-base sm:text-lg font-bold text-[#B88E28] leading-none">
+        {formatVnd(product.price)}
+      </span>
       <span class="text-xs sm:text-sm text-neutral-400 line-through font-normal">
         {formatVnd(comparePrice)}
-      </span>
-      <span class="text-base sm:text-lg font-bold text-[#B88E28]">
-        {formatVnd(product.price)}
       </span>
     </div>
 
