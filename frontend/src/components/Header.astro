@@ -633,58 +633,18 @@ const isItemActive = (item: MenuItem): boolean => {
         <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4 space-y-2">
           <div class="flex items-center justify-between text-xs">
             <span class="text-walnut-800/70">Tổng chi tiêu tích lũy:</span>
-            <span id="profile-info-spent" class="font-bold text-walnut-900 text-sm">91.400.000 ₫</span>
+            <span id="profile-info-spent" class="font-bold text-walnut-900 text-sm">0 ₫</span>
           </div>
           <div class="flex items-center justify-between text-xs">
             <span class="text-walnut-800/70">Đơn hàng hoàn tất:</span>
-            <span id="profile-info-orders" class="font-bold text-walnut-900">2 đơn hàng</span>
-          </div>
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-walnut-800/70">Bảo mật tài khoản:</span>
-            <span class="font-semibold text-emerald-700">✓ Đã xác thực 2 lớp (2FA)</span>
+            <span id="profile-info-orders" class="font-bold text-walnut-900">0 đơn hàng</span>
           </div>
         </div>
       </div>
 
-      <!-- TAB 2: ĐƠN HÀNG CỦA TÔI -->
+      <!-- TAB 2: ĐƠN HÀNG CỦA TÔI (ĐỒNG BỘ ĐỘNG THEO TỪNG TÀI KHOẢN) -->
       <div id="tab-pane-orders" class="tab-pane hidden space-y-3">
-        <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4 space-y-3">
-          <div class="flex items-center justify-between border-b border-walnut-900/10 pb-2.5">
-            <div>
-              <span class="font-mono text-xs font-bold text-walnut-900">#DH-8829</span>
-              <span class="text-[11px] text-walnut-800/60 ml-2">08/10/2026</span>
-            </div>
-            <span class="rounded bg-blue-100 text-blue-800 border border-blue-300 px-2 py-0.5 text-[10px] font-semibold">
-              Đang giao hàng
-            </span>
-          </div>
-          <div class="flex justify-between items-center text-xs">
-            <div>
-              <p class="font-semibold text-walnut-900">Sofa Da Ý Milano Cao Cấp (x1)</p>
-              <p class="text-[11px] text-walnut-800/70">Màu Nâu Bò, Da thật 100%</p>
-            </div>
-            <span class="font-bold text-clay-700 text-sm">58.900.000 ₫</span>
-          </div>
-        </div>
-
-        <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4 space-y-3">
-          <div class="flex items-center justify-between border-b border-walnut-900/10 pb-2.5">
-            <div>
-              <span class="font-mono text-xs font-bold text-walnut-900">#DH-8812</span>
-              <span class="text-[11px] text-walnut-800/60 ml-2">01/10/2026</span>
-            </div>
-            <span class="rounded bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 text-[10px] font-semibold">
-              Đã giao thành công
-            </span>
-          </div>
-          <div class="flex justify-between items-center text-xs">
-            <div>
-              <p class="font-semibold text-walnut-900">Bàn Ăn Đá Marble Carrara (x1)</p>
-              <p class="text-[11px] text-walnut-800/70">Mặt đá tự nhiên Ý</p>
-            </div>
-            <span class="font-bold text-clay-700 text-sm">32.500.000 ₫</span>
-          </div>
-        </div>
+        <div class="text-center py-6 text-xs text-walnut-800/60">Đang tải danh sách đơn hàng...</div>
       </div>
 
       <!-- TAB 3: DANH SÁCH YÊU THÍCH -->
@@ -1182,7 +1142,35 @@ const isItemActive = (item: MenuItem): boolean => {
     });
   };
 
+  // Tự động kiểm tra và đồng bộ role & avatar mới nhất từ Database
+  const refreshUserFromBackend = async () => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) return;
+    try {
+      const res = await fetch('http://localhost:4000/api/auth/me', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await res.json();
+      if (data.success && data.user) {
+        let fullUser: any = readUser() || {};
+        try {
+          const raw = localStorage.getItem('current_user');
+          if (raw) fullUser = JSON.parse(raw);
+        } catch {}
+
+        fullUser.avatar = data.user.avatar || fullUser.avatar || '';
+        fullUser.role = data.user.role || 'customer';
+        fullUser.name = data.user.full_name || fullUser.name;
+        fullUser.email = data.user.email || fullUser.email;
+        if (data.user.phone) fullUser.phone = data.user.phone;
+        localStorage.setItem('current_user', JSON.stringify(fullUser));
+        syncAuth();
+      }
+    } catch {}
+  };
+
   syncAuth();
+  refreshUserFromBackend();
   window.addEventListener(AUTH_EVENT, syncAuth);
   window.addEventListener('storage', syncAuth);
 
@@ -1221,7 +1209,7 @@ const isItemActive = (item: MenuItem): boolean => {
   });
 
   // Mở modal và nạp thông tin người dùng
-  const openProfileModal = (initialTab = 'profile') => {
+  const openProfileModal = async (initialTab = 'profile') => {
     const user = readUser();
     if (!user) {
       window.location.href = '/dang-nhap';
@@ -1235,13 +1223,31 @@ const isItemActive = (item: MenuItem): boolean => {
       if (raw) fullUser = JSON.parse(raw);
     } catch {}
 
+    // Đồng bộ trực tiếp từ backend nếu có token
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      try {
+        const meRes = await fetch('http://localhost:4000/api/auth/me', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const meData = await meRes.json();
+        if (meData.success && meData.user) {
+          if (meData.user.avatar) fullUser.avatar = meData.user.avatar;
+          if (meData.user.role) fullUser.role = meData.user.role;
+          if (meData.user.full_name) fullUser.name = meData.user.full_name;
+          if (meData.user.email) fullUser.email = meData.user.email;
+          localStorage.setItem('current_user', JSON.stringify(fullUser));
+        }
+      } catch {}
+    }
+
     const name = fullUser.name || 'Khách';
-    const email = fullUser.email || (user.role === 'admin' ? 'admin@noithat.vn' : 'khach@noithat.vn');
+    const email = fullUser.email || (fullUser.role === 'admin' ? 'admin@noithat.vn' : 'khach@noithat.vn');
     const phone = fullUser.phone && fullUser.phone !== 'Đăng nhập Google' ? fullUser.phone : '0909 001 001';
-    const tier = fullUser.tier || (user.role === 'admin' ? 'Quản Trị Viên' : 'Kim Cương (VIP)');
-    const spent = fullUser.spent || '91.400.000 ₫';
-    const orders = typeof fullUser.orders === 'number' ? `${fullUser.orders} đơn hàng` : '2 đơn hàng';
-    const avatar = fullUser.avatar || '';
+    const tier = fullUser.tier || (fullUser.role === 'admin' ? 'Quản Trị Viên' : 'Kim Cương (VIP)');
+    const spent = fullUser.spent || '0 ₫';
+    const orders = typeof fullUser.orders === 'number' ? `${fullUser.orders} đơn hàng` : '0 đơn hàng';
+    const avatar = fullUser.avatar || user.avatar || '';
 
     // Cập nhật DOM Modal
     const modalName = document.getElementById('profile-modal-name');
@@ -1254,17 +1260,26 @@ const isItemActive = (item: MenuItem): boolean => {
     if (modalEmail) modalEmail.textContent = email;
     if (modalTier) modalTier.textContent = tier;
     
+    // Hiển thị ảnh đại diện Google hoặc ảnh thật nếu có
     if (modalAvatar) {
       if (avatar) {
-        modalAvatar.innerHTML = `<img src="${avatar}" alt="${name}" class="h-full w-full object-cover rounded-full" />`;
+        modalAvatar.innerHTML = `<img src="${avatar}" alt="${name}" class="h-full w-full object-cover rounded-full" referrerpolicy="no-referrer" />`;
       } else {
         const initials = name.split(' ').map((n: string) => n[0]).slice(-2).join('');
         modalAvatar.textContent = initials || 'KH';
       }
     }
 
+    // Phân quyền: CHỈ tài khoản Admin mới nhìn thấy nút Trang quản trị (Admin)
+    const isAdmin = (fullUser.role === 'admin' || user.role === 'admin');
     if (adminLink) {
-      adminLink.classList.toggle('hidden', user.role !== 'admin' && user.role !== 'seller');
+      if (isAdmin) {
+        adminLink.classList.remove('hidden');
+        adminLink.classList.add('inline-flex');
+      } else {
+        adminLink.classList.add('hidden');
+        adminLink.classList.remove('inline-flex');
+      }
     }
 
     // Tab 1 Info
@@ -1287,6 +1302,84 @@ const isItemActive = (item: MenuItem): boolean => {
     const addrPhone = document.getElementById('address-recipient-phone');
     if (addrName) addrName.textContent = name;
     if (addrPhone) addrPhone.textContent = phone;
+
+    // Orders Info (Đồng bộ trực tiếp từ Database API theo từng tài khoản)
+    const ordersContainer = document.getElementById('tab-pane-orders');
+    const renderUserOrders = async () => {
+      if (!ordersContainer) return;
+      ordersContainer.innerHTML = '<div class="text-center py-6 text-xs text-walnut-800/60">Đang tải danh sách đơn hàng...</div>';
+
+      let userOrders: any[] = [];
+      const token = localStorage.getItem('auth_token');
+
+      if (token) {
+        try {
+          const res = await fetch('http://localhost:4000/api/orders/my-orders', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            userOrders = json.data;
+            if (json.stats) {
+              if (infoSpent) infoSpent.textContent = new Intl.NumberFormat('vi-VN').format(json.stats.totalSpent) + ' ₫';
+              if (infoOrders) infoOrders.textContent = `${json.stats.completedCount} đơn hàng`;
+            }
+          }
+        } catch (err) {
+          console.warn('Lỗi kết nối API My Orders:', err);
+        }
+      }
+
+      if (userOrders.length === 0) {
+        ordersContainer.innerHTML = `
+          <div class="text-center py-8 text-xs text-walnut-800/70">
+            <p class="text-3xl mb-2 text-walnut-900/30">📦</p>
+            <p class="font-bold text-sm text-walnut-900">Bạn chưa có đơn hàng nào</p>
+            <p class="mt-1 text-walnut-800/70">Khi bạn đặt mua sản phẩm, tiến độ giao hàng sẽ xuất hiện tại đây.</p>
+            <a href="/san-pham" class="mt-4 inline-block bg-clay-600 text-white px-5 py-2 rounded text-xs font-semibold hover:bg-clay-500 transition-colors">
+              Khám phá sản phẩm ngay →
+            </a>
+          </div>
+        `;
+      } else {
+        ordersContainer.innerHTML = userOrders.map((order: any) => {
+          const dateStr = new Date(order.createdAt).toLocaleDateString('vi-VN');
+          const isPaid = order.paymentStatus === 'paid';
+          const isDelivered = order.orderStatus === 'completed' || order.orderStatus === 'delivered';
+          const statusText = isDelivered ? 'Đã giao thành công' : (order.orderStatus === 'shipping' ? 'Đang giao hàng' : (isPaid ? 'Đã thanh toán (Chờ giao)' : 'Chờ xác nhận'));
+          const statusClass = isDelivered ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : (isPaid ? 'bg-blue-100 text-blue-800 border-blue-300' : 'bg-amber-100 text-amber-800 border-amber-300');
+
+          const itemsHtml = order.items.map((it: any) => `
+            <div class="flex justify-between items-center text-xs mt-1">
+              <div>
+                <p class="font-semibold text-walnut-900">${it.name} (x${it.qty})</p>
+              </div>
+              <span class="font-bold text-clay-700 text-xs">${new Intl.NumberFormat('vi-VN').format(it.total)} ₫</span>
+            </div>
+          `).join('');
+
+          return `
+            <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4 space-y-2">
+              <div class="flex items-center justify-between border-b border-walnut-900/10 pb-2">
+                <div>
+                  <span class="font-mono text-xs font-bold text-walnut-900">#${order.orderCode}</span>
+                  <span class="text-[11px] text-walnut-800/60 ml-2">${dateStr}</span>
+                </div>
+                <span class="rounded border px-2 py-0.5 text-[10px] font-semibold ${statusClass}">
+                  ${statusText}
+                </span>
+              </div>
+              ${itemsHtml}
+              <div class="border-t border-walnut-900/10 pt-2 flex justify-between items-center text-xs font-bold">
+                <span class="text-walnut-800">Tổng thanh toán:</span>
+                <span class="text-clay-700 text-sm">${new Intl.NumberFormat('vi-VN').format(order.total)} ₫</span>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    };
+    renderUserOrders();
 
     // Wishlist Info (Đồng bộ trực tiếp từ Database API theo từng tài khoản)
     const wishlistContainer = document.getElementById('tab-pane-wishlist');

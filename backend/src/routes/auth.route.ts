@@ -246,6 +246,13 @@ authRouter.post('/google', async (req: Request, res: Response) => {
         },
         include: { roles: true },
       });
+    } else if (avatar_url && user.avatar_url !== avatar_url) {
+      // Tự động đồng bộ ảnh đại diện mới nhất từ Google OAuth vào cơ sở dữ liệu
+      user = await prisma.users.update({
+        where: { id: user.id },
+        data: { avatar_url },
+        include: { roles: true },
+      });
     }
 
     const userRole = user.roles?.name || 'customer';
@@ -264,7 +271,7 @@ authRouter.post('/google', async (req: Request, res: Response) => {
         id: Number(user.id),
         email: user.email,
         full_name: user.full_name,
-        avatar: user.avatar_url,
+        avatar: user.avatar_url || avatar_url || null,
         role: userRole,
       },
     });

@@ -241,6 +241,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         email: payload.email,
         avatar: payload.picture || '',
         phone: 'Đăng ký Google',
+        role: 'customer',
         tier: 'Vàng',
         spent: '0 ₫',
         orders: 0,
@@ -264,7 +265,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         if (data.success && data.token) {
           localStorage.setItem('auth_token', data.token);
           if (data.user) {
-            googleUser.role = data.user.role;
+            googleUser.role = data.user.role || 'customer';
+            if (data.user.avatar) {
+              googleUser.avatar = data.user.avatar;
+            }
           }
         }
       } catch (e) {
