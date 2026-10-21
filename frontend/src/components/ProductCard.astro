@@ -10,6 +10,7 @@ interface Props {
 const { product } = Astro.props;
 const detail = getProductDetail(product.slug);
 const imageSrc = (product as any).thumbnail || (product as any).image || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80';
+const stock = (product as any).stock !== undefined ? Number((product as any).stock) : 20;
 
 // Tính điểm đánh giá & giá tham khảo đồng nhất theo slug
 const hash = product.slug.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -27,6 +28,7 @@ const comparePrice = Math.round((product.price * 1.15) / 100000) * 100000;
   data-space={product.space}
   data-space-label={product.spaceLabel}
   data-price={product.price}
+  data-stock={stock}
   data-material={product.material}
   data-color={product.color || ''}
   data-color-label={product.colorLabel || ''}
@@ -74,6 +76,7 @@ const comparePrice = Math.round((product.price * 1.15) / 100000) * 100000;
         data-slug={product.slug}
         data-name={product.name}
         data-price={product.price}
+        data-stock={stock}
         data-category={product.categoryLabel}
         data-category-slug={product.category}
         data-space={product.spaceLabel || ''}
@@ -127,16 +130,23 @@ const comparePrice = Math.round((product.price * 1.15) / 100000) * 100000;
         data-slug={product.slug}
         data-name={product.name}
         data-price={product.price}
+        data-stock={stock}
         data-image={imageSrc}
         data-category={product.categoryLabel}
-        class="flex w-full items-center justify-center gap-2 rounded-none bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] py-2.5 px-4 text-xs font-bold uppercase tracking-wider text-[#173524] shadow-md transition-all duration-200 hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white hover:shadow-lg active:scale-[0.99] cursor-pointer border border-[#E0C582]/50"
-        title="Thêm giỏ hàng"
-        aria-label="Thêm giỏ hàng"
+        disabled={stock === 0}
+        class:list={[
+          'flex w-full items-center justify-center gap-2 rounded-none py-2.5 px-4 text-xs font-bold uppercase tracking-wider shadow-md transition-all duration-200 border',
+          stock > 0
+            ? 'bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] text-[#173524] hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white hover:shadow-lg active:scale-[0.99] cursor-pointer border-[#E0C582]/50'
+            : 'bg-neutral-300 text-neutral-500 border-neutral-300 cursor-not-allowed opacity-75'
+        ]}
+        title={stock > 0 ? "Thêm giỏ hàng" : "Hết hàng"}
+        aria-label={stock > 0 ? "Thêm giỏ hàng" : "Hết hàng"}
       >
         <svg viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4 pointer-events-none">
           <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
         </svg>
-        <span>Thêm giỏ hàng</span>
+        <span>{stock > 0 ? 'Thêm giỏ hàng' : 'Hết hàng'}</span>
       </button>
 
       <!-- HÀNG ĐÁNH GIÁ SAO (TRÁI) & CHIA SẺ, YÊU THÍCH (PHẢI) -->
@@ -215,11 +225,17 @@ const comparePrice = Math.round((product.price * 1.15) / 100000) * 100000;
       const thumbnail = btn.dataset.image || '';
       const category = btn.dataset.category || '';
 
+      const stock = Number(btn.dataset.stock ?? 20);
+      if (stock <= 0) {
+        showCartToast(`Sản phẩm "${name}" hiện đã hết hàng!`);
+        return;
+      }
+
       const card = btn.closest('.product-card');
       const img = card ? card.querySelector<HTMLElement>('img') : btn;
 
       flyToCart(img, thumbnail);
-      addToCart({ slug, name, price, thumbnail, category }, 1);
+      addToCart({ slug, name, price, thumbnail, category, maxStock: stock }, 1);
       showCartToast(`Đã thêm "${name}" vào giỏ hàng!`);
     });
   });
@@ -245,6 +261,7 @@ const comparePrice = Math.round((product.price * 1.15) / 100000) * 100000;
         dimensions: btn.dataset.dimensions,
         warranty: btn.dataset.warranty,
         description: btn.dataset.description,
+        stock: Number(btn.dataset.stock ?? 20),
       };
 
       window.dispatchEvent(new CustomEvent('open-quick-view', { detail: eventData }));

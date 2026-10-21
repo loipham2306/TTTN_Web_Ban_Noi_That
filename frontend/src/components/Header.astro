@@ -563,36 +563,47 @@ const isItemActive = (item: MenuItem): boolean => {
 
 {/* MODAL HỒ SƠ & TÀI KHOẢN CÁ NHÂN */}
 <div id="user-profile-modal" class="fixed inset-0 z-[100] hidden bg-black/75 backdrop-blur-md overflow-y-auto p-4 flex items-center justify-center">
-  <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden relative my-8 text-walnut-900">
-    <!-- Header Modal -->
-    <div class="bg-walnut-900 text-sand-50 p-6 sm:p-7 flex items-center justify-between relative overflow-hidden">
-      <div class="absolute -right-8 -bottom-8 w-44 h-44 rounded-full bg-clay-600/20 pointer-events-none"></div>
+  <div class="bg-[#FAF8F5] border border-walnut-900/30 w-full max-w-2xl rounded-none shadow-2xl relative my-8 text-walnut-900 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    
+    <!-- Header Modal (Walnut Xanh Đậm + Dải Vàng Champagne) -->
+    <div class="relative bg-[#173524] text-sand-50 p-6 sm:p-7 border-b border-[#D8B670]/30 overflow-hidden">
+      <div class="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#D8B670] via-[#F3E5AB] to-[#C49E52]"></div>
+      <div class="absolute -right-8 -bottom-8 w-44 h-44 rounded-full bg-[#D8B670]/5 pointer-events-none"></div>
 
-      <div class="flex items-center gap-4 relative z-10">
-        <div id="profile-modal-avatar" class="h-14 w-14 sm:h-16 sm:w-16 rounded-full bg-clay-600 text-sand-50 font-bold text-xl flex items-center justify-center border-2 border-sand-50/20 shadow-md overflow-hidden">
-          TC
-        </div>
-        <div>
-          <div class="flex items-center gap-2 flex-wrap">
-            <h2 id="profile-modal-name" class="text-lg sm:text-xl font-bold tracking-tight text-white">Khách</h2>
-            <span id="profile-modal-tier" class="rounded-full bg-amber-400/20 text-amber-300 border border-amber-400/40 px-2.5 py-0.5 text-[10px] uppercase font-bold tracking-wider">
-              Hội Viên VIP
-            </span>
+      <div class="flex items-center justify-between relative z-10">
+        <div class="flex items-center gap-4">
+          <div id="profile-modal-avatar" class="h-14 w-14 sm:h-16 sm:w-16 rounded-none bg-[#173524] text-[#E6CA85] font-bold text-xl flex items-center justify-center border-2 border-[#D8B670]/40 shadow-sm overflow-hidden shrink-0">
+            TC
           </div>
-          <p id="profile-modal-email" class="text-xs text-sand-200/80 mt-1">khach@noithat.vn</p>
+          <div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <h2 id="profile-modal-name" class="text-lg sm:text-xl font-display font-bold tracking-tight text-white">Khách</h2>
+              <span id="profile-modal-tier" class="rounded-none bg-[#D8B670]/15 text-[#E6CA85] border border-[#D8B670]/40 px-2.5 py-0.5 text-[10px] uppercase font-bold tracking-wider">
+                Hội Viên VIP
+              </span>
+            </div>
+            <p id="profile-modal-email" class="text-xs text-[#E6CA85]/80 mt-1 font-mono">khach@noithat.vn</p>
+          </div>
         </div>
-      </div>
 
-      <button type="button" id="btn-close-profile-modal" class="text-sand-200 hover:text-white p-2 rounded-full hover:bg-white/10 transition-colors cursor-pointer relative z-10" aria-label="Đóng">
-        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
+        <!-- Nút Thoát Modal ở Header với hình tròn, hiệu ứng xoay và đổi màu hover -->
+        <button 
+          type="button" 
+          id="btn-close-profile-modal" 
+          class="w-9 h-9 rounded-full border border-white/20 bg-white/5 text-sand-200 hover:text-white hover:bg-red-600/90 hover:border-red-500 hover:rotate-90 flex items-center justify-center transition-all duration-300 cursor-pointer relative z-10 shadow-sm group" 
+          aria-label="Đóng cửa sổ"
+          title="Đóng cửa sổ"
+        >
+          <svg class="h-4 w-4 transition-transform duration-300 group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
     </div>
 
     <!-- Navigation Tabs -->
-    <div class="border-b border-walnut-900/10 bg-sand-100/80 px-6 flex items-center gap-4 sm:gap-6 text-xs uppercase tracking-wider font-semibold overflow-x-auto">
-      <button type="button" data-tab-btn="profile" class="profile-tab-button py-3.5 border-b-2 border-clay-600 text-clay-700 cursor-pointer transition-colors whitespace-nowrap">
+    <div class="border-b border-walnut-900/15 bg-white px-6 flex items-center gap-4 sm:gap-6 text-xs uppercase tracking-wider font-semibold overflow-x-auto">
+      <button type="button" data-tab-btn="profile" class="profile-tab-button py-3.5 border-b-2 border-[#173524] text-[#173524] font-bold cursor-pointer transition-colors whitespace-nowrap">
         Thông tin cá nhân
       </button>
       <button type="button" data-tab-btn="orders" class="profile-tab-button py-3.5 border-b-2 border-transparent text-walnut-800/70 hover:text-walnut-900 cursor-pointer transition-colors whitespace-nowrap">
@@ -612,74 +623,79 @@ const isItemActive = (item: MenuItem): boolean => {
       <!-- TAB 1: THÔNG TIN CÁ NHÂN -->
       <div id="tab-pane-profile" class="tab-pane space-y-4">
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-3.5">
-            <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-semibold block">Họ và tên</span>
+          <div class="rounded-none border border-walnut-900/15 bg-white p-4 shadow-xs hover:border-[#173524]/40 transition-colors">
+            <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-bold block">Họ và tên</span>
             <p id="profile-info-name" class="mt-1 text-sm font-bold text-walnut-900">TC Vỹ</p>
           </div>
-          <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-3.5">
-            <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-semibold block">Email liên hệ</span>
+          <div class="rounded-none border border-walnut-900/15 bg-white p-4 shadow-xs hover:border-[#173524]/40 transition-colors">
+            <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-bold block">Email liên hệ</span>
             <p id="profile-info-email" class="mt-1 text-sm font-semibold text-walnut-900">admin@noithat.vn</p>
           </div>
-          <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-3.5">
-            <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-semibold block">Số điện thoại</span>
+          <div class="rounded-none border border-walnut-900/15 bg-white p-4 shadow-xs hover:border-[#173524]/40 transition-colors">
+            <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-bold block">Số điện thoại</span>
             <p id="profile-info-phone" class="mt-1 text-sm font-semibold text-walnut-900">0909 001 001</p>
           </div>
-          <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-3.5">
-            <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-semibold block">Hạng thành viên</span>
+          <div class="rounded-none border border-walnut-900/15 bg-white p-4 shadow-xs hover:border-[#173524]/40 transition-colors">
+            <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-bold block">Hạng thành viên</span>
             <p id="profile-info-tier" class="mt-1 text-sm font-bold text-clay-700">Kim Cương (VIP)</p>
           </div>
         </div>
 
-        <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4 space-y-2">
+        <div class="rounded-none border border-walnut-900/15 bg-white p-4 space-y-2.5 shadow-xs">
           <div class="flex items-center justify-between text-xs">
-            <span class="text-walnut-800/70">Tổng chi tiêu tích lũy:</span>
+            <span class="text-walnut-800/70 font-medium">Tổng chi tiêu tích lũy:</span>
             <span id="profile-info-spent" class="font-bold text-walnut-900 text-sm">91.400.000 ₫</span>
           </div>
           <div class="flex items-center justify-between text-xs">
-            <span class="text-walnut-800/70">Đơn hàng hoàn tất:</span>
+            <span class="text-walnut-800/70 font-medium">Đơn hàng hoàn tất:</span>
             <span id="profile-info-orders" class="font-bold text-walnut-900">2 đơn hàng</span>
           </div>
-          <div class="flex items-center justify-between text-xs">
-            <span class="text-walnut-800/70">Bảo mật tài khoản:</span>
-            <span class="font-semibold text-emerald-700">✓ Đã xác thực 2 lớp (2FA)</span>
+          <div class="flex items-center justify-between text-xs border-t border-walnut-900/10 pt-2">
+            <span class="text-walnut-800/70 font-medium">Bảo mật tài khoản:</span>
+            <span class="font-semibold text-emerald-700 flex items-center gap-1">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
+              </svg>
+              <span>Đã xác thực 2 lớp (2FA)</span>
+            </span>
           </div>
         </div>
       </div>
 
       <!-- TAB 2: ĐƠN HÀNG CỦA TÔI -->
       <div id="tab-pane-orders" class="tab-pane hidden space-y-3">
-        <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4 space-y-3">
+        <div class="rounded-none border border-walnut-900/15 bg-white p-4 space-y-3 shadow-xs">
           <div class="flex items-center justify-between border-b border-walnut-900/10 pb-2.5">
             <div>
               <span class="font-mono text-xs font-bold text-walnut-900">#DH-8829</span>
               <span class="text-[11px] text-walnut-800/60 ml-2">08/10/2026</span>
             </div>
-            <span class="rounded bg-blue-100 text-blue-800 border border-blue-300 px-2 py-0.5 text-[10px] font-semibold">
+            <span class="rounded-none bg-blue-100 text-blue-800 border border-blue-300 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
               Đang giao hàng
             </span>
           </div>
           <div class="flex justify-between items-center text-xs">
             <div>
-              <p class="font-semibold text-walnut-900">Sofa Da Ý Milano Cao Cấp (x1)</p>
+              <p class="font-bold text-walnut-900">Sofa Da Ý Milano Cao Cấp (x1)</p>
               <p class="text-[11px] text-walnut-800/70">Màu Nâu Bò, Da thật 100%</p>
             </div>
             <span class="font-bold text-clay-700 text-sm">58.900.000 ₫</span>
           </div>
         </div>
 
-        <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4 space-y-3">
+        <div class="rounded-none border border-walnut-900/15 bg-white p-4 space-y-3 shadow-xs">
           <div class="flex items-center justify-between border-b border-walnut-900/10 pb-2.5">
             <div>
               <span class="font-mono text-xs font-bold text-walnut-900">#DH-8812</span>
               <span class="text-[11px] text-walnut-800/60 ml-2">01/10/2026</span>
             </div>
-            <span class="rounded bg-emerald-100 text-emerald-800 border border-emerald-300 px-2 py-0.5 text-[10px] font-semibold">
+            <span class="rounded-none bg-emerald-100 text-emerald-800 border border-emerald-300 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
               Đã giao thành công
             </span>
           </div>
           <div class="flex justify-between items-center text-xs">
             <div>
-              <p class="font-semibold text-walnut-900">Bàn Ăn Đá Marble Carrara (x1)</p>
+              <p class="font-bold text-walnut-900">Bàn Ăn Đá Marble Carrara (x1)</p>
               <p class="text-[11px] text-walnut-800/70">Mặt đá tự nhiên Ý</p>
             </div>
             <span class="font-bold text-clay-700 text-sm">32.500.000 ₫</span>
@@ -689,9 +705,9 @@ const isItemActive = (item: MenuItem): boolean => {
 
       <!-- TAB 3: DANH SÁCH YÊU THÍCH -->
       <div id="tab-pane-wishlist" class="tab-pane hidden space-y-3">
-        <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-3.5 flex items-center justify-between gap-4">
+        <div class="rounded-none border border-walnut-900/15 bg-white p-4 flex items-center justify-between gap-4 shadow-xs">
           <div>
-            <h4 class="font-semibold text-xs text-walnut-900">Ghế Thư Giãn Gỗ Óc Chó</h4>
+            <h4 class="font-bold text-xs text-walnut-900">Ghế Thư Giãn Gỗ Óc Chó</h4>
             <p class="font-bold text-clay-700 text-xs mt-0.5">18.900.000 ₫</p>
           </div>
           <a href="/san-pham/ghe-thu-gian-go-oc-cho" class="text-xs uppercase tracking-wider text-walnut-900 font-semibold hover:text-clay-600 underline">
@@ -699,9 +715,9 @@ const isItemActive = (item: MenuItem): boolean => {
           </a>
         </div>
 
-        <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-3.5 flex items-center justify-between gap-4">
+        <div class="rounded-none border border-walnut-900/15 bg-white p-4 flex items-center justify-between gap-4 shadow-xs">
           <div>
-            <h4 class="font-semibold text-xs text-walnut-900">Đèn Sàn Đồng Thau Chao Vải</h4>
+            <h4 class="font-bold text-xs text-walnut-900">Đèn Sàn Đồng Thau Chao Vải</h4>
             <p class="font-bold text-clay-700 text-xs mt-0.5">7.900.000 ₫</p>
           </div>
           <a href="/san-pham/den-san-dong-thau" class="text-xs uppercase tracking-wider text-walnut-900 font-semibold hover:text-clay-600 underline">
@@ -712,10 +728,10 @@ const isItemActive = (item: MenuItem): boolean => {
 
       <!-- TAB 4: SỔ ĐỊA CHỈ -->
       <div id="tab-pane-addresses" class="tab-pane hidden space-y-3">
-        <div class="rounded-lg border border-walnut-900/20 bg-sand-100/60 p-4 space-y-2">
+        <div class="rounded-none border border-walnut-900/15 bg-white p-4 space-y-2 shadow-xs">
           <div class="flex items-center justify-between">
             <span class="font-bold text-xs text-walnut-900">Địa chỉ nhận hàng mặc định</span>
-            <span class="rounded bg-emerald-100 text-emerald-800 px-2 py-0.5 text-[10px] font-semibold">Mặc định</span>
+            <span class="rounded-none bg-emerald-100 text-emerald-800 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">Mặc định</span>
           </div>
           <p class="text-xs text-walnut-900 font-medium">Người nhận: <span id="address-recipient-name">Trương Chí Vỹ</span> — <span id="address-recipient-phone">0909 001 001</span></p>
           <p class="text-xs text-walnut-800/80 leading-relaxed">615 Âu Cơ, Phường Phú Trung, Quận Tân Phú, TP. Hồ Chí Minh</p>
@@ -725,9 +741,9 @@ const isItemActive = (item: MenuItem): boolean => {
     </div>
 
     <!-- Modal Footer -->
-    <div class="border-t border-walnut-900/10 bg-sand-100/50 px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs">
+    <div class="border-t border-walnut-900/15 bg-white px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-[0_-4px_12px_rgba(0,0,0,0.03)]">
       <div>
-        <a href="/admin" id="profile-admin-link" class="hidden inline-flex items-center gap-1.5 font-bold text-amber-900 bg-amber-400/30 border border-amber-500/50 px-3.5 py-1.5 rounded hover:bg-amber-400/50 transition-colors">
+        <a href="/admin" id="profile-admin-link" class="hidden inline-flex items-center gap-1.5 font-bold text-amber-900 bg-amber-400/25 border border-amber-500/40 px-4 py-2 rounded-none hover:bg-amber-400/40 transition-colors">
           <svg class="h-4 w-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
           </svg>
@@ -735,11 +751,23 @@ const isItemActive = (item: MenuItem): boolean => {
         </a>
       </div>
       <div class="flex items-center gap-3 self-end sm:self-auto">
-        <button type="button" data-logout class="px-3 py-1.5 text-red-600 hover:underline font-semibold cursor-pointer">
+        <button 
+          type="button" 
+          data-logout 
+          class="rounded-none border border-red-200 text-red-600 hover:bg-red-50 hover:border-red-400 px-4 py-2.5 text-xs uppercase tracking-wider font-semibold transition-all duration-200 cursor-pointer"
+        >
           Đăng xuất
         </button>
-        <button type="button" id="btn-close-profile-modal-footer" class="bg-walnut-900 text-sand-50 px-5 py-2 uppercase tracking-wider text-[11px] font-semibold hover:bg-clay-600 transition-colors cursor-pointer rounded-sm shadow-sm">
-          Đóng
+        <!-- Nút Thoát Modal ở Footer với hiệu ứng hover bóng và viền vàng champagne -->
+        <button 
+          type="button" 
+          id="btn-close-profile-modal-footer" 
+          class="rounded-none bg-[#173524] text-[#E6CA85] border border-[#D8B670]/40 px-6 py-2.5 uppercase tracking-[0.15em] text-[11px] font-bold hover:bg-[#234c34] hover:text-white hover:border-[#D8B670] hover:shadow-md hover:-translate-y-0.5 active:translate-y-0 transition-all duration-200 cursor-pointer flex items-center gap-1.5"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+          <span>Đóng</span>
         </button>
       </div>
     </div>
@@ -1204,7 +1232,7 @@ const isItemActive = (item: MenuItem): boolean => {
       const isActive = btn.dataset.tabBtn === tabName;
       btn.className = `profile-tab-button py-3.5 border-b-2 cursor-pointer transition-colors whitespace-nowrap ${
         isActive 
-          ? 'border-clay-600 text-clay-700 font-bold' 
+          ? 'border-[#173524] text-[#173524] font-bold' 
           : 'border-transparent text-walnut-800/70 hover:text-walnut-900'
       }`;
     });
@@ -1256,7 +1284,7 @@ const isItemActive = (item: MenuItem): boolean => {
     
     if (modalAvatar) {
       if (avatar) {
-        modalAvatar.innerHTML = `<img src="${avatar}" alt="${name}" class="h-full w-full object-cover rounded-full" />`;
+        modalAvatar.innerHTML = `<img src="${avatar}" alt="${name}" class="h-full w-full object-cover rounded-none" />`;
       } else {
         const initials = name.split(' ').map((n: string) => n[0]).slice(-2).join('');
         modalAvatar.textContent = initials || 'KH';

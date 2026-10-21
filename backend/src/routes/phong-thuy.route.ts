@@ -1,4 +1,5 @@
 import { Router, Request, Response } from 'express';
+import { prisma } from '../config/prisma.js';
 
 export const phongThuyRouter = Router();
 
@@ -91,3 +92,181 @@ phongThuyRouter.post('/consult', async (req: Request, res: Response) => {
     res.status(500).json({ success: false, message: 'Đã có lỗi xảy ra trong quá trình tư vấn', error: error.message });
   }
 });
+
+// POST /api/phong-thuy/chat-log - Lưu lịch sử chat AI vào Database
+phongThuyRouter.post('/chat-log', async (req: Request, res: Response) => {
+  try {
+    const { sessionId, guestId, userId, userEmail, userName, userPhone, userMessage, botMessage } = req.body;
+
+    if (!userMessage && !botMessage) {
+      res.status(400).json({ success: false, message: 'Thiếu nội dung tin nhắn để lưu.' });
+      return;
+    }
+
+    let finalUserId: bigint | null = null;
+    if (userId) {
+      try {
+        finalUserId = BigInt(userId);
+      } catch {}
+    }
+
+    // Nếu chưa có ID nhưng có Email, tự động đối chiếu trong bảng users
+    if (!finalUserId && userEmail && typeof userEmail === 'string') {
+      try {
+        const found = await prisma.users.findUnique({
+          where: { email: userEmail.trim().toLowerCase() },
+        });
+        if (found) {
+          finalUserId = found.id;
+        }
+      } catch (err) {
+        console.warn('Lỗi tìm kiếm user theo email:', err);
+      }
+    }
+
+    let session = null;
+    if (sessionId) {
+      try {
+        session = await prisma.chat_sessions.findUnique({
+          where: { id: BigInt(sessionId) },
+        });
+      } catch {}
+    }
+
+    // Đặt tên guest kèm thông tin nếu có
+    const formattedGuestId = userName && !finalUserId
+      ? `${guestId || 'guest_' + Date.now()} (Tên: ${userName})`
+      : (guestId || `guest_${Date.now()}`);
+
+    if (!session) {
+      session = await prisma.chat_sessions.create({
+        data: {
+          guest_id: formattedGuestId,
+          user_id: finalUserId,
+          status: 'bot_handling',
+          started_at: new Date(),
+        },
+      });
+    } else if (!session.user_id && finalUserId) {
+      // Cập nhật người dùng nếu phiên ban đầu là khách vãng lai nhưng sau đó đăng nhập
+      session = await prisma.chat_sessions.update({
+        where: { id: session.id },
+        data: { user_id: finalUserId },
+      });
+    }
+
+    if (userMessage && typeof userMessage === 'string' && userMessage.trim()) {
+      await prisma.chat_messages.create({
+        data: {
+          session_id: session.id,
+          sender_type: 'customer',
+          sender_id: finalUserId,
+          content: userMessage.trim(),
+        },
+      });
+    }
+
+    if (botMessage && typeof botMessage === 'string' && botMessage.trim()) {
+      await prisma.chat_messages.create({
+        data: {
+          session_id: session.id,
+          sender_type: 'ai_bot',
+          content: botMessage.trim(),
+        },
+      });
+    }
+
+    res.json({
+      success: true,
+      sessionId: session.id.toString(),
+      message: 'Đã lưu lịch sử chat AI thành công.',
+    });
+  } catch (error: any) {
+    console.error('Lỗi lưu lịch sử chat AI:', error);
+    res.status(500).json({ success: false, message: 'Lỗi khi lưu lịch sử chat', error: error.message });
+  }
+});
+
+// GET /api/phong-thuy/chat-sessions - Lấy danh sách toàn bộ phiên chat AI cho Admin
+phongThuyRouter.get('/chat-sessions', async (_req: Request, res: Response) => {
+  try {
+    const sessions = await prisma.chat_sessions.findMany({
+      include: {
+        users: {
+          select: {
+            id: true,
+            full_name: true,
+            email: true,
+            phone: true,
+          },
+        },
+        chat_messages: {
+          orderBy: { created_at: 'asc' },
+        },
+      },
+      orderBy: { started_at: 'desc' },
+      take: 100,
+    });
+
+    const data = sessions.map((s) => {
+      const msgs = s.chat_messages.map((m) => ({
+        id: m.id.toString(),
+        senderType: m.sender_type,
+        content: m.content,
+        createdAt: m.created_at ? m.created_at.toISOString() : null,
+      }));
+
+      const firstCustomerMsg = msgs.find((m) => m.senderType === 'customer');
+      const latestAiMsg = [...msgs].reverse().find((m) => m.senderType === 'ai_bot');
+      const lastMsg = msgs[msgs.length - 1];
+
+      let resolvedName = 'Khách vãng lai';
+      if (s.users?.full_name) {
+        resolvedName = s.users.full_name;
+      } else if (s.users?.email) {
+        resolvedName = s.users.email;
+      } else if (s.guest_id && s.guest_id.includes('(Tên: ')) {
+        const match = s.guest_id.match(/\(Tên: (.*?)\)/);
+        if (match && match[1]) resolvedName = match[1];
+      }
+
+      return {
+        id: s.id.toString(),
+        code: `AI-PT-${s.id.toString().padStart(4, '0')}`,
+        guestId: s.guest_id || 'Ẩn danh',
+        userName: resolvedName,
+        userEmail: s.users?.email || '',
+        userPhone: s.users?.phone || '',
+        status: s.status || 'bot_handling',
+        startedAt: s.started_at ? s.started_at.toISOString() : new Date().toISOString(),
+        messageCount: msgs.length,
+        previewQuestion: firstCustomerMsg ? firstCustomerMsg.content : (lastMsg?.content || 'Hỏi đáp phong thủy'),
+        latestAdvice: latestAiMsg ? latestAiMsg.content : (lastMsg?.content || ''),
+        messages: msgs,
+      };
+    });
+
+    res.json({ success: true, data });
+  } catch (error: any) {
+    console.error('Lỗi lấy danh sách chat sessions:', error);
+    res.status(500).json({ success: false, message: 'Lỗi lấy dữ liệu chat sessions', error: error.message });
+  }
+});
+
+// DELETE /api/phong-thuy/chat-sessions/:id - Xóa 1 phiên chat
+phongThuyRouter.delete('/chat-sessions/:id', async (req: Request, res: Response) => {
+  try {
+    const id = BigInt(req.params.id);
+    await prisma.chat_messages.deleteMany({
+      where: { session_id: id },
+    });
+    await prisma.chat_sessions.delete({
+      where: { id },
+    });
+    res.json({ success: true, message: 'Đã xóa phiên chat thành công.' });
+  } catch (error: any) {
+    console.error('Lỗi xóa chat session:', error);
+    res.status(500).json({ success: false, message: 'Lỗi xóa phiên chat', error: error.message });
+  }
+});
+

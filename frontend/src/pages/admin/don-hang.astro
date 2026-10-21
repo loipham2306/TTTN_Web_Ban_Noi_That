@@ -282,84 +282,121 @@ const totalRevenue = displayOrders
   </section>
 
   <!-- MODAL: CHI TIẾT ĐƠN HÀNG & CẬP NHẬT SHIP -->
-  <div id="order-detail-modal" class="fixed inset-0 z-50 hidden bg-walnut-900/60 backdrop-blur-sm overflow-y-auto p-4 flex items-center justify-center">
-    <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-3xl p-6 sm:p-8 shadow-xl relative my-8">
-      <div class="flex items-center justify-between border-b border-walnut-900/10 pb-4">
+  <div id="order-detail-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs p-4 flex items-center justify-center">
+    <div class="bg-sand-50 border border-walnut-900/30 w-full max-w-3xl shadow-2xl rounded-none relative my-4 max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- HEADER WALNUT XANH ĐẬM VỚI DẢI VÀNG CHAMPAGNE -->
+      <div class="relative bg-[#173524] px-6 py-5 sm:px-8 border-b border-[#D8B670]/30 shrink-0">
+        <div class="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#D8B670] via-[#F3E5AB] to-[#C49E52]"></div>
+        
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#D8B670]/25 to-[#D8B670]/5 border border-[#D8B670]/40 flex items-center justify-center shrink-0 shadow-inner">
+              <svg class="w-5 h-5 text-[#E6CA85]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-[10px] uppercase tracking-[0.22em] text-[#D8B670] font-semibold">CHI TIẾT VẬN ĐƠN & ĐƠN HÀNG</p>
+              <h2 id="modal-order-code" class="text-lg sm:text-xl font-display font-bold text-white tracking-wide mt-0.5">NT-202610-001</h2>
+            </div>
+          </div>
+
+          <button 
+            type="button" 
+            id="btn-close-order-modal" 
+            class="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 text-sand-200 hover:text-white flex items-center justify-center transition-all hover:rotate-90 cursor-pointer border border-white/10"
+            title="Đóng cửa sổ"
+          >
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- MODAL BODY (SCROLLABLE) -->
+      <div class="p-6 sm:p-8 space-y-6 overflow-y-auto flex-1 bg-[#FAF8F5]">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- CUSTOMER & SHIPPING INFO -->
+          <div class="bg-white p-4 border border-walnut-900/15 shadow-xs text-xs">
+            <p class="font-bold text-walnut-900 uppercase tracking-[0.15em] mb-2.5 border-b border-walnut-900/10 pb-2 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-[#173524]"></span>
+              Thông tin nhận hàng
+            </p>
+            <p class="py-1"><span class="text-walnut-800/70">Người nhận:</span> <strong id="modal-cust-name" class="text-walnut-900 font-semibold"></strong></p>
+            <p class="py-1"><span class="text-walnut-800/70">Số điện thoại:</span> <strong id="modal-cust-phone" class="text-walnut-900 font-semibold"></strong></p>
+            <p class="py-1"><span class="text-walnut-800/70">Email:</span> <span id="modal-cust-email" class="text-walnut-900"></span></p>
+            <p class="py-1"><span class="text-walnut-800/70">Địa chỉ:</span> <span id="modal-cust-address" class="text-walnut-900"></span></p>
+            <p class="py-1"><span class="text-walnut-800/70">Ghi chú:</span> <span id="modal-cust-note" class="italic text-walnut-800"></span></p>
+          </div>
+
+          <!-- SHIPPING STATUS & CARRIER -->
+          <div class="bg-white p-4 border border-walnut-900/15 shadow-xs text-xs flex flex-col justify-between">
+            <div>
+              <p class="font-bold text-walnut-900 uppercase tracking-[0.15em] mb-2.5 border-b border-walnut-900/10 pb-2 flex items-center gap-2">
+                <span class="w-2 h-2 rounded-full bg-[#D8B670]"></span>
+                Trạng thái vận đơn (Ship)
+              </p>
+              <p class="py-1"><span class="text-walnut-800/70">Gói vận chuyển:</span> <strong id="modal-ship-method" class="text-walnut-900 font-semibold"></strong></p>
+              <p class="py-1"><span class="text-walnut-800/70">Cước phí ship:</span> <span id="modal-ship-fee" class="text-walnut-900 font-semibold"></span></p>
+              <p class="py-1"><span class="text-walnut-800/70">Đơn vị vận chuyển:</span> <span id="modal-carrier" class="text-walnut-900 font-semibold"></span></p>
+              <p class="py-1"><span class="text-walnut-800/70">Mã vận đơn:</span> <span id="modal-tracking" class="font-mono bg-sand-200/80 px-2 py-0.5 rounded text-walnut-900 border border-walnut-900/10"></span></p>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-walnut-900/10">
+              <label for="update-order-status" class="block font-bold uppercase tracking-[0.15em] text-walnut-900 mb-1.5">Cập nhật tiến độ đơn:</label>
+              <select id="update-order-status" class="w-full border border-walnut-900/25 bg-sand-50 px-3 py-2 text-xs outline-none focus:border-clay-600 cursor-pointer font-semibold text-walnut-900">
+                <option value="cho-xac-nhan">Chờ xác nhận</option>
+                <option value="dang-chuan-bi">Đang chuẩn bị hàng</option>
+                <option value="dang-giao">Đang giao hàng (Shipper)</option>
+                <option value="hoan-thanh">Đã hoàn thành</option>
+                <option value="da-huy">Đã hủy đơn</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- ITEMS LIST -->
         <div>
-          <p class="text-[10px] uppercase tracking-[0.2em] text-walnut-800">Chi tiết đơn hàng</p>
-          <h2 id="modal-order-code" class="text-xl font-display text-walnut-900 mt-1">NT-202610-001</h2>
-        </div>
-        <button type="button" id="btn-close-order-modal" class="text-walnut-800 hover:text-danger-600 p-1 cursor-pointer">
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
-      </div>
-
-      <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- CUSTOMER & SHIPPING INFO -->
-        <div class="bg-sand-100/50 p-4 border border-walnut-900/10 text-xs">
-          <p class="font-semibold text-walnut-900 uppercase tracking-[0.15em] mb-2 border-b border-walnut-900/10 pb-1.5">Thông tin nhận hàng</p>
-          <p><span class="text-walnut-800/70">Người nhận:</span> <strong id="modal-cust-name" class="text-walnut-900 font-medium"></strong></p>
-          <p class="mt-1"><span class="text-walnut-800/70">Số điện thoại:</span> <strong id="modal-cust-phone" class="text-walnut-900 font-medium"></strong></p>
-          <p class="mt-1"><span class="text-walnut-800/70">Email:</span> <span id="modal-cust-email" class="text-walnut-900"></span></p>
-          <p class="mt-1"><span class="text-walnut-800/70">Địa chỉ:</span> <span id="modal-cust-address" class="text-walnut-900"></span></p>
-          <p class="mt-1"><span class="text-walnut-800/70">Ghi chú:</span> <span id="modal-cust-note" class="italic text-walnut-800"></span></p>
-        </div>
-
-        <!-- SHIPPING STATUS & CARRIER -->
-        <div class="bg-sand-100/50 p-4 border border-walnut-900/10 text-xs flex flex-col justify-between">
-          <div>
-            <p class="font-semibold text-walnut-900 uppercase tracking-[0.15em] mb-2 border-b border-walnut-900/10 pb-1.5">Trạng thái vận đơn (Ship)</p>
-            <p><span class="text-walnut-800/70">Gói vận chuyển:</span> <strong id="modal-ship-method" class="text-walnut-900 font-medium"></strong></p>
-            <p class="mt-1"><span class="text-walnut-800/70">Cước phí ship:</span> <span id="modal-ship-fee" class="text-walnut-900 font-medium"></span></p>
-            <p class="mt-1"><span class="text-walnut-800/70">Đơn vị vận chuyển:</span> <span id="modal-carrier" class="text-walnut-900 font-medium"></span></p>
-            <p class="mt-1"><span class="text-walnut-800/70">Mã vận đơn:</span> <span id="modal-tracking" class="font-mono bg-sand-200 px-1.5 py-0.5 rounded text-walnut-900"></span></p>
+          <p class="text-xs uppercase tracking-[0.15em] font-bold text-walnut-900 mb-2.5">Các món hàng đã mua</p>
+          <div class="border border-walnut-900/15 bg-white shadow-xs overflow-x-auto">
+            <table class="w-full text-xs text-left">
+              <thead>
+                <tr class="border-b border-walnut-900/15 bg-sand-100/60 text-[10px] uppercase tracking-[0.15em] text-walnut-800">
+                  <th class="p-3">Sản phẩm</th>
+                  <th class="p-3">Mã SKU</th>
+                  <th class="p-3 text-right">Đơn giá</th>
+                  <th class="p-3 text-center">SL</th>
+                  <th class="p-3 text-right">Thành tiền</th>
+                </tr>
+              </thead>
+              <tbody id="modal-items-tbody"></tbody>
+            </table>
           </div>
 
-          <div class="mt-3 pt-3 border-t border-walnut-900/10">
-            <label for="update-order-status" class="block font-semibold uppercase tracking-[0.15em] text-walnut-800 mb-1">Cập nhật tiến độ đơn:</label>
-            <select id="update-order-status" class="w-full border border-walnut-900/20 bg-sand-50 px-3 py-2 text-xs outline-none focus:border-clay-600 cursor-pointer font-medium">
-              <option value="cho-xac-nhan">Chờ xác nhận</option>
-              <option value="dang-chuan-bi">Đang chuẩn bị hàng</option>
-              <option value="dang-giao">Đang giao hàng (Shipper)</option>
-              <option value="hoan-thanh">Đã hoàn thành</option>
-              <option value="da-huy">Đã hủy đơn</option>
-            </select>
+          <div class="mt-4 flex flex-col items-end gap-1.5 text-xs text-walnut-800 border-t border-walnut-900/10 pt-3">
+            <p>Tiền hàng: <span id="modal-subtotal" class="font-semibold text-walnut-900"></span></p>
+            <p>Phí ship: <span id="modal-fee" class="font-semibold text-walnut-900"></span></p>
+            <p class="text-sm font-bold text-walnut-900">Tổng thanh toán: <span id="modal-total" class="text-clay-600 font-display text-base font-bold"></span></p>
           </div>
         </div>
       </div>
 
-      <!-- ITEMS LIST -->
-      <div class="mt-6">
-        <p class="text-xs uppercase tracking-[0.15em] font-semibold text-walnut-900 mb-2">Các món hàng đã mua</p>
-        <div class="border border-walnut-900/10 bg-sand-50 overflow-x-auto">
-          <table class="w-full text-xs text-left">
-            <thead>
-              <tr class="border-b border-walnut-900/10 bg-sand-100/50 text-[10px] uppercase tracking-[0.15em] text-walnut-800">
-                <th class="p-3">Sản phẩm</th>
-                <th class="p-3">Mã SKU</th>
-                <th class="p-3 text-right">Đơn giá</th>
-                <th class="p-3 text-center">SL</th>
-                <th class="p-3 text-right">Thành tiền</th>
-              </tr>
-            </thead>
-            <tbody id="modal-items-tbody"></tbody>
-          </table>
-        </div>
-
-        <div class="mt-4 flex flex-col items-end gap-1.5 text-xs text-walnut-800 border-t border-walnut-900/10 pt-3">
-          <p>Tiền hàng: <span id="modal-subtotal" class="font-medium text-walnut-900"></span></p>
-          <p>Phí ship: <span id="modal-fee" class="font-medium text-walnut-900"></span></p>
-          <p class="text-sm font-bold text-walnut-900">Tổng thanh toán: <span id="modal-total" class="text-clay-600"></span></p>
-        </div>
-      </div>
-
-      <div class="mt-6 flex items-center justify-end gap-3 border-t border-walnut-900/10 pt-4">
-        <button type="button" id="btn-cancel-order-modal" class="border border-walnut-900/20 px-5 py-2.5 text-xs uppercase tracking-[0.15em] text-walnut-800 hover:border-walnut-900 cursor-pointer">
+      <!-- MODAL FOOTER (STICKY BOTTOM) -->
+      <div class="px-6 py-4 sm:px-8 bg-white border-t border-walnut-900/15 flex items-center justify-end gap-3 shrink-0 shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
+        <button 
+          type="button" 
+          id="btn-cancel-order-modal" 
+          class="border border-walnut-900/20 px-5 py-2.5 text-xs uppercase tracking-[0.15em] font-semibold text-walnut-800 hover:bg-sand-100 hover:border-walnut-900 transition-colors cursor-pointer"
+        >
           Đóng
         </button>
-        <button type="button" id="btn-save-order-status" class="bg-clay-600 px-6 py-2.5 text-xs uppercase tracking-[0.15em] text-sand-50 hover:bg-clay-500 shadow-sm cursor-pointer">
+        <button 
+          type="button" 
+          id="btn-save-order-status" 
+          class="bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] px-6 py-2.5 text-xs uppercase tracking-[0.18em] font-bold text-[#173524] hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#E0C582]/50"
+        >
           Lưu cập nhật
         </button>
       </div>

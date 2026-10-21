@@ -205,6 +205,58 @@ export default function FengShuiChatbot() {
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages((prev) => [...prev, botMessage]);
+
+      // Tự động đồng bộ lịch sử hội thoại vào Database MySQL cho Admin theo dõi
+      try {
+        let guestId = localStorage.getItem('ktufa_chat_guest_id');
+        if (!guestId) {
+          guestId = 'guest_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
+          localStorage.setItem('ktufa_chat_guest_id', guestId);
+        }
+
+        let userId: number | undefined = undefined;
+        let userEmail: string | undefined = undefined;
+        let userName: string | undefined = undefined;
+        let userPhone: string | undefined = undefined;
+        try {
+          const userRaw = localStorage.getItem('current_user');
+          if (userRaw) {
+            const u = JSON.parse(userRaw);
+            if (u) {
+              if (u.id) userId = Number(u.id);
+              if (u.email) userEmail = String(u.email);
+              if (u.name || u.full_name) userName = String(u.name || u.full_name);
+              if (u.phone && u.phone !== 'Chưa cập nhật') userPhone = String(u.phone);
+            }
+          }
+        } catch {}
+
+        const storedSessionId = sessionStorage.getItem('ktufa_chat_session_id');
+
+        fetch('http://localhost:4000/api/phong-thuy/chat-log', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sessionId: storedSessionId || undefined,
+            guestId,
+            userId,
+            userEmail,
+            userName,
+            userPhone,
+            userMessage: query,
+            botMessage: replyText,
+          }),
+        })
+          .then((r) => r.json())
+          .then((res) => {
+            if (res.success && res.sessionId) {
+              sessionStorage.setItem('ktufa_chat_session_id', res.sessionId);
+            }
+          })
+          .catch(() => {});
+      } catch (logErr) {
+        console.warn('Lỗi ghi log chat AI:', logErr);
+      }
     } catch (err: any) {
       console.error('Chat error:', err);
       const errorMsg: Message = {
@@ -221,6 +273,7 @@ export default function FengShuiChatbot() {
 
   const resetChat = () => {
     sessionStorage.removeItem('fengshui_chat_history');
+    sessionStorage.removeItem('ktufa_chat_session_id');
     const welcomeMsg: Message = {
       id: 'welcome',
       role: 'assistant',
@@ -477,7 +530,7 @@ export default function FengShuiChatbot() {
               </button>
             </form>
             <p className="mt-1.5 text-center text-[10px] text-neutral-400">
-              Kiến thức phong thủy kết hợp AI Gemini 3.8 Flash • Tư vấn mang tính tham khảo
+              Kiến thức phong thủy kết hợp AI Gemini 1.5 Flash • Tư vấn mang tính tham khảo
             </p>
           </div>
         </div>

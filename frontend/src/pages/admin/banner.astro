@@ -316,190 +316,211 @@ const promoBanners = banners.filter((b) => b.position === 'promo').length;
   </div>
 
   <!-- MODAL: THÊM / CHỈNH SỬA BANNER -->
-  <div id="banner-modal" class="fixed inset-0 z-50 hidden bg-walnut-900/60 backdrop-blur-sm overflow-y-auto p-4 flex items-center justify-center">
-    <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-2xl p-6 sm:p-8 shadow-2xl relative my-8">
+  <div id="banner-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs p-4 flex items-center justify-center">
+    <div class="bg-sand-50 border border-walnut-900/30 w-full max-w-2xl shadow-2xl rounded-none relative my-4 max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
       
-      <div class="flex items-center justify-between border-b border-walnut-900/10 pb-4">
-        <div>
-          <p class="text-[10px] uppercase tracking-[0.2em] text-walnut-800 font-semibold" id="modal-eyebrow">Quản Lý Banner</p>
-          <h2 class="text-xl font-bold text-walnut-900 mt-0.5" id="modal-heading">Thêm Banner Quảng Cáo Mới</h2>
+      <!-- HEADER WALNUT XANH ĐẬM VỚI DẢI VÀNG CHAMPAGNE -->
+      <div class="relative bg-[#173524] px-6 py-5 sm:px-8 border-b border-[#D8B670]/30 shrink-0">
+        <div class="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#D8B670] via-[#F3E5AB] to-[#C49E52]"></div>
+        
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#D8B670]/25 to-[#D8B670]/5 border border-[#D8B670]/40 flex items-center justify-center shrink-0 shadow-inner">
+              <svg class="w-5 h-5 text-[#E6CA85]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-[10px] uppercase tracking-[0.22em] text-[#D8B670] font-semibold" id="modal-eyebrow">QUẢN LÝ BANNER</p>
+              <h2 class="text-lg sm:text-xl font-display font-bold text-white tracking-wide mt-0.5" id="modal-heading">Thêm Banner Quảng Cáo Mới</h2>
+            </div>
+          </div>
+
+          <button 
+            type="button" 
+            id="btn-close-modal" 
+            class="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 text-sand-200 hover:text-white flex items-center justify-center transition-all hover:rotate-90 cursor-pointer border border-white/10"
+            title="Đóng cửa sổ"
+          >
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
-        <button type="button" id="btn-close-modal" class="text-walnut-800 hover:text-danger-600 p-1 cursor-pointer">
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
       </div>
 
-      <form id="banner-form" class="mt-6 space-y-4">
+      <form id="banner-form" class="flex flex-col flex-1 overflow-hidden">
         <input type="hidden" id="form-banner-id" value="" />
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label for="form-title" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Tiêu đề chính *</label>
-            <input 
-              type="text" 
-              id="form-title" 
-              required
-              placeholder="VD: NỘI THẤT CAO CẤP" 
-              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50"
-            />
-          </div>
-
-          <div>
-            <label for="form-subtitle" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Tiêu đề phụ</label>
-            <input 
-              type="text" 
-              id="form-subtitle" 
-              placeholder="VD: Bộ sưu tập 2026 / Ưu đãi đặc quyền" 
-              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50"
-            />
-          </div>
-        </div>
-
-        <div>
-          <label for="form-desc" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Mô tả ngắn</label>
-          <textarea 
-            id="form-desc" 
-            rows="2"
-            placeholder="Nội thất thiết kế cho không gian sống đẳng cấp — tuyển chọn từ những thương hiệu hàng đầu." 
-            class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50 resize-none"
-          ></textarea>
-        </div>
-
-        <!-- Position, Order, Button text, Link -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label for="form-position" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Vị trí hiển thị *</label>
-            <select 
-              id="form-position" 
-              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-3 py-2 text-xs outline-none focus:border-clay-600 cursor-pointer"
-            >
-              <option value="hero">Hero Banner (Đầu trang chủ - /)</option>
-              <option value="san-pham">Banner Đầu Menu Sản Phẩm (/san-pham)</option>
-              <option value="phong-thuy">Banner Đầu Menu Phong Thủy (/phong-thuy)</option>
-              <option value="promo">Quảng cáo / Khuyến mãi giữa trang</option>
-            </select>
-          </div>
-
-          <div>
-            <label for="form-order" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Thứ tự ưu tiên (Nhỏ đứng trước)</label>
-            <input 
-              type="number" 
-              id="form-order" 
-              value="1" 
-              min="0"
-              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50"
-            />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label for="form-btn-text" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Tên nút bấm (CTA)</label>
-            <input 
-              type="text" 
-              id="form-btn-text" 
-              value="Khám phá ngay" 
-              placeholder="VD: Khám phá ngay / Mua ngay" 
-              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50"
-            />
-          </div>
-
-          <div>
-            <label for="form-link" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Đường dẫn khi nhấp (URL)</label>
-            <input 
-              type="text" 
-              id="form-link" 
-              value="/san-pham" 
-              placeholder="VD: /san-pham hoặc /san-pham?khong-gian=phong-khach" 
-              class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50"
-            />
-          </div>
-        </div>
-
-        <!-- Banner Image Upload & Preview -->
-        <div class="pt-2 border-t border-walnut-900/10">
-          <label class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium mb-1.5">Hình ảnh Banner *</label>
-          
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
-            <!-- Left: Upload or URL Input -->
-            <div class="space-y-3">
-              <!-- Upload box -->
-              <div 
-                id="banner-drop-zone"
-                class="border-2 border-dashed border-walnut-900/20 hover:border-clay-600 p-4 text-center rounded bg-sand-100/40 cursor-pointer transition-colors relative"
-              >
-                <input 
-                  type="file" 
-                  id="banner-file-input" 
-                  accept="image/*" 
-                  class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                />
-                <svg class="mx-auto h-8 w-8 text-walnut-800/50 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-                <p class="text-xs font-semibold text-walnut-900">Bấm để tải ảnh từ máy tính</p>
-                <p class="text-[10px] text-walnut-800/60 mt-0.5">JPG, PNG, WEBP (Tối đa 10MB)</p>
-              </div>
-
-              <!-- Or URL Input -->
-              <div>
-                <p class="text-[10px] uppercase tracking-wider text-walnut-800/70 mb-1">Hoặc dán trực tiếp liên kết ảnh (URL):</p>
-                <input 
-                  type="url" 
-                  id="form-image-url" 
-                  required
-                  placeholder="https://images.unsplash.com/... hoặc /uploads/..." 
-                  class="w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50 font-mono"
-                />
-              </div>
+        <!-- MODAL BODY (SCROLLABLE) -->
+        <div class="p-6 sm:p-8 space-y-5 overflow-y-auto flex-1 bg-[#FAF8F5]">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="form-title" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Tiêu đề chính *</label>
+              <input 
+                type="text" 
+                id="form-title" 
+                required
+                placeholder="VD: NỘI THẤT CAO CẤP" 
+                class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-xs outline-none focus:border-clay-600 shadow-xs"
+              />
             </div>
 
-            <!-- Right: Live Image Preview -->
             <div>
-              <p class="text-[10px] uppercase tracking-wider text-walnut-800/70 mb-1">Xem trước ảnh:</p>
-              <div class="aspect-video w-full rounded border border-walnut-900/10 bg-sand-200 overflow-hidden relative">
-                <img 
-                  id="banner-preview-img" 
-                  src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=80" 
-                  alt="Xem trước" 
-                  class="h-full w-full object-cover"
-                />
-                <div id="banner-preview-empty" class="absolute inset-0 flex items-center justify-center bg-sand-200 text-walnut-800/40 text-xs hidden">
-                  Chưa có ảnh
+              <label for="form-subtitle" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Tiêu đề phụ</label>
+              <input 
+                type="text" 
+                id="form-subtitle" 
+                placeholder="VD: Bộ sưu tập 2026 / Ưu đãi đặc quyền" 
+                class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-xs outline-none focus:border-clay-600 shadow-xs"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label for="form-desc" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Mô tả ngắn</label>
+            <textarea 
+              id="form-desc" 
+              rows="2"
+              placeholder="Nội thất thiết kế cho không gian sống đẳng cấp — tuyển chọn từ những thương hiệu hàng đầu." 
+              class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-xs outline-none focus:border-clay-600 resize-none shadow-xs"
+            ></textarea>
+          </div>
+
+          <!-- Position, Order, Button text, Link -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="form-position" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Vị trí hiển thị *</label>
+              <select 
+                id="form-position" 
+                class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3 py-2.5 text-xs outline-none focus:border-clay-600 cursor-pointer shadow-xs"
+              >
+                <option value="hero">Hero Banner (Đầu trang chủ - /)</option>
+                <option value="san-pham">Banner Đầu Menu Sản Phẩm (/san-pham)</option>
+                <option value="phong-thuy">Banner Đầu Menu Phong Thủy (/phong-thuy)</option>
+                <option value="promo">Quảng cáo / Khuyến mãi giữa trang</option>
+              </select>
+            </div>
+
+            <div>
+              <label for="form-order" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Thứ tự ưu tiên (Nhỏ đứng trước)</label>
+              <input 
+                type="number" 
+                id="form-order" 
+                value="1" 
+                min="0"
+                class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-xs outline-none focus:border-clay-600 shadow-xs"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="form-btn-text" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Tên nút bấm (CTA)</label>
+              <input 
+                type="text" 
+                id="form-btn-text" 
+                value="Khám phá ngay" 
+                placeholder="VD: Khám phá ngay / Mua ngay" 
+                class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-xs outline-none focus:border-clay-600 shadow-xs"
+              />
+            </div>
+
+            <div>
+              <label for="form-link" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Đường dẫn khi nhấp (URL)</label>
+              <input 
+                type="text" 
+                id="form-link" 
+                value="/san-pham" 
+                placeholder="VD: /san-pham hoặc /san-pham?khong-gian=phong-khach" 
+                class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-xs outline-none focus:border-clay-600 shadow-xs"
+              />
+            </div>
+          </div>
+
+          <!-- Banner Image Upload & Preview -->
+          <div class="pt-2 border-t border-walnut-900/10">
+            <label class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium mb-1.5">Hình ảnh Banner *</label>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+              <!-- Left: Upload or URL Input -->
+              <div class="space-y-3">
+                <!-- Upload box -->
+                <div 
+                  id="banner-drop-zone"
+                  class="border-2 border-dashed border-walnut-900/25 hover:border-[#173524] p-4 text-center rounded bg-white cursor-pointer transition-colors relative shadow-xs"
+                >
+                  <input 
+                    type="file" 
+                    id="banner-file-input" 
+                    accept="image/*" 
+                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  />
+                  <svg class="mx-auto h-8 w-8 text-walnut-800/50 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                  </svg>
+                  <p class="text-xs font-semibold text-walnut-900">Bấm để tải ảnh từ máy tính</p>
+                  <p class="text-[10px] text-walnut-800/60 mt-0.5">JPG, PNG, WEBP (Tối đa 10MB)</p>
+                </div>
+
+                <!-- Or URL Input -->
+                <div>
+                  <p class="text-[10px] uppercase tracking-wider text-walnut-800/70 mb-1">Hoặc dán trực tiếp liên kết ảnh (URL):</p>
+                  <input 
+                    type="url" 
+                    id="form-image-url" 
+                    required
+                    placeholder="https://images.unsplash.com/... hoặc /uploads/..." 
+                    class="w-full border border-walnut-900/20 bg-white px-3.5 py-2 text-xs outline-none focus:border-clay-600 font-mono shadow-xs"
+                  />
+                </div>
+              </div>
+
+              <!-- Right: Live Image Preview -->
+              <div>
+                <p class="text-[10px] uppercase tracking-wider text-walnut-800/70 mb-1">Xem trước ảnh:</p>
+                <div class="aspect-video w-full rounded border border-walnut-900/10 bg-sand-200 overflow-hidden relative shadow-inner">
+                  <img 
+                    id="banner-preview-img" 
+                    src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=80" 
+                    alt="Xem trước" 
+                    class="h-full w-full object-cover"
+                  />
+                  <div id="banner-preview-empty" class="absolute inset-0 flex items-center justify-center bg-sand-200 text-walnut-800/40 text-xs hidden">
+                    Chưa có ảnh
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+
+          <!-- Active Checkbox -->
+          <div class="pt-2 flex items-center gap-2">
+            <input 
+              type="checkbox" 
+              id="form-is-active" 
+              checked
+              class="h-4 w-4 rounded border-walnut-900/30 text-[#173524] focus:ring-[#173524] cursor-pointer"
+            />
+            <label for="form-is-active" class="text-xs font-semibold text-walnut-900 cursor-pointer">
+              Kích hoạt hiển thị banner này trên website ngay lập tức
+            </label>
+          </div>
         </div>
 
-        <!-- Active Checkbox -->
-        <div class="pt-2 flex items-center gap-2">
-          <input 
-            type="checkbox" 
-            id="form-is-active" 
-            checked
-            class="h-4 w-4 rounded border-walnut-900/30 text-walnut-900 focus:ring-clay-600 cursor-pointer"
-          />
-          <label for="form-is-active" class="text-xs font-semibold text-walnut-900 cursor-pointer">
-            Kích hoạt hiển thị banner này trên website ngay lập tức
-          </label>
-        </div>
-
-        <!-- Actions -->
-        <div class="pt-4 border-t border-walnut-900/10 flex items-center justify-end gap-3">
+        <!-- MODAL FOOTER (STICKY BOTTOM) -->
+        <div class="px-6 py-4 sm:px-8 bg-white border-t border-walnut-900/15 flex items-center justify-end gap-3 shrink-0 shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
           <button 
             type="button" 
             id="btn-cancel-modal"
-            class="px-4 py-2 border border-walnut-900/20 text-xs uppercase tracking-[0.15em] text-walnut-900 hover:bg-sand-200/50 transition-colors cursor-pointer"
+            class="border border-walnut-900/20 px-5 py-2.5 text-xs uppercase tracking-[0.15em] font-semibold text-walnut-800 hover:bg-sand-100 hover:border-walnut-900 transition-colors cursor-pointer"
           >
             Hủy bỏ
           </button>
           <button 
             type="submit" 
             id="btn-submit-form"
-            class="px-6 py-2 bg-walnut-900 text-sand-50 text-xs uppercase tracking-[0.15em] hover:bg-clay-600 transition-colors shadow-sm cursor-pointer font-medium"
+            class="bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] px-6 py-2.5 text-xs uppercase tracking-[0.18em] font-bold text-[#173524] hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#E0C582]/50"
           >
             Lưu Banner
           </button>

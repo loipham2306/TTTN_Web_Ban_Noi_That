@@ -138,6 +138,7 @@ productsRouter.get('/:slug', async (req: Request, res: Response) => {
         brand:            product.brand,
         content:          product.content,
         shortDescription: product.short_description,
+        stock:            product.product_variants[0]?.stock_quantity ?? 0,
         category:         { id: product.categories.id, name: product.categories.name, slug: product.categories.slug },
         variants: product.product_variants.map((v) => ({
           id:           Number(v.id),
@@ -259,7 +260,17 @@ productsRouter.put('/:id', verifyToken, requireAdmin, async (req: Request, res: 
           where: { id: variant.id },
           data: {
             ...(price        ? { price: parseFloat(price), compare_at_price: comparePrice ? parseFloat(comparePrice) : variant.compare_at_price } : {}),
-            ...(stock !== undefined ? { stock_quantity: parseInt(stock) } : {}),
+            ...(stock !== undefined ? { stock_quantity: Math.max(0, parseInt(stock)) } : {}),
+          },
+        });
+      } else {
+        await prisma.product_variants.create({
+          data: {
+            product_id: id,
+            sku: (product.slug || 'SKU').toUpperCase().replace(/-/g, '_') + '_001',
+            price: price ? parseFloat(price) : 0,
+            compare_at_price: comparePrice ? parseFloat(comparePrice) : null,
+            stock_quantity: stock !== undefined ? Math.max(0, parseInt(stock)) : 0,
           },
         });
       }

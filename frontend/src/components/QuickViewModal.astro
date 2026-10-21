@@ -118,45 +118,52 @@
         <!-- CỤM NÚT THAO TÁC NỔI BẬT: CÁC NÚT ĐỀU VUÔNG VỨC SẮC CẠNH -->
         <div class="mt-5 space-y-2.5 pt-3.5 border-t border-walnut-900/10">
           <div class="flex items-center gap-3">
-            <!-- Tăng giảm số lượng (vuông vức) -->
-            <div class="flex items-center rounded-none border border-walnut-900/20 bg-white p-1 shadow-2xs">
-              <button
-                type="button"
-                id="qv-qty-minus"
-                class="flex h-9 w-9 items-center justify-center rounded-none text-walnut-900 hover:bg-sand-200 transition-colors font-bold text-base active:scale-95 cursor-pointer"
-                aria-label="Giảm số lượng"
-              >
-                −
-              </button>
-              <input
-                type="number"
-                id="qv-qty"
-                value="1"
-                min="1"
-                max="99"
-                class="w-9 text-center text-sm font-bold text-walnut-900 outline-none"
-                readonly
-              />
-              <button
-                type="button"
-                id="qv-qty-plus"
-                class="flex h-9 w-9 items-center justify-center rounded-none text-walnut-900 hover:bg-sand-200 transition-colors font-bold text-base active:scale-95 cursor-pointer"
-                aria-label="Tăng số lượng"
-              >
-                +
-              </button>
+            <!-- Cụm chọn số lượng & Tồn kho bên dưới -->
+            <div class="flex flex-col items-center">
+              <!-- Tăng giảm số lượng (vuông vức) -->
+              <div class="flex items-center rounded-none border border-walnut-900/20 bg-white p-1 shadow-2xs">
+                <button
+                  type="button"
+                  id="qv-qty-minus"
+                  class="flex h-9 w-9 items-center justify-center rounded-none text-walnut-900 hover:bg-sand-200 transition-colors font-bold text-base active:scale-95 cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
+                  aria-label="Giảm số lượng"
+                >
+                  −
+                </button>
+                <input
+                  type="number"
+                  id="qv-qty"
+                  value="1"
+                  min="1"
+                  max="99"
+                  class="w-10 text-center text-sm font-bold text-walnut-900 outline-none bg-transparent"
+                  readonly
+                />
+                <button
+                  type="button"
+                  id="qv-qty-plus"
+                  class="flex h-9 w-9 items-center justify-center rounded-none text-walnut-900 hover:bg-sand-200 transition-colors font-bold text-base active:scale-95 cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
+                  aria-label="Tăng số lượng"
+                >
+                  +
+                </button>
+              </div>
+              <!-- Tồn kho hiển thị bên dưới mục chọn số lượng, căn ngang với nút thêm giỏ hàng -->
+              <div id="qv-stock-display" class="mt-1 text-[11px] font-medium text-walnut-800 text-center whitespace-nowrap">
+                Còn <span id="qv-stock-count" class="font-bold text-[#B88E28]">--</span> trong kho
+              </div>
             </div>
 
-            <!-- Nút Thêm vào giỏ hàng: VUÔNG VỨC, VÀNG CHAMPAGNE NHƯ LOGO KTUFA -->
+            <!-- Nút Thêm vào giỏ hàng: Căn ngang với cụm chọn số lượng & tồn kho -->
             <button
               type="button"
               id="qv-btn-add-cart"
-              class="flex-1 flex items-center justify-center gap-2 rounded-none bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] py-3.5 px-4 text-xs sm:text-sm uppercase tracking-wider text-[#173524] font-bold shadow-md hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer border border-[#E0C582]/50"
+              class="flex-1 flex items-center justify-center gap-2 rounded-none bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] py-3.5 px-4 text-xs sm:text-sm uppercase tracking-wider text-[#173524] font-bold shadow-md hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer border border-[#E0C582]/50 disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:transform-none"
             >
               <svg viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4 pointer-events-none">
                 <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
               </svg>
-              <span>Thêm vào giỏ</span>
+              <span id="qv-btn-add-cart-text">Thêm vào giỏ</span>
             </button>
           </div>
 
@@ -241,9 +248,12 @@
   const thumbnailsContainer = document.getElementById('qv-thumbnails');
 
   const qtyInput = document.getElementById('qv-qty') as HTMLInputElement;
-  const btnMinus = document.getElementById('qv-qty-minus');
-  const btnPlus = document.getElementById('qv-qty-plus');
-  const btnAddCart = document.getElementById('qv-btn-add-cart');
+  const btnMinus = document.getElementById('qv-qty-minus') as HTMLButtonElement | null;
+  const btnPlus = document.getElementById('qv-qty-plus') as HTMLButtonElement | null;
+  const btnAddCart = document.getElementById('qv-btn-add-cart') as HTMLButtonElement | null;
+  const qvStockDisplay = document.getElementById('qv-stock-display');
+  const qvStockCount = document.getElementById('qv-stock-count');
+  const qvBtnAddCartText = document.getElementById('qv-btn-add-cart-text');
 
   // Cập nhật ảnh chính và highlight thumbnail tương ứng
   const updateActiveImage = (idx: number) => {
@@ -344,7 +354,44 @@
     if (qvMaterial) qvMaterial.textContent = data.material || 'Gỗ / Da cao cấp';
     if (qvWarranty) qvWarranty.textContent = data.warranty || '24 tháng chính hãng';
     if (qvDetailLink) qvDetailLink.href = `/san-pham/${data.slug}`;
-    if (qtyInput) qtyInput.value = '1';
+
+    // Ràng buộc số lượng tồn kho
+    const stock = data.stock !== undefined ? Number(data.stock) : 20;
+    currentProduct.stock = stock;
+
+    if (stock <= 0) {
+      if (qtyInput) {
+        qtyInput.value = '0';
+        qtyInput.max = '0';
+      }
+      if (qvStockDisplay) {
+        qvStockDisplay.innerHTML = '<span class="text-danger-600 font-bold">Hết hàng</span>';
+      }
+      if (btnAddCart) {
+        btnAddCart.disabled = true;
+      }
+      if (qvBtnAddCartText) {
+        qvBtnAddCartText.textContent = 'Hết hàng';
+      }
+      if (btnMinus) btnMinus.disabled = true;
+      if (btnPlus) btnPlus.disabled = true;
+    } else {
+      if (qtyInput) {
+        qtyInput.value = '1';
+        qtyInput.max = String(stock);
+      }
+      if (qvStockDisplay) {
+        qvStockDisplay.innerHTML = `Còn <strong class="font-bold text-[#B88E28]">${stock}</strong> trong kho`;
+      }
+      if (btnAddCart) {
+        btnAddCart.disabled = false;
+      }
+      if (qvBtnAddCartText) {
+        qvBtnAddCartText.textContent = 'Thêm vào giỏ';
+      }
+      if (btnMinus) btnMinus.disabled = false;
+      if (btnPlus) btnPlus.disabled = false;
+    }
 
     updateActiveImage(0);
     renderThumbnails();
@@ -382,29 +429,43 @@
     }
   });
 
-  // Tăng giảm số lượng trong popup
+  // Tăng giảm số lượng trong popup có ràng buộc tồn kho
   btnMinus?.addEventListener('click', () => {
     if (!qtyInput) return;
+    const maxStock = Number(qtyInput.max) || 0;
+    if (maxStock <= 0) return;
     let v = parseInt(qtyInput.value) || 1;
     if (v > 1) qtyInput.value = String(v - 1);
   });
 
   btnPlus?.addEventListener('click', () => {
     if (!qtyInput) return;
+    const maxStock = Number(qtyInput.max) || 99;
+    if (maxStock <= 0) return;
     let v = parseInt(qtyInput.value) || 1;
-    if (v < 99) qtyInput.value = String(v + 1);
+    if (v < maxStock) {
+      qtyInput.value = String(v + 1);
+    } else {
+      showCartToast(`Số lượng đã đạt giới hạn tồn kho (${maxStock})!`);
+    }
   });
 
   // Thêm vào giỏ từ popup (có hiệu ứng bay flyToCart)
   btnAddCart?.addEventListener('click', () => {
     if (!currentProduct) return;
-    const qty = parseInt(qtyInput?.value || '1') || 1;
+    const stock = Number(currentProduct.stock) || 0;
+    if (stock <= 0) {
+      showCartToast('Sản phẩm hiện đang tạm hết hàng!');
+      return;
+    }
+    const qty = Math.min(stock, Math.max(1, parseInt(qtyInput?.value || '1') || 1));
     flyToCart(qvImage, galleryList[currentImageIndex] || currentProduct.image);
     addToCart(
       {
         slug: currentProduct.slug,
         name: currentProduct.name,
         price: Number(currentProduct.price) || 0,
+        maxStock: stock,
         thumbnail: galleryList[currentImageIndex] || currentProduct.image,
         category: currentProduct.category,
       },

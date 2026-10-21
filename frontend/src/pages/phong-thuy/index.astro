@@ -105,6 +105,23 @@ const namHienTai = new Date().getFullYear();
           <p class="mt-5 text-[11px] leading-relaxed text-walnut-800/80 bg-sand-50 p-3 rounded-lg border border-walnut-900/5">
             💡 <em>Lưu ý: Nếu bạn sinh vào tháng 1 hoặc 2 dương lịch trước Tết Nguyên Đán, nên tính theo năm âm lịch để quẻ mệnh chính xác nhất.</em>
           </p>
+
+          {/* LỊCH SỬ TRA CỨU GẦN ĐÂY */}
+          <div id="kt-recent-history-section" class="mt-6 pt-5 border-t border-walnut-900/10 hidden">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-[11px] font-bold uppercase tracking-[0.15em] text-[#173524] flex items-center gap-1.5">
+                <span>🕒</span> Lịch sử tra cứu gần đây
+              </span>
+              <button
+                type="button"
+                id="btn-clear-pt-history"
+                class="text-[10px] uppercase tracking-wider text-walnut-800/60 hover:text-red-600 transition-colors cursor-pointer"
+              >
+                Xóa lịch sử
+              </button>
+            </div>
+            <div id="kt-recent-history-list" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+          </div>
         </div>
       </div>
 
@@ -199,8 +216,9 @@ const namHienTai = new Date().getFullYear();
                   <p class="text-[11px] text-emerald-800">Phân tích bài trí chuyên biệt cho không gian của bạn</p>
                 </div>
               </div>
-              <span class="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded border border-emerald-200">
-                Gemini 3.5
+              <span class="text-[10px] font-bold uppercase tracking-wider bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded border border-emerald-200 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                <span>Gemini 1.5 Flash</span>
               </span>
             </div>
 
@@ -275,7 +293,24 @@ const namHienTai = new Date().getFullYear();
   const productsGridEl = document.querySelector<HTMLElement>('[data-kt-products-grid]');
   const askMoreBtn = document.querySelector<HTMLButtonElement>('[data-kt-ask-more-btn]');
 
+  // Recent History Elements
+  const historySection = document.getElementById('kt-recent-history-section');
+  const historyList = document.getElementById('kt-recent-history-list');
+  const clearHistoryBtn = document.getElementById('btn-clear-pt-history');
+
+  const HISTORY_KEY = 'ktufa_fengshui_history';
   const namHienTai = new Date().getFullYear();
+
+  interface HistoryItem {
+    id: string;
+    namSinh: number;
+    gioiTinh: 'nam' | 'nu';
+    loaiPhong: string;
+    loaiPhongLabel: string;
+    cung: string;
+    nguHanh: string;
+    timestamp: number;
+  }
 
   const namSinhHopLe: Rule = (value) => {
     const raw = value.trim();
@@ -288,6 +323,98 @@ const namHienTai = new Date().getFullYear();
   };
 
   let currentConsultContext = '';
+
+  const getSavedHistory = (): HistoryItem[] => {
+    try {
+      const raw = localStorage.getItem(HISTORY_KEY);
+      return raw ? JSON.parse(raw) : [];
+    } catch {
+      return [];
+    }
+  };
+
+  const saveHistoryItem = (item: HistoryItem) => {
+    try {
+      const list = getSavedHistory().filter(
+        (h) => !(h.namSinh === item.namSinh && h.gioiTinh === item.gioiTinh && h.loaiPhong === item.loaiPhong)
+      );
+      list.unshift(item);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(list.slice(0, 6)));
+      renderHistoryUI();
+    } catch (e) {
+      console.warn('Lỗi lưu lịch sử tra cứu phong thủy:', e);
+    }
+  };
+
+  const renderHistoryUI = () => {
+    if (!historySection || !historyList) return;
+    const history = getSavedHistory();
+
+    if (history.length === 0) {
+      historySection.classList.add('hidden');
+      historyList.innerHTML = '';
+      return;
+    }
+
+    historySection.classList.remove('hidden');
+    historyList.innerHTML = history
+      .map((item) => {
+        const dateStr = new Date(item.timestamp).toLocaleDateString('vi-VN', {
+          day: '2-digit',
+          month: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+        });
+        const genderLabel = item.gioiTinh === 'nam' ? 'Nam' : 'Nữ';
+
+        return `
+          <div
+            data-history-item="${item.id}"
+            data-year="${item.namSinh}"
+            data-gender="${item.gioiTinh}"
+            data-room="${item.loaiPhong}"
+            class="group flex items-center justify-between p-2.5 rounded-xl border border-walnut-900/10 bg-sand-50/70 hover:bg-white hover:border-[#173524]/30 hover:shadow-xs transition-all cursor-pointer"
+          >
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="font-bold text-xs text-[#173524]">${item.namSinh} (${genderLabel})</span>
+                <span class="text-[10px] text-clay-600 font-semibold">• Mệnh ${item.nguHanh}</span>
+              </div>
+              <p class="text-[11px] text-walnut-800/80 mt-0.5">${item.loaiPhongLabel} · <span class="text-[10px] text-walnut-800/50">${dateStr}</span></p>
+            </div>
+            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-800 bg-emerald-50 group-hover:bg-[#173524] group-hover:text-white px-2 py-1 rounded transition-colors">
+              Xem lại →
+            </span>
+          </div>
+        `;
+      })
+      .join('');
+  };
+
+  // Click vào 1 thẻ lịch sử để khôi phục
+  historyList?.addEventListener('click', (e) => {
+    const card = (e.target as HTMLElement).closest<HTMLElement>('[data-history-item]');
+    if (!card || !form) return;
+
+    const year = card.dataset.year;
+    const gender = card.dataset.gender;
+    const room = card.dataset.room;
+
+    const yearInput = form.querySelector<HTMLInputElement>('#kt-year');
+    const genderSelect = form.querySelector<HTMLSelectElement>('#kt-gender');
+    const roomSelect = form.querySelector<HTMLSelectElement>('#kt-room');
+
+    if (yearInput && year) yearInput.value = year;
+    if (genderSelect && gender) genderSelect.value = gender;
+    if (roomSelect && room) roomSelect.value = room;
+
+    renderResult();
+  });
+
+  clearHistoryBtn?.addEventListener('click', () => {
+    localStorage.removeItem(HISTORY_KEY);
+    renderHistoryUI();
+  });
 
   const renderResult = async () => {
     if (!form) return;
@@ -364,18 +491,77 @@ const namHienTai = new Date().getFullYear();
     // 2. Gọi AI Gemini luận giải chuyên sâu
     currentConsultContext = `Tôi sinh năm ${namSinh} (${gioiTinh === 'nam' ? 'Nam' : 'Nữ'}), mệnh ${result.nguHanh} (cung ${result.cung}). Tôi đang tìm hiểu về phong thủy cho ${loaiPhongLabel}.`;
 
+    let generatedAdvice = '';
     try {
-      const aiReply = await goiAITuVanPhongThuy(namSinh, gioiTinh, loaiPhongLabel, result.cung, result.nguHanh);
+      generatedAdvice = await goiAITuVanPhongThuy(namSinh, gioiTinh, loaiPhongLabel, result.cung, result.nguHanh);
       if (aiTextEl) {
-        aiTextEl.textContent = aiReply;
+        aiTextEl.textContent = generatedAdvice;
       }
     } catch (e) {
+      generatedAdvice = 'Gia chủ có bản mệnh tốt. Khi bài trí đồ đạc nên ưu tiên hướng Sinh Khí, tựa lưng vững chắc và chọn các gam màu tương sinh ngũ hành.';
       if (aiTextEl) {
-        aiTextEl.textContent = 'Gia chủ có bản mệnh tốt. Khi bài trí đồ đạc nên ưu tiên hướng Sinh Khí, tựa lưng vững chắc và chọn các gam màu tương sinh ngũ hành.';
+        aiTextEl.textContent = generatedAdvice;
       }
     } finally {
       loadingEl?.classList.add('hidden');
       outputEl?.classList.remove('hidden');
+    }
+
+    // 3. Lưu lịch sử vào LocalStorage
+    saveHistoryItem({
+      id: `${namSinh}_${gioiTinh}_${loaiPhong}_${Date.now()}`,
+      namSinh,
+      gioiTinh,
+      loaiPhong,
+      loaiPhongLabel,
+      cung: result.cung,
+      nguHanh: result.nguHanh,
+      timestamp: Date.now(),
+    });
+
+    // 4. Đồng bộ lịch sử tra cứu vào CSDL MySQL cho Admin theo dõi
+    try {
+      let guestId = localStorage.getItem('ktufa_chat_guest_id');
+      if (!guestId) {
+        guestId = 'guest_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
+        localStorage.setItem('ktufa_chat_guest_id', guestId);
+      }
+
+      let userId: number | undefined = undefined;
+      let userEmail: string | undefined = undefined;
+      let userName: string | undefined = undefined;
+      let userPhone: string | undefined = undefined;
+
+      try {
+        const userRaw = localStorage.getItem('current_user');
+        if (userRaw) {
+          const u = JSON.parse(userRaw);
+          if (u) {
+            if (u.id) userId = Number(u.id);
+            if (u.email) userEmail = String(u.email);
+            if (u.name || u.full_name) userName = String(u.name || u.full_name);
+            if (u.phone && u.phone !== 'Chưa cập nhật') userPhone = String(u.phone);
+          }
+        }
+      } catch {}
+
+      const userMessage = `[Studio Bát Trạch] Gia chủ ${gioiTinh === 'nam' ? 'Nam mạng' : 'Nữ mạng'} sinh năm ${namSinh} · Không gian: ${loaiPhongLabel} · Cung ${result.cung} (${result.nguHanh})`;
+
+      fetch('http://localhost:4000/api/phong-thuy/chat-log', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          guestId,
+          userId,
+          userEmail,
+          userName,
+          userPhone,
+          userMessage,
+          botMessage: generatedAdvice || 'Đã phân tích cung mệnh và gợi ý sản phẩm phù hợp.',
+        }),
+      }).catch(() => {});
+    } catch (logErr) {
+      console.warn('Lỗi đồng bộ lịch sử phong thủy lên server:', logErr);
     }
   };
 
@@ -398,4 +584,7 @@ const namHienTai = new Date().getFullYear();
       renderResult
     );
   }
+
+  // Khởi tạo lịch sử tra cứu khi tải trang
+  renderHistoryUI();
 </script>

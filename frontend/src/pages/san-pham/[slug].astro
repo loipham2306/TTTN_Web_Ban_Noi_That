@@ -76,7 +76,7 @@ const description  = apiProduct?.shortDescription ?? detail.description;
 const dimensions   = apiProduct?.variants?.[0]?.dimensions ?? detail.dimensions;
 const warranty     = detail.warranty;
 const brand        = apiProduct?.brand ?? null;
-const stock        = apiProduct?.variants?.[0]?.stock ?? 10;
+const stock        = apiProduct?.stock !== undefined ? Number(apiProduct.stock) : (apiProduct?.variants?.[0]?.stock !== undefined ? Number(apiProduct.variants[0].stock) : ((staticProduct as any)?.stock ?? 20));
 
 // BỘ SƯU TẬP ẢNH GÓC CHỤP (ẢNH CHÍNH + ẢNH CHI TIẾT)
 let galleryImages: string[] = [];
@@ -334,24 +334,31 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
             <button
               type="button"
               id="btn-qty-minus"
-              class="px-3 py-1.5 text-walnut-900 transition-colors hover:bg-walnut-900/10 text-base cursor-pointer"
+              class="px-3 py-1.5 text-walnut-900 transition-colors hover:bg-walnut-900/10 text-base cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
               aria-label="Giảm số lượng"
+              disabled={stock === 0}
             >-</button>
             <input
               type="number"
               id="input-qty"
-              min="1"
-              max={stock || 99}
-              value="1"
+              min={stock > 0 ? "1" : "0"}
+              max={stock}
+              value={stock > 0 ? "1" : "0"}
               class="w-12 border-x border-walnut-900/20 bg-transparent py-1.5 text-center text-sm font-medium text-walnut-900 outline-none"
+              readonly
+              disabled={stock === 0}
             />
             <button
               type="button"
               id="btn-qty-plus"
-              class="px-3 py-1.5 text-walnut-900 transition-colors hover:bg-walnut-900/10 text-base cursor-pointer"
+              class="px-3 py-1.5 text-walnut-900 transition-colors hover:bg-walnut-900/10 text-base cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
               aria-label="Tăng số lượng"
+              disabled={stock === 0}
             >+</button>
           </div>
+          <span class="text-xs text-walnut-800/70">
+            {stock > 0 ? `(Kho còn ${stock} sản phẩm)` : '(Tạm hết hàng)'}
+          </span>
         </div>
 
         <!-- CTA BUTTONS -->
@@ -385,9 +392,13 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
             data-slug={slug}
             data-name={name}
             data-price={price}
+            data-stock={stock}
             data-thumbnail={thumbnail ?? ''}
             data-category={catLabel}
-            class="flex-1 bg-clay-600 px-6 py-3.5 text-xs uppercase tracking-[0.2em] text-sand-50 transition-all hover:bg-clay-500 active:scale-95 cursor-pointer font-medium rounded shadow-sm h-12 flex items-center justify-center"
+            class:list={[
+              "flex-1 px-6 py-3.5 text-xs uppercase tracking-[0.2em] transition-all font-medium rounded shadow-sm h-12 flex items-center justify-center",
+              stock > 0 ? "bg-clay-600 text-sand-50 hover:bg-clay-500 active:scale-95 cursor-pointer" : "bg-neutral-300 text-neutral-500 cursor-not-allowed opacity-75"
+            ]}
             disabled={stock === 0}
           >
             {stock > 0 ? 'Thêm vào giỏ hàng' : 'Hết hàng'}
@@ -398,12 +409,16 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
             data-slug={slug}
             data-name={name}
             data-price={price}
+            data-stock={stock}
             data-thumbnail={thumbnail ?? ''}
             data-category={catLabel}
-            class="flex-1 border-2 border-walnut-900 px-6 py-3.5 text-center text-xs uppercase tracking-[0.2em] text-walnut-900 transition-all hover:bg-walnut-900 hover:text-sand-50 active:scale-95 cursor-pointer font-medium rounded h-12 flex items-center justify-center"
+            class:list={[
+              "flex-1 border-2 px-6 py-3.5 text-center text-xs uppercase tracking-[0.2em] transition-all font-medium rounded h-12 flex items-center justify-center",
+              stock > 0 ? "border-walnut-900 text-walnut-900 hover:bg-walnut-900 hover:text-sand-50 active:scale-95 cursor-pointer" : "border-neutral-300 text-neutral-400 cursor-not-allowed opacity-75"
+            ]}
             disabled={stock === 0}
           >
-            Mua ngay
+            {stock > 0 ? 'Mua ngay' : 'Hết hàng'}
           </button>
         </div>
 
@@ -712,23 +727,33 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
   const btnMinus = document.getElementById('btn-qty-minus') as HTMLButtonElement | null;
   const btnPlus = document.getElementById('btn-qty-plus') as HTMLButtonElement | null;
 
+  const maxStock = Number(inputQty?.max || 99);
+
   const getQty = (): number => {
+    if (maxStock <= 0) return 0;
     const val = Number(inputQty?.value || 1);
-    return Math.max(1, Math.min(99, val));
+    return Math.max(1, Math.min(maxStock, val));
   };
 
   btnMinus?.addEventListener('click', () => {
-    if (inputQty) inputQty.value = String(Math.max(1, getQty() - 1));
+    if (inputQty && maxStock > 0) inputQty.value = String(Math.max(1, getQty() - 1));
   });
 
   btnPlus?.addEventListener('click', () => {
-    if (inputQty) inputQty.value = String(getQty() + 1);
+    if (inputQty && maxStock > 0) {
+      if (getQty() < maxStock) {
+        inputQty.value = String(getQty() + 1);
+      } else {
+        showCartToast(`Số lượng đã đạt giới hạn tồn kho (${maxStock})!`);
+      }
+    }
   });
 
   const getItemPayload = (btnEl: HTMLButtonElement) => ({
     slug: btnEl.dataset.slug || '',
     name: btnEl.dataset.name || '',
     price: Number(btnEl.dataset.price || 0),
+    maxStock: Number(btnEl.dataset.stock ?? 99),
     thumbnail: btnEl.dataset.thumbnail || undefined,
     category: btnEl.dataset.category || undefined,
   });

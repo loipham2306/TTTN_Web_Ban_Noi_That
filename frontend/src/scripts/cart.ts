@@ -95,14 +95,15 @@ export const mergeGuestCartOnLogin = (): void => {
 };
 
 export const addToCart = (
-  item: { slug: string; name: string; price: number; thumbnail?: string; category?: string },
+  item: { slug: string; name: string; price: number; thumbnail?: string; category?: string; maxStock?: number },
   qty = 1
 ): CartItem[] => {
   const items = readCart();
   const existing = items.find((entry) => entry.slug === item.slug);
+  const limit = item.maxStock !== undefined ? item.maxStock : 99;
 
   if (existing) {
-    existing.qty = Math.min(99, existing.qty + qty);
+    existing.qty = Math.min(limit, existing.qty + qty);
     if (item.thumbnail && !existing.thumbnail) existing.thumbnail = item.thumbnail;
     if (item.price && !existing.price) existing.price = item.price;
   } else {
@@ -110,7 +111,7 @@ export const addToCart = (
       slug: item.slug,
       name: item.name,
       price: item.price,
-      qty: Math.min(99, Math.max(1, qty)),
+      qty: Math.min(limit, Math.max(1, qty)),
       thumbnail: item.thumbnail,
       category: item.category,
     });

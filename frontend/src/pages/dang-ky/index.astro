@@ -264,7 +264,10 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         if (data.success && data.token) {
           localStorage.setItem('auth_token', data.token);
           if (data.user) {
+            googleUser.id = data.user.id;
             googleUser.role = data.user.role;
+            if (data.user.full_name) googleUser.name = data.user.full_name;
+            if (data.user.phone) googleUser.phone = data.user.phone;
           }
         }
       } catch (e) {

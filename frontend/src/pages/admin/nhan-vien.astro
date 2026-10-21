@@ -130,65 +130,88 @@ const initialStaff = [
   </div>
 
   <!-- MODAL: THÊM NHÂN VIÊN MỚI -->
-  <div id="staff-modal" class="fixed inset-0 z-50 hidden bg-walnut-900/60 backdrop-blur-sm overflow-y-auto p-4 flex items-center justify-center">
-    <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-lg p-6 sm:p-8 shadow-xl relative my-8">
-      <div class="flex items-center justify-between border-b border-walnut-900/10 pb-4">
-        <div>
-          <p class="text-[10px] uppercase tracking-[0.2em] text-walnut-800">Quản trị nhân sự</p>
-          <h2 class="text-xl font-display text-walnut-900 mt-1">Thêm nhân viên mới</h2>
+  <div id="staff-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs p-4 flex items-center justify-center">
+    <div class="bg-sand-50 border border-walnut-900/30 w-full max-w-lg shadow-2xl rounded-none relative my-4 max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- HEADER WALNUT XANH ĐẬM VỚI DẢI VÀNG CHAMPAGNE -->
+      <div class="relative bg-[#173524] px-6 py-5 sm:px-8 border-b border-[#D8B670]/30 shrink-0">
+        <div class="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#D8B670] via-[#F3E5AB] to-[#C49E52]"></div>
+        
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#D8B670]/25 to-[#D8B670]/5 border border-[#D8B670]/40 flex items-center justify-center shrink-0 shadow-inner">
+              <svg class="w-5 h-5 text-[#E6CA85]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-[10px] uppercase tracking-[0.22em] text-[#D8B670] font-semibold">QUẢN TRỊ NHÂN SỰ</p>
+              <h2 class="text-lg sm:text-xl font-display font-bold text-white tracking-wide mt-0.5">Thêm nhân viên mới</h2>
+            </div>
+          </div>
+
+          <button 
+            type="button" 
+            id="btn-close-staff-modal" 
+            class="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 text-sand-200 hover:text-white flex items-center justify-center transition-all hover:rotate-90 cursor-pointer border border-white/10"
+            title="Đóng cửa sổ"
+          >
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
-        <button type="button" id="btn-close-staff-modal" class="text-walnut-800 hover:text-danger-600 p-1 cursor-pointer">
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
       </div>
 
-      <form id="add-staff-form" class="mt-6 flex flex-col gap-4">
-        <div>
-          <label for="staff-name-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Họ và tên *</label>
-          <input type="text" id="staff-name-input" required placeholder="Ví dụ: Hoàng Minh Trí" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50" />
+      <form id="add-staff-form" class="flex flex-col flex-1 overflow-hidden">
+        <!-- MODAL BODY (SCROLLABLE) -->
+        <div class="p-6 sm:p-8 space-y-4 overflow-y-auto flex-1 bg-[#FAF8F5]">
+          <div>
+            <label for="staff-name-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Họ và tên *</label>
+            <input type="text" id="staff-name-input" required placeholder="Ví dụ: Hoàng Minh Trí" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-xs outline-none focus:border-clay-600 shadow-xs" />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="staff-email-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Email làm việc *</label>
+              <input type="email" id="staff-email-input" required placeholder="tri.hoang@noithat.vn" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-xs outline-none focus:border-clay-600 shadow-xs" />
+            </div>
+            <div>
+              <label for="staff-phone-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Số điện thoại *</label>
+              <input type="text" id="staff-phone-input" required placeholder="0909 112 233" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-xs outline-none focus:border-clay-600 shadow-xs" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label for="staff-role-select" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Chức vụ & Vai trò</label>
+              <select id="staff-role-select" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3 py-2.5 text-xs outline-none focus:border-clay-600 cursor-pointer shadow-xs">
+                <option value="Quản Lý Bán Hàng">Quản Lý Bán Hàng</option>
+                <option value="Chuyên Viên Tư Vấn Phong Thủy">Chuyên Viên Tư Vấn Phong Thủy</option>
+                <option value="Thủ Kho & Vận Chuyển">Thủ Kho & Vận Chuyển</option>
+                <option value="Marketing & Khuyến Mãi">Marketing & Khuyến Mãi</option>
+                <option value="Quản Trị Viên (Admin)">Quản Trị Viên (Admin)</option>
+              </select>
+            </div>
+            <div>
+              <label for="staff-dept-select" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Phòng ban</label>
+              <select id="staff-dept-select" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3 py-2.5 text-xs outline-none focus:border-clay-600 cursor-pointer shadow-xs">
+                <option value="Phòng Kinh Doanh">Phòng Kinh Doanh</option>
+                <option value="Tư Vấn Khách Hàng">Tư Vấn Khách Hàng</option>
+                <option value="Kho Vận">Kho Vận</option>
+                <option value="Truyền Thông">Truyền Thông</option>
+                <option value="Ban Giám Đốc">Ban Giám Đốc</option>
+              </select>
+            </div>
+          </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label for="staff-email-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Email làm việc *</label>
-            <input type="email" id="staff-email-input" required placeholder="tri.hoang@noithat.vn" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50" />
-          </div>
-          <div>
-            <label for="staff-phone-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Số điện thoại *</label>
-            <input type="text" id="staff-phone-input" required placeholder="0909 112 233" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 focus:bg-sand-50" />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label for="staff-role-select" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Chức vụ & Vai trò</label>
-            <select id="staff-role-select" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-3 py-2 text-xs outline-none focus:border-clay-600 cursor-pointer">
-              <option value="Quản Lý Bán Hàng">Quản Lý Bán Hàng</option>
-              <option value="Chuyên Viên Tư Vấn Phong Thủy">Chuyên Viên Tư Vấn Phong Thủy</option>
-              <option value="Thủ Kho & Vận Chuyển">Thủ Kho & Vận Chuyển</option>
-              <option value="Marketing & Khuyến Mãi">Marketing & Khuyến Mãi</option>
-              <option value="Quản Trị Viên (Admin)">Quản Trị Viên (Admin)</option>
-            </select>
-          </div>
-          <div>
-            <label for="staff-dept-select" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Phòng ban</label>
-            <select id="staff-dept-select" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-3 py-2 text-xs outline-none focus:border-clay-600 cursor-pointer">
-              <option value="Phòng Kinh Doanh">Phòng Kinh Doanh</option>
-              <option value="Tư Vấn Khách Hàng">Tư Vấn Khách Hàng</option>
-              <option value="Kho Vận">Kho Vận</option>
-              <option value="Truyền Thông">Truyền Thông</option>
-              <option value="Ban Giám Đốc">Ban Giám Đốc</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="flex items-center justify-end gap-3 border-t border-walnut-900/10 pt-4 mt-2">
-          <button type="button" id="btn-cancel-staff-modal" class="border border-walnut-900/20 px-5 py-2 text-xs uppercase tracking-[0.15em] text-walnut-800 hover:border-walnut-900 cursor-pointer">
+        <!-- MODAL FOOTER (STICKY BOTTOM) -->
+        <div class="px-6 py-4 sm:px-8 bg-white border-t border-walnut-900/15 flex items-center justify-end gap-3 shrink-0 shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
+          <button type="button" id="btn-cancel-staff-modal" class="border border-walnut-900/20 px-5 py-2.5 text-xs uppercase tracking-[0.15em] font-semibold text-walnut-800 hover:bg-sand-100 hover:border-walnut-900 transition-colors cursor-pointer">
             Hủy
           </button>
-          <button type="submit" class="bg-clay-600 px-6 py-2 text-xs uppercase tracking-[0.15em] text-sand-50 hover:bg-clay-500 shadow-sm cursor-pointer font-medium">
+          <button type="submit" class="bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] px-6 py-2.5 text-xs uppercase tracking-[0.18em] font-bold text-[#173524] hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#E0C582]/50">
             Lưu nhân viên
           </button>
         </div>
@@ -197,59 +220,85 @@ const initialStaff = [
   </div>
 
   <!-- MODAL: PHÂN QUYỀN NHÂN VIÊN -->
-  <div id="permission-modal" class="fixed inset-0 z-50 hidden bg-walnut-900/60 backdrop-blur-sm overflow-y-auto p-4 flex items-center justify-center">
-    <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-md p-6 sm:p-8 shadow-xl relative my-8">
-      <div class="flex items-center justify-between border-b border-walnut-900/10 pb-4">
-        <div>
-          <p class="text-[10px] uppercase tracking-[0.2em] text-walnut-800">Cấp quyền hệ thống</p>
-          <h2 id="perm-staff-name" class="text-xl font-display text-walnut-900 mt-1">Phân quyền nhân sự</h2>
+  <div id="permission-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs p-4 flex items-center justify-center">
+    <div class="bg-sand-50 border border-walnut-900/30 w-full max-w-md shadow-2xl rounded-none relative my-4 max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- HEADER WALNUT XANH ĐẬM VỚI DẢI VÀNG CHAMPAGNE -->
+      <div class="relative bg-[#173524] px-6 py-5 sm:px-8 border-b border-[#D8B670]/30 shrink-0">
+        <div class="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#D8B670] via-[#F3E5AB] to-[#C49E52]"></div>
+        
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-3.5">
+            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#D8B670]/25 to-[#D8B670]/5 border border-[#D8B670]/40 flex items-center justify-center shrink-0 shadow-inner">
+              <svg class="w-5 h-5 text-[#E6CA85]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+            </div>
+            <div>
+              <p class="text-[10px] uppercase tracking-[0.22em] text-[#D8B670] font-semibold">CẤP QUYỀN HỆ THỐNG</p>
+              <h2 id="perm-staff-name" class="text-lg sm:text-xl font-display font-bold text-white tracking-wide mt-0.5">Phân quyền nhân sự</h2>
+            </div>
+          </div>
+
+          <button 
+            type="button" 
+            id="btn-close-perm-modal" 
+            class="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 text-sand-200 hover:text-white flex items-center justify-center transition-all hover:rotate-90 cursor-pointer border border-white/10"
+            title="Đóng cửa sổ"
+          >
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
-        <button type="button" id="btn-close-perm-modal" class="text-walnut-800 hover:text-danger-600 p-1 cursor-pointer">
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
       </div>
 
-      <form id="permission-form" class="mt-6 flex flex-col gap-4">
+      <form id="permission-form" class="flex flex-col flex-1 overflow-hidden">
         <input type="hidden" id="perm-hidden-id" value="" />
 
-        <div>
-          <label for="perm-role-select" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Chức vụ vai trò *</label>
-          <select id="perm-role-select" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-3.5 py-2 text-xs outline-none focus:border-clay-600 cursor-pointer font-medium">
-            <option value="Quản Trị Tối Cao (Super Admin)">Quản Trị Tối Cao (Super Admin)</option>
-            <option value="Quản Lý Bán Hàng">Quản Lý Bán Hàng</option>
-            <option value="Chuyên Viên Tư Vấn Phong Thủy">Chuyên Viên Tư Vấn Phong Thủy</option>
-            <option value="Thủ Kho & Vận Chuyển">Thủ Kho & Vận Chuyển</option>
-            <option value="Marketing & Khuyến Mãi">Marketing & Khuyến Mãi</option>
-          </select>
+        <!-- MODAL BODY (SCROLLABLE) -->
+        <div class="p-6 sm:p-8 space-y-4 overflow-y-auto flex-1 bg-[#FAF8F5]">
+          <div>
+            <label for="perm-role-select" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Chức vụ vai trò *</label>
+            <select id="perm-role-select" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-xs outline-none focus:border-clay-600 cursor-pointer font-medium shadow-xs">
+              <option value="Quản Trị Tối Cao (Super Admin)">Quản Trị Tối Cao (Super Admin)</option>
+              <option value="Quản Lý Bán Hàng">Quản Lý Bán Hàng</option>
+              <option value="Chuyên Viên Tư Vấn Phong Thủy">Chuyên Viên Tư Vấn Phong Thủy</option>
+              <option value="Thủ Kho & Vận Chuyển">Thủ Kho & Vận Chuyển</option>
+              <option value="Marketing & Khuyến Mãi">Marketing & Khuyến Mãi</option>
+            </select>
+          </div>
+
+          <div class="border border-walnut-900/15 rounded-none p-4 bg-white space-y-2.5 text-xs shadow-xs">
+            <p class="font-bold text-walnut-900 uppercase tracking-wider text-[10px] mb-2 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#173524]"></span>
+              Các quyền hạn truy cập:
+            </p>
+            <label class="flex items-center gap-2 text-walnut-900 cursor-pointer">
+              <input type="checkbox" checked class="rounded text-[#173524] focus:ring-[#173524] accent-[#173524]" />
+              <span>Xem và quản lý đơn đặt hàng</span>
+            </label>
+            <label class="flex items-center gap-2 text-walnut-900 cursor-pointer">
+              <input type="checkbox" checked class="rounded text-[#173524] focus:ring-[#173524] accent-[#173524]" />
+              <span>Thêm / sửa thông tin kho sản phẩm</span>
+            </label>
+            <label class="flex items-center gap-2 text-walnut-900 cursor-pointer">
+              <input type="checkbox" checked class="rounded text-[#173524] focus:ring-[#173524] accent-[#173524]" />
+              <span>Quản lý danh sách khách hàng & hội viên</span>
+            </label>
+            <label class="flex items-center gap-2 text-walnut-900 cursor-pointer">
+              <input type="checkbox" class="rounded text-[#173524] focus:ring-[#173524] accent-[#173524]" />
+              <span>Toàn quyền cài đặt hệ thống & nhân sự</span>
+            </label>
+          </div>
         </div>
 
-        <div class="border border-walnut-900/10 rounded p-3 bg-sand-100/50 space-y-2 text-xs">
-          <p class="font-bold text-walnut-900 uppercase tracking-wider text-[10px] mb-1">Các quyền hạn truy cập:</p>
-          <label class="flex items-center gap-2 text-walnut-900 cursor-pointer">
-            <input type="checkbox" checked class="rounded accent-clay-600" />
-            <span>Xem và quản lý đơn đặt hàng</span>
-          </label>
-          <label class="flex items-center gap-2 text-walnut-900 cursor-pointer">
-            <input type="checkbox" checked class="rounded accent-clay-600" />
-            <span>Thêm / sửa thông tin kho sản phẩm</span>
-          </label>
-          <label class="flex items-center gap-2 text-walnut-900 cursor-pointer">
-            <input type="checkbox" checked class="rounded accent-clay-600" />
-            <span>Quản lý danh sách khách hàng & hội viên</span>
-          </label>
-          <label class="flex items-center gap-2 text-walnut-900 cursor-pointer">
-            <input type="checkbox" class="rounded accent-clay-600" />
-            <span>Toàn quyền cài đặt hệ thống & nhân sự</span>
-          </label>
-        </div>
-
-        <div class="flex items-center justify-end gap-3 border-t border-walnut-900/10 pt-4 mt-2">
-          <button type="button" id="btn-cancel-perm-modal" class="border border-walnut-900/20 px-5 py-2 text-xs uppercase tracking-[0.15em] text-walnut-800 hover:border-walnut-900 cursor-pointer">
+        <!-- MODAL FOOTER (STICKY BOTTOM) -->
+        <div class="px-6 py-4 sm:px-8 bg-white border-t border-walnut-900/15 flex items-center justify-end gap-3 shrink-0 shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
+          <button type="button" id="btn-cancel-perm-modal" class="border border-walnut-900/20 px-5 py-2.5 text-xs uppercase tracking-[0.15em] font-semibold text-walnut-800 hover:bg-sand-100 hover:border-walnut-900 transition-colors cursor-pointer">
             Đóng
           </button>
-          <button type="submit" class="bg-clay-600 px-6 py-2 text-xs uppercase tracking-[0.15em] text-sand-50 hover:bg-clay-500 shadow-sm cursor-pointer font-medium">
+          <button type="submit" class="bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] px-6 py-2.5 text-xs uppercase tracking-[0.18em] font-bold text-[#173524] hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#E0C582]/50">
             Lưu phân quyền
           </button>
         </div>

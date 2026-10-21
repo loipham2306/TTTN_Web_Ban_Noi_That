@@ -1,4 +1,4 @@
-﻿-- MariaDB dump 10.19  Distrib 10.4.32-MariaDB, for Win64 (AMD64)
+-- MariaDB dump 10.19  Distrib 10.4.32-MariaDB, for Win64 (AMD64)
 --
 -- Host: localhost    Database: web_ban_noi_that
 -- ------------------------------------------------------
@@ -29,7 +29,7 @@ CREATE TABLE `banners` (
   `description` text DEFAULT NULL,
   `image_url` text DEFAULT NULL,
   `link_url` varchar(255) DEFAULT '/san-pham',
-  `button_text` varchar(100) DEFAULT 'KhĂ¡m phĂ¡ ngay',
+  `button_text` varchar(100) DEFAULT 'Khám phá ngay',
   `position` varchar(50) NOT NULL DEFAULT 'hero',
   `display_order` int(11) DEFAULT 0,
   `is_active` tinyint(1) DEFAULT 1,
@@ -45,7 +45,7 @@ CREATE TABLE `banners` (
 
 LOCK TABLES `banners` WRITE;
 /*!40000 ALTER TABLE `banners` DISABLE KEYS */;
-INSERT INTO `banners` VALUES (1,'Ná»˜I THáº¤T','Bá»™ sÆ°u táº­p 2026','Ná»™i tháº¥t thiáº¿t káº¿ cho khĂ´ng gian sá»‘ng Ä‘áº³ng cáº¥p â€” tuyá»ƒn chá»n tá»« nhá»¯ng thÆ°Æ¡ng hiá»‡u vĂ  xÆ°á»Ÿng cháº¿ tĂ¡c hĂ ng Ä‘áº§u.','https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1920&q=80','/san-pham','KhĂ¡m phĂ¡ ngay','hero',1,1,'2026-10-15 21:20:02','2026-10-15 21:20:02'),(2,'Bá»˜ SÆ¯U Táº¬P Ná»˜I THáº¤T CAO Cáº¤P','KhĂ´ng Gian Sá»‘ng Nghá»‡ Thuáº­t & Äáº³ng Cáº¥p','Tuyá»ƒn chá»n hÆ¡n 500+ máº«u thiáº¿t káº¿ tinh xáº£o tá»« gá»— tá»± nhiĂªn, da Ă cao cáº¥p vĂ  kim loáº¡i máº¡ vĂ ng sang trá»ng.','https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1920&q=80','/san-pham','KhĂ¡m phĂ¡ bá»™ sÆ°u táº­p','san-pham',1,1,'2026-10-19 01:23:36','2026-10-19 01:23:36'),(3,'TÆ¯ Váº¤N PHONG THá»¦Y & BĂ€I TRĂ Ná»˜I THáº¤T','á»¨ng Dá»¥ng TrĂ­ Tuá»‡ NhĂ¢n Táº¡o Gemini AI & BĂ¡t Tráº¡ch','Äá»‹nh hÆ°á»›ng sinh khĂ­ tĂ i lá»™c, phá»‘i há»£p mĂ u sáº¯c ngÅ© hĂ nh vĂ  bĂ i trĂ­ ná»™i tháº¥t chuáº©n phong thá»§y cho gia chá»§.','https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=80','/phong-thuy','Tra cá»©u cung má»‡nh ngay','phong-thuy',1,1,'2026-10-19 01:23:36','2026-10-19 01:23:36');
+INSERT INTO `banners` VALUES (1,'NỘI THẤT','Bộ sưu tập 2026','Nội thất thiết kế cho không gian sống đẳng cấp — tuyển chọn từ những thương hiệu và xưởng chế tác hàng đầu.','https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1920&q=80','/san-pham','Khám phá ngay','hero',1,1,'2026-10-15 21:20:02','2026-10-15 21:20:02'),(2,'BỘ SƯU TẬP NỘI THẤT CAO CẤP','Không Gian Sống Nghệ Thuật & Đẳng Cấp','Tuyển chọn hơn 500+ mẫu thiết kế tinh xảo từ gỗ tự nhiên, da Ý cao cấp và kim loại mạ vàng sang trọng.','https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1920&q=80','/san-pham','Khám phá bộ sưu tập','san-pham',1,1,'2026-10-19 01:23:36','2026-10-19 01:23:36'),(3,'TƯ VẤN PHONG THỦY & BÀI TRÍ NỘI THẤT','Ứng Dụng Trí Tuệ Nhân Tạo Gemini AI & Bát Trạch','Định hướng sinh khí tài lộc, phối hợp màu sắc ngũ hành và bài trí nội thất chuẩn phong thủy cho gia chủ.','https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=80','/phong-thuy','Tra cứu cung mệnh ngay','phong-thuy',1,1,'2026-10-19 01:23:36','2026-10-19 01:23:36');
 /*!40000 ALTER TABLE `banners` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -72,7 +72,7 @@ CREATE TABLE `bot_prompts` (
 
 LOCK TABLES `bot_prompts` WRITE;
 /*!40000 ALTER TABLE `bot_prompts` DISABLE KEYS */;
-INSERT INTO `bot_prompts` VALUES (1,'system_prompt','Báº¡n lĂ  trá»£ lĂ½ AI áº£o cá»§a cá»­a hĂ ng Trai Äáº¹p BĂ¡n Ná»™i Tháº¥t. HĂ£y tÆ° váº¥n lá»‹ch sá»±, ngáº¯n gá»n vĂ  há»¯u Ă­ch cho khĂ¡ch hĂ ng. XÆ°ng hĂ´ lĂ  dáº¡/thÆ°a.',1),(2,'shipping_policy','Giao hĂ ng miá»…n phĂ­ ná»™i thĂ nh cho Ä‘Æ¡n tá»« 2 triá»‡u. CĂ¡c tá»‰nh khĂ¡c phĂ­ ship máº·c Ä‘á»‹nh 100k.',1);
+INSERT INTO `bot_prompts` VALUES (1,'system_prompt','Bạn là trợ lý AI ảo của cửa hàng Trai Đẹp Bán Nội Thất. Hãy tư vấn lịch sự, ngắn gọn và hữu ích cho khách hàng. Xưng hô là dạ/thưa.',1),(2,'shipping_policy','Giao hàng miễn phí nội thành cho đơn từ 2 triệu. Các tỉnh khác phí ship mặc định 100k.',1);
 /*!40000 ALTER TABLE `bot_prompts` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -132,7 +132,7 @@ CREATE TABLE `categories` (
 
 LOCK TABLES `categories` WRITE;
 /*!40000 ALTER TABLE `categories` DISABLE KEYS */;
-INSERT INTO `categories` VALUES (1,NULL,'Sofa','sofa',NULL,1),(2,NULL,'BĂ n Äƒn','ban-an',NULL,1),(3,NULL,'Gháº¿','ghe',NULL,1),(4,NULL,'GiÆ°á»ng','giuong',NULL,1),(5,NULL,'Tá»§ & Ká»‡','tu-ke',NULL,1),(6,NULL,'ÄĂ¨n','den',NULL,1),(7,NULL,'Trang trĂ­','trang-tri',NULL,1);
+INSERT INTO `categories` VALUES (1,NULL,'Sofa','sofa',NULL,1),(2,NULL,'Bàn ăn','ban-an',NULL,1),(3,NULL,'Ghế','ghe',NULL,1),(4,NULL,'Giường','giuong',NULL,1),(5,NULL,'Tủ & Kệ','tu-ke',NULL,1),(6,NULL,'Đèn','den',NULL,1),(7,NULL,'Trang trí','trang-tri',NULL,1);
 /*!40000 ALTER TABLE `categories` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -147,8 +147,8 @@ CREATE TABLE `chat_messages` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `session_id` bigint(20) unsigned NOT NULL,
   `sender_type` enum('customer','ai_bot','seller') NOT NULL,
-  `sender_id` bigint(20) unsigned DEFAULT NULL COMMENT 'ID cá»§a user hoáº·c seller náº¿u cĂ³',
-  `content` text NOT NULL COMMENT 'Ná»™i dung tin nháº¯n',
+  `sender_id` bigint(20) unsigned DEFAULT NULL COMMENT 'ID của user hoặc seller nếu có',
+  `content` text NOT NULL COMMENT 'Nội dung tin nhắn',
   `created_at` datetime DEFAULT current_timestamp(),
   PRIMARY KEY (`id`),
   KEY `session_id` (`session_id`),
@@ -177,7 +177,7 @@ DROP TABLE IF EXISTS `chat_sessions`;
 CREATE TABLE `chat_sessions` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) unsigned DEFAULT NULL,
-  `guest_id` varchar(255) DEFAULT NULL COMMENT 'Cookie/Session ID cho khĂ¡ch vĂ£ng lai',
+  `guest_id` varchar(255) DEFAULT NULL COMMENT 'Cookie/Session ID cho khách vãng lai',
   `status` enum('bot_handling','human_requested','human_handling','closed') DEFAULT 'bot_handling',
   `started_at` datetime DEFAULT current_timestamp(),
   `ended_at` datetime DEFAULT NULL,
@@ -241,11 +241,11 @@ CREATE TABLE `order_items` (
   `order_id` bigint(20) unsigned NOT NULL,
   `product_id` bigint(20) unsigned DEFAULT NULL,
   `variant_id` bigint(20) unsigned DEFAULT NULL,
-  `product_name` varchar(255) NOT NULL COMMENT 'TĂªn lÆ°u cá»©ng lĂºc mua',
-  `variant_name` varchar(255) DEFAULT NULL COMMENT 'MĂ u/Cháº¥t liá»‡u lÆ°u cá»©ng',
+  `product_name` varchar(255) NOT NULL COMMENT 'Tên lưu cứng lúc mua',
+  `variant_name` varchar(255) DEFAULT NULL COMMENT 'Màu/Chất liệu lưu cứng',
   `sku` varchar(50) NOT NULL,
   `quantity` int(11) NOT NULL,
-  `unit_price` decimal(15,2) NOT NULL COMMENT 'GiĂ¡ lÆ°u cá»©ng lĂºc mua',
+  `unit_price` decimal(15,2) NOT NULL COMMENT 'Giá lưu cứng lúc mua',
   `total_price` decimal(15,2) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `order_id` (`order_id`),
@@ -263,7 +263,7 @@ CREATE TABLE `order_items` (
 
 LOCK TABLES `order_items` WRITE;
 /*!40000 ALTER TABLE `order_items` DISABLE KEYS */;
-INSERT INTO `order_items` VALUES (6,5,20,20,'sofa_Ä‘en nhĂ¡m',NULL,'SOFADEN_NHAM_001',1,7500000.00,7500000.00),(7,6,12,12,'Tá»§ quáº§n Ă¡o 4 cĂ¡nh',NULL,'SKU-TU-QUAN-AO-4-CANH',1,24500000.00,24500000.00),(8,7,20,20,'sofa_Ä‘en nhĂ¡m',NULL,'SOFADEN_NHAM_001',1,7500000.00,7500000.00);
+INSERT INTO `order_items` VALUES (6,5,20,20,'sofa_đen nhám',NULL,'SOFADEN_NHAM_001',1,7500000.00,7500000.00),(7,6,12,12,'Tủ quần áo 4 cánh',NULL,'SKU-TU-QUAN-AO-4-CANH',1,24500000.00,24500000.00),(8,7,20,20,'sofa_đen nhám',NULL,'SOFADEN_NHAM_001',1,7500000.00,7500000.00);
 /*!40000 ALTER TABLE `order_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -279,7 +279,7 @@ CREATE TABLE `orders` (
   `order_code` varchar(50) NOT NULL,
   `user_id` bigint(20) unsigned NOT NULL,
   `coupon_id` int(10) unsigned DEFAULT NULL,
-  `shipping_address` text NOT NULL COMMENT 'LÆ°u cá»©ng Ä‘á»‹a chá»‰ text/JSON lĂºc Ä‘áº·t',
+  `shipping_address` text NOT NULL COMMENT 'Lưu cứng địa chỉ text/JSON lúc đặt',
   `shipping_fee` decimal(15,2) DEFAULT 0.00,
   `subtotal_amount` decimal(15,2) NOT NULL,
   `discount_amount` decimal(15,2) DEFAULT 0.00,
@@ -306,7 +306,7 @@ CREATE TABLE `orders` (
 
 LOCK TABLES `orders` WRITE;
 /*!40000 ALTER TABLE `orders` DISABLE KEYS */;
-INSERT INTO `orders` VALUES (5,'NT-2610-9661',3,NULL,'543b tĂ¢n phĂº, r, TP. Há»“ ChĂ­ Minh',0.00,7500000.00,0.00,7500000.00,'cod','pending','pending',NULL,NULL,'2026-10-16 04:13:03','2026-10-16 04:13:03'),(6,'NT-2610-5385',3,NULL,'110d tĂ¢n quĂ½, tĂ¢n phĂº, HCM, r, TP. Há»“ ChĂ­ Minh',0.00,24500000.00,0.00,24500000.00,'cod','pending','pending',NULL,NULL,'2026-10-16 08:36:49','2026-10-16 08:36:49'),(7,'NT-2610-3221',7,NULL,'412, TĂ¢n PhĂº, TP. Há»“ ChĂ­ Minh',0.00,7500000.00,0.00,7500000.00,'cod','pending','pending',NULL,NULL,'2026-10-18 13:02:12','2026-10-18 13:02:12');
+INSERT INTO `orders` VALUES (5,'NT-2610-9661',3,NULL,'543b tân phú, r, TP. Hồ Chí Minh',0.00,7500000.00,0.00,7500000.00,'cod','pending','pending',NULL,NULL,'2026-10-16 04:13:03','2026-10-16 04:13:03'),(6,'NT-2610-5385',3,NULL,'110d tân quý, tân phú, HCM, r, TP. Hồ Chí Minh',0.00,24500000.00,0.00,24500000.00,'cod','pending','pending',NULL,NULL,'2026-10-16 08:36:49','2026-10-16 08:36:49'),(7,'NT-2610-3221',7,NULL,'412, Tân Phú, TP. Hồ Chí Minh',0.00,7500000.00,0.00,7500000.00,'cod','pending','pending',NULL,NULL,'2026-10-18 13:02:12','2026-10-18 13:02:12');
 /*!40000 ALTER TABLE `orders` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -358,8 +358,8 @@ CREATE TABLE `product_variants` (
   `price` decimal(15,2) NOT NULL,
   `compare_at_price` decimal(15,2) DEFAULT NULL,
   `stock_quantity` int(11) DEFAULT 0,
-  `weight_gram` int(11) DEFAULT NULL COMMENT 'DĂ¹ng Ä‘á»ƒ tĂ­nh phĂ­ ship',
-  `dimensions` varchar(50) DEFAULT NULL COMMENT 'DĂ i x Rá»™ng x Cao',
+  `weight_gram` int(11) DEFAULT NULL COMMENT 'Dùng để tính phí ship',
+  `dimensions` varchar(50) DEFAULT NULL COMMENT 'Dài x Rộng x Cao',
   PRIMARY KEY (`id`),
   UNIQUE KEY `sku` (`sku`),
   KEY `product_id` (`product_id`),
@@ -373,7 +373,7 @@ CREATE TABLE `product_variants` (
 
 LOCK TABLES `product_variants` WRITE;
 /*!40000 ALTER TABLE `product_variants` DISABLE KEYS */;
-INSERT INTO `product_variants` VALUES (1,1,'SKU-SOFA-DA-Y-MILANO',NULL,'Da bĂ² Ă',58900000.00,NULL,20,NULL,'240 Ă— 95 Ă— 78 cm'),(2,2,'SKU-SOFA-VAI-LINEN-OSLO',NULL,'Váº£i linen',26500000.00,NULL,20,NULL,'210 Ă— 88 Ă— 80 cm'),(3,3,'SKU-SOFA-GOC-BAC-AU',NULL,'Váº£i bá»‘',32900000.00,NULL,20,NULL,'270 Ă— 180 Ă— 82 cm'),(4,4,'SKU-BAN-AN-DA-MARBLE-CARRARA',NULL,'ÄĂ¡ marble',32500000.00,NULL,20,NULL,'180 Ă— 90 Ă— 75 cm'),(5,5,'SKU-BAN-AN-GO-SOI-NGA',NULL,'Gá»— sá»“i',18900000.00,NULL,20,NULL,'160 Ă— 80 Ă— 75 cm'),(6,6,'SKU-GHE-AN-DA-BOC-Y',NULL,'Da cĂ´ng nghiá»‡p',4200000.00,NULL,20,NULL,'48 Ă— 55 Ă— 88 cm'),(7,7,'SKU-GHE-THU-GIAN-GO-OC-CHO',NULL,'Gá»— Ă³c chĂ³',18900000.00,NULL,20,NULL,'72 Ă— 80 Ă— 95 cm'),(8,8,'SKU-GHE-CONG-THAI-HOC-ERGO',NULL,'LÆ°á»›i & nhá»±a',6900000.00,NULL,20,NULL,'66 Ă— 66 Ă— 118 cm'),(9,9,'SKU-GHE-NGOAI-TROI-GO-TEAK',NULL,'Gá»— teak',8900000.00,NULL,20,NULL,'58 Ă— 62 Ă— 85 cm'),(10,10,'SKU-GIUONG-BOC-NI-VELVET',NULL,'Ná»‰ velvet',22900000.00,NULL,20,NULL,'180 Ă— 200 Ă— 110 cm'),(11,11,'SKU-GIUONG-GO-TU-NHIEN-SCANDINAVIAN',NULL,'Gá»— sá»“i',28500000.00,NULL,20,NULL,'160 Ă— 200 Ă— 95 cm'),(12,12,'SKU-TU-QUAN-AO-4-CANH',NULL,'Gá»— MDF',11000000.00,NULL,20,NULL,'200 Ă— 60 Ă— 220 cm'),(13,13,'SKU-KE-TIVI-TREO-TUONG',NULL,'Gá»— cĂ´ng nghiá»‡p',9800000.00,NULL,20,NULL,'180 Ă— 35 Ă— 40 cm'),(14,14,'SKU-KE-SACH-GO-THONG',NULL,'Gá»— thĂ´ng',7200000.00,NULL,20,NULL,'80 Ă— 30 Ă— 180 cm'),(15,15,'SKU-DEN-SAN-DONG-THAU',NULL,'Äá»“ng thau',7900000.00,NULL,20,NULL,'Ă˜ 40 Ă— 160 cm'),(16,16,'SKU-DEN-THA-TRAN-MAY',NULL,'MĂ¢y tá»± nhiĂªn',3400000.00,NULL,20,NULL,'Ă˜ 55 Ă— 40 cm'),(17,17,'SKU-DEN-BAN-GOM',NULL,'Gá»‘m',1900000.00,NULL,20,NULL,'Ă˜ 25 Ă— 45 cm'),(18,18,'SKU-BAN-TRA-MAT-KINH',NULL,'KĂ­nh cÆ°á»ng lá»±c',5600000.00,NULL,20,NULL,'120 Ă— 60 Ă— 42 cm'),(19,19,'SKU-GUONG-TRANG-TRI-VIEN-VANG',NULL,'Há»£p kim máº¡',3100000.00,NULL,20,NULL,'60 Ă— 90 cm'),(20,20,'SOFADEN_NHAM_001',NULL,'da bĂ²',7500000.00,NULL,20,NULL,NULL);
+INSERT INTO `product_variants` VALUES (1,1,'SKU-SOFA-DA-Y-MILANO',NULL,'Da bò Ý',58900000.00,NULL,20,NULL,'240 × 95 × 78 cm'),(2,2,'SKU-SOFA-VAI-LINEN-OSLO',NULL,'Vải linen',26500000.00,NULL,20,NULL,'210 × 88 × 80 cm'),(3,3,'SKU-SOFA-GOC-BAC-AU',NULL,'Vải bố',32900000.00,NULL,20,NULL,'270 × 180 × 82 cm'),(4,4,'SKU-BAN-AN-DA-MARBLE-CARRARA',NULL,'Đá marble',32500000.00,NULL,20,NULL,'180 × 90 × 75 cm'),(5,5,'SKU-BAN-AN-GO-SOI-NGA',NULL,'Gỗ sồi',18900000.00,NULL,20,NULL,'160 × 80 × 75 cm'),(6,6,'SKU-GHE-AN-DA-BOC-Y',NULL,'Da công nghiệp',4200000.00,NULL,20,NULL,'48 × 55 × 88 cm'),(7,7,'SKU-GHE-THU-GIAN-GO-OC-CHO',NULL,'Gỗ óc chó',18900000.00,NULL,20,NULL,'72 × 80 × 95 cm'),(8,8,'SKU-GHE-CONG-THAI-HOC-ERGO',NULL,'Lưới & nhựa',6900000.00,NULL,20,NULL,'66 × 66 × 118 cm'),(9,9,'SKU-GHE-NGOAI-TROI-GO-TEAK',NULL,'Gỗ teak',8900000.00,NULL,20,NULL,'58 × 62 × 85 cm'),(10,10,'SKU-GIUONG-BOC-NI-VELVET',NULL,'Nỉ velvet',22900000.00,NULL,20,NULL,'180 × 200 × 110 cm'),(11,11,'SKU-GIUONG-GO-TU-NHIEN-SCANDINAVIAN',NULL,'Gỗ sồi',28500000.00,NULL,20,NULL,'160 × 200 × 95 cm'),(12,12,'SKU-TU-QUAN-AO-4-CANH',NULL,'Gỗ MDF',11000000.00,NULL,20,NULL,'200 × 60 × 220 cm'),(13,13,'SKU-KE-TIVI-TREO-TUONG',NULL,'Gỗ công nghiệp',9800000.00,NULL,20,NULL,'180 × 35 × 40 cm'),(14,14,'SKU-KE-SACH-GO-THONG',NULL,'Gỗ thông',7200000.00,NULL,20,NULL,'80 × 30 × 180 cm'),(15,15,'SKU-DEN-SAN-DONG-THAU',NULL,'Đồng thau',7900000.00,NULL,20,NULL,'Ø 40 × 160 cm'),(16,16,'SKU-DEN-THA-TRAN-MAY',NULL,'Mây tự nhiên',3400000.00,NULL,20,NULL,'Ø 55 × 40 cm'),(17,17,'SKU-DEN-BAN-GOM',NULL,'Gốm',1900000.00,NULL,20,NULL,'Ø 25 × 45 cm'),(18,18,'SKU-BAN-TRA-MAT-KINH',NULL,'Kính cường lực',5600000.00,NULL,20,NULL,'120 × 60 × 42 cm'),(19,19,'SKU-GUONG-TRANG-TRI-VIEN-VANG',NULL,'Hợp kim mạ',3100000.00,NULL,20,NULL,'60 × 90 cm'),(20,20,'SOFADEN_NHAM_001',NULL,'da bò',7500000.00,NULL,20,NULL,NULL);
 /*!40000 ALTER TABLE `product_variants` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -393,7 +393,7 @@ CREATE TABLE `products` (
   `content` longtext DEFAULT NULL,
   `brand` varchar(100) DEFAULT NULL,
   `view_count` int(11) DEFAULT 0,
-  `status` tinyint(1) DEFAULT 1 COMMENT '1: Äang bĂ¡n, 0: Ngá»«ng bĂ¡n',
+  `status` tinyint(1) DEFAULT 1 COMMENT '1: Đang bán, 0: Ngừng bán',
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `deleted_at` datetime DEFAULT NULL,
@@ -410,7 +410,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES (1,1,'Sofa da Ă Milano','sofa-da-y-milano','Sofa ba chá»— bá»c da bĂ² Ă nguyĂªn táº¥m, khung gá»— sá»“i sáº¥y khĂ´ vĂ  Ä‘á»‡m mĂºt Ä‘Ă n há»“i cao cáº¥p, giá»¯ phom bá»n theo thá»i gian.',NULL,NULL,26,1,'2026-10-08 09:00:01','2026-10-19 14:41:04',NULL),(2,1,'Sofa váº£i linen Oslo','sofa-vai-linen-oslo','Sofa váº£i linen thoĂ¡ng mĂ¡t, Ä‘Æ°á»ng may tá»‰ má»‰, chĂ¢n gá»— cháº¿ tĂ¡c thá»§ cĂ´ng, phĂ¹ há»£p khĂ´ng gian sá»‘ng tá»‘i giáº£n.',NULL,NULL,33,1,'2026-10-08 09:00:01','2026-10-18 19:49:55',NULL),(3,1,'Sofa gĂ³c Báº¯c Ă‚u','sofa-goc-bac-au','Sofa gĂ³c chá»¯ L phong cĂ¡ch Báº¯c Ă‚u, cĂ¡c mĂ´-Ä‘un thĂ¡o rá»i vĂ  Ä‘á»•i hÆ°á»›ng linh hoáº¡t theo bá»‘ cá»¥c phĂ²ng.',NULL,NULL,30,1,'2026-10-08 09:00:01','2026-10-18 19:49:55',NULL),(4,2,'BĂ n Äƒn Ä‘Ă¡ marble Carrara','ban-an-da-marble-carrara','BĂ n Äƒn máº·t Ä‘Ă¡ marble Carrara nháº­p kháº©u, chĂ¢n kim loáº¡i máº¡ titan chá»‘ng gá»‰, máº·t bĂ n Ä‘Æ°á»£c xá»­ lĂ½ chá»‘ng tháº¥m.',NULL,NULL,31,1,'2026-10-08 09:00:01','2026-10-18 19:49:55',NULL),(5,2,'BĂ n Äƒn gá»— sá»“i Nga','ban-an-go-soi-nga','BĂ n Äƒn gá»— sá»“i Nga nguyĂªn khá»‘i, phá»§ dáº§u báº£o vá»‡ tá»± nhiĂªn giá»¯ trá»n vĂ¢n gá»— vĂ  Ä‘á»™ áº¥m cá»§a cháº¥t liá»‡u.',NULL,NULL,22,1,'2026-10-08 09:00:01','2026-10-18 19:49:55',NULL),(6,3,'Gháº¿ Äƒn da bá»c Ă','ghe-an-da-boc-y','Gháº¿ Äƒn bá»c da cĂ´ng nghiá»‡p cao cáº¥p, khung thĂ©p chá»‹u lá»±c, Ä‘á»‡m Ăªm vá»«a váº·n cho bá»¯a Äƒn dĂ i.',NULL,NULL,22,1,'2026-10-08 09:00:01','2026-10-18 19:49:55',NULL),(7,3,'Gháº¿ thÆ° giĂ£n gá»— Ă³c chĂ³','ghe-thu-gian-go-oc-cho','Gháº¿ thÆ° giĂ£n gá»— Ă³c chĂ³, tá»±a lÆ°ng cong theo cÆ¡ thá»ƒ, Ä‘á»‡m váº£i nháº­p kháº©u táº¡o cáº£m giĂ¡c dá»… chá»‹u khi Ä‘á»c sĂ¡ch.',NULL,NULL,24,1,'2026-10-08 09:00:01','2026-10-18 19:49:55',NULL),(8,3,'Gháº¿ cĂ´ng thĂ¡i há»c Ergo','ghe-cong-thai-hoc-ergo','Gháº¿ cĂ´ng thĂ¡i há»c lÆ°ng lÆ°á»›i, tá»±a Ä‘áº§u vĂ  tay vá»‹n Ä‘iá»u chá»‰nh ba hÆ°á»›ng, há»— trá»£ cá»™t sá»‘ng khi lĂ m viá»‡c dĂ i.',NULL,NULL,22,1,'2026-10-08 09:00:01','2026-10-18 19:49:55',NULL),(9,3,'Gháº¿ ngoĂ i trá»i gá»— teak','ghe-ngoai-troi-go-teak','Gháº¿ ngoĂ i trá»i gá»— teak chá»‘ng má»‘i má»t vĂ  chá»‹u Ä‘Æ°á»£c mÆ°a náº¯ng, phĂ¹ há»£p ban cĂ´ng, sĂ¢n vÆ°á»n.',NULL,NULL,22,1,'2026-10-08 09:00:01','2026-10-18 19:49:55',NULL),(10,4,'GiÆ°á»ng ngá»§ bá»c ná»‰ Velvet','giuong-boc-ni-velvet','GiÆ°á»ng bá»c ná»‰ velvet vá»›i Ä‘áº§u giÆ°á»ng cao, khung gá»— cháº¯c cháº¯n vĂ  há»‡ nan Ä‘á»‡m Ăªm Ă¡i.',NULL,NULL,22,1,'2026-10-08 09:00:01','2026-10-18 19:49:55',NULL),(11,4,'GiÆ°á»ng gá»— tá»± nhiĂªn Scandinavian','giuong-go-tu-nhien-scandinavian','GiÆ°á»ng gá»— sá»“i tá»± nhiĂªn tá»‘i giáº£n, bá» máº·t phá»§ dáº§u má» an toĂ n cho sá»©c khá»e vĂ  dá»… vá»‡ sinh.',NULL,NULL,22,1,'2026-10-08 09:00:01','2026-10-18 19:49:55',NULL),(12,5,'Tá»§ quáº§n Ă¡o 4 cĂ¡nh','tu-quan-ao-4-canh','Tá»§ quáº§n Ă¡o bá»‘n cĂ¡nh gá»— MDF chá»‘ng áº©m, ray giáº£m cháº¥n vĂ  há»‡ ngÄƒn chia tiá»‡n dá»¥ng.',NULL,NULL,30,1,'2026-10-08 09:00:02','2026-10-19 15:16:34',NULL),(13,5,'Ká»‡ tivi treo tÆ°á»ng','ke-tivi-treo-tuong','Ká»‡ tivi treo tÆ°á»ng gá»n gĂ ng, cĂ³ lá»— Ä‘i dĂ¢y Ä‘iá»‡n vĂ  táº£i trá»ng tá»›i 60 kg.',NULL,NULL,25,1,'2026-10-08 09:00:02','2026-10-19 15:06:45',NULL),(14,5,'Ká»‡ sĂ¡ch gá»— thĂ´ng','ke-sach-go-thong','Ká»‡ sĂ¡ch gá»— thĂ´ng nÄƒm táº§ng, thiáº¿t káº¿ má»Ÿ giĂºp gĂ³c lĂ m viá»‡c thoĂ¡ng Ä‘Ă£ng vĂ  dá»… sáº¯p xáº¿p.',NULL,NULL,22,1,'2026-10-08 09:00:02','2026-10-18 19:49:55',NULL),(15,6,'ÄĂ¨n sĂ n Ä‘á»“ng thau','den-san-dong-thau','ÄĂ¨n sĂ n Ä‘á»“ng thau thĂ¢n máº£nh, chao váº£i táº£n sĂ¡ng dá»‹u, táº¡o Ä‘iá»ƒm nháº¥n cho gĂ³c Ä‘á»c sĂ¡ch.',NULL,NULL,22,1,'2026-10-08 09:00:02','2026-10-18 19:49:55',NULL),(16,6,'ÄĂ¨n tháº£ tráº§n mĂ¢y','den-tha-tran-may','ÄĂ¨n tháº£ tráº§n Ä‘an mĂ¢y tá»± nhiĂªn, Ă¡nh sĂ¡ng áº¥m Ă¡p, phĂ¹ há»£p treo trĂªn bĂ n Äƒn hoáº·c Ä‘áº£o báº¿p.',NULL,NULL,22,1,'2026-10-08 09:00:02','2026-10-18 19:49:55',NULL),(17,6,'ÄĂ¨n bĂ n gá»‘m','den-ban-gom','ÄĂ¨n bĂ n gá»‘m men má», chá»¥p váº£i, cho Ă¡nh sĂ¡ng vĂ ng áº¥m phĂ¹ há»£p bĂ n lĂ m viá»‡c vĂ  Ä‘áº§u giÆ°á»ng.',NULL,NULL,22,1,'2026-10-08 09:00:02','2026-10-18 19:49:55',NULL),(18,7,'BĂ n trĂ  máº·t kĂ­nh','ban-tra-mat-kinh','BĂ n trĂ  máº·t kĂ­nh cÆ°á»ng lá»±c 12 mm, khung inox máº¡ vĂ ng sang trá»ng, dá»… lau chĂ¹i.',NULL,NULL,22,1,'2026-10-08 09:00:02','2026-10-18 19:49:55',NULL),(19,7,'GÆ°Æ¡ng trang trĂ­ viá»n máº¡ vĂ ng','guong-trang-tri-vien-vang','GÆ°Æ¡ng trang trĂ­ viá»n há»£p kim máº¡ vĂ ng, treo ngang hoáº·c dá»c Ä‘á»u cĂ¢n Ä‘á»‘i cho phĂ²ng ngá»§.',NULL,NULL,22,1,'2026-10-08 09:00:02','2026-10-18 19:49:55',NULL),(20,1,'Sofa Äen NhĂ¡m','sofaden-nham','sofa cao cáº¥p',NULL,NULL,111,1,'2026-10-15 16:33:12','2026-10-19 07:46:28',NULL);
+INSERT INTO `products` VALUES (1,1,'Sofa da Ý Milano','sofa-da-y-milano','Sofa ba chỗ bọc da bò Ý nguyên tấm, khung gỗ sồi sấy khô và đệm mút đàn hồi cao cấp, giữ phom bền theo thời gian.',NULL,NULL,28,1,'2026-10-08 09:00:01','2026-10-21 10:45:37',NULL),(2,1,'Sofa vải linen Oslo','sofa-vai-linen-oslo','Sofa vải linen thoáng mát, đường may tỉ mỉ, chân gỗ chế tác thủ công, phù hợp không gian sống tối giản.',NULL,NULL,33,1,'2026-10-08 09:00:01','2026-10-18 19:49:55',NULL),(3,1,'Sofa góc Bắc Âu','sofa-goc-bac-au','Sofa góc chữ L phong cách Bắc Âu, các mô-đun tháo rời và đổi hướng linh hoạt theo bố cục phòng.',NULL,NULL,30,1,'2026-10-08 09:00:01','2026-10-18 19:49:55',NULL),(4,2,'Bàn ăn đá marble Carrara','ban-an-da-marble-carrara','Bàn ăn mặt đá marble Carrara nhập khẩu, chân kim loại mạ titan chống gỉ, mặt bàn được xử lý chống thấm.',NULL,NULL,31,1,'2026-10-08 09:00:01','2026-10-18 19:49:55',NULL),(5,2,'Bàn ăn gỗ sồi Nga','ban-an-go-soi-nga','Bàn ăn gỗ sồi Nga nguyên khối, phủ dầu bảo vệ tự nhiên giữ trọn vân gỗ và độ ấm của chất liệu.',NULL,NULL,22,1,'2026-10-08 09:00:01','2026-10-18 19:49:55',NULL),(6,3,'Ghế ăn da bọc Ý','ghe-an-da-boc-y','Ghế ăn bọc da công nghiệp cao cấp, khung thép chịu lực, đệm êm vừa vặn cho bữa ăn dài.',NULL,NULL,22,1,'2026-10-08 09:00:01','2026-10-18 19:49:55',NULL),(7,3,'Ghế thư giãn gỗ óc chó','ghe-thu-gian-go-oc-cho','Ghế thư giãn gỗ óc chó, tựa lưng cong theo cơ thể, đệm vải nhập khẩu tạo cảm giác dễ chịu khi đọc sách.',NULL,NULL,24,1,'2026-10-08 09:00:01','2026-10-18 19:49:55',NULL),(8,3,'Ghế công thái học Ergo','ghe-cong-thai-hoc-ergo','Ghế công thái học lưng lưới, tựa đầu và tay vịn điều chỉnh ba hướng, hỗ trợ cột sống khi làm việc dài.',NULL,NULL,22,1,'2026-10-08 09:00:01','2026-10-18 19:49:55',NULL),(9,3,'Ghế ngoài trời gỗ teak','ghe-ngoai-troi-go-teak','Ghế ngoài trời gỗ teak chống mối mọt và chịu được mưa nắng, phù hợp ban công, sân vườn.',NULL,NULL,22,1,'2026-10-08 09:00:01','2026-10-18 19:49:55',NULL),(10,4,'Giường ngủ bọc nỉ Velvet','giuong-boc-ni-velvet','Giường bọc nỉ velvet với đầu giường cao, khung gỗ chắc chắn và hệ nan đệm êm ái.',NULL,NULL,22,1,'2026-10-08 09:00:01','2026-10-18 19:49:55',NULL),(11,4,'Giường gỗ tự nhiên Scandinavian','giuong-go-tu-nhien-scandinavian','Giường gỗ sồi tự nhiên tối giản, bề mặt phủ dầu mờ an toàn cho sức khỏe và dễ vệ sinh.',NULL,NULL,22,1,'2026-10-08 09:00:01','2026-10-18 19:49:55',NULL),(12,5,'Tủ quần áo 4 cánh','tu-quan-ao-4-canh','Tủ quần áo bốn cánh gỗ MDF chống ẩm, ray giảm chấn và hệ ngăn chia tiện dụng.',NULL,NULL,31,1,'2026-10-08 09:00:02','2026-10-21 10:25:39',NULL),(13,5,'Kệ tivi treo tường','ke-tivi-treo-tuong','Kệ tivi treo tường gọn gàng, có lỗ đi dây điện và tải trọng tới 60 kg.',NULL,NULL,25,1,'2026-10-08 09:00:02','2026-10-19 15:06:45',NULL),(14,5,'Kệ sách gỗ thông','ke-sach-go-thong','Kệ sách gỗ thông năm tầng, thiết kế mở giúp góc làm việc thoáng đãng và dễ sắp xếp.',NULL,NULL,22,1,'2026-10-08 09:00:02','2026-10-18 19:49:55',NULL),(15,6,'Đèn sàn đồng thau','den-san-dong-thau','Đèn sàn đồng thau thân mảnh, chao vải tản sáng dịu, tạo điểm nhấn cho góc đọc sách.',NULL,NULL,22,1,'2026-10-08 09:00:02','2026-10-18 19:49:55',NULL),(16,6,'Đèn thả trần mây','den-tha-tran-may','Đèn thả trần đan mây tự nhiên, ánh sáng ấm áp, phù hợp treo trên bàn ăn hoặc đảo bếp.',NULL,NULL,22,1,'2026-10-08 09:00:02','2026-10-18 19:49:55',NULL),(17,6,'Đèn bàn gốm','den-ban-gom','Đèn bàn gốm men mờ, chụp vải, cho ánh sáng vàng ấm phù hợp bàn làm việc và đầu giường.',NULL,NULL,22,1,'2026-10-08 09:00:02','2026-10-18 19:49:55',NULL),(18,7,'Bàn trà mặt kính','ban-tra-mat-kinh','Bàn trà mặt kính cường lực 12 mm, khung inox mạ vàng sang trọng, dễ lau chùi.',NULL,NULL,22,1,'2026-10-08 09:00:02','2026-10-18 19:49:55',NULL),(19,7,'Gương trang trí viền mạ vàng','guong-trang-tri-vien-vang','Gương trang trí viền hợp kim mạ vàng, treo ngang hoặc dọc đều cân đối cho phòng ngủ.',NULL,NULL,22,1,'2026-10-08 09:00:02','2026-10-18 19:49:55',NULL),(20,1,'Sofa Đen Nhám','sofaden-nham','sofa cao cấp',NULL,NULL,111,1,'2026-10-15 16:33:12','2026-10-19 07:46:28',NULL);
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -471,7 +471,7 @@ CREATE TABLE `roles` (
 
 LOCK TABLES `roles` WRITE;
 /*!40000 ALTER TABLE `roles` DISABLE KEYS */;
-INSERT INTO `roles` VALUES (1,'admin','Quáº£n trá»‹ viĂªn toĂ n quyá»n'),(2,'seller','NgÆ°á»i bĂ¡n hĂ ng, quáº£n lĂ½ sáº£n pháº©m, Ä‘Æ¡n hĂ ng'),(3,'customer','KhĂ¡ch mua hĂ ng');
+INSERT INTO `roles` VALUES (1,'admin','Quản trị viên toàn quyền'),(2,'seller','Người bán hàng, quản lý sản phẩm, đơn hàng'),(3,'customer','Khách mua hàng');
 /*!40000 ALTER TABLE `roles` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -485,7 +485,7 @@ DROP TABLE IF EXISTS `shopping_carts`;
 CREATE TABLE `shopping_carts` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) unsigned DEFAULT NULL,
-  `session_id` varchar(255) DEFAULT NULL COMMENT 'DĂ nh cho khĂ¡ch chÆ°a Ä‘Äƒng nháº­p',
+  `session_id` varchar(255) DEFAULT NULL COMMENT 'Dành cho khách chưa đăng nhập',
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`id`),
@@ -597,7 +597,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,3,'hi@gmail.com','$2b$10$H3ndNj83h9RJ8QOHeiDei.5W0.REvZ.zcKgKV10Tv5AJTcL3QLnH.','hi','0903456789',NULL,1,'2026-10-09 06:18:11','2026-10-16 12:13:46',NULL),(2,3,'test@gmail.com','guest_no_login','Nguyá»…n VÄƒn Test','0988776655',NULL,1,'2026-10-09 06:45:38','2026-10-09 06:45:38',NULL),(3,3,'truongvy6272005@gmail.com','guest_no_login','vy truong','0123456789',NULL,1,'2026-10-09 07:29:42','2026-10-09 07:29:42',NULL),(4,3,'truongvy2762005@gmail.com','GOOGLE_OAUTH_ACCOUNT','Vá»¹ kC',NULL,'https://lh3.googleusercontent.com/a/ACg8ocJ2NPbtjfbyyXQ6uch4KEjQnd--kzitj9wQpAmn2toz_4Tn4Bo=s96-c',1,'2026-10-15 05:57:00','2026-10-15 05:57:00',NULL),(5,3,'truongvy1022@gmail.com','GOOGLE_OAUTH_ACCOUNT','TC Vá»¹',NULL,'https://lh3.googleusercontent.com/a/ACg8ocLhZ6L4w2K-WVrG7afxpApEK-nu_0Wpy6X0FIBpJWPBMPTP2KQ=s96-c',1,'2026-10-15 06:20:28','2026-10-15 06:20:28',NULL),(6,1,'admin@noithat.vn','$2b$10$pZW98jYWOjFUbibKOUiAPuAIEQyHsLYFTzkVF4oowryYGtmgu0agG','Quáº£n Trá»‹ ViĂªn Cáº¥p Cao',NULL,NULL,1,'2026-10-16 05:07:04','2026-10-16 05:07:04',NULL),(7,1,'huuloi230605@gmail.com','$2b$10$eEOn1NBbmWBILnUzlZ6qHepjpy2xYhXV9ecPFrZYj7vOURP07GlDq','Pháº¡m Há»¯u Lá»£i',NULL,'https://lh3.googleusercontent.com/a/ACg8ocLzhk1m_1LhcUGjj9gfktop0CQekD7_cbSo3lFwSz1ZgAnUK4_EBA=s96-c',1,'2026-10-18 12:53:49','2026-10-18 20:10:05',NULL);
+INSERT INTO `users` VALUES (1,3,'hi@gmail.com','$2b$10$H3ndNj83h9RJ8QOHeiDei.5W0.REvZ.zcKgKV10Tv5AJTcL3QLnH.','hi','0903456789',NULL,1,'2026-10-09 06:18:11','2026-10-16 12:13:46',NULL),(2,3,'test@gmail.com','guest_no_login','Nguyễn Văn Test','0988776655',NULL,1,'2026-10-09 06:45:38','2026-10-09 06:45:38',NULL),(3,3,'truongvy6272005@gmail.com','guest_no_login','vy truong','0123456789',NULL,1,'2026-10-09 07:29:42','2026-10-09 07:29:42',NULL),(4,3,'truongvy2762005@gmail.com','GOOGLE_OAUTH_ACCOUNT','Vỹ kC',NULL,'https://lh3.googleusercontent.com/a/ACg8ocJ2NPbtjfbyyXQ6uch4KEjQnd--kzitj9wQpAmn2toz_4Tn4Bo=s96-c',1,'2026-10-15 05:57:00','2026-10-15 05:57:00',NULL),(5,3,'truongvy1022@gmail.com','GOOGLE_OAUTH_ACCOUNT','TC Vỹ',NULL,'https://lh3.googleusercontent.com/a/ACg8ocLhZ6L4w2K-WVrG7afxpApEK-nu_0Wpy6X0FIBpJWPBMPTP2KQ=s96-c',1,'2026-10-15 06:20:28','2026-10-15 06:20:28',NULL),(6,1,'admin@noithat.vn','$2b$10$pZW98jYWOjFUbibKOUiAPuAIEQyHsLYFTzkVF4oowryYGtmgu0agG','Quản Trị Viên Cấp Cao',NULL,NULL,1,'2026-10-16 05:07:04','2026-10-16 05:07:04',NULL),(7,1,'huuloi230605@gmail.com','$2b$10$eEOn1NBbmWBILnUzlZ6qHepjpy2xYhXV9ecPFrZYj7vOURP07GlDq','Phạm Hữu Lợi',NULL,'https://lh3.googleusercontent.com/a/ACg8ocLzhk1m_1LhcUGjj9gfktop0CQekD7_cbSo3lFwSz1ZgAnUK4_EBA=s96-c',1,'2026-10-18 12:53:49','2026-10-18 20:10:05',NULL);
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -631,10 +631,6 @@ LOCK TABLES `wishlists` WRITE;
 INSERT INTO `wishlists` VALUES (2,4,13,'2026-10-16 08:09:57');
 /*!40000 ALTER TABLE `wishlists` ENABLE KEYS */;
 UNLOCK TABLES;
-
---
--- Dumping routines for database 'web_ban_noi_that'
---
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -645,4 +641,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-10-19 15:59:00
+-- Dump completed on 2026-10-21 10:46:22

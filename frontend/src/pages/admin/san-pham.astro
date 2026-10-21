@@ -41,6 +41,7 @@ try {
         space: p.space || 'phong-khach',
         spaceLabel: p.spaceLabel || 'Phòng khách',
         price: p.price,
+        stock: p.stock !== undefined ? Number(p.stock) : 20,
         material: p.material || '',
         image: p.thumbnail || initialProducts.find((ip) => ip.slug === p.slug)?.image || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80',
         status: (p.stock === 0) ? 'het-hang' : (p.status === false ? 'nhap' : 'con-hang'),
@@ -59,6 +60,7 @@ if (rows.length === 0) {
     ...product,
     id: undefined,
     image: (product as any).image || (product as any).thumbnail || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80',
+    stock: tonKhoDefault[product.slug] === 'het-hang' ? 0 : 20,
     status: tonKhoDefault[product.slug] ?? 'con-hang',
     detail: productDetails[product.slug] ?? {
       description: 'Sản phẩm thủ công cao cấp.',
@@ -175,6 +177,7 @@ const stats = [
             <th scope="col" class="px-4 py-3.5 font-medium">Danh mục</th>
             <th scope="col" class="px-4 py-3.5 font-medium">Không gian</th>
             <th scope="col" class="px-4 py-3.5 font-medium">Đơn giá</th>
+            <th scope="col" class="px-4 py-3.5 font-medium">Tồn kho</th>
             <th scope="col" class="px-4 py-3.5 font-medium">Trạng thái</th>
             <th scope="col" class="px-4 py-3.5 font-medium text-right">Thao tác</th>
           </tr>
@@ -190,6 +193,7 @@ const stats = [
               data-category={row.category}
               data-space={row.space}
               data-price={row.price}
+              data-stock={row.stock}
               data-material={row.material}
               data-status={row.status}
               data-desc={row.detail?.description}
@@ -219,6 +223,17 @@ const stats = [
               </td>
               <td class="px-4 py-3.5 align-middle text-sm font-semibold text-clay-600">
                 {formatVnd(row.price)}
+              </td>
+              <td class="px-4 py-3.5 align-middle">
+                <span
+                  data-stock-badge
+                  class:list={[
+                    'inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded',
+                    row.stock > 0 ? 'text-emerald-800 bg-emerald-50 border border-emerald-200' : 'text-danger-600 bg-danger-600/10 border border-red-200'
+                  ]}
+                >
+                  {row.stock > 0 ? `${row.stock} sp` : 'Hết hàng (0)'}
+                </span>
               </td>
               <td class="px-4 py-3.5 align-middle">
                 <button
@@ -272,186 +287,226 @@ const stats = [
     <nav data-adm-pagination aria-label="Phân trang" class="mt-6 flex flex-wrap items-center justify-center gap-2"></nav>
   </section>
 
-  <!-- MODAL: THÊM / SỬA SẢN PHẨM (KÈM BỎ ẢNH VÀO NHƯ ẢNH 2) -->
-  <div id="product-modal" class="fixed inset-0 z-50 hidden bg-walnut-900/60 backdrop-blur-sm overflow-y-auto p-4 flex items-center justify-center">
-    <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-2xl p-6 sm:p-8 shadow-xl relative my-8 max-h-[92vh] overflow-y-auto">
-      <div class="flex items-center justify-between border-b border-walnut-900/10 pb-4">
-        <div>
-          <p class="text-[10px] uppercase tracking-[0.2em] text-walnut-800">Quản trị kho hàng</p>
-          <h2 id="modal-title" class="text-xl font-display text-walnut-900 mt-1">Thêm sản phẩm mới</h2>
+  <!-- MODAL: THÊM / SỬA SẢN PHẨM (THIẾT KẾ HOÀNG GIA KTUFA) -->
+  <div id="product-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs p-4 flex items-center justify-center">
+    <div class="bg-sand-50 border border-walnut-900/30 w-full max-w-2xl shadow-2xl rounded-none relative my-4 max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- MODAL HEADER: XANH WALNUT #173524 + VIỀN VÀNG CHAMPAGNE -->
+      <div class="relative bg-[#173524] px-6 py-4.5 sm:px-8 border-b border-[#D8B670]/40 flex items-center justify-between shrink-0 shadow-md">
+        <!-- Đường line chỉ vàng Champagne trên đỉnh -->
+        <div class="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#D8B670] via-[#F3E5AB] to-[#C49E52]"></div>
+        
+        <div class="flex items-center gap-3">
+          <div class="h-9 w-9 rounded bg-[#D8B670]/15 border border-[#D8B670]/30 flex items-center justify-center text-[#D8B670] shrink-0">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase tracking-[0.22em] text-[#D8B670] font-semibold flex items-center gap-1.5">
+              <span>QUẢN TRỊ KHO HÀNG</span>
+            </p>
+            <h2 id="modal-title" class="text-lg sm:text-xl font-display font-bold text-white tracking-wide mt-0.5">
+              Thêm sản phẩm mới
+            </h2>
+          </div>
         </div>
-        <button type="button" id="btn-close-modal" class="text-walnut-800 hover:text-danger-600 p-1 cursor-pointer" aria-label="Đóng modal">
-          <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+
+        <button 
+          type="button" 
+          id="btn-close-modal" 
+          class="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 text-sand-200 hover:text-white flex items-center justify-center transition-all hover:rotate-90 cursor-pointer border border-white/10" 
+          aria-label="Đóng modal"
+        >
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
 
-      <form id="product-form" class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <input type="hidden" id="form-mode" value="add" />
-        <input type="hidden" id="form-original-slug" value="" />
+      <!-- FORM WRAPPER: BODY CUỘN MƯỢT + FOOTER CỐ ĐỊNH -->
+      <form id="product-form" class="flex flex-col flex-1 overflow-hidden">
+        <!-- MODAL BODY: CUỘN MƯỢT -->
+        <div class="p-6 sm:p-8 overflow-y-auto flex-1 grid grid-cols-1 gap-4 sm:grid-cols-2 bg-[#FAF8F5]">
+          <input type="hidden" id="form-mode" value="add" />
+          <input type="hidden" id="form-original-slug" value="" />
 
-        <div class="sm:col-span-2">
-          <label for="prod-name" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Tên sản phẩm *</label>
-          <input type="text" id="prod-name" required placeholder="Ví dụ: Sofa da Ý Milano" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50" />
-        </div>
-
-        <div>
-          <label for="prod-slug" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Slug đường dẫn *</label>
-          <input type="text" id="prod-slug" required placeholder="sofa-da-y-milano" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50" />
-          <p class="mt-1 text-[11px] text-walnut-800/60">Tự động sinh từ tên sản phẩm để làm link URL.</p>
-        </div>
-
-        <div>
-          <label for="prod-price" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Đơn giá (VNĐ) *</label>
-          <input type="number" id="prod-price" required min="100000" step="100000" placeholder="15000000" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50" />
-        </div>
-
-        <div>
-          <label for="prod-category" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Danh mục *</label>
-          <select id="prod-category" required class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 cursor-pointer">
-            {categories.map((c) => <option value={c.key}>{c.label}</option>)}
-          </select>
-        </div>
-
-        <div>
-          <label for="prod-space" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Không gian *</label>
-          <select id="prod-space" required class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 cursor-pointer">
-            {spaces.map((s) => <option value={s.key}>{s.label}</option>)}
-          </select>
-        </div>
-
-        <div>
-          <label for="prod-material" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Chất liệu *</label>
-          <input type="text" id="prod-material" required placeholder="Gỗ sồi, Da bò..." class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50" />
-        </div>
-
-        <div>
-          <label for="prod-status" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Trạng thái kho</label>
-          <select id="prod-status" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 cursor-pointer">
-            <option value="con-hang">Đang bán</option>
-            <option value="het-hang">Hết hàng</option>
-            <option value="nhap">Nháp</option>
-          </select>
-        </div>
-
-        <div>
-          <label for="prod-dimensions" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Kích thước</label>
-          <input type="text" id="prod-dimensions" placeholder="200 × 90 × 75 cm" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50" />
-        </div>
-
-        <div>
-          <label for="prod-warranty" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Thời gian bảo hành</label>
-          <input type="text" id="prod-warranty" placeholder="24 tháng" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50" />
-        </div>
-
-        <div class="sm:col-span-2">
-          <label for="prod-desc" class="block text-xs uppercase tracking-[0.15em] text-walnut-800">Mô tả sản phẩm</label>
-          <textarea id="prod-desc" rows="2" placeholder="Chi tiết chế tác, đệm mút, chất liệu..." class="mt-1.5 w-full border border-walnut-900/20 bg-sand-100/50 px-3.5 py-2.5 text-sm outline-none focus:border-clay-600 focus:bg-sand-50"></textarea>
-        </div>
-
-        <!-- KHU VỰC HÌNH ẢNH SẢN PHẨM -->
-        <div class="sm:col-span-2 border-t border-walnut-900/10 pt-4 mt-1">
-          <div class="flex items-center gap-2 mb-3">
-            <svg class="h-4 w-4 text-clay-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span class="text-xs font-bold uppercase tracking-wider text-walnut-900">Hình ảnh sản phẩm</span>
+          <div class="sm:col-span-2">
+            <label for="prod-name" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold">Tên sản phẩm *</label>
+            <input type="text" id="prod-name" required placeholder="Ví dụ: Sofa da Ý Milano" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-[#173524] focus:ring-1 focus:ring-[#173524] transition-colors" />
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <!-- CỘT 1: ẢNH CHÍNH SẢN PHẨM -->
-            <div>
-              <div class="flex items-center justify-between mb-1.5">
-                <label class="block text-[11px] font-bold uppercase tracking-wider text-walnut-800">Ảnh chính sản phẩm *</label>
-                <span id="upload-status-badge" class="hidden text-[10px] text-clay-600 font-medium">Đang tải lên...</span>
-              </div>
-              
-              <input 
-                type="file" 
-                id="prod-main-img-file" 
-                accept="image/*"
-                class="hidden"
-              />
-              
-              <!-- Khung nét đứt bấm để chọn ảnh hoặc hiển thị preview ảnh chính -->
-              <div 
-                id="main-dropzone" 
-                class="border-2 border-dashed border-walnut-900/25 rounded p-3 text-center hover:border-clay-600 hover:bg-sand-100/50 transition-colors cursor-pointer flex flex-col items-center justify-center min-h-[120px] relative bg-sand-100/30"
-              >
-                <!-- Placeholder khi chưa có ảnh -->
-                <div id="main-dropzone-placeholder" class="flex flex-col items-center gap-1.5 text-walnut-800/70">
-                  <div class="h-8 w-8 rounded-full bg-sand-200 flex items-center justify-center text-clay-600">
-                    <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <span class="text-xs font-medium text-walnut-900">Bấm để tải ảnh từ máy tính</span>
-                  <span class="text-[10px] text-walnut-800/50">JPG, PNG, WEBP (Tối đa 10MB)</span>
-                </div>
+          <div>
+            <label for="prod-slug" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold">Slug đường dẫn *</label>
+            <input type="text" id="prod-slug" required placeholder="sofa-da-y-milano" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-[#173524] focus:ring-1 focus:ring-[#173524] transition-colors" />
+            <p class="mt-1 text-[11px] text-walnut-800/60">Tự động sinh từ tên sản phẩm để làm link URL.</p>
+          </div>
 
-                <!-- Spinner tải ảnh -->
-                <div id="main-upload-spinner" class="hidden flex flex-col items-center gap-1.5 py-3">
-                  <div class="h-5 w-5 border-2 border-clay-600 border-t-transparent rounded-full animate-spin"></div>
-                  <span class="text-xs text-clay-600 font-medium">Đang lưu ảnh lên hệ thống...</span>
-                </div>
+          <div>
+            <label for="prod-price" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold">Đơn giá (VNĐ) *</label>
+            <input type="number" id="prod-price" required min="100000" step="100000" placeholder="15000000" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-[#173524] focus:ring-1 focus:ring-[#173524] transition-colors" />
+          </div>
 
-                <!-- Preview ảnh chính khi đã có -->
-                <div id="main-preview-wrapper" class="hidden flex flex-col items-center gap-1.5 w-full">
-                  <img 
-                    id="main-dropzone-preview" 
-                    src="" 
-                    alt="Xem trước ảnh chính" 
-                    class="max-h-24 w-auto object-contain rounded shadow-sm border border-walnut-900/10"
-                  />
-                  <div class="flex items-center gap-3 mt-1">
-                    <span id="btn-change-main-img" class="text-[11px] text-clay-600 hover:underline font-medium cursor-pointer">Đổi ảnh</span>
-                    <span class="text-walnut-800/30">|</span>
-                    <span id="btn-remove-main-img" class="text-[11px] text-danger-600 hover:underline font-medium cursor-pointer">Xóa ảnh</span>
-                  </div>
-                </div>
-              </div>
+          <div>
+            <label for="prod-stock" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold">Số lượng tồn kho *</label>
+            <input type="number" id="prod-stock" required min="0" value="20" placeholder="Ví dụ: 50" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-[#173524] focus:ring-1 focus:ring-[#173524] transition-colors" />
+            <p class="mt-1 text-[11px] text-walnut-800/60">Nhập 0 sẽ tự động chuyển trạng thái thành hết hàng.</p>
+          </div>
 
-              <!-- Dán URL trực tiếp -->
-              <div class="mt-2">
+          <div>
+            <label for="prod-category" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold">Danh mục *</label>
+            <select id="prod-category" required class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-[#173524] focus:ring-1 focus:ring-[#173524] cursor-pointer">
+              {categories.map((c) => <option value={c.key}>{c.label}</option>)}
+            </select>
+          </div>
+
+          <div>
+            <label for="prod-space" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold">Không gian *</label>
+            <select id="prod-space" required class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-[#173524] focus:ring-1 focus:ring-[#173524] cursor-pointer">
+              {spaces.map((s) => <option value={s.key}>{s.label}</option>)}
+            </select>
+          </div>
+
+          <div>
+            <label for="prod-material" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold">Chất liệu *</label>
+            <input type="text" id="prod-material" required placeholder="Gỗ sồi, Da bò..." class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-[#173524] focus:ring-1 focus:ring-[#173524] transition-colors" />
+          </div>
+
+          <div>
+            <label for="prod-status" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold">Trạng thái kho</label>
+            <select id="prod-status" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-[#173524] focus:ring-1 focus:ring-[#173524] cursor-pointer">
+              <option value="con-hang">Đang bán</option>
+              <option value="het-hang">Hết hàng</option>
+              <option value="nhap">Nháp</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="prod-dimensions" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold">Kích thước</label>
+            <input type="text" id="prod-dimensions" placeholder="200 × 90 × 75 cm" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-[#173524] focus:ring-1 focus:ring-[#173524] transition-colors" />
+          </div>
+
+          <div>
+            <label for="prod-warranty" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold">Thời gian bảo hành</label>
+            <input type="text" id="prod-warranty" placeholder="24 tháng" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-[#173524] focus:ring-1 focus:ring-[#173524] transition-colors" />
+          </div>
+
+          <div class="sm:col-span-2">
+            <label for="prod-desc" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold">Mô tả sản phẩm</label>
+            <textarea id="prod-desc" rows="2" placeholder="Chi tiết chế tác, đệm mút, chất liệu..." class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-[#173524] focus:ring-1 focus:ring-[#173524] transition-colors"></textarea>
+          </div>
+
+          <!-- KHU VỰC HÌNH ẢNH SẢN PHẨM -->
+          <div class="sm:col-span-2 border-t border-walnut-900/10 pt-4 mt-1">
+            <div class="flex items-center gap-2 mb-3">
+              <svg class="h-4 w-4 text-clay-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span class="text-xs font-bold uppercase tracking-wider text-walnut-900">Hình ảnh sản phẩm</span>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- CỘT 1: ẢNH CHÍNH SẢN PHẨM -->
+              <div>
+                <div class="flex items-center justify-between mb-1.5">
+                  <label class="block text-[11px] font-bold uppercase tracking-wider text-walnut-800">Ảnh chính sản phẩm *</label>
+                  <span id="upload-status-badge" class="hidden text-[10px] text-clay-600 font-medium">Đang tải lên...</span>
+                </div>
+                
                 <input 
-                  type="url" 
-                  id="prod-main-img-url" 
-                  placeholder="Hoặc dán link ảnh trực tiếp (https://...)" 
-                  class="w-full border border-walnut-900/20 bg-sand-100/50 px-2.5 py-1.5 text-xs outline-none focus:border-clay-600 focus:bg-sand-50 rounded text-walnut-900"
+                  type="file" 
+                  id="prod-main-img-file" 
+                  accept="image/*"
+                  class="hidden"
                 />
-                <p id="prod-main-img-error" class="hidden mt-1.5 text-[11px] text-danger-600 font-medium leading-relaxed">
-                  ⚠️ Link này không tải được ảnh. Hãy chuột phải vào ảnh trên mạng &rarr; chọn <strong>"Sao chép địa chỉ hình ảnh"</strong> (Copy image address) thay vì copy link cả trang web bài viết.
-                </p>
+                
+                <!-- Khung nét đứt bấm để chọn ảnh hoặc hiển thị preview ảnh chính -->
+                <div 
+                  id="main-dropzone" 
+                  class="border-2 border-dashed border-walnut-900/25 rounded p-3 text-center hover:border-clay-600 hover:bg-sand-100/50 transition-colors cursor-pointer flex flex-col items-center justify-center min-h-[120px] relative bg-sand-100/30"
+                >
+                  <!-- Placeholder khi chưa có ảnh -->
+                  <div id="main-dropzone-placeholder" class="flex flex-col items-center gap-1.5 text-walnut-800/70">
+                    <div class="h-8 w-8 rounded-full bg-sand-200 flex items-center justify-center text-clay-600">
+                      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <span class="text-xs font-medium text-walnut-900">Bấm để tải ảnh từ máy tính</span>
+                    <span class="text-[10px] text-walnut-800/50">JPG, PNG, WEBP (Tối đa 10MB)</span>
+                  </div>
+
+                  <!-- Spinner tải ảnh -->
+                  <div id="main-upload-spinner" class="hidden flex flex-col items-center gap-1.5 py-3">
+                    <div class="h-5 w-5 border-2 border-clay-600 border-t-transparent rounded-full animate-spin"></div>
+                    <span class="text-xs text-clay-600 font-medium">Đang lưu ảnh lên hệ thống...</span>
+                  </div>
+
+                  <!-- Preview ảnh chính khi đã có -->
+                  <div id="main-preview-wrapper" class="hidden flex flex-col items-center gap-1.5 w-full">
+                    <img 
+                      id="main-dropzone-preview" 
+                      src="" 
+                      alt="Xem trước ảnh chính" 
+                      class="max-h-24 w-auto object-contain rounded shadow-sm border border-walnut-900/10"
+                    />
+                    <div class="flex items-center gap-3 mt-1">
+                      <span id="btn-change-main-img" class="text-[11px] text-clay-600 hover:underline font-medium cursor-pointer">Đổi ảnh</span>
+                      <span class="text-walnut-800/30">|</span>
+                      <span id="btn-remove-main-img" class="text-[11px] text-danger-600 hover:underline font-medium cursor-pointer">Xóa ảnh</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Dán URL trực tiếp -->
+                <div class="mt-2">
+                  <input 
+                    type="url" 
+                    id="prod-main-img-url" 
+                    placeholder="Hoặc dán link ảnh trực tiếp (https://...)" 
+                    class="w-full border border-walnut-900/20 bg-sand-100/50 px-2.5 py-1.5 text-xs outline-none focus:border-clay-600 focus:bg-sand-50 rounded text-walnut-900"
+                  />
+                  <p id="prod-main-img-error" class="hidden mt-1.5 text-[11px] text-danger-600 font-medium leading-relaxed">
+                    ⚠️ Link này không tải được ảnh. Hãy chuột phải vào ảnh trên mạng &rarr; chọn <strong>"Sao chép địa chỉ hình ảnh"</strong> (Copy image address) thay vì copy link cả trang web bài viết.
+                  </p>
+                </div>
               </div>
-            </div>
 
-            <!-- CỘT 2: ẢNH CHI TIẾT (TỐI ĐA 3 ẢNH) -->
-            <div>
-              <label class="block text-[11px] font-bold uppercase tracking-wider text-walnut-800 mb-1.5">Ảnh chi tiết (Tối đa 3 ảnh)</label>
-              <input 
-                type="file" 
-                id="prod-detail-img-file" 
-                accept="image/*" 
-                multiple
-                class="block w-full text-xs text-walnut-800 file:mr-2 file:py-1.5 file:px-3 file:border file:border-walnut-900/20 file:text-xs file:bg-sand-100 file:text-walnut-900 hover:file:bg-sand-200 rounded border border-walnut-900/20 bg-sand-100/40 p-1 cursor-pointer"
-              />
+              <!-- CỘT 2: ẢNH CHI TIẾT (TỐI ĐA 3 ẢNH) -->
+              <div>
+                <label class="block text-[11px] font-bold uppercase tracking-wider text-walnut-800 mb-1.5">Ảnh chi tiết (Tối đa 3 ảnh)</label>
+                <input 
+                  type="file" 
+                  id="prod-detail-img-file" 
+                  accept="image/*" 
+                  multiple
+                  class="block w-full text-xs text-walnut-800 file:mr-2 file:py-1.5 file:px-3 file:border file:border-walnut-900/20 file:text-xs file:bg-sand-100 file:text-walnut-900 hover:file:bg-sand-200 rounded border border-walnut-900/20 bg-sand-100/40 p-1 cursor-pointer"
+                />
 
-              <!-- Preview các ảnh chi tiết -->
-              <div id="detail-previews-container" class="mt-2.5 grid grid-cols-3 gap-2 min-h-[120px] items-center border border-walnut-900/15 rounded p-2 bg-sand-50">
-                <p id="detail-previews-empty" class="col-span-3 text-center text-xs text-walnut-800/50 py-6">
-                  Chưa có ảnh chi tiết nào được chọn
-                </p>
+                <!-- Preview các ảnh chi tiết -->
+                <div id="detail-previews-container" class="mt-2.5 grid grid-cols-3 gap-2 min-h-[120px] items-center border border-walnut-900/15 rounded p-2 bg-sand-50">
+                  <p id="detail-previews-empty" class="col-span-3 text-center text-xs text-walnut-800/50 py-6">
+                    Chưa có ảnh chi tiết nào được chọn
+                  </p>
+                </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="sm:col-span-2 flex items-center justify-end gap-3 border-t border-walnut-900/10 pt-4 mt-2">
-          <button type="button" id="btn-cancel-modal" class="border border-walnut-900/20 px-5 py-2.5 text-xs uppercase tracking-[0.15em] text-walnut-800 hover:border-walnut-900 cursor-pointer">
+        <!-- MODAL FOOTER CỐ ĐỊNH Ở ĐÁY: TIỆN THAO TÁC MỌI LÚC -->
+        <div class="px-6 py-4 sm:px-8 bg-white border-t border-walnut-900/15 flex items-center justify-end gap-3 shrink-0 shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
+          <button 
+            type="button" 
+            id="btn-cancel-modal" 
+            class="border border-walnut-900/20 px-5 py-2.5 text-xs uppercase tracking-[0.15em] font-semibold text-walnut-800 hover:bg-sand-100 hover:border-walnut-900 transition-colors cursor-pointer"
+          >
             Hủy
           </button>
-          <button type="submit" class="bg-clay-600 px-6 py-2.5 text-xs uppercase tracking-[0.15em] text-sand-50 hover:bg-clay-500 shadow-sm cursor-pointer">
+          <button 
+            type="submit" 
+            class="bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] px-6 py-2.5 text-xs uppercase tracking-[0.18em] font-bold text-[#173524] hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#E0C582]/50"
+          >
             Lưu sản phẩm
           </button>
         </div>
@@ -464,21 +519,35 @@ const stats = [
     <span id="toast-message">Đã cập nhật sản phẩm thành công!</span>
   </div>
 
-  <!-- MODAL CONFIRM DELETE -->
-  <div id="delete-modal" class="fixed inset-0 z-50 hidden bg-walnut-900/60 backdrop-blur-sm p-4 flex items-center justify-center">
-    <div class="bg-sand-50 border border-walnut-900/20 w-full max-w-sm p-6 shadow-xl text-center">
-      <div class="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-danger-600/10 text-danger-600">
-        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
+  <!-- MODAL CONFIRM DELETE (THIẾT KẾ CẢNH BÁO CAO CẤP) -->
+  <div id="delete-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs p-4 flex items-center justify-center">
+    <div class="bg-white border border-red-900/30 w-full max-w-md shadow-2xl rounded-none overflow-hidden relative animate-in fade-in zoom-in-95 duration-200">
+      <!-- HEADER CẢNH BÁO ĐỎ RƯỢU VANG -->
+      <div class="relative bg-[#3b1212] px-6 py-4.5 border-b border-red-500/30 flex items-center justify-between">
+        <div class="absolute top-0 left-0 right-0 h-[2.5px] bg-red-500"></div>
+        <div class="flex items-center gap-3 text-red-100">
+          <div class="h-9 w-9 rounded-full bg-red-500/20 text-red-300 flex items-center justify-center shrink-0 border border-red-500/30">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase tracking-[0.2em] text-red-300 font-semibold">Cảnh báo hệ thống</p>
+            <h3 class="font-display text-base font-bold text-white tracking-wide">Xác nhận xóa sản phẩm</h3>
+          </div>
+        </div>
       </div>
-      <h3 class="mt-4 font-display text-lg text-walnut-900">Xác nhận xóa sản phẩm</h3>
-      <p id="delete-item-name" class="mt-2 text-xs text-walnut-800/80">Bạn có chắc chắn muốn xóa sản phẩm này không?</p>
-      <div class="mt-6 flex justify-center gap-3">
-        <button type="button" id="btn-cancel-delete" class="border border-walnut-900/20 px-4 py-2 text-xs uppercase tracking-[0.15em] text-walnut-800 hover:border-walnut-900 cursor-pointer">
+      
+      <div class="p-6 bg-[#FAF8F5]">
+        <p id="delete-item-name" class="text-sm text-walnut-900 leading-relaxed font-medium">Bạn có chắc chắn muốn xóa sản phẩm này không?</p>
+        <p class="mt-2 text-xs text-walnut-800/70">Thao tác này sẽ gỡ sản phẩm khỏi danh sách và cập nhật vào cơ sở dữ liệu.</p>
+      </div>
+
+      <div class="px-6 py-3.5 bg-white border-t border-walnut-900/10 flex justify-end gap-3">
+        <button type="button" id="btn-cancel-delete" class="border border-walnut-900/20 px-4 py-2 text-xs uppercase tracking-[0.15em] font-semibold text-walnut-800 hover:bg-sand-100 cursor-pointer">
           Hủy bỏ
         </button>
-        <button type="button" id="btn-confirm-delete" class="bg-danger-600 px-4 py-2 text-xs uppercase tracking-[0.15em] text-sand-50 hover:bg-danger-500 shadow-sm cursor-pointer">
+        <button type="button" id="btn-confirm-delete" class="bg-danger-600 px-5 py-2 text-xs uppercase tracking-[0.15em] text-white hover:bg-danger-500 font-bold shadow-md cursor-pointer">
           Xác nhận xóa
         </button>
       </div>
@@ -803,6 +872,7 @@ const stats = [
       modalTitle.textContent = 'Thêm sản phẩm mới';
       (document.getElementById('form-mode') as HTMLInputElement).value = 'add';
       (document.getElementById('form-original-slug') as HTMLInputElement).value = '';
+      (document.getElementById('prod-stock') as HTMLInputElement).value = '20';
       
       // Reset image preview
       currentUploadedMainUrl = '';
@@ -851,6 +921,7 @@ const stats = [
       const name = (document.getElementById('prod-name') as HTMLInputElement).value.trim();
       const slug = (document.getElementById('prod-slug') as HTMLInputElement).value.trim();
       const price = Number((document.getElementById('prod-price') as HTMLInputElement).value) || 0;
+      const stock = Math.max(0, parseInt((document.getElementById('prod-stock') as HTMLInputElement).value) || 0);
       const catSelectEl = document.getElementById('prod-category') as HTMLSelectElement;
       const cat = catSelectEl.value;
       const catLabel = catSelectEl.options[catSelectEl.selectedIndex].text;
@@ -858,7 +929,12 @@ const stats = [
       const space = spaceSelectEl.value;
       const spaceLabel = spaceSelectEl.options[spaceSelectEl.selectedIndex].text;
       const material = (document.getElementById('prod-material') as HTMLInputElement).value.trim();
-      const status = (document.getElementById('prod-status') as HTMLSelectElement).value;
+      let status = (document.getElementById('prod-status') as HTMLSelectElement).value;
+      if (stock === 0) {
+        status = 'het-hang';
+      } else if (status === 'het-hang' && stock > 0) {
+        status = 'con-hang';
+      }
       const dimensions = (document.getElementById('prod-dimensions') as HTMLInputElement).value.trim();
       const warranty = (document.getElementById('prod-warranty') as HTMLInputElement).value.trim();
       const desc = (document.getElementById('prod-desc') as HTMLTextAreaElement).value.trim();
@@ -883,7 +959,7 @@ const stats = [
                 shortDescription: desc,
                 status: status === 'con-hang',
                 price,
-                stock: status === 'het-hang' ? 0 : 20,
+                stock,
                 material,
                 imageUrl: currentUploadedMainUrl || undefined,
                 detailImages: currentDetailImages.length > 0 ? currentDetailImages : undefined,
@@ -900,7 +976,7 @@ const stats = [
               categoryId: CAT_MAP[cat] ?? 1,
               shortDescription: desc,
               price,
-              stock: status === 'het-hang' ? 0 : 20,
+              stock,
               material,
               imageUrl: mainImgSrc || null,
               detailImages: currentDetailImages.length > 0 ? currentDetailImages : undefined,
@@ -919,6 +995,7 @@ const stats = [
           targetRow.dataset.name = name;
           targetRow.dataset.slug = slug;
           targetRow.dataset.price = String(price);
+          targetRow.dataset.stock = String(stock);
           targetRow.dataset.category = cat;
           targetRow.dataset.space = space;
           targetRow.dataset.material = material;
@@ -936,6 +1013,15 @@ const stats = [
           targetRow.querySelector('td:nth-child(3)')!.textContent = catLabel;
           targetRow.querySelector('td:nth-child(4)')!.textContent = spaceLabel;
           targetRow.querySelector('td:nth-child(5)')!.textContent = formatVndClient(price);
+          
+          const stockBadge = targetRow.querySelector('[data-stock-badge]');
+          if (stockBadge) {
+            stockBadge.textContent = stock > 0 ? `${stock} sp` : 'Hết hàng (0)';
+            stockBadge.className = `inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded ${
+              stock > 0 ? 'text-emerald-800 bg-emerald-50 border border-emerald-200' : 'text-danger-600 bg-danger-600/10 border border-red-200'
+            }`;
+          }
+
           const statusBtn = targetRow.querySelector('[data-btn-toggle-status]') as HTMLButtonElement;
           statusBtn.textContent = status === 'con-hang' ? 'Đang bán' : status === 'het-hang' ? 'Hết hàng' : 'Nháp';
           statusBtn.className = `inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer ${
@@ -953,6 +1039,7 @@ const stats = [
         tr.dataset.category = cat;
         tr.dataset.space = space;
         tr.dataset.price = String(price);
+        tr.dataset.stock = String(stock);
         tr.dataset.material = material;
         tr.dataset.status = status;
         tr.dataset.dimensions = dimensions;
@@ -977,6 +1064,13 @@ const stats = [
           <td class="px-4 py-3.5 align-middle text-sm text-walnut-800">${catLabel}</td>
           <td class="px-4 py-3.5 align-middle text-sm text-walnut-800">${spaceLabel}</td>
           <td class="px-4 py-3.5 align-middle text-sm font-semibold text-clay-600">${formatVndClient(price)}</td>
+          <td class="px-4 py-3.5 align-middle">
+            <span data-stock-badge class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded ${
+              stock > 0 ? 'text-emerald-800 bg-emerald-50 border border-emerald-200' : 'text-danger-600 bg-danger-600/10 border border-red-200'
+            }">
+              ${stock > 0 ? `${stock} sp` : 'Hết hàng (0)'}
+            </span>
+          </td>
           <td class="px-4 py-3.5 align-middle">
             <button type="button" data-btn-toggle-status class="inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded transition-transform active:scale-95 cursor-pointer ${
               status === 'con-hang' ? 'bg-olive-700/20 text-emerald-800 border border-emerald-300' : status === 'het-hang' ? 'bg-danger-600/10 text-danger-600 border border-red-200' : 'bg-walnut-900/10 text-walnut-800 border border-walnut-900/20'
@@ -1014,6 +1108,21 @@ const stats = [
           next === 'con-hang' ? 'bg-olive-700/20 text-emerald-800 border border-emerald-300' : next === 'het-hang' ? 'bg-danger-600/10 text-danger-600 border border-red-200' : 'bg-walnut-900/10 text-walnut-800 border border-walnut-900/20'
         }`;
         
+        let newStock = Number(rowEl.dataset.stock) || 20;
+        if (next === 'het-hang') {
+          newStock = 0;
+        } else if (next === 'con-hang' && newStock === 0) {
+          newStock = 20;
+        }
+        rowEl.dataset.stock = String(newStock);
+        const stockBadge = rowEl.querySelector('[data-stock-badge]');
+        if (stockBadge) {
+          stockBadge.textContent = newStock > 0 ? `${newStock} sp` : 'Hết hàng (0)';
+          stockBadge.className = `inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded ${
+            newStock > 0 ? 'text-emerald-800 bg-emerald-50 border border-emerald-200' : 'text-danger-600 bg-danger-600/10 border border-red-200'
+          }`;
+        }
+
         const productId = rowEl.dataset.id;
         if (productId) {
           try {
@@ -1022,7 +1131,7 @@ const stats = [
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
                 status: next === 'con-hang',
-                stock: next === 'het-hang' ? 0 : 20,
+                stock: newStock,
               }),
             });
           } catch {}
@@ -1041,6 +1150,7 @@ const stats = [
         (document.getElementById('prod-name') as HTMLInputElement).value = rowEl.dataset.name ?? '';
         (document.getElementById('prod-slug') as HTMLInputElement).value = rowEl.dataset.slug ?? '';
         (document.getElementById('prod-price') as HTMLInputElement).value = rowEl.dataset.price ?? '';
+        (document.getElementById('prod-stock') as HTMLInputElement).value = rowEl.dataset.stock || '20';
         (document.getElementById('prod-category') as HTMLSelectElement).value = rowEl.dataset.category ?? '';
         (document.getElementById('prod-space') as HTMLSelectElement).value = rowEl.dataset.space ?? '';
         (document.getElementById('prod-material') as HTMLInputElement).value = rowEl.dataset.material ?? '';
