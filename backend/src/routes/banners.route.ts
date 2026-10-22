@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
 import { verifyToken, requireAdmin } from '../middlewares/auth.middleware.js';
+import { uploadBanner } from '../middlewares/banner-upload.middleware.js'; 
 
 export const bannersRouter = Router();
 
@@ -226,6 +227,33 @@ bannersRouter.delete('/:id', verifyToken, requireAdmin, async (req: Request, res
     return res.status(500).json({
       success: false,
       message: 'Lỗi máy chủ khi xóa banner.',
+      error: error.message,
+    });
+  }
+});
+// POST /api/banners/upload-image - Tải ảnh banner lên thư mục riêng và trả về URL
+bannersRouter.post('/upload-image', verifyToken, requireAdmin, uploadBanner.single('image'), (req: Request, res: Response) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ 
+        success: false, 
+        message: 'Chưa chọn file ảnh banner hoặc định dạng không hỗ trợ.' 
+      });
+    }
+
+    // Tạo URL tĩnh trả về cho phía Frontend hiển thị và lưu vào DB
+    const imageUrl = `http://localhost:4000/uploads/banners/${req.file.filename}`;
+
+    return res.json({
+      success: true,
+      message: 'Tải ảnh banner lên thư mục thành công!',
+      url: imageUrl,
+    });
+  } catch (error: any) {
+    console.error('Lỗi khi upload ảnh banner:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Lỗi máy chủ khi upload ảnh banner.',
       error: error.message,
     });
   }
