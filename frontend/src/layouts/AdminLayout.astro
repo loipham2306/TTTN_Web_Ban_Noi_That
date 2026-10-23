@@ -109,7 +109,6 @@ const navGroups: NavGroup[] = [
   }
 ];
 
-// Helper to find page title in breadcrumb
 let currentPageTitle = 'Trang tổng quan';
 for (const g of navGroups) {
   for (const item of g.items) {
@@ -130,7 +129,6 @@ for (const g of navGroups) {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <title>{title}</title>
 
-  <!-- BẢO VỆ ROUTE ADMIN (AUTHENTICATION & RBAC GUARD) -->
   <script is:inline>
     (function () {
       try {
@@ -147,40 +145,58 @@ for (const g of navGroups) {
     })();
   </script>
 </head>
-<body class="min-h-screen bg-sand-100 text-walnut-900 flex flex-col font-sans">
-  <div class="flex min-h-screen flex-col lg:flex-row">
+<body class="bg-sand-100 font-sans text-walnut-900 overflow-hidden">
+  
+  <div class="flex h-screen w-full">
 
-    <!-- SIDEBAR -->
-    <aside class="shrink-0 bg-walnut-900 px-4 py-5 text-sand-50 lg:sticky lg:top-0 lg:h-screen lg:w-72 flex flex-col justify-between overflow-y-auto">
+    <!-- 1. HEADER MOBILE (Chỉ hiện trên điện thoại) -->
+    <div class="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#173524] z-40 flex items-center justify-between px-4 shadow-md border-b border-[#D8B670]/30">
+      <div class="flex items-center gap-2">
+        <div class="text-[#D8B670] font-bold text-lg tracking-wider">KTUFA</div>
+        <span class="text-[10px] uppercase tracking-wider text-white/70">Admin Portal</span>
+      </div>
+      <button id="mobile-menu-btn" class="text-white p-2 focus:outline-none hover:bg-white/10 rounded transition-colors" title="Mở menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
+    </div>
+
+    <!-- 2. LỚP NỀN MỜ (Khi mở menu trên mobile) -->
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black/60 z-40 hidden lg:hidden backdrop-blur-sm transition-opacity"></div>
+
+    <!-- 3. SIDEBAR CHÍNH -->
+    <aside id="admin-sidebar" class="fixed inset-y-0 left-0 z-50 w-[280px] bg-[#173524] text-white transform -translate-x-full lg:translate-x-0 lg:static lg:block transition-transform duration-300 ease-in-out flex flex-col justify-between overflow-y-auto border-r border-[#D8B670]/20 shadow-2xl lg:shadow-none">
+      
       <div>
-        <!-- Logo & Brand Header -->
-        <div class="flex items-center justify-between pb-5 border-b border-sand-50/10">
+        <div class="flex items-center justify-between px-6 py-5 border-b border-white/10">
           <a href="/admin" class="flex items-center gap-3.5 group">
             <img
               src="/images/logo1.jpg"
               alt="KTUFA Logo"
-              class="h-14 sm:h-16 w-auto object-contain rounded-md shadow-sm transition-transform duration-300 group-hover:scale-105"
+              class="h-12 w-auto object-contain rounded shadow-sm transition-transform duration-300 group-hover:scale-105 bg-white/5 p-1"
             />
             <div class="flex flex-col">
-              <span class="text-lg font-bold uppercase tracking-[0.2em] text-sand-50 leading-tight group-hover:text-amber-400 transition-colors sm:text-xl">
+              <span class="text-lg font-bold uppercase tracking-[0.2em] text-[#D8B670] leading-tight transition-colors">
                 KTUFA
               </span>
-              <span class="text-[10px] uppercase tracking-[0.22em] text-amber-400/90 font-medium">
+              <span class="text-[9px] uppercase tracking-[0.22em] text-white/70 font-medium">
                 Admin Portal
               </span>
             </div>
           </a>
-          <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-950/80 border border-emerald-500/40 px-2.5 py-1 text-[10px] font-medium text-emerald-400 shrink-0">
-            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            Online
-          </span>
+          <!-- Nút đóng menu trên mobile -->
+          <button id="close-menu-btn" class="lg:hidden text-white/50 hover:text-white p-1 focus:outline-none">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
         </div>
 
-        <!-- Navigation Groups -->
-        <nav class="mt-5 space-y-5" aria-label="Điều hướng quản trị">
+        <nav class="mt-5 space-y-6 px-4" aria-label="Điều hướng quản trị">
           {navGroups.map((group) => (
             <div>
-              <p class="px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-sand-200/50 mb-1.5">
+              <p class="px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#D8B670]/70 mb-2">
                 {group.groupTitle}
               </p>
               <div class="space-y-1">
@@ -192,20 +208,20 @@ for (const g of navGroups) {
                     <a
                       href={item.href}
                       class:list={[
-                        'flex items-center justify-between rounded px-3 py-2 text-xs font-medium transition-all group',
+                        'flex items-center justify-between rounded px-3 py-2.5 text-xs font-medium transition-all group',
                         isActive
-                          ? 'bg-sand-50 text-walnut-900 font-semibold shadow-sm'
-                          : 'text-sand-200/80 hover:bg-sand-50/10 hover:text-sand-50'
+                          ? 'bg-[#D8B670] text-[#173524] font-bold shadow-sm'
+                          : 'text-white/80 hover:bg-white/10 hover:text-white'
                       ]}
                     >
-                      <div class="flex items-center gap-2.5">
-                        <svg class:list={['h-4 w-4 shrink-0 transition-colors', isActive ? 'text-walnut-900' : 'text-sand-200/60 group-hover:text-sand-50']} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.75" d={item.icon} />
+                      <div class="flex items-center gap-3">
+                        <svg class:list={['h-4 w-4 shrink-0 transition-colors', isActive ? 'text-[#173524]' : 'text-white/60 group-hover:text-white']} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={item.icon} />
                         </svg>
                         <span>{item.label}</span>
                       </div>
                       {item.badge && (
-                        <span class="rounded bg-clay-600 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white tracking-wider">
+                        <span class="rounded bg-red-600 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white tracking-wider">
                           {item.badge}
                         </span>
                       )}
@@ -218,129 +234,96 @@ for (const g of navGroups) {
         </nav>
       </div>
 
-      <!-- Bottom System Actions -->
-      <div class="border-t border-sand-50/10 pt-4 mt-6">
+      <div class="p-4 mt-6 border-t border-white/10 bg-black/10">
         <a
           href="/"
-          class="flex items-center gap-2 rounded px-3 py-2 text-xs uppercase tracking-[0.15em] text-sand-200 hover:bg-sand-50/10 hover:text-sand-50 transition-colors"
+          class="flex items-center gap-2 rounded px-3 py-2 text-xs uppercase tracking-[0.15em] text-white/70 hover:bg-white/10 hover:text-white transition-colors"
         >
           <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
           </svg>
           <span>Quay về trang chủ</span>
         </a>
-        <div class="mt-3 px-3 flex items-center justify-between text-[11px] text-sand-200/50">
-          <span>Phiên bản v2.0 Enterprise</span>
-          <span class="inline-block h-2 w-2 rounded-full bg-emerald-500" title="MySQL Connected"></span>
+        <div class="mt-3 px-3 flex items-center justify-between text-[11px] text-white/50">
+          <span>Phiên bản v2.0</span>
+          <span class="inline-flex items-center gap-1.5 text-emerald-400 font-medium">
+            <span class="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+            Online
+          </span>
         </div>
       </div>
     </aside>
 
-    <!-- MAIN CONTENT WRAPPER -->
-    <div class="flex min-w-0 flex-1 flex-col justify-between">
-
-      <!-- HEADER ADMIN (CUỘN TỰ NHIÊN THEO TRANG, KHÔNG GHIM CỐ ĐỊNH) -->
-      <header class="border-b border-walnut-900/10 bg-sand-50 px-4 py-3.5 sm:px-8 flex items-center justify-between">
+    <!-- 4. MAIN CONTENT AREA -->
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden bg-[#FAF8F5]">
+      
+      <!-- HEADER KHU VỰC NỘI DUNG -->
+      <header class="hidden lg:flex border-b border-walnut-900/10 bg-white px-6 py-4 items-center justify-between shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
         <div class="flex items-center gap-2 text-xs uppercase tracking-[0.15em] text-walnut-800">
-          <a href="/admin" class="hover:text-clay-600 transition-colors">Admin</a>
-          <span>/</span>
-          <span class="text-walnut-900 font-bold">{currentPageTitle}</span>
+          <a href="/admin" class="hover:text-clay-600 transition-colors font-medium">Admin</a>
+          <span class="text-walnut-800/40">/</span>
+          <span class="text-[#173524] font-bold">{currentPageTitle}</span>
         </div>
 
-        <div class="flex items-center gap-4">
-          <!-- Quick Status Indicator -->
-          <div class="hidden md:flex items-center gap-2 text-xs text-walnut-800/80 border-r border-walnut-900/10 pr-4">
+        <div class="flex items-center gap-5">
+          <div class="flex items-center gap-2 text-xs text-walnut-800/80 border-r border-walnut-900/10 pr-5">
             <span class="h-2 w-2 rounded-full bg-emerald-500"></span>
-            <span>MySQL: 3306 (XAMPP)</span>
+            <span>MySQL Connected</span>
           </div>
 
-          <!-- Admin Avatar & Profile -->
-          <div class="flex items-center gap-2.5">
-            <div id="admin-header-avatar" class="h-8 w-8 rounded-full bg-walnut-900 text-sand-50 flex items-center justify-center text-xs font-semibold shadow-sm">
+          <div class="flex items-center gap-3">
+            <div class="text-right">
+              <p id="admin-header-name" class="text-xs font-bold text-[#173524]">Quản Trị Viên</p>
+              <p id="admin-header-email" class="text-[10px] text-walnut-800/70">admin@ktufa.vn</p>
+            </div>
+            <div id="admin-header-avatar" class="h-9 w-9 rounded-full bg-gradient-to-br from-[#D8B670] to-[#C49E52] text-white flex items-center justify-center text-xs font-bold shadow-sm border-2 border-white">
               AD
             </div>
-            <div class="hidden sm:block text-left">
-              <p id="admin-header-name" class="text-xs font-bold text-walnut-900">Quản Trị Viên</p>
-              <p id="admin-header-email" class="text-[10px] text-walnut-800">admin@noithat.vn</p>
-            </div>
           </div>
 
-          <!-- Go to Storefront Button -->
-          <a
-            href="/"
-            target="_blank"
-            class="hidden sm:inline-flex items-center gap-1.5 border border-walnut-900/20 bg-sand-50 px-3 py-1.5 text-[11px] uppercase tracking-[0.15em] text-walnut-900 transition-colors hover:border-walnut-900 hover:bg-sand-100"
-          >
-            <span>Xem Website</span>
-            <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-            </svg>
-          </a>
-
-          <!-- Logout Button -->
           <button 
             id="btn-admin-logout"
             type="button"
-            title="Đăng xuất khỏi hệ thống quản trị"
-            class="inline-flex items-center gap-1.5 border border-red-200 bg-red-50/90 px-3 py-1.5 text-[11px] font-medium text-red-700 transition-colors hover:bg-red-100 hover:border-red-300 rounded-sm cursor-pointer shadow-sm"
+            title="Đăng xuất"
+            class="ml-2 inline-flex items-center gap-1.5 border border-red-200 bg-red-50 px-3 py-1.5 text-[11px] font-bold text-red-700 transition-colors hover:bg-red-100 hover:border-red-300 rounded cursor-pointer shadow-sm"
           >
-            <svg class="h-3.5 w-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-            <span class="hidden sm:inline">Đăng xuất</span>
+            Đăng xuất
           </button>
         </div>
       </header>
 
-      <!-- PAGE CONTENT INJECTION -->
-      <main class="flex-1 p-4 sm:p-8">
+      <!-- Nội dung trang cuộn độc lập, padding top trên mobile để nhường chỗ cho header -->
+      <main class="flex-1 overflow-y-auto pt-20 pb-10 px-4 sm:px-6 lg:pt-8 lg:px-8">
+        
+        <!-- Header rút gọn hiển thị tên trang trên Mobile -->
+        <div class="lg:hidden mb-6 flex items-center justify-between">
+          <h1 class="text-xl font-display font-bold text-[#173524]">{currentPageTitle}</h1>
+          <button 
+            id="btn-admin-logout-mobile"
+            type="button"
+            class="text-xs font-semibold text-red-600 underline underline-offset-4"
+          >
+            Đăng xuất
+          </button>
+        </div>
+
         <slot />
+
       </main>
-
-      <!-- FOOTER ADMIN -->
-      <footer class="border-t border-walnut-900/10 bg-sand-50/80 px-4 py-4 sm:px-8 text-xs text-walnut-800 flex flex-col sm:flex-row items-center justify-between gap-3">
-        <div class="flex items-center gap-2">
-          <span class="font-bold text-walnut-900">KTUFA Luxury Furniture</span>
-          <span class="text-walnut-800/40">•</span>
-          <span>Hệ Thống Quản Trị &copy; {new Date().getFullYear()}</span>
-          <span class="hidden md:inline text-walnut-800/60">— Tiêu chuẩn Enterprise Architecture</span>
-        </div>
-        <div class="flex items-center gap-4 text-[11px]">
-          <span class="flex items-center gap-1.5 text-emerald-700 font-medium">
-            <span class="h-1.5 w-1.5 rounded-full bg-emerald-600"></span>
-            Node.js / Prisma ORM: Sẵn sàng
-          </span>
-          <span class="text-walnut-800/40">|</span>
-          <a href="/admin/cai-dat" class="hover:text-clay-600 transition-colors">Cấu hình hệ thống</a>
-          <span class="text-walnut-800/40">|</span>
-          <a href="/" target="_blank" class="hover:text-clay-600 transition-colors">Xem website</a>
-        </div>
-      </footer>
-
     </div>
+
   </div>
 
   <style is:global>
-    /* Đảm bảo toàn bộ chữ tiếng Việt trong Admin dùng Be Vietnam Pro hiển thị chuẩn xác, không bị gãy/tách dấu */
-    body,
-    h1, h2, h3, h4, h5, h6,
-    .font-display,
-    .font-serif {
+    body, h1, h2, h3, h4, h5, h6, .font-display, .font-serif {
       font-family: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif !important;
     }
-
-    /* Đảm bảo toàn bộ phần tử, form và modal trong khu vực Admin luôn hiển thị đầy đủ */
-    .grid > *,
-    form,
-    form *,
-    [id*="modal"],
-    [id*="modal"] * {
-      opacity: 1 !important;
-    }
+    .grid > *, form, form *, [id*="modal"], [id*="modal"] * { opacity: 1 !important; }
   </style>
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
+      // Xử lý thông tin user
       try {
         const userRaw = localStorage.getItem('current_user');
         if (userRaw) {
@@ -357,14 +340,38 @@ for (const g of navGroups) {
         }
       } catch (e) {}
 
-      const logoutBtn = document.getElementById('btn-admin-logout');
-      logoutBtn?.addEventListener('click', () => {
+      // Xử lý Đăng xuất
+      const handleLogout = () => {
         if (confirm('Bạn có chắc chắn muốn đăng xuất khỏi trang Quản trị viên?')) {
           localStorage.removeItem('auth_token');
           localStorage.removeItem('current_user');
           window.location.href = '/dang-nhap';
         }
-      });
+      };
+      document.getElementById('btn-admin-logout')?.addEventListener('click', handleLogout);
+      document.getElementById('btn-admin-logout-mobile')?.addEventListener('click', handleLogout);
+
+      // Xử lý Menu Mobile Trượt
+      const btnOpen = document.getElementById('mobile-menu-btn');
+      const btnClose = document.getElementById('close-menu-btn');
+      const sidebar = document.getElementById('admin-sidebar');
+      const backdrop = document.getElementById('sidebar-backdrop');
+
+      const openMenu = () => {
+        sidebar?.classList.remove('-translate-x-full');
+        backdrop?.classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; 
+      };
+
+      const closeMenu = () => {
+        sidebar?.classList.add('-translate-x-full');
+        backdrop?.classList.add('hidden');
+        document.body.style.overflow = '';
+      };
+
+      btnOpen?.addEventListener('click', openMenu);
+      btnClose?.addEventListener('click', closeMenu);
+      backdrop?.addEventListener('click', closeMenu);
     });
   </script>
 </body>
