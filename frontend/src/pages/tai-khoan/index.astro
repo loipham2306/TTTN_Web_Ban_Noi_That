@@ -3,7 +3,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 ---
 
 <BaseLayout title="Tài Khoản Của Tôi | Nội Thất Cao Cấp">
-  <main class="mx-auto max-w-4xl px-4 py-12 sm:px-6 lg:px-8">
+  <main class="mx-auto max-w-5xl px-4 py-12 sm:px-6 lg:px-8">
 
     <!-- BREADCRUMB -->
     <nav class="mb-8 flex items-center gap-2 text-xs text-walnut-800/70">
@@ -14,7 +14,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
     <!-- ACCOUNT CARD -->
     <div class="rounded-none border border-walnut-900/20 bg-sand-50 shadow-xl overflow-hidden text-walnut-900">
-      
+
       <!-- Top banner (Walnut + Champagne Gold) -->
       <div class="bg-[#173524] text-sand-50 p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 relative overflow-hidden border-b border-[#D8B670]/30">
         <div class="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#D8B670] via-[#F3E5AB] to-[#C49E52]"></div>
@@ -63,6 +63,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
       <!-- Content Area -->
       <div class="p-6 sm:p-8 bg-[#FAF8F5]">
+
         <!-- TAB 1: PROFILE -->
         <div id="page-pane-profile" class="page-tab-pane space-y-6">
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -72,11 +73,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             </div>
             <div class="rounded-none border border-walnut-900/15 bg-white p-4 shadow-xs hover:border-[#173524]/40 transition-colors">
               <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-bold block">Email</span>
-              <p id="page-info-email" class="mt-1 text-sm font-semibold text-walnut-900">admin@noithat.vn</p>
+              <p id="page-info-email" class="mt-1 text-sm font-semibold text-walnut-900">Chưa cập nhật</p>
             </div>
             <div class="rounded-none border border-walnut-900/15 bg-white p-4 shadow-xs hover:border-[#173524]/40 transition-colors">
               <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-bold block">Số điện thoại</span>
-              <p id="page-info-phone" class="mt-1 text-sm font-semibold text-walnut-900">0909 001 001</p>
+              <p id="page-info-phone" class="mt-1 text-sm font-semibold text-walnut-900">Chưa cập nhật</p>
             </div>
             <div class="rounded-none border border-walnut-900/15 bg-white p-4 shadow-xs hover:border-[#173524]/40 transition-colors">
               <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-bold block">Cấp bậc thành viên</span>
@@ -87,7 +88,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           <div class="rounded-none border border-walnut-900/15 bg-white p-5 space-y-3 shadow-xs">
             <div class="flex items-center justify-between text-xs">
               <span class="text-walnut-800/70 font-medium">Tổng chi tiêu tích lũy:</span>
-              <span id="page-info-spent" class="font-bold text-walnut-900 text-sm">91.400.000 ₫</span>
+              <span id="page-info-spent" class="font-bold text-walnut-900 text-sm">0 ₫</span>
             </div>
             <div class="flex items-center justify-between text-xs">
               <span class="text-walnut-800/70 font-medium">Số đơn hàng đã mua:</span>
@@ -105,31 +106,58 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           </div>
         </div>
 
-        <!-- TAB 2: ORDERS (ĐỒNG BỘ ĐỘNG THEO TỪNG TÀI KHOẢN) -->
-        <div id="page-pane-orders" class="page-tab-pane hidden space-y-4">
-          <div class="text-center py-6 text-xs text-walnut-800/60">Đang tải danh sách đơn hàng...</div>
+        <!-- TAB 2: ORDERS (TABLE LAYOUT) -->
+        <div id="page-pane-orders" class="page-tab-pane hidden">
+          <div id="orders-loading" class="py-10 text-center text-xs text-walnut-800/60">Đang tải danh sách đơn hàng...</div>
+
+          <!-- Orders Table -->
+          <div id="orders-table-wrapper" class="hidden">
+            <div class="flex items-center justify-between mb-4">
+              <h2 class="text-sm font-bold text-walnut-900 flex items-center gap-2">
+                <span class="text-xl">📦</span>
+                Danh sách đơn hàng của bạn
+              </h2>
+              <span id="orders-count-badge" class="text-[10px] uppercase tracking-wider font-bold bg-[#173524]/10 text-[#173524] px-2.5 py-1 rounded-none"></span>
+            </div>
+
+            <div class="overflow-x-auto rounded-none border border-walnut-900/15 shadow-sm">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="bg-[#173524] text-white text-[11px] uppercase tracking-wider">
+                    <th class="px-4 py-3 text-left font-semibold">Mã đơn hàng</th>
+                    <th class="px-4 py-3 text-left font-semibold">Ngày đặt</th>
+                    <th class="px-4 py-3 text-left font-semibold">Người nhận</th>
+                    <th class="px-4 py-3 text-right font-semibold">Tổng tiền</th>
+                    <th class="px-4 py-3 text-center font-semibold">Trạng thái</th>
+                    <th class="px-4 py-3 text-center font-semibold">Thao tác</th>
+                  </tr>
+                </thead>
+                <tbody id="orders-table-body" class="divide-y divide-walnut-900/8 bg-white">
+                  <!-- Filled by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Empty state -->
+          <div id="orders-empty" class="hidden text-center py-12 text-xs text-walnut-800/70">
+            <p class="text-4xl mb-3 text-walnut-900/30">📦</p>
+            <p class="font-bold text-base text-walnut-900">Bạn chưa có đơn hàng nào</p>
+            <p class="mt-1 text-walnut-800/70">Khi bạn đặt mua sản phẩm, danh sách và tiến độ đơn hàng sẽ xuất hiện tại đây.</p>
+            <a href="/san-pham" class="mt-5 inline-block bg-clay-600 text-white px-6 py-2.5 rounded text-xs font-semibold hover:bg-clay-500 transition-colors">
+              Khám phá sản phẩm ngay →
+            </a>
+          </div>
         </div>
 
         <!-- TAB 3: WISHLIST -->
         <div id="page-pane-wishlist" class="page-tab-pane hidden space-y-3">
-          <div class="rounded-none border border-walnut-900/15 bg-white p-4 flex items-center justify-between gap-4 shadow-xs">
-            <div>
-              <h4 class="font-bold text-xs text-walnut-900">Ghế Thư Giãn Gỗ Óc Chó</h4>
-              <p class="font-bold text-clay-700 text-xs mt-0.5">18.900.000 ₫</p>
-            </div>
-            <a href="/san-pham/ghe-thu-gian-go-oc-cho" class="text-xs uppercase tracking-wider text-walnut-900 font-semibold hover:text-clay-600 underline">
-              Xem chi tiết →
-            </a>
-          </div>
-
-          <div class="rounded-none border border-walnut-900/15 bg-white p-4 flex items-center justify-between gap-4 shadow-xs">
-            <div>
-              <h4 class="font-bold text-xs text-walnut-900">Đèn Sàn Đồng Thau Chao Vải</h4>
-              <p class="font-bold text-clay-700 text-xs mt-0.5">7.900.000 ₫</p>
-            </div>
-            <a href="/san-pham/den-san-dong-thau" class="text-xs uppercase tracking-wider text-walnut-900 font-semibold hover:text-clay-600 underline">
-              Xem chi tiết →
-            </a>
+          <div class="py-10 text-center text-xs text-walnut-800/60" id="wishlist-loading">Đang tải danh sách yêu thích từ máy chủ...</div>
+          <div id="wishlist-content" class="hidden space-y-3"></div>
+          <div id="wishlist-empty" class="hidden text-center py-12 text-xs text-walnut-800/70">
+            <p class="text-4xl mb-3 text-walnut-900/30">♡</p>
+            <p class="font-bold text-base text-walnut-900">Danh sách yêu thích đang trống</p>
+            <p class="mt-1 text-walnut-800/70">Bạn chưa lưu sản phẩm nào. Hãy bấm vào biểu tượng trái tim khi xem sản phẩm để lưu lại tại đây nhé.</p>
           </div>
         </div>
 
@@ -140,7 +168,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
               <span class="font-bold text-xs text-walnut-900">Địa chỉ nhận hàng mặc định</span>
               <span class="rounded-none bg-emerald-100 text-emerald-800 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">Mặc định</span>
             </div>
-            <p class="text-xs text-walnut-900 font-medium">Người nhận: <span id="page-addr-name">Trương Chí Vỹ</span> — <span id="page-addr-phone">0909 001 001</span></p>
+            <p class="text-xs text-walnut-900 font-medium">Người nhận: <span id="page-addr-name">--</span> — <span id="page-addr-phone">Chưa cập nhật</span></p>
             <p class="text-xs text-walnut-800/80 leading-relaxed">615 Âu Cơ, Phường Phú Trung, Quận Tân Phú, TP. Hồ Chí Minh</p>
           </div>
         </div>
@@ -150,46 +178,157 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     </div>
 
   </main>
+
+  <!-- =====================================================
+       ORDER DETAIL CENTERED MODAL
+       ===================================================== -->
+  <div
+    id="order-detail-overlay"
+    class="fixed inset-0 z-[9999] hidden bg-black/65 backdrop-blur-sm pt-28 sm:pt-32 pb-6 px-3 sm:px-6 flex items-start sm:items-center justify-center overflow-y-auto transition-all duration-300 opacity-0"
+    role="dialog"
+    aria-modal="true"
+  >
+    <!-- Modal Dialog (Centered, Compact & Scaled) -->
+    <div
+      id="order-detail-panel"
+      class="relative w-full max-w-4xl max-h-[calc(100vh-145px)] bg-[#FAF8F5] shadow-2xl border border-walnut-900/15 flex flex-col rounded-none transform transition-all duration-300 scale-95 opacity-0 overflow-hidden my-auto"
+    >
+      <!-- Header (Không còn subtitle thừa) -->
+      <div class="bg-[#173524] text-white px-5 sm:px-6 py-3.5 flex items-center justify-between shrink-0 border-b border-[#D8B670]/30 relative">
+        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#D8B670] via-[#F3E5AB] to-[#C49E52]"></div>
+        
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-none bg-[#D8B670]/20 border border-[#D8B670]/40 flex items-center justify-center text-[#F3E5AB] shrink-0">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+          </div>
+          <div class="flex items-center gap-2">
+            <h2 class="font-sans font-bold text-sm sm:text-base text-white tracking-normal uppercase">Chi tiết đơn hàng</h2>
+            <span id="panel-order-code" class="font-mono font-bold text-xs bg-[#D8B670]/25 text-[#F3E5AB] border border-[#D8B670]/40 px-2.5 py-0.5 rounded-none tracking-normal"></span>
+          </div>
+        </div>
+
+        <button
+          id="btn-close-panel-x"
+          type="button"
+          class="w-8 h-8 rounded-full border border-white/20 bg-white/5 text-sand-200 hover:text-white hover:bg-red-600/90 hover:border-red-500 flex items-center justify-center transition-all duration-200 cursor-pointer hover:rotate-90 shrink-0"
+          aria-label="Đóng"
+        >
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Panel Body (Scrollable & Filled by JS) -->
+      <div id="order-detail-body" class="flex-1 overflow-y-auto p-3.5 sm:p-5 lg:p-6 bg-[#FAF8F5]">
+        <div class="flex items-center justify-center py-20 text-walnut-800/60 text-sm">
+          <svg class="animate-spin w-6 h-6 mr-3 text-[#173524]" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+          Đang tải chi tiết đơn hàng...
+        </div>
+      </div>
+
+      <!-- Footer Action (Không còn hotline thừa, nút Đóng cửa sổ tối ưu cho mobile) -->
+      <div class="bg-[#F0EBE3] px-5 py-3 border-t border-walnut-900/10 flex items-center justify-end shrink-0">
+        <button
+          id="btn-close-order-detail"
+          type="button"
+          class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 text-xs font-bold uppercase tracking-wider bg-[#173524] text-[#E6CA85] hover:bg-[#204932] hover:text-white transition-colors rounded-none cursor-pointer shadow-xs border border-[#D8B670]/30"
+        >
+          Đóng cửa sổ
+        </button>
+      </div>
+    </div>
+  </div>
 </BaseLayout>
 
 <script>
   import { readUser } from '../../scripts/auth';
 
+  const urlParams = new URLSearchParams(window.location.search);
+  const requestedTab = urlParams.get('tab');
+  const highlightCode = urlParams.get('highlight');
   const user = readUser();
-  if (!user) {
+
+  let recentCodes: string[] = [];
+  try {
+    recentCodes = JSON.parse(localStorage.getItem('my_recent_orders') || '[]');
+  } catch {}
+
+  const hasRecentOrders = Array.isArray(recentCodes) && recentCodes.length > 0;
+
+  if (!user && requestedTab !== 'orders' && !hasRecentOrders) {
     window.location.href = '/dang-nhap';
   } else {
-    let fullUser: any = user;
-    try {
-      const raw = localStorage.getItem('current_user');
-      if (raw) fullUser = JSON.parse(raw);
-    } catch {}
+    let fullUser: any = user || {
+      name: 'Khách Mua Hàng',
+      email: 'khach@noithat.vn',
+      phone: 'Khách vãng lai',
+      role: 'guest',
+      tier: 'Khách Mua Hàng',
+      spent: '0 ₫',
+      orders: 0,
+    };
 
-    // Đồng bộ trực tiếp từ backend nếu có token
-    const token = localStorage.getItem('auth_token');
-    if (token) {
+    if (user) {
       try {
-        const meRes = await fetch('http://localhost:4000/api/auth/me', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        const meData = await meRes.json();
-        if (meData.success && meData.user) {
-          if (meData.user.avatar) fullUser.avatar = meData.user.avatar;
-          if (meData.user.role) fullUser.role = meData.user.role;
-          if (meData.user.full_name) fullUser.name = meData.user.full_name;
-          if (meData.user.email) fullUser.email = meData.user.email;
-          localStorage.setItem('current_user', JSON.stringify(fullUser));
-        }
+        const raw = localStorage.getItem('current_user');
+        if (raw) fullUser = JSON.parse(raw);
       } catch {}
+
+      const token = localStorage.getItem('auth_token');
+      if (token) {
+        try {
+          const meRes = await fetch('http://localhost:4000/api/auth/me', {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          const meData = await meRes.json();
+          if (meData.success && meData.user) {
+            // Kiểm tra token có khớp với người dùng đang đăng nhập hay không
+            // Tránh trường hợp máy còn lưu token cũ của Admin nhưng người dùng đăng nhập tài khoản Khách
+            const currentEmail = fullUser.email && fullUser.email !== 'khach@noithat.vn' ? fullUser.email.toLowerCase() : null;
+            const tokenEmail = meData.user.email ? meData.user.email.toLowerCase() : null;
+
+            if (!currentEmail || currentEmail === tokenEmail) {
+              if (meData.user.avatar) fullUser.avatar = meData.user.avatar;
+              if (meData.user.role) fullUser.role = meData.user.role;
+              if (meData.user.full_name) fullUser.name = meData.user.full_name;
+              if (meData.user.email) fullUser.email = meData.user.email;
+              if (meData.user.phone) fullUser.phone = meData.user.phone;
+              localStorage.setItem('current_user', JSON.stringify(fullUser));
+            } else {
+              // Token lưu trong máy là của tài khoản khác -> xóa bỏ token cũ này
+              console.warn('Phát hiện auth_token cũ không thuộc về tài khoản hiện tại, dọn dẹp token.');
+              localStorage.removeItem('auth_token');
+            }
+          } else {
+            localStorage.removeItem('auth_token');
+          }
+        } catch {}
+      }
+    } else {
+      const logoutBtn = document.querySelector<HTMLButtonElement>('[data-logout]');
+      if (logoutBtn) {
+        logoutBtn.textContent = 'Đăng nhập';
+        logoutBtn.onclick = (e) => {
+          e.preventDefault();
+          window.location.href = '/dang-nhap';
+        };
+      }
     }
 
-    const name = fullUser.name || 'Khách';
-    const email = fullUser.email || (fullUser.role === 'admin' ? 'admin@noithat.vn' : 'khach@noithat.vn');
-    const phone = fullUser.phone && fullUser.phone !== 'Đăng nhập Google' ? fullUser.phone : '0909 001 001';
-    const tier = fullUser.tier || (fullUser.role === 'admin' ? 'Quản Trị Viên' : 'Kim Cương (VIP)');
+    const name = fullUser.name || user?.name || 'Khách';
+    const email = fullUser.email || user?.email || 'Chưa cập nhật';
+    const phone = fullUser.phone && fullUser.phone !== 'Đăng nhập Google' ? fullUser.phone : ((user?.phone && user.phone !== 'Đăng nhập Google') ? user.phone : 'Chưa cập nhật');
+    const isAdmin = (fullUser.role === 'admin');
+    const tier = fullUser.tier || (isAdmin ? 'Quản Trị Viên' : (user ? 'Hội Viên Thân Thiết' : 'Khách Mua Hàng'));
     const spent = fullUser.spent || '0 ₫';
     const orders = typeof fullUser.orders === 'number' ? `${fullUser.orders} đơn hàng` : '0 đơn hàng';
-    const avatar = fullUser.avatar || user.avatar || '';
+    const avatar = fullUser.avatar || user?.avatar || '';
 
     const elName = document.getElementById('page-user-name');
     const elEmail = document.getElementById('page-user-email');
@@ -200,9 +339,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     if (elName) elName.textContent = name;
     if (elEmail) elEmail.textContent = email;
     if (elTier) elTier.textContent = tier;
-    
-    // Phân quyền: CHỈ tài khoản Admin mới nhìn thấy nút Trang quản trị
-    const isAdmin = (fullUser.role === 'admin' || user.role === 'admin');
+
     if (adminBtn) {
       if (isAdmin) {
         adminBtn.classList.remove('hidden');
@@ -240,11 +377,273 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     if (addrName) addrName.textContent = name;
     if (addrPhone) addrPhone.textContent = phone;
 
-    // Orders Render (Đồng bộ theo từng tài khoản từ Database)
+    // =========================================================
+    // HELPERS
+    // =========================================================
+    const fmtVnd = (v: number) => new Intl.NumberFormat('vi-VN').format(v || 0) + ' ₫';
+
+    const getStatusInfo = (orderStatus: string, paymentStatus: string) => {
+      if (orderStatus === 'cancelled') return { text: 'Đã hủy', cls: 'bg-red-100 text-red-700 border-red-300' };
+      if (orderStatus === 'completed') return { text: 'Đã giao hàng', cls: 'bg-emerald-100 text-emerald-800 border-emerald-300' };
+      if (orderStatus === 'shipping') return { text: 'Đang giao hàng', cls: 'bg-purple-100 text-purple-800 border-purple-300' };
+      if (orderStatus === 'confirmed') return { text: 'Đã xác nhận', cls: 'bg-blue-100 text-blue-800 border-blue-300' };
+      if (paymentStatus === 'paid') return { text: 'Đã thanh toán', cls: 'bg-emerald-50 text-emerald-700 border-emerald-300' };
+      return { text: 'Chờ xác nhận', cls: 'bg-amber-100 text-amber-800 border-amber-300' };
+    };
+
+    // =========================================================
+    // ORDER DETAIL CENTERED MODAL
+    // =========================================================
+    const overlay = document.getElementById('order-detail-overlay')!;
+    const panel = document.getElementById('order-detail-panel')!;
+    const panelBody = document.getElementById('order-detail-body')!;
+    const panelCode = document.getElementById('panel-order-code')!;
+    const btnClose = document.getElementById('btn-close-order-detail')!;
+    const btnCloseX = document.getElementById('btn-close-panel-x')!;
+
+    // Đưa modal ra trực tiếp document.body để thoát khỏi stacking context của <main>,
+    // tránh việc bị Header hoặc Footer che khuất.
+    if (overlay && overlay.parentElement !== document.body) {
+      document.body.appendChild(overlay);
+    }
+
+    const openPanel = () => {
+      if (overlay && overlay.parentElement !== document.body) {
+        document.body.appendChild(overlay);
+      }
+      overlay.scrollTop = 0;
+      overlay.classList.remove('hidden');
+      document.body.classList.add('order-modal-open');
+      const aiFab = document.getElementById('feng-shui-fab-container');
+      const contactFab = document.getElementById('contact-fab');
+      if (aiFab) aiFab.style.display = 'none';
+      if (contactFab) contactFab.style.display = 'none';
+
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          overlay.classList.remove('opacity-0');
+          panel.classList.remove('scale-95', 'opacity-0');
+          panel.classList.add('scale-100', 'opacity-100');
+          document.body.style.overflow = 'hidden';
+        });
+      });
+    };
+
+    const closePanel = () => {
+      overlay.classList.add('opacity-0');
+      panel.classList.add('scale-95', 'opacity-0');
+      panel.classList.remove('scale-100', 'opacity-100');
+      document.body.style.overflow = '';
+      setTimeout(() => {
+        overlay.classList.add('hidden');
+        document.body.classList.remove('order-modal-open');
+        const aiFab = document.getElementById('feng-shui-fab-container');
+        const contactFab = document.getElementById('contact-fab');
+        if (aiFab) aiFab.style.display = '';
+        if (contactFab) contactFab.style.display = '';
+      }, 310);
+    };
+
+    if (btnClose) btnClose.addEventListener('click', closePanel);
+    if (btnCloseX) btnCloseX.addEventListener('click', closePanel);
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closePanel();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !overlay.classList.contains('hidden')) {
+        closePanel();
+      }
+    });
+
+    const openOrderDetail = async (orderCode: string) => {
+      panelCode.textContent = `#${orderCode}`;
+      panelBody.innerHTML = `
+        <div class="flex items-center justify-center py-20 text-walnut-800/60 text-sm">
+          <svg class="animate-spin w-7 h-7 mr-3 text-[#173524]" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+          </svg>
+          Đang tải dữ liệu đơn hàng #${orderCode}...
+        </div>`;
+      openPanel();
+
+      try {
+        const res = await fetch(`http://localhost:4000/api/orders/${encodeURIComponent(orderCode)}`);
+        const json = await res.json();
+        if (!json.success || !json.data) {
+          panelBody.innerHTML = `<p class="text-center py-16 text-red-600 font-medium">Không thể tải thông tin đơn hàng #${orderCode}. Vui lòng thử lại.</p>`;
+          return;
+        }
+        const o = json.data;
+        const d = new Date(o.createdAt);
+        const timeStr = d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        const dayStr = d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const dateStr = `${timeStr} • ${dayStr}`;
+        const { text: statusText, cls: statusCls } = getStatusInfo(o.orderStatus, o.paymentStatus);
+        const payMethod = o.paymentMethod === 'bank' ? 'Chuyển khoản VietQR' : 'Thanh toán COD';
+        const recipientPhone = o.phone || (phone && phone !== 'Chưa cập nhật' ? phone : '') || (fullUser?.phone && fullUser.phone !== 'Đăng nhập Google' ? fullUser.phone : 'Chưa cập nhật');
+
+        const formatTitleCase = (str: string) => {
+          if (!str) return '';
+          return str.toLowerCase().replace(/(?:^|\s)\S/g, (a) => a.toUpperCase());
+        };
+
+        const itemsRows = (o.items || []).map((it: any) => `
+          <tr class="border-b border-walnut-900/5 hover:bg-sand-50/70 transition-colors">
+            <td class="px-3.5 py-2.5">
+              <div class="flex items-center gap-3">
+                ${it.imageUrl
+                  ? `<img src="${it.imageUrl}" alt="${it.name}" class="w-12 h-12 object-cover rounded-none border border-walnut-900/10 shrink-0 shadow-xs bg-white" />`
+                  : `<div class="w-12 h-12 bg-sand-200/80 rounded-none shrink-0 border border-walnut-900/10 flex items-center justify-center text-xl">🛋️</div>`
+                }
+                <div class="min-w-0 pr-1">
+                  <p class="font-semibold text-walnut-900 text-xs leading-snug line-clamp-2 capitalize">${formatTitleCase(it.name)}</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-3 py-2.5 text-right text-xs text-walnut-800/80 font-medium whitespace-nowrap">${fmtVnd(it.price)}</td>
+            <td class="px-2 py-2.5 text-center font-bold text-walnut-900 text-xs whitespace-nowrap">${it.qty}</td>
+            <td class="px-3.5 py-2.5 text-right font-bold text-clay-700 text-xs whitespace-nowrap">${fmtVnd(it.total || it.price * it.qty)}</td>
+          </tr>`).join('');
+
+        panelBody.innerHTML = `
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+
+            <!-- CỘT TRÁI: Thông tin chung + Nhận hàng (5 cột) -->
+            <div class="lg:col-span-5 space-y-3.5">
+
+              <!-- Box: Thông tin đơn hàng (Không có icon emoji) -->
+              <div class="bg-white rounded-none border border-walnut-900/15 overflow-hidden shadow-xs">
+                <div class="bg-[#F0EBE3] px-3.5 py-2.5 border-b border-walnut-900/10 flex items-center justify-between">
+                  <h3 class="font-bold text-xs text-walnut-900 uppercase tracking-wide">Thông tin đơn hàng</h3>
+                  <span class="inline-block border rounded-none px-2 py-0.5 text-[10px] font-bold ${statusCls}">${statusText}</span>
+                </div>
+                <div class="p-3.5 space-y-2 text-xs">
+                  <div class="flex justify-between items-center py-0.5 border-b border-walnut-900/5">
+                    <span class="text-walnut-800/60">Mã đơn hàng:</span>
+                    <span class="font-bold font-mono text-walnut-900 text-xs bg-sand-100/80 px-2 py-0.5 border border-walnut-900/10">#${o.orderCode}</span>
+                  </div>
+                  <div class="flex justify-between items-center py-0.5 border-b border-walnut-900/5">
+                    <span class="text-walnut-800/60">Thời gian đặt:</span>
+                    <span class="text-walnut-900 font-medium">${dateStr}</span>
+                  </div>
+                  <div class="flex justify-between items-center py-0.5 border-b border-walnut-900/5">
+                    <span class="text-walnut-800/60">Phương thức:</span>
+                    <span class="text-walnut-900 font-semibold">${payMethod}</span>
+                  </div>
+                  <div class="flex justify-between items-center py-0.5">
+                    <span class="text-walnut-800/60">Thanh toán:</span>
+                    <span class="inline-flex items-center gap-1 font-semibold ${o.paymentStatus === 'paid' ? 'text-emerald-700' : 'text-amber-700'}">
+                      <span class="w-1.5 h-1.5 rounded-full ${o.paymentStatus === 'paid' ? 'bg-emerald-500' : 'bg-amber-500'}"></span>
+                      ${o.paymentStatus === 'paid' ? 'Đã thanh toán' : 'Chưa thanh toán'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Box: Thông tin giao nhận (Không có icon emoji, có Số điện thoại đầy đủ) -->
+              <div class="bg-white rounded-none border border-walnut-900/15 overflow-hidden shadow-xs">
+                <div class="bg-[#F0EBE3] px-3.5 py-2.5 border-b border-walnut-900/10">
+                  <h3 class="font-bold text-xs text-walnut-900 uppercase tracking-wide">Thông tin nhận hàng</h3>
+                </div>
+                <div class="p-3.5 space-y-2 text-xs text-walnut-900">
+                  <div class="flex items-start gap-2">
+                    <span class="text-walnut-800/60 w-24 shrink-0">Người nhận:</span>
+                    <strong class="font-bold text-walnut-900 text-sm">${o.customerName || name}</strong>
+                  </div>
+                  <div class="flex items-start gap-2">
+                    <span class="text-walnut-800/60 w-24 shrink-0">Số điện thoại:</span>
+                    <span class="font-semibold text-walnut-900 font-mono">${recipientPhone}</span>
+                  </div>
+                  ${o.email ? `
+                  <div class="flex items-start gap-2">
+                    <span class="text-walnut-800/60 w-24 shrink-0">Email:</span>
+                    <span class="font-mono text-walnut-800">${o.email}</span>
+                  </div>` : ''}
+                  <div class="flex items-start gap-2 pt-1 border-t border-walnut-900/5">
+                    <span class="text-walnut-800/60 w-24 shrink-0 pt-0.5">Địa chỉ giao:</span>
+                    <div class="flex-1 bg-sand-100/60 p-2 border border-walnut-900/10 text-walnut-900 leading-relaxed font-medium">
+                      ${o.shippingAddress || 'Chưa cung cấp địa chỉ'}
+                    </div>
+                  </div>
+                  ${o.customerNote ? `
+                  <div class="border-t border-walnut-900/10 pt-1.5 flex items-start gap-2">
+                    <span class="text-walnut-800/60 w-24 shrink-0">Ghi chú:</span>
+                    <span class="italic text-walnut-800/80 bg-amber-50/60 px-2 py-1 border border-amber-200/50 flex-1">${o.customerNote}</span>
+                  </div>` : ''}
+                </div>
+              </div>
+
+            </div>
+
+            <!-- CỘT PHẢI: Danh sách sản phẩm & Thanh toán (7 cột - Bố cục ngắn gọn, không thừa thãi) -->
+            <div class="lg:col-span-7">
+              <div class="bg-white rounded-none border border-walnut-900/15 overflow-hidden shadow-xs flex flex-col">
+                <div class="bg-[#173524] text-white px-4 py-2.5 border-b border-[#D8B670]/20 flex items-center justify-between shrink-0">
+                  <h3 class="font-bold text-xs uppercase tracking-wider">Sản phẩm đã mua</h3>
+                  <span class="text-[11px] font-bold text-[#E6CA85] bg-white/10 px-2 py-0.5 border border-[#D8B670]/30">${(o.items || []).length} sản phẩm</span>
+                </div>
+
+                <div class="overflow-x-auto">
+                  <table class="w-full text-xs">
+                    <thead>
+                      <tr class="bg-sand-100/90 text-walnut-800/80 text-[10px] uppercase tracking-wider border-b border-walnut-900/10">
+                        <th class="px-3.5 py-2 text-left font-bold">Sản phẩm</th>
+                        <th class="px-3 py-2 text-right font-bold w-24 whitespace-nowrap">Đơn giá</th>
+                        <th class="px-2 py-2 text-center font-bold w-12 whitespace-nowrap">SL</th>
+                        <th class="px-3.5 py-2 text-right font-bold w-28 whitespace-nowrap">Thành tiền</th>
+                      </tr>
+                    </thead>
+                    <tbody class="divide-y divide-walnut-900/5">
+                      ${itemsRows}
+                    </tbody>
+                  </table>
+                </div>
+
+                <!-- Price Breakdown & Summary (Thu gọn vừa khít, không để khoảng trắng trống trải) -->
+                <div class="border-t border-walnut-900/15 px-4 py-3 space-y-1.5 text-xs bg-[#FAF8F5] shrink-0">
+                  ${o.subtotal ? `
+                  <div class="flex justify-between text-walnut-800/70">
+                    <span>Tạm tính tiền hàng:</span>
+                    <span class="font-semibold text-walnut-900">${fmtVnd(o.subtotal)}</span>
+                  </div>` : ''}
+                  <div class="flex justify-between text-walnut-800/70">
+                    <span>Phí vận chuyển:</span>
+                    <span class="${(o.shippingFee || 0) === 0 ? 'text-emerald-700 font-bold' : 'font-semibold text-walnut-900'}">
+                      ${(o.shippingFee || 0) === 0 ? 'Miễn phí' : fmtVnd(o.shippingFee)}
+                    </span>
+                  </div>
+                  ${(o.discountAmount || 0) > 0 ? `
+                  <div class="flex justify-between text-emerald-700 font-bold">
+                    <span>Mã giảm giá${o.couponCode ? ` (${o.couponCode})` : ''}:</span>
+                    <span>-${fmtVnd(o.discountAmount)}</span>
+                  </div>` : ''}
+                  <div class="flex justify-between items-center text-sm font-bold border-t border-walnut-900/15 pt-2 mt-1">
+                    <span class="text-walnut-900 uppercase tracking-wide text-xs">Tổng cộng thanh toán:</span>
+                    <span class="text-clay-700 text-lg font-bold font-mono">${fmtVnd(o.total)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>`;
+
+      } catch (err) {
+        panelBody.innerHTML = `<p class="text-center py-16 text-red-600 text-sm font-medium">Lỗi kết nối khi tải đơn hàng. Vui lòng thử lại sau.</p>`;
+        console.error('Lỗi tải chi tiết đơn hàng:', err);
+      }
+    };
+
+    // =========================================================
+    // RENDER ORDERS TABLE
+    // =========================================================
     const renderPageOrders = async () => {
-      const ordersPane = document.getElementById('page-pane-orders');
-      if (!ordersPane) return;
-      ordersPane.innerHTML = '<div class="py-10 text-center text-xs text-walnut-800/60">Đang tải danh sách đơn hàng từ máy chủ...</div>';
+      const loadingEl = document.getElementById('orders-loading')!;
+      const tableWrapper = document.getElementById('orders-table-wrapper')!;
+      const tableBody = document.getElementById('orders-table-body')!;
+      const emptyEl = document.getElementById('orders-empty')!;
+      const countBadge = document.getElementById('orders-count-badge')!;
 
       let userOrders: any[] = [];
       const token = localStorage.getItem('auth_token');
@@ -258,7 +657,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           if (json.success && Array.isArray(json.data)) {
             userOrders = json.data;
             if (json.stats) {
-              if (infoSpent) infoSpent.textContent = new Intl.NumberFormat('vi-VN').format(json.stats.totalSpent) + ' ₫';
+              if (infoSpent) infoSpent.textContent = fmtVnd(json.stats.totalSpent);
               if (infoOrders) infoOrders.textContent = `${json.stats.completedCount} đơn hàng`;
             }
           }
@@ -267,62 +666,110 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         }
       }
 
+      // Bổ sung đơn gần đây từ localStorage
+      for (const code of recentCodes) {
+        if (!userOrders.some((o: any) => o.orderCode === code)) {
+          try {
+            const res = await fetch(`http://localhost:4000/api/orders/${encodeURIComponent(code)}`);
+            const json = await res.json();
+            if (json.success && json.data) {
+              userOrders.unshift(json.data);
+            }
+          } catch (err) {
+            console.warn('Lỗi tải chi tiết đơn gần đây:', code, err);
+          }
+        }
+      }
+
+      loadingEl.classList.add('hidden');
+
       if (userOrders.length === 0) {
-        ordersPane.innerHTML = `
-          <div class="text-center py-12 text-xs text-walnut-800/70">
-            <p class="text-4xl mb-3 text-walnut-900/30">📦</p>
-            <p class="font-bold text-base text-walnut-900">Bạn chưa có đơn hàng nào</p>
-            <p class="mt-1 text-walnut-800/70">Khi bạn đặt mua sản phẩm, danh sách và tiến độ đơn hàng sẽ xuất hiện tại đây.</p>
-            <a href="/san-pham" class="mt-5 inline-block bg-clay-600 text-white px-6 py-2.5 rounded text-xs font-semibold hover:bg-clay-500 transition-colors">
-              Khám phá sản phẩm ngay →
-            </a>
-          </div>
-        `;
-      } else {
-        ordersPane.innerHTML = userOrders.map((order: any) => {
-          const dateStr = new Date(order.createdAt).toLocaleDateString('vi-VN');
-          const isPaid = order.paymentStatus === 'paid';
-          const isDelivered = order.orderStatus === 'completed' || order.orderStatus === 'delivered';
-          const statusText = isDelivered ? 'Đã giao thành công' : (order.orderStatus === 'shipping' ? 'Đang giao hàng' : (isPaid ? 'Đã thanh toán (Chờ giao)' : 'Chờ xác nhận'));
-          const statusClass = isDelivered ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : (isPaid ? 'bg-blue-100 text-blue-800 border-blue-300' : 'bg-amber-100 text-amber-800 border-amber-300');
+        emptyEl.classList.remove('hidden');
+        return;
+      }
 
-          const itemsHtml = order.items.map((it: any) => `
-            <div class="flex justify-between items-center text-xs mt-1">
-              <div>
-                <p class="font-semibold text-walnut-900">${it.name} (x${it.qty})</p>
-              </div>
-              <span class="font-bold text-clay-700 text-xs">${new Intl.NumberFormat('vi-VN').format(it.total)} ₫</span>
-            </div>
-          `).join('');
+      countBadge.textContent = `${userOrders.length} đơn hàng`;
+      tableWrapper.classList.remove('hidden');
 
-          return `
-            <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-5 space-y-3">
-              <div class="flex items-center justify-between border-b border-walnut-900/10 pb-2.5">
-                <div>
-                  <span class="font-mono text-xs font-bold text-walnut-900">#${order.orderCode}</span>
-                  <span class="text-[11px] text-walnut-800/60 ml-2">${dateStr}</span>
-                </div>
-                <span class="rounded border px-2.5 py-0.5 text-[10px] font-semibold ${statusClass}">
-                  ${statusText}
-                </span>
+      tableBody.innerHTML = userOrders.map((order: any) => {
+        const dateStr = new Date(order.createdAt).toLocaleDateString('vi-VN', {
+          day: '2-digit', month: '2-digit', year: 'numeric',
+          hour: '2-digit', minute: '2-digit',
+        });
+        const { text: statusText, cls: statusCls } = getStatusInfo(order.orderStatus, order.paymentStatus);
+        const recipientName = order.customerName || name;
+        const recipientPhone = order.phone || phone;
+        const isHighlighted = highlightCode && order.orderCode === highlightCode;
+
+        return `
+          <tr id="order-row-${order.orderCode}" class="border-b border-walnut-900/8 hover:bg-[#E6CA85]/8 transition-colors cursor-default ${isHighlighted ? 'ring-2 ring-inset ring-emerald-500 bg-emerald-50/30' : ''}">
+            <td class="px-4 py-3.5">
+              <div class="flex items-center gap-2">
+                <span class="font-mono font-bold text-walnut-900 text-xs">#${order.orderCode}</span>
+                ${isHighlighted ? `<span class="inline-flex items-center gap-1 text-[9px] font-bold text-emerald-700 bg-emerald-100 border border-emerald-300 px-1.5 py-0.5 rounded-none uppercase">
+                  <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></span>Mới
+                </span>` : ''}
               </div>
-              ${itemsHtml}
-              <div class="border-t border-walnut-900/10 pt-2.5 flex justify-between items-center text-xs font-bold">
-                <span class="text-walnut-800">Tổng thanh toán:</span>
-                <span class="text-clay-700 text-base font-bold">${new Intl.NumberFormat('vi-VN').format(order.total)} ₫</span>
+            </td>
+            <td class="px-4 py-3.5 text-xs text-walnut-800/70 whitespace-nowrap">📅 ${dateStr}</td>
+            <td class="px-4 py-3.5">
+              <p class="font-semibold text-walnut-900 text-xs">${recipientName}</p>
+              <p class="text-[11px] text-walnut-800/60">${recipientPhone}</p>
+            </td>
+            <td class="px-4 py-3.5 text-right font-bold text-clay-700 text-sm whitespace-nowrap">${fmtVnd(order.total)}</td>
+            <td class="px-4 py-3.5 text-center">
+              <span class="inline-block border rounded-none px-2 py-0.5 text-[10px] font-bold whitespace-nowrap ${statusCls}">${statusText}</span>
+            </td>
+            <td class="px-4 py-3.5 text-center">
+              <div class="flex flex-col items-center gap-1.5">
+                <button
+                  data-view-order="${order.orderCode}"
+                  class="btn-view-detail inline-flex items-center gap-1 bg-[#173524] text-[#E6CA85] hover:bg-[#204932] hover:text-white px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider transition-colors rounded-none cursor-pointer shadow-xs whitespace-nowrap"
+                >
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                  Chi tiết
+                </button>
+                ${(order.orderStatus === 'pending' || order.orderStatus === 'confirmed') ? `
+                <button
+                  data-cancel-order="${order.orderCode}"
+                  class="btn-cancel-order inline-flex items-center gap-1 border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-400 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider transition-colors rounded-none cursor-pointer whitespace-nowrap"
+                >
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                  Hủy đơn
+                </button>` : ''}
               </div>
-            </div>
-          `;
-        }).join('');
+            </td>
+          </tr>`;
+      }).join('');
+
+      // Bind sự kiện cho nút Chi tiết
+      document.querySelectorAll<HTMLButtonElement>('.btn-view-detail').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const code = btn.dataset.viewOrder;
+          if (code) openOrderDetail(code);
+        });
+      });
+
+      // Scroll đến đơn hàng highlight
+      if (highlightCode) {
+        setTimeout(() => {
+          const rowEl = document.getElementById(`order-row-${highlightCode}`);
+          if (rowEl) rowEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          // Tự động mở chi tiết đơn hàng vừa thanh toán
+          openOrderDetail(highlightCode);
+        }, 500);
       }
     };
+
     renderPageOrders();
 
-    // Wishlist Render (Đồng bộ theo từng tài khoản từ Database)
+    // =========================================================
+    // WISHLIST
+    // =========================================================
     const renderPageWishlist = async () => {
-      const wishlistPane = document.getElementById('page-pane-wishlist');
-      if (!wishlistPane) return;
-      wishlistPane.innerHTML = '<div class="py-10 text-center text-xs text-walnut-800/60">Đang tải danh sách yêu thích từ máy chủ...</div>';
+      const loadingEl = document.getElementById('wishlist-loading')!;
+      const contentEl = document.getElementById('wishlist-content')!;
+      const emptyEl = document.getElementById('wishlist-empty')!;
 
       let wishItems: any[] = [];
       const token = localStorage.getItem('auth_token');
@@ -345,79 +792,98 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         } catch {}
       }
 
+      loadingEl.classList.add('hidden');
+
       if (wishItems.length === 0) {
-        wishlistPane.innerHTML = `
-          <div class="text-center py-12 text-xs text-walnut-800/70">
-            <p class="text-4xl mb-3 text-walnut-900/30">♡</p>
-            <p class="font-bold text-base text-walnut-900">Danh sách yêu thích đang trống</p>
-            <p class="mt-1 text-walnut-800/70">Bạn chưa lưu sản phẩm nào. Hãy bấm vào biểu tượng trái tim khi xem sản phẩm để lưu lại tại đây nhé.</p>
-          </div>
-        `;
-      } else {
-        wishlistPane.innerHTML = wishItems.map((item: any) => `
-          <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4 flex items-center justify-between gap-4">
-            <div>
-              <h4 class="font-semibold text-sm text-walnut-900">${item.name}</h4>
-              <p class="font-bold text-clay-700 text-xs mt-0.5">${new Intl.NumberFormat('vi-VN').format(item.price)} ₫</p>
-            </div>
-            <div class="flex items-center gap-4">
-              <a href="/san-pham/${item.slug}" class="text-xs uppercase tracking-wider text-walnut-900 font-semibold hover:text-clay-600 underline">
-                Xem chi tiết →
-              </a>
-              <button type="button" data-remove-wishlist="${item.slug}" class="text-xs text-red-500 hover:text-red-700 p-1 cursor-pointer font-bold" title="Xóa khỏi yêu thích">
-                ✕
-              </button>
-            </div>
-          </div>
-        `).join('');
-
-        wishlistPane.querySelectorAll<HTMLButtonElement>('[data-remove-wishlist]').forEach((btn) => {
-          btn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const slugToRemove = btn.dataset.removeWishlist;
-            if (!slugToRemove) return;
-            btn.disabled = true;
-
-            if (token) {
-              try {
-                await fetch(`http://localhost:4000/api/wishlist/${slugToRemove}`, {
-                  method: 'DELETE',
-                  headers: { Authorization: `Bearer ${token}` },
-                });
-              } catch (e) {
-                console.error(e);
-              }
-            } else {
-              let guestList: any[] = [];
-              try { guestList = JSON.parse(localStorage.getItem('user_wishlist_guest') || '[]'); } catch {}
-              guestList = guestList.filter((i: any) => i.slug !== slugToRemove);
-              localStorage.setItem('user_wishlist_guest', JSON.stringify(guestList));
-            }
-
-            window.dispatchEvent(new Event('wishlist:changed'));
-            renderPageWishlist();
-          });
-        });
+        emptyEl.classList.remove('hidden');
+        return;
       }
+
+      contentEl.classList.remove('hidden');
+      contentEl.innerHTML = wishItems.map((item: any) => `
+        <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4 flex items-center justify-between gap-4">
+          <div>
+            <h4 class="font-semibold text-sm text-walnut-900">${item.name}</h4>
+            <p class="font-bold text-clay-700 text-xs mt-0.5">${fmtVnd(item.price)}</p>
+          </div>
+          <div class="flex items-center gap-4">
+            <a href="/san-pham/${item.slug}" class="text-xs uppercase tracking-wider text-walnut-900 font-semibold hover:text-clay-600 underline">
+              Xem chi tiết →
+            </a>
+            <button type="button" data-remove-wishlist="${item.slug}" class="text-xs text-red-500 hover:text-red-700 p-1 cursor-pointer font-bold" title="Xóa khỏi yêu thích">
+              ✕
+            </button>
+          </div>
+        </div>`).join('');
+
+      contentEl.querySelectorAll<HTMLButtonElement>('[data-remove-wishlist]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const slugToRemove = btn.dataset.removeWishlist;
+          if (!slugToRemove) return;
+          btn.disabled = true;
+
+          if (token) {
+            try {
+              await fetch(`http://localhost:4000/api/wishlist/${slugToRemove}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+              });
+            } catch (e) {
+              console.error(e);
+            }
+          } else {
+            let guestList: any[] = [];
+            try { guestList = JSON.parse(localStorage.getItem('user_wishlist_guest') || '[]'); } catch {}
+            guestList = guestList.filter((i: any) => i.slug !== slugToRemove);
+            localStorage.setItem('user_wishlist_guest', JSON.stringify(guestList));
+          }
+
+          window.dispatchEvent(new Event('wishlist:changed'));
+          contentEl.classList.add('hidden');
+          loadingEl.classList.remove('hidden');
+          await renderPageWishlist();
+        });
+      });
     };
 
     renderPageWishlist();
     window.addEventListener('wishlist:changed', renderPageWishlist);
   }
 
-  // Page Tabs
+  // =========================================================
+  // TAB SWITCHING
+  // =========================================================
   const tabBtns = document.querySelectorAll<HTMLButtonElement>('[data-page-tab]');
+  const switchTab = (tabName: string) => {
+    tabBtns.forEach((b) => {
+      const isMatch = b.dataset.pageTab === tabName;
+      b.className = isMatch
+        ? 'page-tab-btn py-4 border-b-2 border-[#173524] text-[#173524] font-bold cursor-pointer whitespace-nowrap text-xs uppercase tracking-wider font-semibold'
+        : 'page-tab-btn py-4 border-b-2 border-transparent text-walnut-800/70 hover:text-walnut-900 cursor-pointer whitespace-nowrap text-xs uppercase tracking-wider font-semibold';
+    });
+
+    document.querySelectorAll<HTMLElement>('.page-tab-pane').forEach((pane) => {
+      pane.classList.toggle('hidden', pane.id !== `page-pane-${tabName}`);
+    });
+  };
+
   tabBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
       const tab = btn.dataset.pageTab;
-      tabBtns.forEach((b) => {
-        b.className = 'page-tab-btn py-4 border-b-2 border-transparent text-walnut-800/70 hover:text-walnut-900 cursor-pointer whitespace-nowrap';
-      });
-      btn.className = 'page-tab-btn py-4 border-b-2 border-clay-600 text-clay-700 font-bold cursor-pointer whitespace-nowrap';
+      if (tab) switchTab(tab);
+    });
+  });
 
-      document.querySelectorAll<HTMLElement>('.page-tab-pane').forEach((pane) => {
-        pane.classList.toggle('hidden', pane.id !== `page-pane-${tab}`);
+  // Logout
+  document.querySelectorAll<HTMLElement>('[data-logout]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      import('../../scripts/auth').then(({ clearUser }) => {
+        clearUser();
+        window.location.href = '/';
       });
     });
   });
+
+  const activeTabTarget = requestedTab || (!user ? 'orders' : 'profile');
+  switchTab(activeTabTarget);
 </script>

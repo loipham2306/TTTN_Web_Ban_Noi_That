@@ -337,7 +337,7 @@ export default function FengShuiChatbot() {
     <>
       {/* Nút Floating Kích Hoạt Chatbot Phong Thủy - Ẩn đi khi popup chat đang mở */}
       {!isOpen && (
-        <div className="fixed bottom-6 right-20 z-40 flex items-center sm:right-24 animate-in fade-in duration-200">
+        <div id="feng-shui-fab-container" data-floating-fab="true" className="fixed bottom-6 right-20 z-40 flex items-center sm:right-24 animate-in fade-in duration-200">
           <button
             type="button"
             onClick={() => setIsOpen(true)}

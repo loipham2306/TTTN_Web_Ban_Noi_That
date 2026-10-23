@@ -94,6 +94,53 @@ async function main() {
     }
   }
 
+  // Seed sample coupons
+  const sampleCoupons = [
+    {
+      code: 'GIAM10',
+      discount_type: 'percent',
+      discount_value: 10,
+      min_order_value: 500000,
+      max_discount_amount: 500000,
+      start_date: new Date(),
+      end_date: new Date(Date.now() + 90 * 86400000),
+      usage_limit: 100,
+      used_count: 0,
+      status: true,
+    },
+    {
+      code: 'NOITHAT50K',
+      discount_type: 'fixed_amount',
+      discount_value: 50000,
+      min_order_value: 200000,
+      max_discount_amount: null,
+      start_date: new Date(),
+      end_date: new Date(Date.now() + 90 * 86400000),
+      usage_limit: 100,
+      used_count: 0,
+      status: true,
+    },
+    {
+      code: 'TRIAN1K',
+      discount_type: 'fixed_amount',
+      discount_value: 1000,
+      min_order_value: 1000,
+      max_discount_amount: null,
+      start_date: new Date(),
+      end_date: new Date(Date.now() + 90 * 86400000),
+      usage_limit: 100,
+      used_count: 0,
+      status: true,
+    },
+  ];
+
+  for (const cp of sampleCoupons) {
+    const exist = await prisma.coupons.findUnique({ where: { code: cp.code } });
+    if (!exist) {
+      await prisma.coupons.create({ data: cp });
+    }
+  }
+
   console.log('Seed into XAMPP completed successfully!');
   await prisma.$disconnect();
 }

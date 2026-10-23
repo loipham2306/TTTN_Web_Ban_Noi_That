@@ -41,6 +41,7 @@ try {
         space: p.space || 'phong-khach',
         spaceLabel: p.spaceLabel || 'Phòng khách',
         price: p.price,
+        comparePrice: p.comparePrice ? Number(p.comparePrice) : null,
         stock: p.stock !== undefined ? Number(p.stock) : 20,
         material: p.material || '',
         image: p.thumbnail || initialProducts.find((ip) => ip.slug === p.slug)?.image || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80',
@@ -59,6 +60,7 @@ if (rows.length === 0) {
   rows = initialProducts.map((product) => ({
     ...product,
     id: undefined,
+    comparePrice: (product as any).comparePrice || null,
     image: (product as any).image || (product as any).thumbnail || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80',
     stock: tonKhoDefault[product.slug] === 'het-hang' ? 0 : 20,
     status: tonKhoDefault[product.slug] ?? 'con-hang',
@@ -193,6 +195,7 @@ const stats = [
               data-category={row.category}
               data-space={row.space}
               data-price={row.price}
+              data-compare-price={row.comparePrice || ''}
               data-stock={row.stock}
               data-material={row.material}
               data-status={row.status}
@@ -221,8 +224,18 @@ const stats = [
               <td class="px-4 py-3.5 align-middle text-sm text-walnut-800">
                 {spaces.find((s) => s.key === row.space)?.label}
               </td>
-              <td class="px-4 py-3.5 align-middle text-sm font-semibold text-clay-600">
-                {formatVnd(row.price)}
+              <td class="px-4 py-3.5 align-middle text-sm" data-price-cell>
+                <div class="flex flex-col gap-0.5">
+                  <span class="font-semibold text-clay-600">{formatVnd(row.price)}</span>
+                  {row.comparePrice && row.comparePrice > row.price ? (
+                    <div class="flex items-center gap-1.5 text-xs">
+                      <span class="text-walnut-800/50 line-through text-[11px]">{formatVnd(row.comparePrice)}</span>
+                      <span class="text-[10px] font-bold text-red-600 bg-red-50 px-1 py-0.2 rounded border border-red-200">
+                        -{Math.round((1 - row.price / row.comparePrice) * 100)}%
+                      </span>
+                    </div>
+                  ) : null}
+                </div>
               </td>
               <td class="px-4 py-3.5 align-middle">
                 <span
@@ -343,8 +356,15 @@ const stats = [
           </div>
 
           <div>
-            <label for="prod-price" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold">Đơn giá (VNĐ) *</label>
-            <input type="number" id="prod-price" required min="100000" step="100000" placeholder="15000000" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-[#173524] focus:ring-1 focus:ring-[#173524] transition-colors" />
+            <label for="prod-price" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold">Giá bán (VNĐ) *</label>
+            <input type="number" id="prod-price" min="1000" step="1000" placeholder="Ví dụ: 2000 hoặc 15000000" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-[#173524] focus:ring-1 focus:ring-[#173524] transition-colors" />
+            <p class="mt-1 text-[11px] text-walnut-800/60">Giá thực tế khách hàng thanh toán.</p>
+          </div>
+
+          <div>
+            <label for="prod-compare-price" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold">Giá gốc / Giá niêm yết (VNĐ)</label>
+            <input type="number" id="prod-compare-price" min="0" step="1000" placeholder="Ví dụ: 25000000 (để trống nếu không giảm)" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-[#173524] focus:ring-1 focus:ring-[#173524] transition-colors" />
+            <p class="mt-1 text-[11px] text-walnut-800/60">Nhập cao hơn giá bán để tự động hiển thị giảm giá (%).</p>
           </div>
 
           <div>
@@ -604,6 +624,32 @@ const stats = [
     let currentUploadedMainUrl = '';
     let currentDetailImages: string[] = [];
 
+    // Helper render ảnh chi tiết
+    const renderDetailPreviews = (urls: string[]) => {
+      detailContainer.innerHTML = '';
+      if (!urls || urls.length === 0) {
+        detailContainer.appendChild(detailEmpty);
+        return;
+      }
+      urls.forEach((url, index) => {
+        const thumb = document.createElement('div');
+        thumb.className = 'relative h-20 rounded border border-walnut-900/15 overflow-hidden group bg-white shadow-xs';
+        thumb.innerHTML = `
+          <img src="${url}" alt="Ảnh chi tiết ${index + 1}" class="w-full h-full object-cover" onerror="this.src='https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=400&q=80'" />
+          <button type="button" class="absolute top-1 right-1 h-5 w-5 rounded-full bg-black/75 hover:bg-danger-600 text-white flex items-center justify-center text-xs font-bold transition-colors cursor-pointer" title="Xóa ảnh này">
+            &times;
+          </button>
+        `;
+        const delBtn = thumb.querySelector('button');
+        delBtn?.addEventListener('click', (e) => {
+          e.stopPropagation();
+          currentDetailImages.splice(index, 1);
+          renderDetailPreviews(currentDetailImages);
+        });
+        detailContainer.appendChild(thumb);
+      });
+    };
+
     // Click dropzone to pick file
     mainDropzone?.addEventListener('click', (e) => {
       if ((e.target as HTMLElement).closest('#main-preview-wrapper')) return;
@@ -693,22 +739,11 @@ const stats = [
           if (mainImgUrlInput) mainImgUrlInput.value = json.url;
           showToast('Đã tải và lưu ảnh lên máy chủ thành công!');
         } else {
-          // Fallback to local base64
-          const reader = new FileReader();
-          reader.onload = (ev) => {
-            currentUploadedMainUrl = ev.target?.result as string;
-            mainPreview.src = currentUploadedMainUrl;
-          };
-          reader.readAsDataURL(file);
+          showToast('⚠️ Không thể lưu ảnh lên máy chủ. Hãy kiểm tra kết nối backend!');
+          // Giữ preview cục bộ nhưng KHÔNG lưu base64 vào currentUploadedMainUrl
         }
       } catch (err) {
-        // Fallback to base64 if upload offline
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          currentUploadedMainUrl = ev.target?.result as string;
-          mainPreview.src = currentUploadedMainUrl;
-        };
-        reader.readAsDataURL(file);
+        showToast('⚠️ Backend offline! Không thể tải ảnh lên máy chủ.');
       } finally {
         mainUploadSpinner?.classList.add('hidden');
         mainPreviewWrapper?.classList.remove('hidden');
@@ -747,16 +782,20 @@ const stats = [
     detailImgFileInput?.addEventListener('change', async (e) => {
       const files = (e.target as HTMLInputElement).files;
       if (files && files.length > 0) {
-        detailContainer.innerHTML = '';
-        const maxFiles = Math.min(files.length, 3);
-        for (let i = 0; i < maxFiles; i++) {
-          const file = files[i];
-          const localUrl = URL.createObjectURL(file);
-          const thumb = document.createElement('div');
-          thumb.className = 'relative h-20 rounded border border-walnut-900/15 overflow-hidden group';
-          thumb.innerHTML = `<img src="${localUrl}" alt="Ảnh chi tiết" class="w-full h-full object-cover" />`;
-          detailContainer.appendChild(thumb);
+        const remainingSlots = 3 - currentDetailImages.length;
+        if (remainingSlots <= 0) {
+          showToast('Đã đạt tối đa 3 ảnh chi tiết. Hãy xóa bớt ảnh cũ để thêm mới!');
+          detailImgFileInput.value = '';
+          return;
         }
+
+        const maxFiles = Math.min(files.length, remainingSlots);
+
+        // Hiển thị trạng thái đang tải
+        const loadingThumb = document.createElement('div');
+        loadingThumb.className = 'col-span-3 flex items-center justify-center py-4 gap-2 text-xs text-clay-600';
+        loadingThumb.innerHTML = `<div class="h-4 w-4 border-2 border-clay-600 border-t-transparent rounded-full animate-spin"></div><span>Đang tải ${maxFiles} ảnh chi tiết lên...</span>`;
+        detailContainer.appendChild(loadingThumb);
 
         // Upload to backend
         try {
@@ -772,14 +811,16 @@ const stats = [
           });
           const json = await res.json();
           if (json.success && Array.isArray(json.urls)) {
-            currentDetailImages = json.urls;
-            showToast(`Đã tải lên ${json.urls.length} ảnh chi tiết!`);
+            currentDetailImages = [...currentDetailImages, ...json.urls].slice(0, 3);
+            renderDetailPreviews(currentDetailImages);
+            showToast(`Đã thêm ${json.urls.length} ảnh chi tiết!`);
+          } else {
+            renderDetailPreviews(currentDetailImages);
           }
-        } catch {}
-      } else {
-        currentDetailImages = [];
-        detailContainer.innerHTML = '';
-        detailContainer.appendChild(detailEmpty);
+        } catch {
+          renderDetailPreviews(currentDetailImages);
+        }
+        detailImgFileInput.value = '';
       }
     });
 
@@ -873,6 +914,8 @@ const stats = [
       (document.getElementById('form-mode') as HTMLInputElement).value = 'add';
       (document.getElementById('form-original-slug') as HTMLInputElement).value = '';
       (document.getElementById('prod-stock') as HTMLInputElement).value = '20';
+      (document.getElementById('prod-price') as HTMLInputElement).value = '';
+      (document.getElementById('prod-compare-price') as HTMLInputElement).value = '';
       
       // Reset image preview
       currentUploadedMainUrl = '';
@@ -885,8 +928,7 @@ const stats = [
       mainPreviewWrapper?.classList.add('hidden');
       mainUploadSpinner?.classList.add('hidden');
       mainPlaceholder?.classList.remove('hidden');
-      detailContainer.innerHTML = '';
-      detailContainer.appendChild(detailEmpty);
+      renderDetailPreviews([]);
 
       modal.classList.remove('hidden');
     });
@@ -920,7 +962,21 @@ const stats = [
       const origSlug = (document.getElementById('form-original-slug') as HTMLInputElement).value;
       const name = (document.getElementById('prod-name') as HTMLInputElement).value.trim();
       const slug = (document.getElementById('prod-slug') as HTMLInputElement).value.trim();
-      const price = Number((document.getElementById('prod-price') as HTMLInputElement).value) || 0;
+      
+      const targetRow = mode === 'edit' ? rows.find((r) => r.dataset.slug === origSlug) : null;
+      const priceInput = (document.getElementById('prod-price') as HTMLInputElement).value.trim();
+      const comparePriceInput = (document.getElementById('prod-compare-price') as HTMLInputElement).value.trim();
+
+      // Nếu người dùng không sửa giá khi chỉnh sửa, giữ nguyên giá gốc ban đầu
+      let price = priceInput ? Number(priceInput) : (mode === 'edit' && targetRow ? Number(targetRow.dataset.price || 0) : 0);
+      if (!price || price <= 0) {
+        showToast('⚠️ Vui lòng nhập giá bán hợp lệ (> 0đ)!');
+        return;
+      }
+
+      // Xử lý giá gốc / giá niêm yết (comparePrice)
+      const comparePrice = comparePriceInput ? Number(comparePriceInput) : null;
+
       const stock = Math.max(0, parseInt((document.getElementById('prod-stock') as HTMLInputElement).value) || 0);
       const catSelectEl = document.getElementById('prod-category') as HTMLSelectElement;
       const cat = catSelectEl.value;
@@ -946,10 +1002,9 @@ const stats = [
 
       try {
         if (mode === 'edit') {
-          const targetRow = rows.find((r) => r.dataset.slug === origSlug);
           const productId = targetRow?.dataset.id;
           if (productId) {
-            await fetch(`${API}/products/${productId}`, {
+            const res = await fetch(`${API}/products/${productId}`, {
               method: 'PUT',
               headers: getAuthHeaders(),
               body: JSON.stringify({
@@ -959,12 +1014,18 @@ const stats = [
                 shortDescription: desc,
                 status: status === 'con-hang',
                 price,
+                comparePrice: comparePrice !== null ? comparePrice : null,
                 stock,
                 material,
                 imageUrl: currentUploadedMainUrl || undefined,
-                detailImages: currentDetailImages.length > 0 ? currentDetailImages : undefined,
+                detailImages: currentDetailImages,
               }),
             });
+            const json = await res.json();
+            if (!res.ok || !json.success) {
+              showToast(json.message || '⚠️ Lỗi khi cập nhật sản phẩm trên máy chủ!');
+              return;
+            }
           }
         } else {
           const res = await fetch(`${API}/products`, {
@@ -976,6 +1037,7 @@ const stats = [
               categoryId: CAT_MAP[cat] ?? 1,
               shortDescription: desc,
               price,
+              comparePrice: comparePrice || undefined,
               stock,
               material,
               imageUrl: mainImgSrc || null,
@@ -983,18 +1045,26 @@ const stats = [
             }),
           });
           const json = await res.json();
-          if (json.success && json.data?.id) {
+          if (!res.ok || !json.success) {
+            showToast(json.message || '⚠️ Không thể thêm sản phẩm vào cơ sở dữ liệu!');
+            return;
+          }
+          if (json.data?.id) {
             newIdFromApi = String(json.data.id);
           }
         }
-      } catch { /* API offline – UI-only */ }
+      } catch (err) {
+        console.error('Lỗi lưu sản phẩm:', err);
+        showToast('⚠️ Không thể kết nối tới máy chủ. Kiểm tra backend có đang chạy không!');
+        return;
+      }
 
       if (mode === 'edit') {
-        const targetRow = rows.find((r) => r.dataset.slug === origSlug);
         if (targetRow) {
           targetRow.dataset.name = name;
           targetRow.dataset.slug = slug;
           targetRow.dataset.price = String(price);
+          targetRow.dataset.comparePrice = comparePrice ? String(comparePrice) : '';
           targetRow.dataset.stock = String(stock);
           targetRow.dataset.category = cat;
           targetRow.dataset.space = space;
@@ -1012,7 +1082,25 @@ const stats = [
           targetRow.querySelector('td:nth-child(2) p:last-child')!.textContent = '/' + slug;
           targetRow.querySelector('td:nth-child(3)')!.textContent = catLabel;
           targetRow.querySelector('td:nth-child(4)')!.textContent = spaceLabel;
-          targetRow.querySelector('td:nth-child(5)')!.textContent = formatVndClient(price);
+          
+          const priceCell = targetRow.querySelector('[data-price-cell]') || targetRow.querySelector('td:nth-child(5)');
+          if (priceCell) {
+            priceCell.setAttribute('data-price-cell', '');
+            if (comparePrice && comparePrice > price) {
+              const discountPct = Math.round((1 - price / comparePrice) * 100);
+              priceCell.innerHTML = `
+                <div class="flex flex-col gap-0.5">
+                  <span class="font-semibold text-clay-600">${formatVndClient(price)}</span>
+                  <div class="flex items-center gap-1.5 text-xs">
+                    <span class="text-walnut-800/50 line-through text-[11px]">${formatVndClient(comparePrice)}</span>
+                    <span class="text-[10px] font-bold text-red-600 bg-red-50 px-1 py-0.2 rounded border border-red-200">-${discountPct}%</span>
+                  </div>
+                </div>
+              `;
+            } else {
+              priceCell.innerHTML = `<span class="font-semibold text-clay-600">${formatVndClient(price)}</span>`;
+            }
+          }
           
           const stockBadge = targetRow.querySelector('[data-stock-badge]');
           if (stockBadge) {
@@ -1039,6 +1127,7 @@ const stats = [
         tr.dataset.category = cat;
         tr.dataset.space = space;
         tr.dataset.price = String(price);
+        tr.dataset.comparePrice = comparePrice ? String(comparePrice) : '';
         tr.dataset.stock = String(stock);
         tr.dataset.material = material;
         tr.dataset.status = status;
@@ -1063,7 +1152,19 @@ const stats = [
           </td>
           <td class="px-4 py-3.5 align-middle text-sm text-walnut-800">${catLabel}</td>
           <td class="px-4 py-3.5 align-middle text-sm text-walnut-800">${spaceLabel}</td>
-          <td class="px-4 py-3.5 align-middle text-sm font-semibold text-clay-600">${formatVndClient(price)}</td>
+          <td class="px-4 py-3.5 align-middle text-sm" data-price-cell>
+            ${comparePrice && comparePrice > price ? `
+              <div class="flex flex-col gap-0.5">
+                <span class="font-semibold text-clay-600">${formatVndClient(price)}</span>
+                <div class="flex items-center gap-1.5 text-xs">
+                  <span class="text-walnut-800/50 line-through text-[11px]">${formatVndClient(comparePrice)}</span>
+                  <span class="text-[10px] font-bold text-red-600 bg-red-50 px-1 py-0.2 rounded border border-red-200">-${Math.round((1 - price / comparePrice) * 100)}%</span>
+                </div>
+              </div>
+            ` : `
+              <span class="font-semibold text-clay-600">${formatVndClient(price)}</span>
+            `}
+          </td>
           <td class="px-4 py-3.5 align-middle">
             <span data-stock-badge class="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded ${
               stock > 0 ? 'text-emerald-800 bg-emerald-50 border border-emerald-200' : 'text-danger-600 bg-danger-600/10 border border-red-200'
@@ -1141,7 +1242,7 @@ const stats = [
 
       // EDIT
       const editBtn = rowEl.querySelector('[data-btn-edit]') as HTMLButtonElement | null;
-      editBtn?.addEventListener('click', () => {
+      editBtn?.addEventListener('click', async () => {
         form.reset();
         modalTitle.textContent = 'Chỉnh sửa sản phẩm';
         (document.getElementById('form-mode') as HTMLInputElement).value = 'edit';
@@ -1150,6 +1251,7 @@ const stats = [
         (document.getElementById('prod-name') as HTMLInputElement).value = rowEl.dataset.name ?? '';
         (document.getElementById('prod-slug') as HTMLInputElement).value = rowEl.dataset.slug ?? '';
         (document.getElementById('prod-price') as HTMLInputElement).value = rowEl.dataset.price ?? '';
+        (document.getElementById('prod-compare-price') as HTMLInputElement).value = rowEl.dataset.comparePrice ?? '';
         (document.getElementById('prod-stock') as HTMLInputElement).value = rowEl.dataset.stock || '20';
         (document.getElementById('prod-category') as HTMLSelectElement).value = rowEl.dataset.category ?? '';
         (document.getElementById('prod-space') as HTMLSelectElement).value = rowEl.dataset.space ?? '';
@@ -1175,11 +1277,63 @@ const stats = [
           mainPlaceholder?.classList.remove('hidden');
         }
 
-        detailContainer.innerHTML = '';
-        detailContainer.appendChild(detailEmpty);
+        detailImgFileInput.value = '';
+        currentDetailImages = [];
+        renderDetailPreviews([]);
         mainImgError?.classList.add('hidden');
 
         modal.classList.remove('hidden');
+
+        // Fetch chi tiết sản phẩm từ API để lấy toàn bộ ảnh chi tiết và giá chuẩn đã lưu trong DB
+        const editSlug = rowEl.dataset.slug;
+        if (editSlug) {
+          detailContainer.innerHTML = `
+            <div class="col-span-3 flex items-center justify-center py-4 gap-2 text-xs text-clay-600">
+              <div class="h-4 w-4 border-2 border-clay-600 border-t-transparent rounded-full animate-spin"></div>
+              <span>Đang tải ảnh chi tiết...</span>
+            </div>
+          `;
+          try {
+            const res = await fetch(`http://localhost:4000/api/products/${editSlug}`);
+            if (res.ok) {
+              const json = await res.json();
+              if (json.success && json.data) {
+                const prodData = json.data;
+                const mainUrl = currentUploadedMainUrl || prodData.images?.find((i: any) => i.isThumbnail)?.url;
+                const detailUrls: string[] = (prodData.images || [])
+                  .filter((i: any) => !i.isThumbnail && i.url && i.url !== mainUrl)
+                  .map((i: any) => i.url);
+
+                currentDetailImages = detailUrls;
+                renderDetailPreviews(currentDetailImages);
+
+                if (prodData.variants?.[0]) {
+                  const v = prodData.variants[0];
+                  if (v.price && !(document.getElementById('prod-price') as HTMLInputElement).value) {
+                    (document.getElementById('prod-price') as HTMLInputElement).value = String(v.price);
+                    rowEl.dataset.price = String(v.price);
+                  }
+                  if (v.comparePrice) {
+                    (document.getElementById('prod-compare-price') as HTMLInputElement).value = String(v.comparePrice);
+                    rowEl.dataset.comparePrice = String(v.comparePrice);
+                  } else if (v.comparePrice === null) {
+                    (document.getElementById('prod-compare-price') as HTMLInputElement).value = '';
+                    rowEl.dataset.comparePrice = '';
+                  }
+                  if (v.dimensions && !(document.getElementById('prod-dimensions') as HTMLInputElement).value) {
+                    (document.getElementById('prod-dimensions') as HTMLInputElement).value = v.dimensions;
+                  }
+                }
+              } else {
+                renderDetailPreviews([]);
+              }
+            } else {
+              renderDetailPreviews([]);
+            }
+          } catch {
+            renderDetailPreviews([]);
+          }
+        }
       });
 
       // DELETE
@@ -1209,13 +1363,31 @@ const stats = [
       if (!targetSlugToDelete) return;
       const idx = rows.findIndex((r) => r.dataset.slug === targetSlugToDelete);
       if (idx !== -1) {
-        const removed = rows.splice(idx, 1)[0];
-        // Try API delete
+        const removed = rows[idx];
         const productId = removed.dataset.id;
         if (productId) {
-          try { await fetch(`http://localhost:4000/api/products/${productId}`, { method: 'DELETE', headers: getAuthHeaders() }); } catch { /* offline */ }
+          try {
+            const res = await fetch(`http://localhost:4000/api/products/${productId}`, {
+              method: 'DELETE',
+              headers: getAuthHeaders(),
+            });
+            const json = await res.json();
+            if (!res.ok || !json.success) {
+              showToast(json.message || '⚠️ Không thể xóa sản phẩm khỏi cơ sở dữ liệu!');
+              deleteModal.classList.add('hidden');
+              targetSlugToDelete = null;
+              return;
+            }
+          } catch (err) {
+            console.error('Lỗi khi xóa sản phẩm:', err);
+            showToast('⚠️ Không thể kết nối tới máy chủ để xóa sản phẩm!');
+            deleteModal.classList.add('hidden');
+            targetSlugToDelete = null;
+            return;
+          }
         }
-        showToast(`Da xoa "${removed.dataset.name}" khoi danh sach!`);
+        rows.splice(idx, 1);
+        showToast(`Đã xóa "${removed.dataset.name}" khỏi danh sách!`);
         deleteModal.classList.add('hidden');
         targetSlugToDelete = null;
         render();

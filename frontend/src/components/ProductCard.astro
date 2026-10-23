@@ -16,7 +16,12 @@ const stock = (product as any).stock !== undefined ? Number((product as any).sto
 const hash = product.slug.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
 const rating = (4.7 + ((hash % 4) * 0.1)).toFixed(1);
 const reviewCount = 12 + (hash % 45);
-const comparePrice = Math.round((product.price * 1.15) / 100000) * 100000;
+const rawCompare = (product as any).comparePrice;
+const comparePrice = (rawCompare && Number(rawCompare) > product.price)
+  ? Number(rawCompare)
+  : (product.price >= 100000 
+      ? Math.round((product.price * 1.15) / 100000) * 100000 
+      : Math.round(product.price * 1.2));
 ---
 
 <article
@@ -76,6 +81,7 @@ const comparePrice = Math.round((product.price * 1.15) / 100000) * 100000;
         data-slug={product.slug}
         data-name={product.name}
         data-price={product.price}
+        data-compare-price={comparePrice}
         data-stock={stock}
         data-category={product.categoryLabel}
         data-category-slug={product.category}
@@ -111,14 +117,15 @@ const comparePrice = Math.round((product.price * 1.15) / 100000) * 100000;
       </a>
     </h3>
 
-    <!-- GIÁ TIỀN ĐÃ ĐƯỢC CHỈNH SỬA: XẾP THÀNH CỘT, GIÁ MỚI Ở TRÊN, GIÁ GỐC Ở DƯỚI -->
     <div class="mt-2 flex flex-col items-center justify-center gap-0.5">
       <span class="text-base sm:text-lg font-bold text-[#B88E28] leading-none">
         {formatVnd(product.price)}
       </span>
-      <span class="text-xs sm:text-sm text-neutral-400 line-through font-normal">
-        {formatVnd(comparePrice)}
-      </span>
+      {comparePrice && comparePrice > product.price ? (
+        <span class="text-xs sm:text-sm text-neutral-400 line-through font-normal">
+          {formatVnd(comparePrice)}
+        </span>
+      ) : null}
     </div>
 
     <!-- 3. CỤM NÚT CHỨC NĂNG -->
@@ -253,6 +260,7 @@ const comparePrice = Math.round((product.price * 1.15) / 100000) * 100000;
         slug: btn.dataset.slug,
         name: btn.dataset.name,
         price: btn.dataset.price,
+        comparePrice: btn.dataset.comparePrice,
         category: btn.dataset.category,
         categorySlug: btn.dataset.categorySlug || '',
         space: btn.dataset.space,

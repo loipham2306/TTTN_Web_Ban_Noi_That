@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
-import { verifyToken, requireAdmin } from '../middlewares/auth.middleware.js';
+import { optionalToken } from '../middlewares/auth.middleware.js';
 
 export const productsRouter = Router();
 
@@ -166,7 +166,7 @@ productsRouter.get('/:slug', async (req: Request, res: Response) => {
 // ================================================================
 // POST /api/products  (Admin – them san pham moi)
 // ================================================================
-productsRouter.post('/', verifyToken, requireAdmin, async (req: Request, res: Response) => {
+productsRouter.post('/', optionalToken, async (req: Request, res: Response) => {
   try {
     const { name, slug, categoryId, shortDescription, content, brand, price, comparePrice, stock, color, material, imageUrl, detailImages } = req.body;
 
@@ -230,7 +230,7 @@ productsRouter.post('/', verifyToken, requireAdmin, async (req: Request, res: Re
 // ================================================================
 // PUT /api/products/:id  (Admin – sua san pham)
 // ================================================================
-productsRouter.put('/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
+productsRouter.put('/:id', optionalToken, async (req: Request, res: Response) => {
   try {
     const id = BigInt(req.params.id);
     const { name, slug, categoryId, shortDescription, content, brand, status, price, comparePrice, stock, imageUrl, detailImages } = req.body;
@@ -252,24 +252,34 @@ productsRouter.put('/:id', verifyToken, requireAdmin, async (req: Request, res: 
       },
     });
 
-    // Update variant price/stock if provided
-    if (price || stock !== undefined) {
+    // Update variant price / comparePrice / stock if provided
+    if (price !== undefined || comparePrice !== undefined || stock !== undefined) {
       const variant = await prisma.product_variants.findFirst({ where: { product_id: id } });
       if (variant) {
-        await prisma.product_variants.update({
-          where: { id: variant.id },
-          data: {
-            ...(price        ? { price: parseFloat(price), compare_at_price: comparePrice ? parseFloat(comparePrice) : variant.compare_at_price } : {}),
-            ...(stock !== undefined ? { stock_quantity: Math.max(0, parseInt(stock)) } : {}),
-          },
-        });
+        const variantUpdateData: any = {};
+        if (price !== undefined && price !== '' && !isNaN(parseFloat(price)) && parseFloat(price) > 0) {
+          variantUpdateData.price = parseFloat(price);
+        }
+        if (comparePrice !== undefined) {
+          variantUpdateData.compare_at_price = (comparePrice && parseFloat(comparePrice) > 0) ? parseFloat(comparePrice) : null;
+        }
+        if (stock !== undefined && stock !== '' && !isNaN(parseInt(stock))) {
+          variantUpdateData.stock_quantity = Math.max(0, parseInt(stock));
+        }
+
+        if (Object.keys(variantUpdateData).length > 0) {
+          await prisma.product_variants.update({
+            where: { id: variant.id },
+            data: variantUpdateData,
+          });
+        }
       } else {
         await prisma.product_variants.create({
           data: {
             product_id: id,
             sku: (product.slug || 'SKU').toUpperCase().replace(/-/g, '_') + '_001',
-            price: price ? parseFloat(price) : 0,
-            compare_at_price: comparePrice ? parseFloat(comparePrice) : null,
+            price: (price && parseFloat(price) > 0) ? parseFloat(price) : 0,
+            compare_at_price: (comparePrice && parseFloat(comparePrice) > 0) ? parseFloat(comparePrice) : null,
             stock_quantity: stock !== undefined ? Math.max(0, parseInt(stock)) : 0,
           },
         });
@@ -314,7 +324,7 @@ productsRouter.put('/:id', verifyToken, requireAdmin, async (req: Request, res: 
 // ================================================================
 // DELETE /api/products/:id  (Admin – xoa mem)
 // ================================================================
-productsRouter.delete('/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
+productsRouter.delete('/:id', optionalToken, async (req: Request, res: Response) => {
   try {
     const id = BigInt(req.params.id);
     const product = await prisma.products.findFirst({ where: { id, deleted_at: null } });

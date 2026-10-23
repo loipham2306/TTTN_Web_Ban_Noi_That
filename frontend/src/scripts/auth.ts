@@ -22,12 +22,49 @@ export function getToken(): string | null {
   }
 }
 
+export function sanitizeUserName(name?: string | null, role?: string): string {
+  if (!name) return role === 'admin' ? 'Quản Trị Viên' : 'Khách';
+  let cleaned = name.trim();
+
+  // Phát hiện và chuẩn hóa tên admin nếu bị lỗi font hoặc là tên admin mặc định
+  if (
+    /qu[aá][º°\?]?n\s*tr[aá][»\?]?\s*vi[aăa][ª\?]?n/i.test(cleaned) ||
+    cleaned.toLowerCase() === 'admin' ||
+    cleaned.toLowerCase().includes('admin@noithat.vn')
+  ) {
+    return 'Quản Trị Viên';
+  }
+
+  // Khắc phục các ký tự lỗi mã hóa UTF-8 (mojibake) phổ biến từ database cũ
+  cleaned = cleaned
+    .replace(/Nguyá»…n/g, 'Nguyễn')
+    .replace(/Pháº¡m/g, 'Phạm')
+    .replace(/Há»¯u/g, 'Hữu')
+    .replace(/Lá»£i/g, 'Lợi')
+    .replace(/Vá»¹/g, 'Vỹ')
+    .replace(/VÄƒn/g, 'Văn')
+    .replace(/\s*Cáº¥p Cao/gi, '')
+    .trim();
+
+  return cleaned || 'Khách';
+}
+
 export function readUser(): AuthUser | null {
   try {
     const raw = localStorage.getItem(AUTH_KEY);
     if (!raw) return null;
     const user = JSON.parse(raw) as AuthUser;
-    return user && typeof user.name === 'string' && user.name ? user : null;
+    if (user && typeof user.name === 'string' && user.name) {
+      const cleanName = sanitizeUserName(user.name, user.role);
+      if (cleanName !== user.name) {
+        user.name = cleanName;
+        try {
+          localStorage.setItem(AUTH_KEY, JSON.stringify(user));
+        } catch {}
+      }
+      return user;
+    }
+    return null;
   } catch {
     return null;
   }

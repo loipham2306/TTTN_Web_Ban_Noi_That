@@ -320,6 +320,7 @@ enum chat_messages_sender_type {
 enum coupons_discount_type {
   percent
   fixed_amount
+  free_shipping
 }
 
 enum chat_sessions_status {

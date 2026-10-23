@@ -147,9 +147,9 @@ const isItemActive = (item: MenuItem): boolean => {
 
   {/* MAIN NAVBAR */}
   <div class="navbar-container transition-all duration-300">
-    <div class="relative mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:h-20 sm:px-8">
+    <div class="relative mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:h-20 sm:px-6 lg:px-8">
       {/* KHỐI TRÁI: MOBILE MENU & LOGO */}
-      <div class="flex items-center gap-4 sm:gap-8">
+      <div class="flex items-center gap-4 sm:gap-6 shrink-0">
         <button
           id="menu-btn"
           type="button"
@@ -180,8 +180,8 @@ const isItemActive = (item: MenuItem): boolean => {
         </a>
       </div>
 
-      {/* KHỐI GIỮA */}
-      <nav class="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-6 whitespace-nowrap lg:flex xl:gap-9" aria-label="Menu chính máy tính">
+      {/* KHỐI GIỮA - Dùng flex-1 justify-center không dùng absolute để không bao giờ bị đè/lấn icon tìm kiếm */}
+      <nav class="hidden flex-1 items-center justify-center gap-3 whitespace-nowrap lg:flex xl:gap-7 2xl:gap-8 min-w-0 px-2" aria-label="Menu chính máy tính">
         {menu.map((item) => {
           const active = isItemActive(item);
           return (
@@ -189,7 +189,7 @@ const isItemActive = (item: MenuItem): boolean => {
               <a
                 href={item.href || '#'}
                 class:list={[
-                  'nav-link flex items-center gap-1.5 whitespace-nowrap py-2 text-[12px] font-medium uppercase tracking-[0.18em] transition-colors duration-200',
+                  'nav-link flex items-center gap-1.5 whitespace-nowrap py-2 text-[11px] xl:text-[12px] font-medium uppercase tracking-[0.11em] xl:tracking-[0.16em] transition-colors duration-200',
                   active ? 'text-amber-400 font-semibold is-active' : 'text-white/90 hover:text-amber-400',
                 ]}
                 aria-haspopup={item.children ? 'true' : undefined}
@@ -242,12 +242,12 @@ const isItemActive = (item: MenuItem): boolean => {
       </nav>
 
       {/* KHỐI PHẢI: TÌM KIẾM, TÀI KHOẢN, GIỎ HÀNG */}
-      <div class="flex items-center gap-2 sm:gap-3">
+      <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
         {!isProductsPage && (
           <button
             id="search-toggle-btn"
             type="button"
-            class="icon-btn inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/10"
+            class="icon-btn inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/10 shrink-0"
             aria-label="Tìm kiếm sản phẩm"
             aria-expanded="false"
             aria-controls="quick-search-bar"
@@ -260,11 +260,11 @@ const isItemActive = (item: MenuItem): boolean => {
         )}
 
         {/* TÀI KHOẢN (desktop): icon + tên khách + mũi tên, hover mở dropdown */}
-        <div class="nav-item group relative hidden lg:block">
+        <div class="nav-item group relative hidden lg:block shrink-0">
           <a
             href="/dang-nhap"
             data-account-link
-            class="icon-btn account-trigger inline-flex h-10 items-center gap-2 rounded-full px-2.5 transition-colors hover:bg-white/10"
+            class="icon-btn account-trigger inline-flex h-10 items-center gap-1.5 rounded-full px-2.5 transition-colors hover:bg-white/10"
             aria-haspopup="true"
             aria-controls="account-menu-panel"
             title="Tài khoản"
@@ -273,7 +273,7 @@ const isItemActive = (item: MenuItem): boolean => {
               <circle cx="12" cy="8" r="3.5" />
               <path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5" stroke-linecap="round" />
             </svg>
-            <span class="account-name max-w-[140px] truncate text-[13px] font-medium" data-user-name>Khách</span>
+            <span class="account-name max-w-[90px] xl:max-w-[125px] truncate text-[13px] font-medium" data-user-name>Khách</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="account-caret h-3 w-3 shrink-0 opacity-60">
               <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
@@ -625,19 +625,19 @@ const isItemActive = (item: MenuItem): boolean => {
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div class="rounded-none border border-walnut-900/15 bg-white p-4 shadow-xs hover:border-[#173524]/40 transition-colors">
             <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-bold block">Họ và tên</span>
-            <p id="profile-info-name" class="mt-1 text-sm font-bold text-walnut-900">TC Vỹ</p>
+            <p id="profile-info-name" class="mt-1 text-sm font-bold text-walnut-900">--</p>
           </div>
           <div class="rounded-none border border-walnut-900/15 bg-white p-4 shadow-xs hover:border-[#173524]/40 transition-colors">
             <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-bold block">Email liên hệ</span>
-            <p id="profile-info-email" class="mt-1 text-sm font-semibold text-walnut-900">admin@noithat.vn</p>
+            <p id="profile-info-email" class="mt-1 text-sm font-semibold text-walnut-900">Chưa cập nhật</p>
           </div>
           <div class="rounded-none border border-walnut-900/15 bg-white p-4 shadow-xs hover:border-[#173524]/40 transition-colors">
             <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-bold block">Số điện thoại</span>
-            <p id="profile-info-phone" class="mt-1 text-sm font-semibold text-walnut-900">0909 001 001</p>
+            <p id="profile-info-phone" class="mt-1 text-sm font-semibold text-walnut-900">Chưa cập nhật</p>
           </div>
           <div class="rounded-none border border-walnut-900/15 bg-white p-4 shadow-xs hover:border-[#173524]/40 transition-colors">
             <span class="text-[10px] uppercase tracking-wider text-walnut-800/60 font-bold block">Hạng thành viên</span>
-            <p id="profile-info-tier" class="mt-1 text-sm font-bold text-clay-700">Kim Cương (VIP)</p>
+            <p id="profile-info-tier" class="mt-1 text-sm font-bold text-clay-700">Hội Viên Thân Thiết</p>
           </div>
         </div>
 
@@ -697,7 +697,7 @@ const isItemActive = (item: MenuItem): boolean => {
             <span class="font-bold text-xs text-walnut-900">Địa chỉ nhận hàng mặc định</span>
             <span class="rounded-none bg-emerald-100 text-emerald-800 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">Mặc định</span>
           </div>
-          <p class="text-xs text-walnut-900 font-medium">Người nhận: <span id="address-recipient-name">Trương Chí Vỹ</span> — <span id="address-recipient-phone">0909 001 001</span></p>
+          <p class="text-xs text-walnut-900 font-medium">Người nhận: <span id="address-recipient-name">--</span> — <span id="address-recipient-phone">Chưa cập nhật</span></p>
           <p class="text-xs text-walnut-800/80 leading-relaxed">615 Âu Cơ, Phường Phú Trung, Quận Tân Phú, TP. Hồ Chí Minh</p>
         </div>
       </div>
@@ -706,7 +706,13 @@ const isItemActive = (item: MenuItem): boolean => {
 
     <!-- Modal Footer -->
     <div class="border-t border-walnut-900/15 bg-white px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-[0_-4px_12px_rgba(0,0,0,0.03)]">
-      <div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <a href="/tai-khoan?tab=orders" class="inline-flex items-center gap-1.5 font-bold text-[#173524] bg-[#E6CA85]/20 hover:bg-[#E6CA85]/35 border border-[#D8B670]/50 px-3.5 py-2 rounded-none transition-colors">
+          <svg class="h-4 w-4 text-[#173524]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          <span>Lịch sử đơn hàng</span>
+        </a>
         <a href="/admin" id="profile-admin-link" class="hidden inline-flex items-center gap-1.5 font-bold text-amber-900 bg-amber-400/25 border border-amber-500/40 px-4 py-2 rounded-none hover:bg-amber-400/40 transition-colors">
           <svg class="h-4 w-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
@@ -1122,7 +1128,7 @@ const isItemActive = (item: MenuItem): boolean => {
 
 <script>
   import { readCart, countItems, CART_EVENT } from '../scripts/cart';
-  import { readUser, clearUser, AUTH_EVENT } from '../scripts/auth';
+  import { readUser, clearUser, sanitizeUserName, AUTH_EVENT } from '../scripts/auth';
 
   // ----- Badge giỏ hàng -----
   const badge = document.querySelector<HTMLElement>('[data-cart-count]');
@@ -1159,14 +1165,15 @@ const isItemActive = (item: MenuItem): boolean => {
       }
     }
 
+    const cleanName = sanitizeUserName(user?.name, user?.role);
     document.querySelectorAll<HTMLElement>('[data-user-name]').forEach((el) => {
-      el.textContent = user?.name ?? 'Khách';
+      el.textContent = cleanName;
     });
 
     document.querySelectorAll<HTMLAnchorElement>('[data-account-link]').forEach((a) => {
       if (user) {
         a.href = '#';
-        a.setAttribute('aria-label', 'Tài khoản của ' + user.name);
+        a.setAttribute('aria-label', 'Tài khoản của ' + cleanName);
       } else {
         a.href = '/dang-nhap';
         a.setAttribute('aria-label', 'Đăng nhập');
@@ -1190,13 +1197,24 @@ const isItemActive = (item: MenuItem): boolean => {
           if (raw) fullUser = JSON.parse(raw);
         } catch {}
 
+        // Kiểm tra tính nhất quán giữa token và phiên đăng nhập hiện tại
+        const currentEmail = (fullUser.email || '').toLowerCase().trim();
+        const tokenEmail = (data.user.email || '').toLowerCase().trim();
+        if (currentEmail && tokenEmail && currentEmail !== tokenEmail) {
+          console.warn('[Header] Token auth không khớp với tài khoản hiện tại, hủy bỏ token cũ.');
+          localStorage.removeItem('auth_token');
+          return;
+        }
+
         fullUser.avatar = data.user.avatar || fullUser.avatar || '';
         fullUser.role = data.user.role || 'customer';
-        fullUser.name = data.user.full_name || fullUser.name;
+        fullUser.name = sanitizeUserName(data.user.full_name || fullUser.name, fullUser.role);
         fullUser.email = data.user.email || fullUser.email;
         if (data.user.phone) fullUser.phone = data.user.phone;
         localStorage.setItem('current_user', JSON.stringify(fullUser));
         syncAuth();
+      } else {
+        localStorage.removeItem('auth_token');
       }
     } catch {}
   };
@@ -1248,6 +1266,10 @@ const isItemActive = (item: MenuItem): boolean => {
       return;
     }
 
+    // Hiển thị modal và chuyển đúng tab ngay lập tức
+    switchProfileTab(initialTab);
+    profileModal?.classList.remove('hidden');
+
     // Đọc thông tin chi tiết từ current_user nếu có
     let fullUser: any = user;
     try {
@@ -1264,19 +1286,27 @@ const isItemActive = (item: MenuItem): boolean => {
         });
         const meData = await meRes.json();
         if (meData.success && meData.user) {
-          if (meData.user.avatar) fullUser.avatar = meData.user.avatar;
-          if (meData.user.role) fullUser.role = meData.user.role;
-          if (meData.user.full_name) fullUser.name = meData.user.full_name;
-          if (meData.user.email) fullUser.email = meData.user.email;
-          localStorage.setItem('current_user', JSON.stringify(fullUser));
+          const currentEmail = (fullUser.email || '').toLowerCase().trim();
+          const tokenEmail = (meData.user.email || '').toLowerCase().trim();
+          if (currentEmail && tokenEmail && currentEmail !== tokenEmail) {
+            console.warn('[Header openProfileModal] Token không thuộc về tài khoản hiện tại, xóa token cũ.');
+            localStorage.removeItem('auth_token');
+          } else {
+            if (meData.user.avatar) fullUser.avatar = meData.user.avatar;
+            if (meData.user.role) fullUser.role = meData.user.role;
+            if (meData.user.full_name) fullUser.name = meData.user.full_name;
+            if (meData.user.email) fullUser.email = meData.user.email;
+            localStorage.setItem('current_user', JSON.stringify(fullUser));
+          }
         }
       } catch {}
     }
 
-    const name = fullUser.name || 'Khách';
-    const email = fullUser.email || (fullUser.role === 'admin' ? 'admin@noithat.vn' : 'khach@noithat.vn');
-    const phone = fullUser.phone && fullUser.phone !== 'Đăng nhập Google' ? fullUser.phone : '0909 001 001';
-    const tier = fullUser.tier || (fullUser.role === 'admin' ? 'Quản Trị Viên' : 'Kim Cương (VIP)');
+    const isAdmin = (fullUser.role === 'admin' || user.role === 'admin');
+    const name = sanitizeUserName(fullUser.name || 'Khách', fullUser.role);
+    const email = fullUser.email || user.email || (isAdmin ? 'admin@noithat.vn' : 'Chưa cập nhật');
+    const phone = fullUser.phone && fullUser.phone !== 'Đăng nhập Google' ? fullUser.phone : 'Chưa cập nhật';
+    const tier = fullUser.tier || (isAdmin ? 'Quản Trị Viên' : 'Hội Viên Thân Thiết');
     const spent = fullUser.spent || '0 ₫';
     const orders = typeof fullUser.orders === 'number' ? `${fullUser.orders} đơn hàng` : '0 đơn hàng';
     const avatar = fullUser.avatar || user.avatar || '';
@@ -1286,8 +1316,6 @@ const isItemActive = (item: MenuItem): boolean => {
     const modalEmail = document.getElementById('profile-modal-email');
     const modalTier = document.getElementById('profile-modal-tier');
     const modalAvatar = document.getElementById('profile-modal-avatar');
-    const adminLink = document.getElementById('profile-admin-link');
-
     if (modalName) modalName.textContent = name;
     if (modalEmail) modalEmail.textContent = email;
     if (modalTier) modalTier.textContent = tier;
@@ -1303,7 +1331,7 @@ const isItemActive = (item: MenuItem): boolean => {
     }
 
     // Phân quyền: CHỈ tài khoản Admin mới nhìn thấy nút Trang quản trị (Admin)
-    const isAdmin = (fullUser.role === 'admin' || user.role === 'admin');
+    const adminLink = document.getElementById('profile-admin-link');
     if (adminLink) {
       if (isAdmin) {
         adminLink.classList.remove('hidden');
@@ -1313,8 +1341,6 @@ const isItemActive = (item: MenuItem): boolean => {
         adminLink.classList.remove('inline-flex');
       }
     }
-
-    // Tab 1 Info
     const infoName = document.getElementById('profile-info-name');
     const infoEmail = document.getElementById('profile-info-email');
     const infoPhone = document.getElementById('profile-info-phone');
@@ -1362,6 +1388,26 @@ const isItemActive = (item: MenuItem): boolean => {
         }
       }
 
+      // Tải bổ sung các đơn hàng gần đây từ localStorage (đảm bảo đơn vừa đặt luôn xuất hiện)
+      let recentCodes: string[] = [];
+      try {
+        recentCodes = JSON.parse(localStorage.getItem('my_recent_orders') || '[]');
+      } catch {}
+
+      for (const code of recentCodes) {
+        if (!userOrders.some((o: any) => o.orderCode === code)) {
+          try {
+            const res = await fetch(`http://localhost:4000/api/orders/${encodeURIComponent(code)}`);
+            const json = await res.json();
+            if (json.success && json.data) {
+              userOrders.unshift(json.data);
+            }
+          } catch (err) {
+            console.warn('Lỗi tải chi tiết đơn gần đây:', code, err);
+          }
+        }
+      }
+
       if (userOrders.length === 0) {
         ordersContainer.innerHTML = `
           <div class="text-center py-8 text-xs text-walnut-800/70">
@@ -1374,41 +1420,59 @@ const isItemActive = (item: MenuItem): boolean => {
           </div>
         `;
       } else {
-        ordersContainer.innerHTML = userOrders.map((order: any) => {
+        const ordersListHtml = userOrders.map((order: any) => {
           const dateStr = new Date(order.createdAt).toLocaleDateString('vi-VN');
           const isPaid = order.paymentStatus === 'paid';
           const isDelivered = order.orderStatus === 'completed' || order.orderStatus === 'delivered';
           const statusText = isDelivered ? 'Đã giao thành công' : (order.orderStatus === 'shipping' ? 'Đang giao hàng' : (isPaid ? 'Đã thanh toán (Chờ giao)' : 'Chờ xác nhận'));
           const statusClass = isDelivered ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : (isPaid ? 'bg-blue-100 text-blue-800 border-blue-300' : 'bg-amber-100 text-amber-800 border-amber-300');
 
-          const itemsHtml = order.items.map((it: any) => `
+          const itemsHtml = (order.items || []).map((it: any) => `
             <div class="flex justify-between items-center text-xs mt-1">
               <div>
                 <p class="font-semibold text-walnut-900">${it.name} (x${it.qty})</p>
               </div>
-              <span class="font-bold text-clay-700 text-xs">${new Intl.NumberFormat('vi-VN').format(it.total)} ₫</span>
+              <span class="font-bold text-clay-700 text-xs">${new Intl.NumberFormat('vi-VN').format(it.total || (it.price * it.qty))} ₫</span>
             </div>
           `).join('');
 
           return `
-            <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4 space-y-2">
+            <div class="rounded-lg border border-walnut-900/10 bg-sand-100/50 p-4 space-y-2.5 hover:border-walnut-900/30 transition-all shadow-xs">
               <div class="flex items-center justify-between border-b border-walnut-900/10 pb-2">
                 <div>
                   <span class="font-mono text-xs font-bold text-walnut-900">#${order.orderCode}</span>
                   <span class="text-[11px] text-walnut-800/60 ml-2">${dateStr}</span>
                 </div>
-                <span class="rounded border px-2 py-0.5 text-[10px] font-semibold ${statusClass}">
+                <span class="rounded border px-2.5 py-0.5 text-[10px] font-semibold ${statusClass}">
                   ${statusText}
                 </span>
               </div>
               ${itemsHtml}
-              <div class="border-t border-walnut-900/10 pt-2 flex justify-between items-center text-xs font-bold">
-                <span class="text-walnut-800">Tổng thanh toán:</span>
-                <span class="text-clay-700 text-sm">${new Intl.NumberFormat('vi-VN').format(order.total)} ₫</span>
+              <div class="border-t border-walnut-900/10 pt-2 flex items-center justify-between text-xs">
+                <div>
+                  <span class="text-walnut-800 text-[11px]">Tổng tiền:</span>
+                  <span class="text-clay-700 text-sm font-bold ml-1">${new Intl.NumberFormat('vi-VN').format(order.total)} ₫</span>
+                </div>
+                <a href="/tai-khoan?tab=orders&highlight=${order.orderCode}" class="inline-flex items-center gap-1 bg-[#173524] text-[#E6CA85] hover:bg-[#204932] hover:text-white px-2.5 py-1 text-[11px] font-bold uppercase tracking-wider transition-colors shadow-xs">
+                  <span>Chi tiết</span>
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </a>
               </div>
             </div>
           `;
         }).join('');
+
+        ordersContainer.innerHTML = `
+          <div class="space-y-3">
+            ${ordersListHtml}
+            <div class="pt-2 sticky bottom-0 bg-sand-50/95 pb-1 backdrop-blur-xs">
+              <a href="/tai-khoan?tab=orders" class="flex items-center justify-center gap-2 w-full py-2.5 px-4 bg-[#173524] hover:bg-[#204932] text-[#E6CA85] hover:text-white rounded text-xs font-bold uppercase tracking-widest transition-all shadow-md border border-[#D8B670]/40">
+                <span>Xem toàn bộ lịch sử đơn hàng trang chi tiết</span>
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
+              </a>
+            </div>
+          </div>
+        `;
       }
     };
     renderUserOrders();
@@ -1499,6 +1563,7 @@ const isItemActive = (item: MenuItem): boolean => {
 
     renderWishlistItems();
     window.addEventListener('wishlist:changed', renderWishlistItems);
+    window.addEventListener('orders:changed', renderUserOrders);
 
     switchProfileTab(initialTab);
     profileModal?.classList.remove('hidden');

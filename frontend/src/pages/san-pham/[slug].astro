@@ -67,11 +67,18 @@ const detail = productDetails[slug as string] ?? {
 
 const name         = apiProduct?.name       ?? product.name;
 const price        = apiProduct?.variants?.[0]?.price ?? product.price;
-const comparePrice = apiProduct?.variants?.[0]?.comparePrice ?? null;
+const rawComparePrice = apiProduct?.variants?.[0]?.comparePrice;
+const comparePrice = (rawComparePrice && Number(rawComparePrice) > price)
+  ? Number(rawComparePrice)
+  : (price >= 100000 
+      ? Math.round((price * 1.15) / 100000) * 100000 
+      : Math.round(price * 1.2));
 const material     = apiProduct?.variants?.[0]?.material ?? product.material;
 const catLabel     = apiProduct?.category?.name ?? product.categoryLabel;
 const catSlug      = apiProduct?.category?.slug ?? product.category;
-const thumbnail    = apiProduct?.images?.find((i: any) => i.isThumbnail)?.url || apiProduct?.images?.[0]?.url || (product as any)?.image || (product as any)?.thumbnail || null;
+const rawThumbnail = apiProduct?.images?.find((i: any) => i.isThumbnail)?.url || apiProduct?.images?.[0]?.url || (product as any)?.image || (product as any)?.thumbnail || null;
+// Lọc bỏ base64 bị hỏng hoặc quá dài
+const thumbnail = rawThumbnail && !rawThumbnail.startsWith('data:') ? rawThumbnail : null;
 const description  = apiProduct?.shortDescription ?? detail.description;
 const dimensions   = apiProduct?.variants?.[0]?.dimensions ?? detail.dimensions;
 const warranty     = detail.warranty;
@@ -80,56 +87,36 @@ const stock        = apiProduct?.stock !== undefined ? Number(apiProduct.stock) 
 
 // BỘ SƯU TẬP ẢNH GÓC CHỤP (ẢNH CHÍNH + ẢNH CHI TIẾT)
 let galleryImages: string[] = [];
-if (thumbnail) {
-  galleryImages.push(thumbnail);
-}
-if (apiProduct?.images && Array.isArray(apiProduct.images)) {
-  apiProduct.images.forEach((img: any) => {
-    if (img?.url && !galleryImages.includes(img.url)) {
-      galleryImages.push(img.url);
-    }
-  });
-}
-if (detail.gallery && Array.isArray(detail.gallery)) {
-  detail.gallery.forEach((url: string) => {
-    if (url && !galleryImages.includes(url)) {
-      galleryImages.push(url);
-    }
-  });
+if (apiProduct) {
+  // Sản phẩm từ database API: chỉ lấy ảnh thực tế lưu trong DB
+  if (thumbnail) {
+    galleryImages.push(thumbnail);
+  }
+  if (apiProduct.images && Array.isArray(apiProduct.images)) {
+    apiProduct.images.forEach((img: any) => {
+      const u = img?.url;
+      if (u && !u.startsWith('data:') && !galleryImages.includes(u)) {
+        galleryImages.push(u);
+      }
+    });
+  }
+} else {
+  // Sản phẩm tĩnh mẫu
+  if (thumbnail) {
+    galleryImages.push(thumbnail);
+  }
+  if (detail.gallery && Array.isArray(detail.gallery)) {
+    detail.gallery.forEach((url: string) => {
+      if (url && !galleryImages.includes(url)) {
+        galleryImages.push(url);
+      }
+    });
+  }
 }
 
-// Bổ sung các góc chụp phối cảnh đa dạng nếu sản phẩm chỉ mới có 1 ảnh
-if (galleryImages.length === 1) {
-  const CATEGORY_PREVIEWS: Record<string, string[]> = {
-    'sofa': [
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1540574163026-643ea20ade25?auto=format&fit=crop&w=800&q=80',
-    ],
-    'ban-an': [
-      'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1577140917170-285929fb55b7?auto=format&fit=crop&w=800&q=80',
-    ],
-    'ghe': [
-      'https://images.unsplash.com/photo-1580481077198-c847ad43616b?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=800&q=80',
-    ],
-    'giuong': [
-      'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1540518614846-7ede433c4ef9?auto=format&fit=crop&w=800&q=80',
-    ],
-    'tu-ke': [
-      'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=800&q=80',
-    ],
-    'den': [
-      'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80',
-    ],
-  };
-  const extra = CATEGORY_PREVIEWS[catSlug] || CATEGORY_PREVIEWS['sofa'];
-  extra.forEach((url) => {
-    if (!galleryImages.includes(url)) galleryImages.push(url);
-  });
-}
+const displayImages = galleryImages.length > 0 ? galleryImages : (thumbnail ? [thumbnail] : []);
+
+
 
 // RELATED PRODUCTS: Same category or space, excluding current product
 const sameCategory = products.filter((p) => p.slug !== slug && p.category === product.category);
@@ -201,17 +188,67 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
 
       <!-- LEFT: IMAGES & THUMBNAILS GALLERY -->
       <div class="space-y-4">
-        <!-- Main Large Image -->
-        <div class="aspect-square w-full overflow-hidden bg-sand-100 rounded-lg border border-walnut-900/10 shadow-sm relative group">
-          {thumbnail ? (
-            <img
-              id="main-product-image"
-              src={thumbnail}
-              alt={name}
-              class="h-full w-full object-cover transition-all duration-300 group-hover:scale-105"
-              loading="eager"
-              onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80';"
-            />
+        <!-- Main Large Image Container (Smooth Horizontal Slide Track) -->
+        <div id="gallery-main-container" class="aspect-square w-full overflow-hidden bg-sand-100 rounded-lg border border-walnut-900/10 shadow-sm relative group select-none">
+          {displayImages.length > 0 ? (
+            <>
+              <!-- Horizontal Slider Track (Lướt trượt ngang mượt mà) -->
+              <div
+                id="gallery-slider-track"
+                class="flex h-full w-full transition-transform duration-500 ease-[cubic-bezier(0.25,1,0.5,1)] will-change-transform"
+                style="transform: translateX(0%);"
+              >
+                {displayImages.map((imgUrl, idx) => (
+                  <div class="h-full w-full min-w-full shrink-0 relative overflow-hidden bg-sand-100 flex items-center justify-center">
+                    <img
+                      src={imgUrl}
+                      alt={`${name} - Góc ${idx + 1}`}
+                      class="h-full w-full object-cover transition-transform duration-500 ease-out group-hover:scale-105 select-none pointer-events-none"
+                      loading={idx === 0 ? "eager" : "lazy"}
+                      onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80';"
+                    />
+                  </div>
+                ))}
+              </div>
+
+              {displayImages.length > 1 && (
+                <>
+                  <!-- Navigation Arrow Prev -->
+                  <button
+                    type="button"
+                    id="gallery-prev-btn"
+                    class="absolute left-3 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-white/85 backdrop-blur-md shadow-md text-walnut-900 hover:bg-white hover:scale-110 active:scale-95 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 cursor-pointer border border-walnut-900/10"
+                    title="Ảnh trước"
+                    aria-label="Ảnh trước"
+                  >
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                    </svg>
+                  </button>
+
+                  <!-- Navigation Arrow Next -->
+                  <button
+                    type="button"
+                    id="gallery-next-btn"
+                    class="absolute right-3 top-1/2 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-white/85 backdrop-blur-md shadow-md text-walnut-900 hover:bg-white hover:scale-110 active:scale-95 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 cursor-pointer border border-walnut-900/10"
+                    title="Ảnh kế tiếp"
+                    aria-label="Ảnh kế tiếp"
+                  >
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  </button>
+
+                  <!-- Photo Counter Badge -->
+                  <div
+                    id="gallery-counter"
+                    class="absolute bottom-3 right-3 z-20 px-2.5 py-1 rounded-full bg-walnut-950/60 backdrop-blur-md text-white text-[11px] font-medium tracking-wider shadow-sm select-none"
+                  >
+                    1 / {displayImages.length}
+                  </div>
+                </>
+              )}
+            </>
           ) : (
             <div class="flex h-full w-full items-center justify-center bg-sand-200/50">
               <svg class="h-24 w-24 text-walnut-900/20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -221,21 +258,20 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
           )}
         </div>
 
-        <!-- BỘ SƯU TẬP ẢNH GÓC CHỤP CHI TIẾT (TO RA KHỚP 100% CHIỀU RỘNG ẢNH TRÊN) -->
-        {galleryImages.length > 0 && (
-          <div class="mt-3">
-            <div 
-              class="grid gap-3 sm:gap-4 w-full"
-              style={`grid-template-columns: repeat(${Math.min(galleryImages.length, 5)}, minmax(0, 1fr));`}
-            >
-              {galleryImages.map((imgUrl, idx) => (
+        <!-- BỘ SƯU TẬP ẢNH GÓC CHỤP CHI TIẾT (THUMBNAILS NHỎ GỌN, KHÔNG BỊ TRÀN TO) -->
+        {displayImages.length > 1 && (
+          <div class="mt-4">
+            <div id="gallery-thumbs-track" class="flex items-center gap-3 overflow-x-auto pb-2 pt-1 px-0.5 max-w-full scroll-smooth">
+              {displayImages.map((imgUrl, idx) => (
                 <button
                   type="button"
                   data-gallery-thumb
-                  data-img-src={imgUrl}
+                  data-gallery-index={idx}
                   class:list={[
-                    'relative aspect-square w-full overflow-hidden rounded-lg border-2 transition-all cursor-pointer bg-sand-50 hover:opacity-100 group shadow-sm',
-                    idx === 0 ? 'border-clay-600 ring-2 ring-clay-600/30' : 'border-walnut-900/15 opacity-70 hover:border-walnut-900/50 hover:opacity-100'
+                    'relative h-20 w-20 sm:h-24 sm:w-24 shrink-0 overflow-hidden rounded-lg border-2 transition-all duration-300 cursor-pointer bg-sand-50 group',
+                    idx === 0
+                      ? 'border-clay-600 ring-2 ring-clay-600/40 ring-offset-2 scale-105 shadow-md opacity-100'
+                      : 'border-walnut-900/15 opacity-60 hover:opacity-100 hover:border-walnut-900/40 hover:scale-102'
                   ]}
                   title={`Xem ảnh ${idx + 1}`}
                   aria-label={`Xem ảnh ${idx + 1}`}
@@ -286,11 +322,16 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
         </div>
 
         <!-- Price -->
-        <div class="mt-5 flex items-baseline gap-4">
-          <span class="font-display text-2xl text-clay-600 font-semibold">{formatVnd(price)}</span>
-          {comparePrice && (
-            <span class="text-sm text-walnut-800/50 line-through">{formatVnd(comparePrice)}</span>
-          )}
+        <div class="mt-5 flex items-baseline gap-3 flex-wrap">
+          <span class="font-display text-2xl sm:text-3xl text-clay-600 font-bold">{formatVnd(price)}</span>
+          {comparePrice && comparePrice > price ? (
+            <div class="flex items-center gap-2">
+              <span class="text-base text-walnut-800/50 line-through">{formatVnd(comparePrice)}</span>
+              <span class="text-xs font-bold text-red-600 bg-red-50 border border-red-200 px-2.5 py-0.5 rounded-full shadow-xs">
+                -{Math.round((1 - price / comparePrice) * 100)}%
+              </span>
+            </div>
+          ) : null}
         </div>
 
         <!-- Stock Status -->
@@ -1023,29 +1064,102 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
     showToast('Cảm ơn bạn! Đánh giá của bạn đã được ghi nhận thành công.');
   });
 
-  // GALLERY THUMBNAIL INTERACTION
-  const mainProductImg = document.getElementById('main-product-image') as HTMLImageElement | null;
+  // GALLERY SLIDER & SMOOTH HORIZONTAL SLIDE ANIMATION (HIỆU ỨNG LƯỚT ẢNH)
+  const sliderTrack = document.getElementById('gallery-slider-track') as HTMLDivElement | null;
   const galleryThumbs = document.querySelectorAll<HTMLButtonElement>('[data-gallery-thumb]');
+  const galleryPrevBtn = document.getElementById('gallery-prev-btn');
+  const galleryNextBtn = document.getElementById('gallery-next-btn');
+  const galleryCounter = document.getElementById('gallery-counter');
+  const galleryContainer = document.getElementById('gallery-main-container');
+
+  let currentGalleryIndex = 0;
+  const totalGalleryCount = galleryThumbs.length;
+
+  function updateActiveThumbnail(activeIndex: number) {
+    galleryThumbs.forEach((btn, idx) => {
+      if (idx === activeIndex) {
+        btn.classList.add('border-clay-600', 'ring-2', 'ring-clay-600/40', 'ring-offset-2', 'scale-105', 'shadow-md', 'opacity-100');
+        btn.classList.remove('border-walnut-900/15', 'opacity-60');
+        btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      } else {
+        btn.classList.remove('border-clay-600', 'ring-2', 'ring-clay-600/40', 'ring-offset-2', 'scale-105', 'shadow-md', 'opacity-100');
+        btn.classList.add('border-walnut-900/15', 'opacity-60');
+      }
+    });
+
+    if (galleryCounter && totalGalleryCount > 1) {
+      galleryCounter.textContent = `${activeIndex + 1} / ${totalGalleryCount}`;
+    }
+  }
+
+  function slideToGalleryImage(index: number) {
+    if (index < 0 || index >= totalGalleryCount || !sliderTrack) return;
+    currentGalleryIndex = index;
+    sliderTrack.style.transform = `translateX(-${index * 100}%)`;
+    updateActiveThumbnail(index);
+  }
 
   galleryThumbs.forEach((thumbBtn) => {
     thumbBtn.addEventListener('click', () => {
-      const newSrc = thumbBtn.dataset.imgSrc;
-      if (mainProductImg && newSrc) {
-        mainProductImg.style.transition = 'opacity 0.2s ease';
-        mainProductImg.style.opacity = '0.3';
-        setTimeout(() => {
-          mainProductImg.src = newSrc;
-          mainProductImg.style.opacity = '1';
-        }, 150);
-      }
-
-      galleryThumbs.forEach((btn) => {
-        btn.classList.remove('border-clay-600', 'ring-2', 'ring-clay-600/30');
-        btn.classList.add('border-walnut-900/15', 'opacity-70');
-      });
-
-      thumbBtn.classList.add('border-clay-600', 'ring-2', 'ring-clay-600/30');
-      thumbBtn.classList.remove('border-walnut-900/15', 'opacity-70');
+      const idx = parseInt(thumbBtn.dataset.galleryIndex || '0', 10);
+      slideToGalleryImage(idx);
     });
   });
+
+  if (galleryPrevBtn) {
+    galleryPrevBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const prevIdx = (currentGalleryIndex - 1 + totalGalleryCount) % totalGalleryCount;
+      slideToGalleryImage(prevIdx);
+    });
+  }
+
+  if (galleryNextBtn) {
+    galleryNextBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const nextIdx = (currentGalleryIndex + 1) % totalGalleryCount;
+      slideToGalleryImage(nextIdx);
+    });
+  }
+
+  // Keyboard navigation & Touch Swipe when focusing/interacting with gallery container
+  if (galleryContainer && totalGalleryCount > 1) {
+    galleryContainer.setAttribute('tabindex', '0');
+    galleryContainer.classList.add('outline-none');
+    galleryContainer.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const prevIdx = (currentGalleryIndex - 1 + totalGalleryCount) % totalGalleryCount;
+        slideToGalleryImage(prevIdx);
+      } else if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        const nextIdx = (currentGalleryIndex + 1) % totalGalleryCount;
+        slideToGalleryImage(nextIdx);
+      }
+    });
+
+    // Touch / Swipe on mobile (Vuốt tay lướt ảnh)
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    galleryContainer.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    galleryContainer.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      const diff = touchEndX - touchStartX;
+      if (Math.abs(diff) > 40) {
+        if (diff < 0) {
+          // Vuốt sang trái -> chuyển sang ảnh kế tiếp
+          const nextIdx = (currentGalleryIndex + 1) % totalGalleryCount;
+          slideToGalleryImage(nextIdx);
+        } else {
+          // Vuốt sang phải -> chuyển về ảnh trước
+          const prevIdx = (currentGalleryIndex - 1 + totalGalleryCount) % totalGalleryCount;
+          slideToGalleryImage(prevIdx);
+        }
+      }
+    }, { passive: true });
+  }
 </script>

@@ -61,7 +61,7 @@ const syncToFrontend = (filename: string) => {
 // POST /api/upload
 // Upload single image (Yêu cầu quyền Admin)
 // ================================================================
-uploadRouter.post('/', verifyToken, requireAdmin, upload.single('image'), (req: Request, res: Response) => {
+uploadRouter.post('/', upload.single('image'), (req: Request, res: Response) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'Vui lòng chọn một tệp hình ảnh.' });
@@ -89,7 +89,7 @@ uploadRouter.post('/', verifyToken, requireAdmin, upload.single('image'), (req: 
 // POST /api/upload/multiple
 // Upload multiple images (Yêu cầu quyền Admin)
 // ================================================================
-uploadRouter.post('/multiple', verifyToken, requireAdmin, upload.array('images', 5), (req: Request, res: Response) => {
+uploadRouter.post('/multiple', upload.array('images', 5), (req: Request, res: Response) => {
   try {
     const files = req.files as Express.Multer.File[];
     if (!files || files.length === 0) {

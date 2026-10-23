@@ -250,6 +250,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       };
 
       // 1. Gửi lên Backend để lưu vào database MySQL và cấp JWT Token
+      localStorage.removeItem('auth_token'); // Xoá token cũ để tránh rò rỉ phiên
       try {
         const res = await fetch('http://localhost:4000/api/auth/google', {
           method: 'POST',

@@ -45,6 +45,23 @@ const ensureDefaultAdmin = async () => {
 // Chạy kiểm tra khi file được import
 ensureDefaultAdmin();
 
+export function cleanFullName(name?: string | null, role?: string): string {
+  if (!name) return '';
+  let cleaned = name.trim();
+  if (role === 'admin' || /qu[aá][º°\?]?n\s*tr[aá][»\?]?\s*vi[aăa][ª\?]?n/i.test(cleaned)) {
+    return 'Quản Trị Viên';
+  }
+  return cleaned
+    .replace(/Nguyá»…n/g, 'Nguyễn')
+    .replace(/Pháº¡m/g, 'Phạm')
+    .replace(/Há»¯u/g, 'Hữu')
+    .replace(/Lá»£i/g, 'Lợi')
+    .replace(/Vá»¹/g, 'Vỹ')
+    .replace(/VÄƒn/g, 'Văn')
+    .replace(/\s*Cáº¥p Cao/gi, '')
+    .trim();
+}
+
 // ================================================================
 // POST /api/auth/register - Đăng ký tài khoản mới an toàn
 // ================================================================
@@ -196,7 +213,7 @@ authRouter.post('/login', authLimiter, async (req: Request, res: Response) => {
       user: {
         id: Number(user.id),
         email: user.email,
-        full_name: user.full_name,
+        full_name: cleanFullName(user.full_name, userRole),
         phone: user.phone,
         role: userRole,
       },
@@ -304,7 +321,7 @@ authRouter.get('/me', verifyToken, async (req: Request, res: Response) => {
       user: {
         id: Number(user.id),
         email: user.email,
-        full_name: user.full_name,
+        full_name: cleanFullName(user.full_name, user.roles?.name),
         phone: user.phone,
         avatar: user.avatar_url,
         role: user.roles?.name || 'customer',

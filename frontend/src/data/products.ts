@@ -6,6 +6,7 @@ export interface Product {
   space: string;
   spaceLabel: string;
   price: number;
+  comparePrice?: number | null;
   material: string;
   color?: string;
   colorLabel?: string;

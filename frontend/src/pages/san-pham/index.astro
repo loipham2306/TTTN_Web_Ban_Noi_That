@@ -43,6 +43,7 @@ try {
           space: p.space || fallback?.space || 'phong-khach',
           spaceLabel: p.spaceLabel || fallback?.spaceLabel || 'Phòng khách',
           price: p.price,
+          comparePrice: p.comparePrice ? Number(p.comparePrice) : null,
           material: p.material || fallback?.material || '',
           color: p.color || fallback?.color || '',
           colorLabel: p.colorLabel || fallback?.colorLabel || '',
