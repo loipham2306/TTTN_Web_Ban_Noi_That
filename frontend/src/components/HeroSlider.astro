@@ -1,5 +1,5 @@
 ---
-// Banner slide tự trượt - Giữ nguyên Style gốc của bạn
+// Banner slide tự trượt - Kết hợp Admin API và Slide tĩnh dự phòng
 interface Slide {
   image: string;
   alt: string;
@@ -10,7 +10,8 @@ interface Slide {
   href: string;
 }
 
-const slides: Slide[] = [
+// 4 slide tĩnh mặc định của bạn
+const defaultSlides: Slide[] = [
   {
     image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1920&q=80',
     alt: 'Phòng khách nội thất cao cấp',
@@ -49,6 +50,36 @@ const slides: Slide[] = [
   },
 ];
 
+let slides: Slide[] = [];
+
+try {
+  // Lấy danh sách banner từ Admin API với vị trí 'hero' và đang hoạt động
+  const res = await fetch('http://localhost:4000/api/banners?position=hero&activeOnly=true', {
+    signal: AbortSignal.timeout(2000),
+  });
+  if (res.ok) {
+    const json = await res.json();
+    if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+      slides = json.data.map((b: any) => ({
+        image: b.imageUrl,
+        alt: b.title || 'Nội thất cao cấp',
+        eyebrow: b.subtitle || 'Bộ sưu tập',
+        title: b.title,
+        text: b.description || '',
+        cta: b.buttonText || 'KHÁM PHÁ NGAY',
+        href: b.linkUrl || '/san-pham',
+      }));
+    }
+  }
+} catch {
+  slides = [];
+}
+
+// Nếu trên Admin chưa cấu hình banner hero nào, tự động dùng 4 slide mặc định của bạn
+if (slides.length === 0) {
+  slides = defaultSlides;
+}
+
 const INTERVAL_MS = 6000; // thời gian mỗi slide (6 giây)
 ---
 
@@ -77,6 +108,7 @@ const INTERVAL_MS = 6000; // thời gian mỗi slide (6 giây)
             loading={i === 0 ? 'eager' : 'lazy'}
             fetchpriority={i === 0 ? 'high' : undefined}
             class="slide-img no-anim absolute inset-0 h-full w-full object-cover"
+            onerror="this.src='https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1920&q=80'"
           />
           {/* Lớp phủ đen giữ nguyên style của bạn */}
           <div class="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/60"></div>
@@ -103,9 +135,9 @@ const INTERVAL_MS = 6000; // thời gian mỗi slide (6 giây)
 
     {slides.length > 1 && (
       <>
-        {/* Chấm điều hướng - ĐÃ ĐƯỢC ĐƯA SANG GÓC TRÁI (Bottom Left) */}
+        {/* Chấm điều hướng - Giữ nguyên vị trí ở góc TRÁI (Bottom Left) */}
         <div class="absolute bottom-12 left-8 z-30 flex items-center gap-3 sm:left-12 sm:bottom-16">
-          {slides.map((s, i) => (
+          {slides.map((_, i) => (
             <button
               type="button"
               data-dot
@@ -194,9 +226,10 @@ const INTERVAL_MS = 6000; // thời gian mỗi slide (6 giây)
       const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       let index = 0;
-      let timer; 
+      let timer: number | undefined; 
 
-      const show = (i) => {
+      const show = (i: number) => {
+        if (slides.length === 0) return;
         index = (i + slides.length) % slides.length;
 
         slides.forEach((slide, n) => {
@@ -236,18 +269,12 @@ const INTERVAL_MS = 6000; // thời gian mỗi slide (6 giây)
         timer = window.setInterval(() => show(index + 1), interval);
       };
 
-      const go = (i) => {
+      const go = (i: number) => {
         show(i);
         start();
       };
 
       dots.forEach((dot, n) => dot.addEventListener('click', () => go(n)));
-
-      // Đã comment lại để chuột nằm trong banner vẫn trượt bình thường
-      // root.addEventListener('mouseenter', stop);
-      // root.addEventListener('mouseleave', start);
-      // root.addEventListener('focusin', stop);
-      // root.addEventListener('focusout', start);
 
       document.addEventListener('visibilitychange', () => {
         if (document.hidden) stop();
@@ -263,7 +290,7 @@ const INTERVAL_MS = 6000; // thời gian mỗi slide (6 giây)
         if (Math.abs(dx) > 50) go(index + (dx < 0 ? 1 : -1));
       });
 
-      root.addEventListener('keydown', (e) => {
+      root.addEventListener('keydown', (e: KeyboardEvent) => {
         if (e.key === 'ArrowLeft') go(index - 1);
         if (e.key === 'ArrowRight') go(index + 1);
       });
