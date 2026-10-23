@@ -121,7 +121,7 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
           appliedCouponId = coupon.id;
           appliedCoupon = coupon;
           const val = Number(coupon.discount_value);
-          if (coupon.discount_type === 'percent' || coupon.discount_type === 'percentage') {
+          if (coupon.discount_type === 'percent' || (coupon.discount_type as string) === 'percentage') {
             discountAmount = Math.round((subtotalAmount * val) / 100);
             if (coupon.max_discount_amount && discountAmount > Number(coupon.max_discount_amount)) {
               discountAmount = Number(coupon.max_discount_amount);

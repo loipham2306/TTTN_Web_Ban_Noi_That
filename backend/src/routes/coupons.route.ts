@@ -83,7 +83,7 @@ couponsRouter.post('/validate', async (req: Request, res: Response) => {
     let discountAmount = 0;
     const discountVal = Number(coupon.discount_value);
 
-    if (coupon.discount_type === 'percent' || coupon.discount_type === 'percentage') {
+    if (coupon.discount_type === 'percent' || (coupon.discount_type as string) === 'percentage') {
       discountAmount = Math.round((orderSubtotal * discountVal) / 100);
       if (coupon.max_discount_amount && discountAmount > Number(coupon.max_discount_amount)) {
         discountAmount = Number(coupon.max_discount_amount);
