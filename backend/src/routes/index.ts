@@ -11,6 +11,9 @@ import { phongThuyRouter } from './phong-thuy.route.js';
 import { bannersRouter }   from './banners.route.js';
 import { wishlistRouter }  from './wishlist.route.js';
 import { sepayRouter }     from './sepay.route.js';
+import { staffRouter }     from './staff.route.js';
+import { customersRouter } from './customers.route.js';
+import { campaignsRouter } from './campaigns.route.js';
 
 const router = Router();
 
@@ -26,5 +29,8 @@ router.use('/phong-thuy', phongThuyRouter);
 router.use('/banners',    bannersRouter);
 router.use('/wishlist',   wishlistRouter);
 router.use('/sepay',      sepayRouter);
+router.use('/staff',      staffRouter);
+router.use('/customers',  customersRouter);
+router.use('/campaigns',  campaignsRouter);
 
 export const apiRouter = router;

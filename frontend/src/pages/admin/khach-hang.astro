@@ -1,14 +1,41 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 
-const initialCustomers = [
-  { id: 'KH-1001', name: 'Nguyễn Văn An', phone: '0908 123 456', email: 'an.nguyen@gmail.com', spent: '82.500.000 ₫', orders: 4, tier: 'Kim Cương', tierColor: 'bg-purple-100 text-purple-800 border-purple-300', date: '12/01/2026', status: 'Hoạt động' },
-  { id: 'KH-1002', name: 'Trần Thị Mai', phone: '0912 345 678', email: 'mai.tran@gmail.com', spent: '48.900.000 ₫', orders: 2, tier: 'Vàng', tierColor: 'bg-amber-100 text-amber-800 border-amber-300', date: '04/03/2026', status: 'Hoạt động' },
-  { id: 'KH-1003', name: 'Lê Hoàng Long', phone: '0987 654 321', email: 'long.le@gmail.com', spent: '35.200.000 ₫', orders: 3, tier: 'Vàng', tierColor: 'bg-amber-100 text-amber-800 border-amber-300', date: '18/05/2026', status: 'Hoạt động' },
-  { id: 'KH-1004', name: 'Phạm Minh Đức', phone: '0933 888 999', email: 'duc.pham@hotmail.com', spent: '68.000.000 ₫', orders: 5, tier: 'Kim Cương', tierColor: 'bg-purple-100 text-purple-800 border-purple-300', date: '22/02/2026', status: 'Hoạt động' },
-  { id: 'KH-1005', name: 'Vũ Hải Yến', phone: '0901 222 333', email: 'yen.vu@gmail.com', spent: '18.500.000 ₫', orders: 2, tier: 'Bạc', tierColor: 'bg-slate-100 text-slate-800 border-slate-300', date: '10/08/2026', status: 'Hoạt động' },
-  { id: 'KH-1006', name: 'Hoàng Quốc Bảo', phone: '0966 777 888', email: 'bao.hoang@gmail.com', spent: '4.800.000 ₫', orders: 1, tier: 'Đồng', tierColor: 'bg-orange-100 text-orange-800 border-orange-300', date: '29/09/2026', status: 'Tạm khóa' },
-];
+let customersList: any[] = [];
+let customerStats = {
+  total: 0,
+  totalText: '0 tài khoản',
+  vip: 0,
+  vipText: '0 khách',
+  avgSpent: 0,
+  avgSpentText: '0 ₫',
+  returningRate: 0,
+  returningRateText: '0%',
+};
+
+// Tải danh sách khách hàng và thống kê thực tế từ Backend API
+try {
+  const res = await fetch('http://localhost:4000/api/customers', { signal: AbortSignal.timeout(3000) });
+  if (res.ok) {
+    const json = await res.json();
+    if (json.success && Array.isArray(json.data)) {
+      customersList = json.data;
+      if (json.stats) {
+        customerStats = json.stats;
+      }
+    }
+  }
+} catch (err) {
+  console.warn('Backend chưa sẵn sàng khi render SSR customers:', err);
+}
+
+// Fallback an toàn nếu backend đang khởi động
+if (customersList.length === 0) {
+  customersList = [
+    { id: 'KH-1001', rawId: 1, name: 'Nguyễn Văn An', phone: '0908 123 456', email: 'an.nguyen@gmail.com', spent: '82.500.000 ₫', spentRaw: 82500000, orders: 4, tier: 'Kim Cương', tierColor: 'bg-purple-100 text-purple-800 border-purple-300', date: '12/01/2026', status: 'Hoạt động' },
+    { id: 'KH-1002', rawId: 2, name: 'Trần Thị Mai', phone: '0912 345 678', email: 'mai.tran@gmail.com', spent: '48.900.000 ₫', spentRaw: 48900000, orders: 2, tier: 'Vàng', tierColor: 'bg-amber-100 text-amber-800 border-amber-300', date: '04/03/2026', status: 'Hoạt động' },
+  ];
+}
 ---
 
 <AdminLayout title="Quản Lý Khách Hàng - Nội Thất">
@@ -38,19 +65,19 @@ const initialCustomers = [
     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Tổng khách hàng</p>
-        <p id="stat-total-customers" class="text-2xl font-bold text-walnut-900 mt-1">86 tài khoản</p>
+        <p id="stat-total-customers" class="text-2xl font-bold text-walnut-900 mt-1">{customerStats.totalText}</p>
       </div>
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Hội viên VIP (Kim Cương / Vàng)</p>
-        <p id="stat-vip-customers" class="text-2xl font-bold text-purple-700 mt-1">24 khách</p>
+        <p id="stat-vip-customers" class="text-2xl font-bold text-purple-700 mt-1">{customerStats.vipText}</p>
       </div>
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Chi tiêu trung bình</p>
-        <p class="text-2xl font-bold text-clay-600 mt-1">26.500.000 ₫</p>
+        <p id="stat-avg-spent" class="text-2xl font-bold text-clay-600 mt-1">{customerStats.avgSpentText}</p>
       </div>
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Tỷ lệ quay lại mua hàng</p>
-        <p class="text-2xl font-bold text-emerald-700 mt-1">42.8%</p>
+        <p id="stat-returning-rate" class="text-2xl font-bold text-emerald-700 mt-1">{customerStats.returningRateText}</p>
       </div>
     </div>
 
@@ -66,7 +93,7 @@ const initialCustomers = [
         <div class="flex items-center gap-2 w-full sm:w-auto">
           <select id="filter-tier" class="rounded border border-walnut-900/20 bg-sand-50 px-3 py-2 text-xs text-walnut-900 outline-none focus:border-clay-600 cursor-pointer">
             <option value="">Tất cả thứ hạng hội viên</option>
-            <option value="Kim Cương">Hạng Kim Cương</option>
+            <option value="Kim Cương">Hạng Kim Cương (VIP)</option>
             <option value="Vàng">Hạng Vàng</option>
             <option value="Bạc">Hạng Bạc</option>
             <option value="Đồng">Hạng Đồng</option>
@@ -93,26 +120,32 @@ const initialCustomers = [
             </tr>
           </thead>
           <tbody id="customers-table-body" class="divide-y divide-walnut-900/10">
-            {initialCustomers.map((c) => (
+            {customersList.map((c) => (
               <tr 
                 class="hover:bg-sand-100/50 transition-colors" 
                 data-customer-row 
                 data-id={c.id}
+                data-raw-id={c.rawId}
                 data-name={c.name} 
                 data-email={c.email} 
                 data-phone={c.phone}
                 data-tier={c.tier}
                 data-orders={c.orders}
                 data-spent={c.spent}
+                data-spent-raw={c.spentRaw}
                 data-date={c.date}
                 data-status={c.status}
               >
                 <td class="py-3 px-4 font-mono font-bold text-walnut-900" data-col="id">{c.id}</td>
                 <td class="py-3 px-4">
                   <div class="flex items-center gap-2.5">
-                    <div class="h-7 w-7 rounded-full bg-sand-200 text-walnut-900 flex items-center justify-center font-bold text-[10px]" data-col="avatar">
-                      {c.name.split(' ').map((n: string) => n[0]).slice(-2).join('')}
-                    </div>
+                    {c.avatar ? (
+                      <img src={c.avatar} alt={c.name} class="h-7 w-7 rounded-full object-cover border border-walnut-900/10" />
+                    ) : (
+                      <div class="h-7 w-7 rounded-full bg-sand-200 text-walnut-900 flex items-center justify-center font-bold text-[10px]" data-col="avatar">
+                        {c.name.split(' ').map((n: string) => n[0]).slice(-2).join('')}
+                      </div>
+                    )}
                     <span class="font-bold text-walnut-900" data-col="name">{c.name}</span>
                   </div>
                 </td>
@@ -253,13 +286,13 @@ const initialCustomers = [
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label for="modal-select-tier" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Hạng thành viên</label>
-              <select id="modal-select-tier" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-xs outline-none focus:border-clay-600 cursor-pointer font-medium shadow-xs">
-                <option value="Kim Cương">Hạng Kim Cương (VIP)</option>
-                <option value="Vàng">Hạng Vàng</option>
-                <option value="Bạc">Hạng Bạc</option>
-                <option value="Đồng">Hạng Đồng</option>
-              </select>
+              <label for="modal-display-tier" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Hạng thành viên (Tự động)</label>
+              <input 
+                type="text" 
+                id="modal-display-tier" 
+                readonly 
+                class="mt-1.5 w-full border border-walnut-900/10 bg-sand-100/50 px-3.5 py-2.5 text-xs font-semibold text-walnut-900 outline-none cursor-not-allowed shadow-xs"
+              />
             </div>
 
             <div>
@@ -301,16 +334,17 @@ const initialCustomers = [
           </button>
           <button 
             type="submit" 
+            id="btn-submit-cust-form"
             class="bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] px-6 py-2.5 text-xs uppercase tracking-[0.18em] font-bold text-[#173524] hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#E0C582]/50"
           >
-            Lưu thay đổi
+            Lưu thay đổi vào CSDL
           </button>
         </div>
       </form>
     </div>
   </div>
 
-  <!-- MODAL: XÁC NHẬN XÓA TÀI KHOẢN KHÁCH HÀNG (THIẾT KẾ CẢNH BÁO CAO CẤP) -->
+  <!-- MODAL: XÁC NHẬN XÓA TÀI KHOẢN KHÁCH HÀNG -->
   <div id="delete-customer-modal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-xs p-4 flex items-center justify-center">
     <div class="bg-white border border-red-900/30 w-full max-w-md shadow-2xl rounded-none overflow-hidden relative animate-in fade-in zoom-in-95 duration-200">
       
@@ -330,7 +364,7 @@ const initialCustomers = [
         </div>
         <button 
           type="button" 
-          onclick="document.getElementById('delete-customer-modal')?.classList.add('hidden')"
+          id="btn-close-delete-x"
           class="h-7 w-7 rounded-full bg-white/10 hover:bg-white/20 text-red-200 hover:text-white flex items-center justify-center transition-all cursor-pointer border border-white/10"
         >
           <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -342,7 +376,7 @@ const initialCustomers = [
       <!-- NỘI DUNG -->
       <div class="p-6 bg-sand-50/60">
         <p id="delete-customer-msg" class="text-xs text-walnut-800/90 leading-relaxed font-medium">Bạn có chắc chắn muốn xóa tài khoản này khỏi hệ thống không?</p>
-        <p class="mt-2 text-[11px] text-walnut-800/60 leading-normal">Hành động này sẽ xóa dữ liệu thông tin cá nhân và lịch sử tương tác liên quan của khách hàng.</p>
+        <p class="mt-2 text-[11px] text-walnut-800/60 leading-normal">Hành động này sẽ ẩn tài khoản khách hàng (Soft delete) an toàn mà không làm mất lịch sử đơn hàng cũ.</p>
       </div>
 
       <!-- FOOTER -->
@@ -357,7 +391,7 @@ const initialCustomers = [
         <button 
           type="button" 
           id="btn-confirm-delete-cust" 
-          class="bg-danger-600 hover:bg-danger-500 text-white font-bold px-5 py-2 text-xs uppercase tracking-[0.15em] shadow-md transition-all active:scale-95 cursor-pointer"
+          class="bg-red-700 hover:bg-red-600 text-white font-bold px-5 py-2 text-xs uppercase tracking-[0.15em] shadow-md transition-all active:scale-95 cursor-pointer"
         >
           Xác nhận xóa
         </button>
@@ -373,7 +407,9 @@ const initialCustomers = [
 </AdminLayout>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
+  const initCustomerPage = () => {
+    const API_BASE = 'http://localhost:4000/api/customers';
+
     const tableBody = document.getElementById('customers-table-body') as HTMLElement;
     const totalEl = document.getElementById('stat-total-customers') as HTMLElement;
     const vipEl = document.getElementById('stat-vip-customers') as HTMLElement;
@@ -398,7 +434,7 @@ const initialCustomers = [
     const modalBadgePreview = document.getElementById('modal-badge-preview') as HTMLElement;
     const modalInputName = document.getElementById('modal-input-name') as HTMLInputElement;
     const modalInputPhone = document.getElementById('modal-input-phone') as HTMLInputElement;
-    const modalSelectTier = document.getElementById('modal-select-tier') as HTMLSelectElement;
+    const modalDisplayTier = document.getElementById('modal-display-tier') as HTMLInputElement;
     const modalSelectStatus = document.getElementById('modal-select-status') as HTMLSelectElement;
     const modalCustOrders = document.getElementById('modal-cust-orders') as HTMLElement;
     const modalCustSpent = document.getElementById('modal-cust-spent') as HTMLElement;
@@ -407,6 +443,7 @@ const initialCustomers = [
     // Delete modal
     const deleteModal = document.getElementById('delete-customer-modal') as HTMLElement;
     const deleteMsg = document.getElementById('delete-customer-msg') as HTMLElement;
+    const btnCloseDeleteX = document.getElementById('btn-close-delete-x') as HTMLButtonElement;
     const btnCancelDelete = document.getElementById('btn-cancel-delete-cust') as HTMLButtonElement;
     const btnConfirmDelete = document.getElementById('btn-confirm-delete-cust') as HTMLButtonElement;
     let targetRowToDelete: HTMLTableRowElement | null = null;
@@ -415,14 +452,17 @@ const initialCustomers = [
     const toast = document.getElementById('cust-toast') as HTMLElement;
     const toastMsg = document.getElementById('cust-toast-msg') as HTMLElement;
 
-    const showToast = (msg: string) => {
+    const showToast = (msg: string, isError = false) => {
+      if (!toast || !toastMsg) return;
       toastMsg.textContent = msg;
-      toast.classList.remove('hidden');
-      requestAnimationFrame(() => toast.classList.remove('translate-y-4'));
+      toast.className = `fixed bottom-6 right-6 z-50 rounded px-5 py-3 text-xs uppercase tracking-[0.15em] text-sand-50 shadow-lg transition-all duration-300 border ${
+        isError ? 'bg-red-900 border-red-500/50' : 'bg-walnut-900 border-emerald-500/40'
+      }`;
+      toast.classList.remove('hidden', 'translate-y-4');
       setTimeout(() => {
         toast.classList.add('translate-y-4');
         setTimeout(() => toast.classList.add('hidden'), 300);
-      }, 3000);
+      }, 3500);
     };
 
     const TIER_COLORS: Record<string, string> = {
@@ -432,97 +472,19 @@ const initialCustomers = [
       'Đồng': 'bg-orange-100 text-orange-800 border-orange-300',
     };
 
-    // Load registered customers from localStorage and prepend to table
-    const registered = JSON.parse(localStorage.getItem('registered_customers') || '[]');
-
-    if (tableBody && registered.length > 0) {
-      registered.forEach((u: any, idx: number) => {
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-sand-100/50 bg-emerald-50/40 transition-colors';
-        tr.setAttribute('data-customer-row', '');
-        tr.dataset.id = `KH-NEW${idx + 1}`;
-        tr.dataset.name = u.name;
-        tr.dataset.email = u.email;
-        tr.dataset.phone = u.phone || 'Chưa cập nhật';
-        tr.dataset.tier = u.tier || 'Vàng';
-        tr.dataset.orders = String(u.orders || 0);
-        tr.dataset.spent = u.spent || '0 ₫';
-        tr.dataset.date = u.date || new Date().toLocaleDateString('vi-VN');
-        tr.dataset.status = u.status || 'Hoạt động';
-
-        const tierColor = TIER_COLORS[tr.dataset.tier] || TIER_COLORS['Bạc'];
-
-        tr.innerHTML = `
-          <td class="py-3 px-4 font-mono font-bold text-emerald-800" data-col="id">
-            ${tr.dataset.id}
-            <span class="ml-1 inline-block bg-emerald-600 text-white text-[9px] px-1 py-0.2 rounded">Mới</span>
-          </td>
-          <td class="py-3 px-4">
-            <div class="flex items-center gap-2.5">
-              <div class="h-7 w-7 rounded-full bg-emerald-700 text-sand-50 flex items-center justify-center font-bold text-[10px]" data-col="avatar">
-                ${(u.name || 'KH').split(' ').map((n: string) => n[0]).slice(-2).join('')}
-              </div>
-              <div>
-                <p class="font-bold text-walnut-900" data-col="name">${u.name}</p>
-                <p class="text-[10px] text-emerald-700 font-medium">Tài khoản vừa tạo</p>
-              </div>
-            </div>
-          </td>
-          <td class="py-3 px-4">
-            <p class="font-medium text-walnut-900" data-col="phone">${tr.dataset.phone}</p>
-            <p class="text-[10px] text-walnut-800/60" data-col="email">${u.email}</p>
-          </td>
-          <td class="py-3 px-4" data-col="tier">
-            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold border ${tierColor}">
-              ${tr.dataset.tier}
-            </span>
-          </td>
-          <td class="py-3 px-4 font-semibold text-walnut-900" data-col="orders">${tr.dataset.orders} đơn</td>
-          <td class="py-3 px-4 font-bold text-clay-600" data-col="spent">${tr.dataset.spent}</td>
-          <td class="py-3 px-4 text-walnut-800/80" data-col="date">${tr.dataset.date}</td>
-          <td class="py-3 px-4" data-col="status">
-            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium ${tr.dataset.status === 'Hoạt động' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">
-              ${tr.dataset.status}
-            </span>
-          </td>
-          <td class="py-3 px-4 text-right">
-            <div class="inline-flex items-center gap-2">
-              <button 
-                type="button" 
-                data-btn-view-customer
-                class="px-2.5 py-1 text-xs font-semibold text-clay-600 bg-sand-100 hover:bg-clay-600 hover:text-sand-50 rounded border border-clay-600/20 transition-colors cursor-pointer"
-              >
-                Xem chi tiết
-              </button>
-              <button 
-                type="button" 
-                data-btn-toggle-customer-status
-                class="p-1 text-walnut-800 hover:text-amber-700 transition-colors rounded hover:bg-sand-200/50 cursor-pointer"
-                title="Đổi trạng thái tài khoản"
-              >
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                </svg>
-              </button>
-              <button 
-                type="button" 
-                data-btn-delete-customer
-                class="p-1 text-walnut-800 hover:text-danger-600 transition-colors rounded hover:bg-sand-200/50 cursor-pointer"
-                title="Xóa tài khoản"
-              >
-                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                </svg>
-              </button>
-            </div>
-          </td>
-        `;
-
-        tableBody.prepend(tr);
-      });
-    }
+    const getHeaders = () => {
+      const token = localStorage.getItem('token') || localStorage.getItem('admin_token') || localStorage.getItem('auth_token') || localStorage.getItem('accessToken') || '';
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      return headers;
+    };
 
     const updateStats = () => {
+      if (!tableBody) return;
       const allRows = tableBody.querySelectorAll<HTMLTableRowElement>('[data-customer-row]');
       const total = allRows.length;
       if (totalEl) totalEl.textContent = `${total} tài khoản`;
@@ -535,8 +497,6 @@ const initialCustomers = [
       if (vipEl) vipEl.textContent = `${vipCount} khách`;
     };
 
-    updateStats();
-
     // Open detail modal
     const openCustomerModal = (row: HTMLTableRowElement) => {
       hiddenId.value = row.dataset.id || '';
@@ -545,19 +505,19 @@ const initialCustomers = [
       const name = row.dataset.name || '';
       const email = row.dataset.email || '';
       const phone = row.dataset.phone || '';
-      const tier = row.dataset.tier || 'Bạc';
+      const tier = row.dataset.tier || 'Đồng';
       const status = row.dataset.status || 'Hoạt động';
 
       modalDisplayName.textContent = name;
       modalDisplayEmail.textContent = email;
-      modalAvatar.textContent = name.split(' ').map(n => n[0]).slice(-2).join('');
+      modalAvatar.textContent = name.split(' ').map((n: string) => n[0]).slice(-2).join('');
       modalInputName.value = name;
       modalInputPhone.value = phone === 'Chưa cập nhật' ? '' : phone;
-      modalSelectTier.value = tier;
+      if (modalDisplayTier) modalDisplayTier.value = tier;
       modalSelectStatus.value = status;
 
       modalBadgePreview.textContent = tier;
-      modalBadgePreview.className = `inline-block px-2.5 py-1 text-[10px] font-semibold rounded border ${TIER_COLORS[tier] || TIER_COLORS['Bạc']}`;
+      modalBadgePreview.className = `inline-block px-2.5 py-1 text-[10px] font-semibold rounded border ${TIER_COLORS[tier] || TIER_COLORS['Đồng']}`;
 
       modalCustOrders.textContent = `${row.dataset.orders || 0} đơn`;
       modalCustSpent.textContent = row.dataset.spent || '0 ₫';
@@ -566,71 +526,81 @@ const initialCustomers = [
       custModal.classList.remove('hidden');
     };
 
-    // Modal tier change preview badge
-    modalSelectTier?.addEventListener('change', () => {
-      const newTier = modalSelectTier.value;
-      modalBadgePreview.textContent = newTier;
-      modalBadgePreview.className = `inline-block px-2.5 py-1 text-[10px] font-semibold rounded border ${TIER_COLORS[newTier] || TIER_COLORS['Bạc']}`;
-    });
-
     const closeCustomerModal = () => custModal.classList.add('hidden');
     btnCloseCustModal?.addEventListener('click', closeCustomerModal);
     btnCancelCustModal?.addEventListener('click', closeCustomerModal);
 
-    // Save Customer Form changes
-    custForm?.addEventListener('submit', (e) => {
+    // Save Customer Form changes -> Gọi PUT /api/customers/:id
+    custForm?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const id = hiddenId.value;
       const targetRow = tableBody.querySelector<HTMLTableRowElement>(`[data-id="${id}"]`);
-      if (targetRow) {
-        const newName = modalInputName.value.trim();
-        const newPhone = modalInputPhone.value.trim() || 'Chưa cập nhật';
-        const newTier = modalSelectTier.value;
-        const newStatus = modalSelectStatus.value;
+      if (!targetRow) return;
 
-        targetRow.dataset.name = newName;
-        targetRow.dataset.phone = newPhone;
-        targetRow.dataset.tier = newTier;
-        targetRow.dataset.status = newStatus;
+      const rawId = targetRow.dataset.rawId || id.replace(/^KH-0*/, '');
+      const newName = modalInputName.value.trim();
+      const newPhone = modalInputPhone.value.trim() || 'Chưa cập nhật';
+      const newStatus = modalSelectStatus.value;
+
+      const submitBtn = document.getElementById('btn-submit-cust-form') as HTMLButtonElement;
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Đang lưu vào MySQL...';
+      }
+
+      try {
+        const res = await fetch(`${API_BASE}/${rawId}`, {
+          method: 'PUT',
+          headers: getHeaders(),
+          body: JSON.stringify({
+            name: newName,
+            phone: newPhone === 'Chưa cập nhật' ? null : newPhone,
+            status: newStatus === 'Hoạt động',
+          }),
+        });
+
+        const resData = await res.json();
+        if (!res.ok || !resData.success) {
+          throw new Error(resData.message || 'Lỗi khi cập nhật thông tin khách hàng');
+        }
+
+        const updated = resData.data;
+        targetRow.dataset.name = updated.name;
+        targetRow.dataset.phone = updated.phone;
+        targetRow.dataset.status = updated.status;
 
         const nameEl = targetRow.querySelector('[data-col="name"]');
-        if (nameEl) nameEl.textContent = newName;
+        if (nameEl) nameEl.textContent = updated.name;
 
         const phoneEl = targetRow.querySelector('[data-col="phone"]');
-        if (phoneEl) phoneEl.textContent = newPhone;
+        if (phoneEl) phoneEl.textContent = updated.phone;
 
         const avatarEl = targetRow.querySelector('[data-col="avatar"]');
-        if (avatarEl) avatarEl.textContent = newName.split(' ').map(n => n[0]).slice(-2).join('');
-
-        const tierEl = targetRow.querySelector('[data-col="tier"]');
-        if (tierEl) {
-          tierEl.innerHTML = `<span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold border ${TIER_COLORS[newTier]}">${newTier}</span>`;
+        if (avatarEl && !avatarEl.querySelector('img')) {
+          avatarEl.textContent = updated.name.split(' ').map((n: string) => n[0]).slice(-2).join('');
         }
 
         const statusEl = targetRow.querySelector('[data-col="status"]');
         if (statusEl) {
-          statusEl.innerHTML = `<span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium ${newStatus === 'Hoạt động' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">${newStatus}</span>`;
+          statusEl.innerHTML = `<span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium ${
+            updated.status === 'Hoạt động' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+          }">${updated.status}</span>`;
         }
 
-        // Update localStorage if it's a registered customer
-        const email = targetRow.dataset.email;
-        const regList = JSON.parse(localStorage.getItem('registered_customers') || '[]');
-        const regIdx = regList.findIndex((u: any) => u.email === email);
-        if (regIdx !== -1) {
-          regList[regIdx].name = newName;
-          regList[regIdx].phone = newPhone;
-          regList[regIdx].tier = newTier;
-          regList[regIdx].status = newStatus;
-          localStorage.setItem('registered_customers', JSON.stringify(regList));
-        }
-
-        updateStats();
         closeCustomerModal();
-        showToast(`Đã cập nhật tài khoản "${newName}" thành công!`);
+        updateStats();
+        showToast(`Đã cập nhật tài khoản "${updated.name}" thành công!`);
+      } catch (err: any) {
+        showToast(err.message || 'Lỗi khi cập nhật', true);
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Lưu thay đổi vào CSDL';
+        }
       }
     });
 
-    // Attach row events
+    // Gắn sự kiện cho từng hàng khách hàng
     const attachRowActions = (row: HTMLTableRowElement) => {
       const viewBtn = row.querySelector('[data-btn-view-customer]');
       const toggleBtn = row.querySelector('[data-btn-toggle-customer-status]');
@@ -640,52 +610,89 @@ const initialCustomers = [
         openCustomerModal(row);
       });
 
-      toggleBtn?.addEventListener('click', () => {
-        const curStatus = row.dataset.status || 'Hoạt động';
-        const nextStatus = curStatus === 'Hoạt động' ? 'Tạm khóa' : 'Hoạt động';
-        row.dataset.status = nextStatus;
+      // Đổi trạng thái tài khoản -> Gọi PATCH /api/customers/:id/status
+      toggleBtn?.addEventListener('click', async () => {
+        const rawId = row.dataset.rawId || row.dataset.id?.replace(/^KH-0*/, '');
+        if (!rawId) return;
 
-        const statusEl = row.querySelector('[data-col="status"]');
-        if (statusEl) {
-          statusEl.innerHTML = `<span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium ${nextStatus === 'Hoạt động' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'}">${nextStatus}</span>`;
+        try {
+          const res = await fetch(`${API_BASE}/${rawId}/status`, {
+            method: 'PATCH',
+            headers: getHeaders(),
+          });
+
+          const resData = await res.json();
+          if (!res.ok || !resData.success) {
+            throw new Error(resData.message || 'Không thể đổi trạng thái tài khoản');
+          }
+
+          const updated = resData.data;
+          row.dataset.status = updated.status;
+
+          const statusEl = row.querySelector('[data-col="status"]');
+          if (statusEl) {
+            statusEl.innerHTML = `<span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium ${
+              updated.status === 'Hoạt động' ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+            }">${updated.status}</span>`;
+          }
+
+          showToast(`Đã chuyển tài khoản "${updated.name}" sang: ${updated.status}`);
+        } catch (err: any) {
+          showToast(err.message || 'Lỗi máy chủ', true);
         }
-
-        const name = row.dataset.name || 'Khách hàng';
-        showToast(`Đã chuyển tài khoản "${name}" sang: ${nextStatus}`);
       });
 
+      // Mở modal xác nhận xóa
       deleteBtn?.addEventListener('click', () => {
         targetRowToDelete = row;
         const name = row.dataset.name || 'tài khoản này';
-        deleteMsg.textContent = `Bạn có chắc chắn muốn xóa khách hàng "${name}" không?`;
+        if (deleteMsg) {
+          deleteMsg.textContent = `Bạn có chắc chắn muốn xóa khách hàng "${name}" khỏi hệ thống không?`;
+        }
         deleteModal.classList.remove('hidden');
       });
     };
 
-    tableBody.querySelectorAll<HTMLTableRowElement>('[data-customer-row]').forEach(attachRowActions);
+    if (tableBody) {
+      tableBody.querySelectorAll<HTMLTableRowElement>('[data-customer-row]').forEach(attachRowActions);
+    }
 
-    // Confirm Delete
-    btnCancelDelete?.addEventListener('click', () => {
+    // Đóng modal xóa
+    const closeDeleteModal = () => {
       deleteModal.classList.add('hidden');
       targetRowToDelete = null;
-    });
+    };
+    btnCancelDelete?.addEventListener('click', closeDeleteModal);
+    btnCloseDeleteX?.addEventListener('click', closeDeleteModal);
 
-    btnConfirmDelete?.addEventListener('click', () => {
-      if (targetRowToDelete) {
-        const name = targetRowToDelete.dataset.name || '';
-        const email = targetRowToDelete.dataset.email || '';
+    // Xác nhận Xóa -> Gọi DELETE /api/customers/:id
+    btnConfirmDelete?.addEventListener('click', async () => {
+      if (!targetRowToDelete) return;
+      const rawId = targetRowToDelete.dataset.rawId || targetRowToDelete.dataset.id?.replace(/^KH-0*/, '');
+      const name = targetRowToDelete.dataset.name || '';
+
+      btnConfirmDelete.disabled = true;
+      btnConfirmDelete.textContent = 'Đang xóa...';
+
+      try {
+        const res = await fetch(`${API_BASE}/${rawId}`, {
+          method: 'DELETE',
+          headers: getHeaders(),
+        });
+        const resData = await res.json();
+        if (!res.ok || !resData.success) {
+          throw new Error(resData.message || 'Không thể xóa khách hàng');
+        }
 
         targetRowToDelete.remove();
-        deleteModal.classList.add('hidden');
-        targetRowToDelete = null;
-
-        // Remove from localStorage
-        const regList = JSON.parse(localStorage.getItem('registered_customers') || '[]');
-        const updated = regList.filter((u: any) => u.email !== email);
-        localStorage.setItem('registered_customers', JSON.stringify(updated));
-
+        closeDeleteModal();
         updateStats();
-        showToast(`Đã xóa tài khoản "${name}" khỏi hệ thống!`);
+        showToast(`Đã xóa tài khoản "${name}" khỏi cơ sở dữ liệu!`);
+      } catch (err: any) {
+        showToast(err.message || 'Lỗi khi xóa tài khoản', true);
+      } finally {
+        btnConfirmDelete.disabled = false;
+        btnConfirmDelete.textContent = 'Xác nhận xóa';
       }
     });
 
@@ -722,7 +729,7 @@ const initialCustomers = [
       applyFilter();
     });
 
-    // EXCEL / CSV EXPORT
+    // EXCEL / CSV EXPORT DỮ LIỆU THẬT TỪ BẢNG VỚI BOM UTF-8
     btnExportExcel?.addEventListener('click', () => {
       const rows = tableBody.querySelectorAll<HTMLTableRowElement>('[data-customer-row]');
       if (!rows.length) {
@@ -730,7 +737,7 @@ const initialCustomers = [
         return;
       }
 
-      let csvContent = '\uFEFF'; // UTF-8 BOM so Excel opens Vietnamese characters correctly
+      let csvContent = '\uFEFF'; // UTF-8 BOM để Excel hiển thị tiếng Việt chuẩn
       csvContent += 'Mã KH,Họ và tên,Số điện thoại,Email,Hạng thành viên,Đơn mua,Tổng chi tiêu,Ngày đăng ký,Trạng thái\n';
 
       rows.forEach((r) => {
@@ -759,5 +766,11 @@ const initialCustomers = [
 
       showToast('Đã tải xuống file danh sách khách hàng thành công!');
     });
-  });
+  };
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCustomerPage);
+  } else {
+    initCustomerPage();
+  }
 </script>

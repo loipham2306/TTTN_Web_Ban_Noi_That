@@ -1,13 +1,53 @@
 ---
 import AdminLayout from '../../layouts/AdminLayout.astro';
 
-const initialStaff = [
-  { id: 'NV-001', name: 'Trương Chí Vỹ', role: 'Quản Trị Tối Cao (Super Admin)', dept: 'Ban Giám Đốc', email: 'admin@noithat.vn', phone: '0909 001 001', status: 'Trực tuyến', statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300', lastLogin: 'Vừa xong' },
-  { id: 'NV-002', name: 'Lê Hoàng Nam', role: 'Quản Lý Bán Hàng', dept: 'Phòng Kinh Doanh', email: 'nam.le@noithat.vn', phone: '0909 002 002', status: 'Trực tuyến', statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300', lastLogin: '15 phút trước' },
-  { id: 'NV-003', name: 'Đặng Thảo Vy', role: 'Chuyên Viên Tư Vấn Phong Thủy', dept: 'Tư Vấn Khách Hàng', email: 'vy.dang@noithat.vn', phone: '0909 003 003', status: 'Trực tuyến', statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300', lastLogin: '1 giờ trước' },
-  { id: 'NV-004', name: 'Nguyễn Tiến Dũng', role: 'Thủ Kho & Vận Chuyển', dept: 'Kho Vận', email: 'dung.nguyen@noithat.vn', phone: '0909 004 004', status: 'Vắng mặt', statusColor: 'bg-slate-100 text-slate-800 border-slate-300', lastLogin: 'Hôm qua' },
-  { id: 'NV-005', name: 'Trần Bảo Ngọc', role: 'Marketing & Khuyến Mãi', dept: 'Truyền Thông', email: 'ngoc.tran@noithat.vn', phone: '0909 005 005', status: 'Trực tuyến', statusColor: 'bg-emerald-100 text-emerald-800 border-emerald-300', lastLogin: '3 giờ trước' },
-];
+let staffList: any[] = [];
+let availableRoles: any[] = [];
+let staffStats = {
+  total: 0,
+  online: 0,
+  admins: 0,
+  locked: 0,
+  twoFactorPercentage: 100,
+};
+
+// 1. Tải danh sách nhân sự thực tế từ Backend API (kèm fallback an toàn)
+try {
+  const staffRes = await fetch('http://localhost:4000/api/staff', { signal: AbortSignal.timeout(3000) });
+  if (staffRes.ok) {
+    const json = await staffRes.json();
+    if (json.success && Array.isArray(json.data)) {
+      staffList = json.data;
+      if (json.stats) {
+        staffStats = json.stats;
+      }
+    }
+  }
+} catch (err) {
+  console.warn('Backend chưa sẵn sàng khi render SSR staff:', err);
+}
+
+// 2. Tải danh mục vai trò chức vụ nhân sự từ Backend
+try {
+  const rolesRes = await fetch('http://localhost:4000/api/staff/roles', { signal: AbortSignal.timeout(3000) });
+  if (rolesRes.ok) {
+    const json = await rolesRes.json();
+    if (json.success && Array.isArray(json.data)) {
+      availableRoles = json.data;
+    }
+  }
+} catch (err) {}
+
+// Fallback roles nếu backend đang khởi động
+if (availableRoles.length === 0) {
+  availableRoles = [
+    { id: 1, name: 'admin', display: 'Quản Trị Viên (Admin)', dept: 'Ban Giám Đốc' },
+    { id: 2, name: 'seller', display: 'Quản Lý Bán Hàng', dept: 'Phòng Kinh Doanh' },
+    { id: 4, name: 'consultant', display: 'Chuyên Viên Tư Vấn Phong Thủy', dept: 'Tư Vấn Khách Hàng' },
+    { id: 5, name: 'warehouse', display: 'Thủ Kho & Vận Chuyển', dept: 'Kho Vận' },
+    { id: 6, name: 'marketing', display: 'Marketing & Khuyến Mãi', dept: 'Truyền Thông' },
+  ];
+}
 ---
 
 <AdminLayout title="Quản Lý Nhân Viên & Phân Quyền - Nội Thất">
@@ -16,7 +56,7 @@ const initialStaff = [
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-walnut-900/10 pb-6">
       <div>
         <h1 class="font-sans font-bold text-2xl sm:text-3xl text-walnut-900">Quản Lý Nhân Viên & Phân Quyền</h1>
-        <p class="mt-1 text-sm text-walnut-800/80">Danh sách nhân sự điều hành, phân bổ vai trò và bảo mật tài khoản.</p>
+        <p class="mt-1 text-sm text-walnut-800/80">Hệ thống nhân sự điều hành, phân quyền vai trò (RBAC) và bảo mật tài khoản.</p>
       </div>
 
       <button 
@@ -35,19 +75,19 @@ const initialStaff = [
     <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Tổng nhân sự</p>
-        <p id="stat-total-staff" class="text-2xl font-bold text-walnut-900 mt-1">{initialStaff.length} nhân viên</p>
+        <p id="stat-total-staff" class="text-2xl font-bold text-walnut-900 mt-1">{staffStats.total} nhân viên</p>
       </div>
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Đang trực tuyến</p>
-        <p id="stat-online-staff" class="text-2xl font-bold text-emerald-700 mt-1">4 người</p>
+        <p id="stat-online-staff" class="text-2xl font-bold text-emerald-700 mt-1">{staffStats.online} người</p>
       </div>
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Quyền Quản trị viên</p>
-        <p class="text-2xl font-bold text-clay-600 mt-1">2 tài khoản</p>
+        <p id="stat-admin-staff" class="text-2xl font-bold text-clay-600 mt-1">{staffStats.admins} tài khoản</p>
       </div>
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-4">
         <p class="text-xs uppercase text-walnut-800/70 font-medium">Xác thực 2 lớp (2FA)</p>
-        <p class="text-2xl font-bold text-walnut-900 mt-1">100% Bật</p>
+        <p class="text-2xl font-bold text-walnut-900 mt-1">{staffStats.twoFactorPercentage}% Bật</p>
       </div>
     </div>
 
@@ -63,29 +103,36 @@ const initialStaff = [
               <th class="py-3 px-4 font-semibold">Phòng ban</th>
               <th class="py-3 px-4 font-semibold">Liên hệ</th>
               <th class="py-3 px-4 font-semibold">Trạng thái</th>
-              <th class="py-3 px-4 font-semibold">Lần đăng nhập cuối</th>
+              <th class="py-3 px-4 font-semibold">Lần cập nhật cuối</th>
               <th class="py-3 px-4 font-semibold text-right">Thao tác</th>
             </tr>
           </thead>
           <tbody id="staff-table-body" class="divide-y divide-walnut-900/10">
-            {initialStaff.map((m) => (
+            {staffList.map((m) => (
               <tr 
                 class="hover:bg-sand-100/50 transition-colors"
                 data-staff-row
                 data-id={m.id}
+                data-code={m.code}
                 data-name={m.name}
                 data-email={m.email}
                 data-role={m.role}
+                data-role-id={m.roleId}
+                data-role-key={m.roleKey}
                 data-dept={m.dept}
                 data-phone={m.phone}
                 data-status={m.status}
               >
-                <td class="py-3 px-4 font-mono font-bold text-walnut-900">{m.id}</td>
+                <td class="py-3 px-4 font-mono font-bold text-walnut-900">{m.code}</td>
                 <td class="py-3 px-4">
                   <div class="flex items-center gap-2.5">
-                    <div class="h-8 w-8 rounded-full bg-walnut-900 text-sand-50 flex items-center justify-center font-bold text-xs" data-col="avatar">
-                      {m.name.split(' ').map(n => n[0]).slice(-2).join('')}
-                    </div>
+                    {m.avatar ? (
+                      <img src={m.avatar} alt={m.name} class="h-8 w-8 rounded-full object-cover border border-walnut-900/20" />
+                    ) : (
+                      <div class="h-8 w-8 rounded-full bg-walnut-900 text-sand-50 flex items-center justify-center font-bold text-xs" data-col="avatar">
+                        {m.name.split(' ').map((n: string) => n[0]).slice(-2).join('')}
+                      </div>
+                    )}
                     <div>
                       <p class="font-bold text-walnut-900" data-col="name">{m.name}</p>
                       <p class="text-[10px] text-walnut-800/60" data-col="email">{m.email}</p>
@@ -100,7 +147,7 @@ const initialStaff = [
                     {m.status}
                   </span>
                 </td>
-                <td class="py-3 px-4 text-walnut-800/70">{m.lastLogin}</td>
+                <td class="py-3 px-4 text-walnut-800/70" data-col="last-login">{m.lastLogin}</td>
                 <td class="py-3 px-4 text-right">
                   <div class="flex items-center justify-end gap-2">
                     <button 
@@ -118,6 +165,18 @@ const initialStaff = [
                     >
                       {m.status === 'Đã khóa' ? 'Mở khóa' : 'Khóa'}
                     </button>
+                    {m.roleKey !== 'admin' && (
+                      <>
+                        <span class="text-walnut-800/30">|</span>
+                        <button
+                          type="button"
+                          data-btn-delete
+                          class="text-xs font-semibold text-walnut-800/60 hover:text-red-600 cursor-pointer hover:underline"
+                        >
+                          Xóa
+                        </button>
+                      </>
+                    )}
                   </div>
                 </td>
               </tr>
@@ -186,23 +245,27 @@ const initialStaff = [
             <div>
               <label for="staff-role-select" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Chức vụ & Vai trò</label>
               <select id="staff-role-select" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3 py-2.5 text-xs outline-none focus:border-clay-600 cursor-pointer shadow-xs">
-                <option value="Quản Lý Bán Hàng">Quản Lý Bán Hàng</option>
-                <option value="Chuyên Viên Tư Vấn Phong Thủy">Chuyên Viên Tư Vấn Phong Thủy</option>
-                <option value="Thủ Kho & Vận Chuyển">Thủ Kho & Vận Chuyển</option>
-                <option value="Marketing & Khuyến Mãi">Marketing & Khuyến Mãi</option>
-                <option value="Quản Trị Viên (Admin)">Quản Trị Viên (Admin)</option>
+                {availableRoles.map((r: any) => (
+                  <option value={r.id} data-dept={r.dept}>{r.display}</option>
+                ))}
               </select>
             </div>
             <div>
-              <label for="staff-dept-select" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Phòng ban</label>
-              <select id="staff-dept-select" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3 py-2.5 text-xs outline-none focus:border-clay-600 cursor-pointer shadow-xs">
-                <option value="Phòng Kinh Doanh">Phòng Kinh Doanh</option>
-                <option value="Tư Vấn Khách Hàng">Tư Vấn Khách Hàng</option>
-                <option value="Kho Vận">Kho Vận</option>
-                <option value="Truyền Thông">Truyền Thông</option>
-                <option value="Ban Giám Đốc">Ban Giám Đốc</option>
-              </select>
+              <label for="staff-dept-display" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Phòng ban phân bổ</label>
+              <input 
+                type="text" 
+                id="staff-dept-display" 
+                readonly 
+                value={availableRoles[0]?.dept || 'Bộ phận Vận hành'} 
+                class="mt-1.5 w-full border border-walnut-900/10 bg-sand-100/50 px-3 py-2.5 text-xs text-walnut-900 font-medium outline-none cursor-not-allowed shadow-xs" 
+              />
             </div>
+          </div>
+
+          <div>
+            <label for="staff-password-input" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Mật khẩu đăng nhập ban đầu</label>
+            <input type="text" id="staff-password-input" value="Staff@123456" placeholder="Mặc định: Staff@123456" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-xs outline-none focus:border-clay-600 shadow-xs font-mono" />
+            <p class="text-[10px] text-walnut-800/60 mt-1">Mật khẩu sẽ được mã hóa chuẩn Bcrypt trong MySQL trước khi lưu trữ.</p>
           </div>
         </div>
 
@@ -211,8 +274,8 @@ const initialStaff = [
           <button type="button" id="btn-cancel-staff-modal" class="border border-walnut-900/20 px-5 py-2.5 text-xs uppercase tracking-[0.15em] font-semibold text-walnut-800 hover:bg-sand-100 hover:border-walnut-900 transition-colors cursor-pointer">
             Hủy
           </button>
-          <button type="submit" class="bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] px-6 py-2.5 text-xs uppercase tracking-[0.18em] font-bold text-[#173524] hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#E0C582]/50">
-            Lưu nhân viên
+          <button type="submit" id="btn-submit-add-staff" class="bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] px-6 py-2.5 text-xs uppercase tracking-[0.18em] font-bold text-[#173524] hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#E0C582]/50">
+            Lưu vào CSDL
           </button>
         </div>
       </form>
@@ -235,7 +298,7 @@ const initialStaff = [
               </svg>
             </div>
             <div>
-              <p class="text-[10px] uppercase tracking-[0.22em] text-[#D8B670] font-semibold">CẤP QUYỀN HỆ THỐNG</p>
+              <p class="text-[10px] uppercase tracking-[0.22em] text-[#D8B670] font-semibold">CẤP QUYỀN HỆ THỐNG (RBAC)</p>
               <h2 id="perm-staff-name" class="text-lg sm:text-xl font-display font-bold text-white tracking-wide mt-0.5">Phân quyền nhân sự</h2>
             </div>
           </div>
@@ -259,20 +322,18 @@ const initialStaff = [
         <!-- MODAL BODY (SCROLLABLE) -->
         <div class="p-6 sm:p-8 space-y-4 overflow-y-auto flex-1 bg-[#FAF8F5]">
           <div>
-            <label for="perm-role-select" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Chức vụ vai trò *</label>
+            <label for="perm-role-select" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium">Chức vụ vai trò trong DB *</label>
             <select id="perm-role-select" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-xs outline-none focus:border-clay-600 cursor-pointer font-medium shadow-xs">
-              <option value="Quản Trị Tối Cao (Super Admin)">Quản Trị Tối Cao (Super Admin)</option>
-              <option value="Quản Lý Bán Hàng">Quản Lý Bán Hàng</option>
-              <option value="Chuyên Viên Tư Vấn Phong Thủy">Chuyên Viên Tư Vấn Phong Thủy</option>
-              <option value="Thủ Kho & Vận Chuyển">Thủ Kho & Vận Chuyển</option>
-              <option value="Marketing & Khuyến Mãi">Marketing & Khuyến Mãi</option>
+              {availableRoles.map((r: any) => (
+                <option value={r.id}>{r.display}</option>
+              ))}
             </select>
           </div>
 
           <div class="border border-walnut-900/15 rounded-none p-4 bg-white space-y-2.5 text-xs shadow-xs">
             <p class="font-bold text-walnut-900 uppercase tracking-wider text-[10px] mb-2 flex items-center gap-1.5">
               <span class="w-1.5 h-1.5 rounded-full bg-[#173524]"></span>
-              Các quyền hạn truy cập:
+              Phân quyền chức năng theo vai trò:
             </p>
             <label class="flex items-center gap-2 text-walnut-900 cursor-pointer">
               <input type="checkbox" checked class="rounded text-[#173524] focus:ring-[#173524] accent-[#173524]" />
@@ -287,8 +348,8 @@ const initialStaff = [
               <span>Quản lý danh sách khách hàng & hội viên</span>
             </label>
             <label class="flex items-center gap-2 text-walnut-900 cursor-pointer">
-              <input type="checkbox" class="rounded text-[#173524] focus:ring-[#173524] accent-[#173524]" />
-              <span>Toàn quyền cài đặt hệ thống & nhân sự</span>
+              <input type="checkbox" id="perm-check-admin" class="rounded text-[#173524] focus:ring-[#173524] accent-[#173524]" />
+              <span>Toàn quyền cài đặt hệ thống & nhân sự (Admin)</span>
             </label>
           </div>
         </div>
@@ -298,8 +359,8 @@ const initialStaff = [
           <button type="button" id="btn-cancel-perm-modal" class="border border-walnut-900/20 px-5 py-2.5 text-xs uppercase tracking-[0.15em] font-semibold text-walnut-800 hover:bg-sand-100 hover:border-walnut-900 transition-colors cursor-pointer">
             Đóng
           </button>
-          <button type="submit" class="bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] px-6 py-2.5 text-xs uppercase tracking-[0.18em] font-bold text-[#173524] hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#E0C582]/50">
-            Lưu phân quyền
+          <button type="submit" id="btn-submit-perm" class="bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] px-6 py-2.5 text-xs uppercase tracking-[0.18em] font-bold text-[#173524] hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#E0C582]/50">
+            Cập nhật vào CSDL
           </button>
         </div>
       </form>
@@ -315,9 +376,12 @@ const initialStaff = [
 
 <script>
   const initStaffPage = () => {
+    const API_BASE = 'http://localhost:4000/api/staff';
+
     const tableBody = document.getElementById('staff-table-body') as HTMLElement;
     const totalStaffEl = document.getElementById('stat-total-staff') as HTMLElement;
     const onlineStaffEl = document.getElementById('stat-online-staff') as HTMLElement;
+    const adminStaffEl = document.getElementById('stat-admin-staff') as HTMLElement;
 
     // Modals
     const staffModal = document.getElementById('staff-modal') as HTMLElement;
@@ -325,11 +389,14 @@ const initialStaff = [
     const btnCloseStaffModal = document.getElementById('btn-close-staff-modal') as HTMLButtonElement;
     const btnCancelStaffModal = document.getElementById('btn-cancel-staff-modal') as HTMLButtonElement;
     const addStaffForm = document.getElementById('add-staff-form') as HTMLFormElement;
+    const staffRoleSelect = document.getElementById('staff-role-select') as HTMLSelectElement;
+    const staffDeptDisplay = document.getElementById('staff-dept-display') as HTMLInputElement;
 
     const permModal = document.getElementById('permission-modal') as HTMLElement;
     const permStaffName = document.getElementById('perm-staff-name') as HTMLElement;
     const permHiddenId = document.getElementById('perm-hidden-id') as HTMLInputElement;
     const permRoleSelect = document.getElementById('perm-role-select') as HTMLSelectElement;
+    const permCheckAdmin = document.getElementById('perm-check-admin') as HTMLInputElement;
     const btnClosePermModal = document.getElementById('btn-close-perm-modal') as HTMLButtonElement;
     const btnCancelPermModal = document.getElementById('btn-cancel-perm-modal') as HTMLButtonElement;
     const permForm = document.getElementById('permission-form') as HTMLFormElement;
@@ -338,33 +405,61 @@ const initialStaff = [
     const toast = document.getElementById('staff-toast') as HTMLElement;
     const toastMsg = document.getElementById('staff-toast-msg') as HTMLElement;
 
-    const showToast = (msg: string) => {
+    const showToast = (msg: string, isError = false) => {
       if (!toast || !toastMsg) return;
       toastMsg.textContent = msg;
-      toast.classList.remove('hidden');
-      requestAnimationFrame(() => toast.classList.remove('translate-y-4'));
+      toast.className = `fixed bottom-6 right-6 z-50 rounded px-5 py-3 text-xs uppercase tracking-[0.15em] text-sand-50 shadow-lg transition-all duration-300 border ${
+        isError ? 'bg-red-900 border-red-500/50' : 'bg-walnut-900 border-emerald-500/40'
+      }`;
+      toast.classList.remove('hidden', 'translate-y-4');
       setTimeout(() => {
         toast.classList.add('translate-y-4');
         setTimeout(() => toast.classList.add('hidden'), 300);
-      }, 3000);
+      }, 3500);
     };
 
+    const getHeaders = () => {
+      const token = localStorage.getItem('token') || localStorage.getItem('admin_token') || localStorage.getItem('auth_token') || localStorage.getItem('accessToken') || '';
+      const headers: Record<string, string> = {
+        'Content-Type': 'application/json',
+      };
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      return headers;
+    };
+
+    // Tự động đồng bộ phòng ban khi chọn chức vụ trong form thêm
+    staffRoleSelect?.addEventListener('change', () => {
+      const selectedOption = staffRoleSelect.options[staffRoleSelect.selectedIndex];
+      const dept = selectedOption?.getAttribute('data-dept') || 'Bộ phận Vận hành';
+      if (staffDeptDisplay) staffDeptDisplay.value = dept;
+    });
+
+    // Cập nhật lại các chỉ số thống kê
     const updateStats = () => {
       if (tableBody) {
         const rows = tableBody.querySelectorAll<HTMLTableRowElement>('[data-staff-row]');
         if (totalStaffEl) totalStaffEl.textContent = `${rows.length} nhân viên`;
 
         let onlineCount = 0;
+        let adminCount = 0;
         rows.forEach((r) => {
           if (r.dataset.status === 'Trực tuyến') onlineCount++;
+          if (r.dataset.roleKey === 'admin' || (r.dataset.role && r.dataset.role.includes('Admin'))) adminCount++;
         });
         if (onlineStaffEl) onlineStaffEl.textContent = `${onlineCount} người`;
+        if (adminStaffEl) adminStaffEl.textContent = `${adminCount} tài khoản`;
       }
     };
 
     // Open Add Modal
     btnOpenAdd?.addEventListener('click', () => {
       addStaffForm?.reset();
+      if (staffDeptDisplay && staffRoleSelect) {
+        const opt = staffRoleSelect.options[staffRoleSelect.selectedIndex];
+        staffDeptDisplay.value = opt?.getAttribute('data-dept') || 'Ban Giám Đốc';
+      }
       staffModal?.classList.remove('hidden');
     });
 
@@ -384,39 +479,109 @@ const initialStaff = [
       });
     });
 
-    // Attach Row Actions
+    // Đổi checkbox admin tương ứng khi chọn role trong permission modal
+    permRoleSelect?.addEventListener('change', () => {
+      const isAdm = permRoleSelect.value === '1';
+      if (permCheckAdmin) permCheckAdmin.checked = isAdm;
+    });
+
+    // Gắn sự kiện cho từng hàng nhân sự
     const attachRowActions = (row: HTMLTableRowElement) => {
       const permBtn = row.querySelector('[data-btn-permission]');
       const toggleLockBtn = row.querySelector('[data-btn-toggle-lock]') as HTMLButtonElement | null;
+      const deleteBtn = row.querySelector('[data-btn-delete]') as HTMLButtonElement | null;
 
+      // 1. Phân quyền
       permBtn?.addEventListener('click', (e) => {
         e.preventDefault();
-        if (permHiddenId) permHiddenId.value = row.dataset.id || '';
+        const staffId = row.dataset.id || '';
+        if (permHiddenId) permHiddenId.value = staffId;
         if (permStaffName) permStaffName.textContent = `Phân quyền: ${row.dataset.name}`;
-        if (permRoleSelect) permRoleSelect.value = row.dataset.role || 'Quản Lý Bán Hàng';
+        
+        const currentRoleId = row.dataset.roleId;
+        if (permRoleSelect && currentRoleId) {
+          permRoleSelect.value = currentRoleId;
+        }
+        if (permCheckAdmin) {
+          permCheckAdmin.checked = currentRoleId === '1' || row.dataset.roleKey === 'admin';
+        }
+
         permModal?.classList.remove('hidden');
       });
 
-      toggleLockBtn?.addEventListener('click', (e) => {
+      // 2. Khóa / Mở khóa tài khoản
+      toggleLockBtn?.addEventListener('click', async (e) => {
         e.preventDefault();
-        const current = row.dataset.status || 'Trực tuyến';
-        const isLocked = current === 'Đã khóa';
-        const nextStatus = isLocked ? 'Trực tuyến' : 'Đã khóa';
-        const nextColor = isLocked 
-          ? 'bg-emerald-100 text-emerald-800 border-emerald-300' 
-          : 'bg-red-100 text-red-800 border-red-300';
+        const staffId = row.dataset.id;
+        if (!staffId) return;
 
-        row.dataset.status = nextStatus;
-        const statusEl = row.querySelector('[data-col="status"]');
-        if (statusEl) {
-          statusEl.innerHTML = `<span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold border ${nextColor}">${nextStatus}</span>`;
+        const originalText = toggleLockBtn.textContent;
+        toggleLockBtn.textContent = '...';
+        toggleLockBtn.disabled = true;
+
+        try {
+          const res = await fetch(`${API_BASE}/${staffId}/status`, {
+            method: 'PATCH',
+            headers: getHeaders(),
+          });
+
+          const resData = await res.json();
+          if (!res.ok || !resData.success) {
+            throw new Error(resData.message || 'Không thể cập nhật trạng thái');
+          }
+
+          const updated = resData.data;
+          row.dataset.status = updated.status;
+          const statusEl = row.querySelector('[data-col="status"]');
+          if (statusEl) {
+            statusEl.innerHTML = `<span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold border ${updated.statusColor}">${updated.status}</span>`;
+          }
+
+          const isNowLocked = updated.status === 'Đã khóa';
+          toggleLockBtn.textContent = isNowLocked ? 'Mở khóa' : 'Khóa';
+          toggleLockBtn.className = `text-xs font-semibold cursor-pointer hover:underline ${
+            isNowLocked ? 'text-emerald-700' : 'text-red-600'
+          }`;
+
+          updateStats();
+          showToast(`Đã ${isNowLocked ? 'khóa' : 'mở khóa'} tài khoản "${updated.name}" thành công!`);
+        } catch (err: any) {
+          toggleLockBtn.textContent = originalText;
+          showToast(err.message || 'Lỗi khi kết nối máy chủ', true);
+        } finally {
+          toggleLockBtn.disabled = false;
+        }
+      });
+
+      // 3. Xóa nhân viên
+      deleteBtn?.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const staffId = row.dataset.id;
+        const staffName = row.dataset.name;
+        if (!staffId) return;
+
+        if (!confirm(`Bạn có chắc chắn muốn xóa nhân sự "${staffName}" khỏi hệ thống không?`)) {
+          return;
         }
 
-        toggleLockBtn.textContent = isLocked ? 'Khóa' : 'Mở khóa';
-        toggleLockBtn.className = `text-xs font-semibold cursor-pointer hover:underline ${isLocked ? 'text-red-600' : 'text-emerald-700'}`;
+        deleteBtn.textContent = 'Đang xóa...';
+        try {
+          const res = await fetch(`${API_BASE}/${staffId}`, {
+            method: 'DELETE',
+            headers: getHeaders(),
+          });
+          const resData = await res.json();
+          if (!res.ok || !resData.success) {
+            throw new Error(resData.message || 'Không thể xóa nhân viên');
+          }
 
-        updateStats();
-        showToast(`Đã chuyển tài khoản "${row.dataset.name}" sang: ${nextStatus}`);
+          row.remove();
+          updateStats();
+          showToast(`Đã xóa nhân sự "${staffName}" khỏi cơ sở dữ liệu!`);
+        } catch (err: any) {
+          deleteBtn.textContent = 'Xóa';
+          showToast(err.message || 'Lỗi khi xóa nhân sự', true);
+        }
       });
     };
 
@@ -424,81 +589,161 @@ const initialStaff = [
       tableBody.querySelectorAll<HTMLTableRowElement>('[data-staff-row]').forEach(attachRowActions);
     }
 
-    // Submit Perm Form
-    permForm?.addEventListener('submit', (e) => {
+    // Submit Phân Quyền Form -> Gọi PUT /api/staff/:id/role
+    permForm?.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const id = permHiddenId?.value;
-      const targetRow = tableBody?.querySelector<HTMLTableRowElement>(`[data-id="${id}"]`);
-      if (targetRow) {
-        const newRole = permRoleSelect.value;
-        targetRow.dataset.role = newRole;
-        const roleEl = targetRow.querySelector('[data-col="role"]');
-        if (roleEl) roleEl.textContent = newRole;
+      const staffId = permHiddenId?.value;
+      if (!staffId) return;
+
+      const submitBtn = document.getElementById('btn-submit-perm') as HTMLButtonElement;
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Đang lưu CSDL...';
+      }
+
+      try {
+        const newRoleId = Number(permRoleSelect.value);
+        const res = await fetch(`${API_BASE}/${staffId}/role`, {
+          method: 'PUT',
+          headers: getHeaders(),
+          body: JSON.stringify({ roleId: newRoleId }),
+        });
+
+        const resData = await res.json();
+        if (!res.ok || !resData.success) {
+          throw new Error(resData.message || 'Lỗi khi cập nhật vai trò');
+        }
+
+        const updated = resData.data;
+        const targetRow = tableBody?.querySelector<HTMLTableRowElement>(`[data-id="${staffId}"]`);
+        if (targetRow) {
+          targetRow.dataset.role = updated.role;
+          targetRow.dataset.roleId = String(updated.roleId);
+          targetRow.dataset.roleKey = updated.roleKey;
+          targetRow.dataset.dept = updated.dept;
+
+          const roleEl = targetRow.querySelector('[data-col="role"]');
+          if (roleEl) roleEl.textContent = updated.role;
+
+          const deptEl = targetRow.querySelector('[data-col="dept"]');
+          if (deptEl) deptEl.textContent = updated.dept;
+        }
 
         closePermModal();
-        showToast(`Đã cập nhật phân quyền của "${targetRow.dataset.name}" thành: ${newRole}`);
+        updateStats();
+        showToast(`Đã cập nhật phân quyền "${updated.name}" thành: ${updated.role}`);
+      } catch (err: any) {
+        showToast(err.message || 'Lỗi khi cập nhật vai trò', true);
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Cập nhật vào CSDL';
+        }
       }
     });
 
-    // Submit Add Staff Form
-    addStaffForm?.addEventListener('submit', (e) => {
+    // Submit Thêm Nhân Viên Mới -> Gọi POST /api/staff
+    addStaffForm?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const name = (document.getElementById('staff-name-input') as HTMLInputElement)?.value.trim();
       const email = (document.getElementById('staff-email-input') as HTMLInputElement)?.value.trim();
       const phone = (document.getElementById('staff-phone-input') as HTMLInputElement)?.value.trim();
-      const role = (document.getElementById('staff-role-select') as HTMLSelectElement)?.value;
-      const dept = (document.getElementById('staff-dept-select') as HTMLSelectElement)?.value;
+      const roleId = (document.getElementById('staff-role-select') as HTMLSelectElement)?.value;
+      const password = (document.getElementById('staff-password-input') as HTMLInputElement)?.value.trim();
 
-      if (!name || !email || !tableBody) return;
+      if (!name || !email) {
+        showToast('Vui lòng nhập đầy đủ tên và email.', true);
+        return;
+      }
 
-      const newId = `NV-00${tableBody.querySelectorAll('tr').length + 1}`;
-      const tr = document.createElement('tr');
-      tr.className = 'hover:bg-sand-100/50 transition-colors bg-emerald-50/30';
-      tr.setAttribute('data-staff-row', '');
-      tr.dataset.id = newId;
-      tr.dataset.name = name;
-      tr.dataset.email = email;
-      tr.dataset.phone = phone;
-      tr.dataset.role = role;
-      tr.dataset.dept = dept;
-      tr.dataset.status = 'Trực tuyến';
+      const submitBtn = document.getElementById('btn-submit-add-staff') as HTMLButtonElement;
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Đang lưu vào MySQL...';
+      }
 
-      tr.innerHTML = `
-        <td class="py-3 px-4 font-mono font-bold text-walnut-900">${newId}</td>
-        <td class="py-3 px-4">
-          <div class="flex items-center gap-2.5">
-            <div class="h-8 w-8 rounded-full bg-emerald-800 text-sand-50 flex items-center justify-center font-bold text-xs" data-col="avatar">
-              ${name.split(' ').map(n => n[0]).slice(-2).join('')}
+      try {
+        const res = await fetch(API_BASE, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify({
+            name,
+            email,
+            phone,
+            roleId: Number(roleId),
+            password: password || 'Staff@123456',
+          }),
+        });
+
+        const resData = await res.json();
+        if (!res.ok || !resData.success) {
+          throw new Error(resData.message || 'Không thể tạo nhân viên mới.');
+        }
+
+        const newStaff = resData.data;
+
+        // Tạo dòng mới và thêm vào bảng
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-sand-100/50 transition-colors bg-emerald-50/40';
+        tr.setAttribute('data-staff-row', '');
+        tr.dataset.id = String(newStaff.id);
+        tr.dataset.code = newStaff.code;
+        tr.dataset.name = newStaff.name;
+        tr.dataset.email = newStaff.email;
+        tr.dataset.phone = newStaff.phone;
+        tr.dataset.role = newStaff.role;
+        tr.dataset.roleId = String(newStaff.roleId);
+        tr.dataset.roleKey = newStaff.roleKey;
+        tr.dataset.dept = newStaff.dept;
+        tr.dataset.status = newStaff.status;
+
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-mono font-bold text-walnut-900">${newStaff.code}</td>
+          <td class="py-3 px-4">
+            <div class="flex items-center gap-2.5">
+              <div class="h-8 w-8 rounded-full bg-walnut-900 text-sand-50 flex items-center justify-center font-bold text-xs" data-col="avatar">
+                ${newStaff.name.split(' ').map((n: string) => n[0]).slice(-2).join('')}
+              </div>
+              <div>
+                <p class="font-bold text-walnut-900" data-col="name">${newStaff.name}</p>
+                <p class="text-[10px] text-walnut-800/60" data-col="email">${newStaff.email}</p>
+              </div>
             </div>
-            <div>
-              <p class="font-bold text-walnut-900" data-col="name">${name}</p>
-              <p class="text-[10px] text-walnut-800/60" data-col="email">${email}</p>
+          </td>
+          <td class="py-3 px-4 font-semibold text-clay-600" data-col="role">${newStaff.role}</td>
+          <td class="py-3 px-4 text-walnut-900" data-col="dept">${newStaff.dept}</td>
+          <td class="py-3 px-4 font-medium text-walnut-800" data-col="phone">${newStaff.phone}</td>
+          <td class="py-3 px-4" data-col="status">
+            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold border ${newStaff.statusColor}">
+              ${newStaff.status}
+            </span>
+          </td>
+          <td class="py-3 px-4 text-walnut-800/70" data-col="last-login">${newStaff.lastLogin}</td>
+          <td class="py-3 px-4 text-right">
+            <div class="flex items-center justify-end gap-2">
+              <button type="button" data-btn-permission class="text-xs font-semibold text-clay-600 hover:underline cursor-pointer">Phân quyền</button>
+              <span class="text-walnut-800/30">|</span>
+              <button type="button" data-btn-toggle-lock class="text-xs font-semibold text-red-600 hover:underline cursor-pointer">Khóa</button>
+              <span class="text-walnut-800/30">|</span>
+              <button type="button" data-btn-delete class="text-xs font-semibold text-walnut-800/60 hover:text-red-600 cursor-pointer hover:underline">Xóa</button>
             </div>
-          </div>
-        </td>
-        <td class="py-3 px-4 font-semibold text-clay-600" data-col="role">${role}</td>
-        <td class="py-3 px-4 text-walnut-900" data-col="dept">${dept}</td>
-        <td class="py-3 px-4 font-medium text-walnut-800" data-col="phone">${phone}</td>
-        <td class="py-3 px-4" data-col="status">
-          <span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold border bg-emerald-100 text-emerald-800 border-emerald-300">
-            Trực tuyến
-          </span>
-        </td>
-        <td class="py-3 px-4 text-walnut-800/70">Vừa xong</td>
-        <td class="py-3 px-4 text-right">
-          <div class="flex items-center justify-end gap-2">
-            <button type="button" data-btn-permission class="text-xs font-semibold text-clay-600 hover:underline cursor-pointer">Phân quyền</button>
-            <span class="text-walnut-800/30">|</span>
-            <button type="button" data-btn-toggle-lock class="text-xs font-semibold text-red-600 hover:underline cursor-pointer">Khóa</button>
-          </div>
-        </td>
-      `;
+          </td>
+        `;
 
-      attachRowActions(tr);
-      tableBody.appendChild(tr);
-      updateStats();
-      closeStaffModal();
-      showToast(`Đã thêm nhân viên mới "${name}" thành công!`);
+        attachRowActions(tr);
+        tableBody?.prepend(tr);
+        updateStats();
+        closeStaffModal();
+        addStaffForm.reset();
+        showToast(`Đã thêm thành công nhân viên "${newStaff.name}" vào cơ sở dữ liệu!`);
+      } catch (err: any) {
+        showToast(err.message || 'Lỗi khi thêm nhân viên', true);
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Lưu vào CSDL';
+        }
+      }
     });
   };
 

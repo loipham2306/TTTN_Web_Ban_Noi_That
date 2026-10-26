@@ -980,12 +980,38 @@ ALTER TABLE `users`
 ALTER TABLE `user_addresses`
   ADD CONSTRAINT `user_addresses_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
+-- --------------------------------------------------------
+
 --
--- Các ràng buộc cho bảng `wishlists`
+-- Cấu trúc bảng cho bảng `email_campaigns`
 --
-ALTER TABLE `wishlists`
-  ADD CONSTRAINT `wishlists_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `wishlists_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
+
+CREATE TABLE IF NOT EXISTS `email_campaigns` (
+  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `code` varchar(50) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `target_audience` varchar(100) NOT NULL DEFAULT 'all',
+  `recipients_count` int(11) NOT NULL DEFAULT 0,
+  `action_type` varchar(50) NOT NULL DEFAULT 'send-now',
+  `status` varchar(50) NOT NULL DEFAULT 'Đã hoàn tất',
+  `content` text NOT NULL,
+  `open_rate` decimal(5, 2) NOT NULL DEFAULT 0.00,
+  `click_rate` decimal(5, 2) NOT NULL DEFAULT 0.00,
+  `sent_count` int(11) NOT NULL DEFAULT 0,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_campaign_code` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `email_campaigns`
+--
+
+INSERT INTO `email_campaigns` (`id`, `code`, `title`, `target_audience`, `recipients_count`, `action_type`, `status`, `content`, `open_rate`, `click_rate`, `sent_count`, `created_at`) VALUES
+(1, 'CAM-001', 'Chào mừng thành viên mới - Nhận ngay Voucher 10% đơn đầu tiên', 'Tất cả khách hàng', 9, 'send-now', 'Đã hoàn tất', 'Kính gửi Quý khách hàng,\n\nCảm ơn Quý khách đã đăng ký thành viên tại Cửa hàng Nội Thất. Để bắt đầu hành trình kiến tạo không gian sống mơ ước, chúng tôi xin gửi tặng Quý khách mã giảm giá 10% cho đơn hàng đầu tiên: WELCOME2026.\n\nChúc Quý khách có trải nghiệm mua sắm tuyệt vời!', 88.50, 42.00, 9, '2026-10-20 08:00:00'),
+(2, 'CAM-002', 'Tri ân Hội viên VIP - Ra mắt Bộ sưu tập Gỗ Óc Chó Mùa Thu 2026', 'Hội viên VIP (Kim Cương / Vàng)', 2, 'send-now', 'Đã hoàn tất', 'Kính gửi Hội viên VIP,\n\nNhân dịp ra mắt bộ sưu tập nội thất cao cấp Mùa Thu 2026, Nội Thất trân trọng kính mời Quý khách trải nghiệm những tuyệt tác gỗ tự nhiên mới nhất với ưu đãi đặc quyền lên tới 20% cùng dịch vụ tư vấn thiết kế phong thủy miễn phí.\n\nTrân trọng cảm ơn sự đồng hành của Quý khách!', 95.00, 68.50, 2, '2026-10-22 10:30:00');
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
