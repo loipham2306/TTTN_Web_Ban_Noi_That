@@ -149,7 +149,7 @@ const isItemActive = (item: MenuItem): boolean => {
   <div class="navbar-container transition-all duration-300">
     <div class="relative mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:h-20 sm:px-6 lg:px-8">
       {/* KHỐI TRÁI: MOBILE MENU & LOGO */}
-      <div class="flex items-center gap-4 sm:gap-6 shrink-0">
+      <div class="flex shrink-0 items-center gap-4 sm:gap-8">
         <button
           id="menu-btn"
           type="button"
@@ -180,8 +180,8 @@ const isItemActive = (item: MenuItem): boolean => {
         </a>
       </div>
 
-      {/* KHỐI GIỮA - Dùng flex-1 justify-center không dùng absolute để không bao giờ bị đè/lấn icon tìm kiếm */}
-      <nav class="hidden flex-1 items-center justify-center gap-3 whitespace-nowrap lg:flex xl:gap-7 2xl:gap-8 min-w-0 px-2" aria-label="Menu chính máy tính">
+      {/* KHỐI GIỮA: nằm giữa khoảng trống của logo và cụm bên phải, tự nhường chỗ khi tên người dùng dài */}
+      <nav class="hidden min-w-0 flex-1 items-center justify-center gap-3 whitespace-nowrap px-4 lg:flex xl:gap-5 2xl:gap-7" aria-label="Menu chính máy tính">
         {menu.map((item) => {
           const active = isItemActive(item);
           return (
@@ -189,7 +189,7 @@ const isItemActive = (item: MenuItem): boolean => {
               <a
                 href={item.href || '#'}
                 class:list={[
-                  'nav-link flex items-center gap-1.5 whitespace-nowrap py-2 text-[11px] xl:text-[12px] font-medium uppercase tracking-[0.11em] xl:tracking-[0.16em] transition-colors duration-200',
+                  'nav-link flex items-center gap-1.5 whitespace-nowrap py-2 text-[11px] font-medium uppercase tracking-[0.12em] transition-colors duration-200 xl:text-[12px] xl:tracking-[0.18em]',
                   active ? 'text-amber-400 font-semibold is-active' : 'text-white/90 hover:text-amber-400',
                 ]}
                 aria-haspopup={item.children ? 'true' : undefined}
@@ -242,7 +242,7 @@ const isItemActive = (item: MenuItem): boolean => {
       </nav>
 
       {/* KHỐI PHẢI: TÌM KIẾM, TÀI KHOẢN, GIỎ HÀNG */}
-      <div class="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
+      <div class="flex shrink-0 items-center gap-2 sm:gap-3">
         {!isProductsPage && (
           <button
             id="search-toggle-btn"
@@ -273,7 +273,7 @@ const isItemActive = (item: MenuItem): boolean => {
               <circle cx="12" cy="8" r="3.5" />
               <path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5" stroke-linecap="round" />
             </svg>
-            <span class="account-name max-w-[90px] xl:max-w-[125px] truncate text-[13px] font-medium" data-user-name>Khách</span>
+            <span class="account-name max-w-[110px] truncate text-[13px] font-medium xl:max-w-[130px]" data-user-name>Khách</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="account-caret h-3 w-3 shrink-0 opacity-60">
               <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
@@ -1174,9 +1174,11 @@ const isItemActive = (item: MenuItem): boolean => {
       if (user) {
         a.href = '#';
         a.setAttribute('aria-label', 'Tài khoản của ' + cleanName);
+        a.title = cleanName;
       } else {
         a.href = '/dang-nhap';
         a.setAttribute('aria-label', 'Đăng nhập');
+        a.title = 'Đăng nhập';
       }
     });
   };
