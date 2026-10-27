@@ -330,27 +330,38 @@ const avgRating = totalReviews > 0 ? (reviews.reduce((acc, r) => acc + r.rating,
       const approveBtn = row.querySelector('[data-btn-approve]') as HTMLButtonElement | null;
       const replyBtn = row.querySelector('[data-btn-reply]') as HTMLButtonElement | null;
       const hideBtn = row.querySelector('[data-btn-toggle-hide]') as HTMLButtonElement | null;
+      const id = row.dataset.id;
 
-      // 1. Duyệt
-      approveBtn?.addEventListener('click', (e) => {
+      // 1. Duyệt đánh giá qua API
+      approveBtn?.addEventListener('click', async (e) => {
         e.preventDefault();
-        const current = row.dataset.status;
-        if (current === 'Chờ duyệt') {
-          row.dataset.status = 'Đã duyệt';
-          const statusCol = row.querySelector('[data-col="status"]');
-          if (statusCol) {
-            statusCol.innerHTML = '<span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold border bg-emerald-100 text-emerald-800 border-emerald-300">Đã duyệt</span>';
+        if (!id) return;
+        try {
+          const res = await fetch(`http://localhost:4000/api/reviews/${id}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: true }),
+          });
+          const json = await res.json();
+          if (json.success) {
+            row.dataset.status = 'Đã duyệt';
+            const statusCol = row.querySelector('[data-col="status"]');
+            if (statusCol) {
+              statusCol.innerHTML = '<span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold border bg-emerald-100 text-emerald-800 border-emerald-300">Đã duyệt</span>';
+            }
+            approveBtn.textContent = 'Đã duyệt';
+            approveBtn.className = 'text-xs font-semibold cursor-pointer text-walnut-800/60';
+            updateStats();
+            showToast(`Đã duyệt và hiển thị đánh giá của "${row.dataset.customer}"!`);
+          } else {
+            showToast(json.message || 'Lỗi khi duyệt');
           }
-          approveBtn.textContent = 'Đã duyệt';
-          approveBtn.className = 'text-xs font-semibold cursor-pointer text-walnut-800/60';
-          updateStats();
-          showToast(`Đã duyệt đánh giá của "${row.dataset.customer}"!`);
-        } else {
-          showToast(`Đánh giá này đã được duyệt và đang hiển thị trên website.`);
+        } catch {
+          showToast('Lỗi kết nối máy chủ backend!');
         }
       });
 
-      // 2. Phản hồi
+      // 2. Mở Modal phản hồi
       replyBtn?.addEventListener('click', (e) => {
         e.preventDefault();
         replyHiddenId.value = row.dataset.id || '';
@@ -362,29 +373,46 @@ const avgRating = totalReviews > 0 ? (reviews.reduce((acc, r) => acc + r.rating,
         replyContentInput.focus();
       });
 
-      // 3. Ẩn / Hiện
-      hideBtn?.addEventListener('click', (e) => {
+      // 3. Ẩn / Hiện đánh giá qua API
+      hideBtn?.addEventListener('click', async (e) => {
         e.preventDefault();
-        const isHidden = row.dataset.status === 'Đã ẩn';
-        const nextStatus = isHidden ? 'Đã duyệt' : 'Đã ẩn';
-        const nextColor = isHidden 
-          ? 'bg-emerald-100 text-emerald-800 border-emerald-300' 
-          : 'bg-red-100 text-red-800 border-red-300';
+        if (!id) return;
+        const isCurrentlyHidden = row.dataset.status === 'Đã ẩn';
+        const targetActive = isCurrentlyHidden; // if hidden, unhide it
 
-        row.dataset.status = nextStatus;
-        const statusCol = row.querySelector('[data-col="status"]');
-        if (statusCol) {
-          statusCol.innerHTML = `<span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold border ${nextColor}">${nextStatus}</span>`;
+        try {
+          const res = await fetch(`http://localhost:4000/api/reviews/${id}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: targetActive }),
+          });
+          const json = await res.json();
+          if (json.success) {
+            const nextStatus = targetActive ? 'Đã duyệt' : 'Đã ẩn';
+            const nextColor = targetActive 
+              ? 'bg-emerald-100 text-emerald-800 border-emerald-300' 
+              : 'bg-red-100 text-red-800 border-red-300';
+
+            row.dataset.status = nextStatus;
+            const statusCol = row.querySelector('[data-col="status"]');
+            if (statusCol) {
+              statusCol.innerHTML = `<span class="inline-block px-2 py-0.5 rounded text-[10px] font-semibold border ${nextColor}">${nextStatus}</span>`;
+            }
+
+            hideBtn.textContent = targetActive ? 'Ẩn' : 'Hiện';
+            hideBtn.className = `text-xs font-semibold cursor-pointer hover:underline ${targetActive ? 'text-red-600' : 'text-emerald-700'}`;
+
+            updateStats();
+            showToast(targetActive 
+              ? `Đã hiển thị lại đánh giá của "${row.dataset.customer}" trên website!` 
+              : `Đã tạm ẩn đánh giá của "${row.dataset.customer}" khỏi website!`
+            );
+          } else {
+            showToast(json.message || 'Lỗi khi đổi trạng thái');
+          }
+        } catch {
+          showToast('Lỗi kết nối máy chủ backend!');
         }
-
-        hideBtn.textContent = isHidden ? 'Ẩn' : 'Hiện';
-        hideBtn.className = `text-xs font-semibold cursor-pointer hover:underline ${isHidden ? 'text-red-600' : 'text-emerald-700'}`;
-
-        updateStats();
-        showToast(isHidden 
-          ? `Đã hiển thị lại đánh giá của "${row.dataset.customer}"` 
-          : `Đã tạm ẩn đánh giá của "${row.dataset.customer}" khỏi website`
-        );
       });
     };
 
@@ -392,25 +420,49 @@ const avgRating = totalReviews > 0 ? (reviews.reduce((acc, r) => acc + r.rating,
       tableBody.querySelectorAll<HTMLTableRowElement>('[data-review-row]').forEach(attachRowActions);
     }
 
-    // Submit reply
-    replyForm?.addEventListener('submit', (e) => {
+    // Submit reply qua API
+    replyForm?.addEventListener('submit', async (e) => {
       e.preventDefault();
       const id = replyHiddenId.value;
       const replyText = replyContentInput.value.trim();
-      if (!replyText || !tableBody) return;
+      if (!id || !tableBody) return;
 
-      const targetRow = tableBody.querySelector<HTMLTableRowElement>(`[data-id="${id}"]`);
-      if (targetRow) {
-        targetRow.dataset.reply = replyText;
-        const replyBox = targetRow.querySelector('[data-col="reply-box"]');
-        const replyContentEl = targetRow.querySelector('[data-col="reply-text"]');
-        if (replyBox && replyContentEl) {
-          replyContentEl.textContent = replyText;
-          replyBox.classList.remove('hidden');
+      const submitBtn = replyForm.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Đang lưu...';
+      }
+
+      try {
+        const res = await fetch(`http://localhost:4000/api/reviews/${id}/reply`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reply: replyText }),
+        });
+        const json = await res.json();
+        if (json.success) {
+          const targetRow = tableBody.querySelector<HTMLTableRowElement>(`[data-id="${id}"]`);
+          if (targetRow) {
+            targetRow.dataset.reply = replyText;
+            const replyBox = targetRow.querySelector('[data-col="reply-box"]');
+            const replyContentEl = targetRow.querySelector('[data-col="reply-text"]');
+            if (replyBox && replyContentEl) {
+              replyContentEl.textContent = replyText;
+              replyBox.classList.toggle('hidden', !replyText);
+            }
+          }
+          closeReplyModal();
+          showToast(`Đã lưu phản hồi vào cơ sở dữ liệu thành công!`);
+        } else {
+          showToast(json.message || 'Lỗi khi gửi phản hồi');
         }
-
-        closeReplyModal();
-        showToast(`Đã gửi và lưu phản hồi cho khách hàng "${targetRow.dataset.customer}"!`);
+      } catch {
+        showToast('Lỗi kết nối máy chủ backend!');
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Gửi Phản Hồi';
+        }
       }
     });
   };

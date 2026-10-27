@@ -305,7 +305,7 @@ const isItemActive = (item: MenuItem): boolean => {
               <div class="auth-user">
                 <div class="px-3.5 pb-2 pt-2">
                   <span class="panel-muted block text-[11px]">Xin chào</span>
-                  <span class="panel-title block truncate text-sm font-semibold" data-user-name>Khách</span>
+                  <a href="/tai-khoan" class="panel-title block truncate text-sm font-semibold hover:text-[#D8B670] transition-colors" data-user-name>Khách</a>
                 </div>
 
                 <div class="admin-only">
@@ -321,12 +321,12 @@ const isItemActive = (item: MenuItem): boolean => {
                 <ul>
                   {userMenu.map((item) => (
                     <li>
-                      <button type="button" data-open-profile={item.tab} class="panel-link w-full text-left cursor-pointer">
+                      <a href={`/tai-khoan?tab=${item.tab}`} data-open-profile={item.tab} class="panel-link w-full text-left cursor-pointer">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-4 w-4 shrink-0" aria-hidden="true">
                           <path d={item.icon} stroke-linecap="round" stroke-linejoin="round" />
                         </svg>
                         <span>{item.label}</span>
-                      </button>
+                      </a>
                     </li>
                   ))}
                 </ul>
@@ -707,8 +707,14 @@ const isItemActive = (item: MenuItem): boolean => {
     <!-- Modal Footer -->
     <div class="border-t border-walnut-900/15 bg-white px-6 py-4 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-[0_-4px_12px_rgba(0,0,0,0.03)]">
       <div class="flex items-center gap-2 flex-wrap">
-        <a href="/tai-khoan?tab=orders" class="inline-flex items-center gap-1.5 font-bold text-[#173524] bg-[#E6CA85]/20 hover:bg-[#E6CA85]/35 border border-[#D8B670]/50 px-3.5 py-2 rounded-none transition-colors">
+        <a href="/tai-khoan" class="inline-flex items-center gap-1.5 font-bold text-[#173524] bg-[#E6CA85]/25 hover:bg-[#E6CA85]/40 border border-[#D8B670]/60 px-3.5 py-2 rounded-none transition-colors">
           <svg class="h-4 w-4 text-[#173524]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          <span>Xem chi tiết tài khoản</span>
+        </a>
+        <a href="/tai-khoan?tab=orders" class="inline-flex items-center gap-1.5 font-bold text-walnut-900 bg-sand-200/50 hover:bg-sand-200 border border-walnut-900/20 px-3.5 py-2 rounded-none transition-colors">
+          <svg class="h-4 w-4 text-walnut-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
           </svg>
           <span>Lịch sử đơn hàng</span>
@@ -1172,7 +1178,7 @@ const isItemActive = (item: MenuItem): boolean => {
 
     document.querySelectorAll<HTMLAnchorElement>('[data-account-link]').forEach((a) => {
       if (user) {
-        a.href = '#';
+        a.href = '/tai-khoan';
         a.setAttribute('aria-label', 'Tài khoản của ' + cleanName);
         a.title = cleanName;
       } else {
@@ -1571,14 +1577,13 @@ const isItemActive = (item: MenuItem): boolean => {
     profileModal?.classList.remove('hidden');
   };
 
-  // Bắt sự kiện click vào nút tài khoản (nếu đã đăng nhập thì mở modal, không chuyển trang)
+  // Bắt sự kiện click vào nút tài khoản: Nếu đã đăng nhập thì đi thẳng tới trang chi tiết tài khoản (/tai-khoan)
   document.querySelectorAll<HTMLElement>('[data-account-link]').forEach((el) => {
     el.addEventListener('click', (e) => {
       const user = readUser();
       if (user) {
-        e.preventDefault();
-        e.stopPropagation();
-        openProfileModal('profile');
+        // Cho phép chuyển thẳng tới trang tài khoản chi tiết (/tai-khoan)
+        window.location.href = '/tai-khoan';
       }
     });
   });
@@ -1589,7 +1594,7 @@ const isItemActive = (item: MenuItem): boolean => {
       e.preventDefault();
       e.stopPropagation();
       const tab = btn.dataset.openProfile || 'profile';
-      openProfileModal(tab);
+      window.location.href = `/tai-khoan?tab=${tab}`;
     });
   });
 

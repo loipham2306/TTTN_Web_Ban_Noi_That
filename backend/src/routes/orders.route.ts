@@ -201,6 +201,21 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
           total_price: item.price * item.qty,
         },
       });
+
+      // Tự động trừ số lượng tồn kho (stock_quantity) của biến thể sản phẩm trong CSDL
+      const variant = product?.product_variants?.[0];
+      if (variant) {
+        try {
+          const currentStock = Number(variant.stock_quantity ?? 20);
+          const newStock = Math.max(0, currentStock - item.qty);
+          await prisma.product_variants.update({
+            where: { id: variant.id },
+            data: { stock_quantity: newStock },
+          });
+        } catch (stockErr) {
+          console.warn('Lỗi trừ tồn kho biến thể:', variant.id, stockErr);
+        }
+      }
     }
 
     return res.status(201).json({
@@ -424,6 +439,103 @@ ordersRouter.get('/:code', async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error('Lỗi tra cứu đơn hàng:', error);
+    return res.status(500).json({ success: false, message: 'Lỗi máy chủ.', error: error.message });
+  }
+});
+// ================================================================
+// PATCH /api/orders/:id/status - Cập nhật trạng thái đơn hàng & xử lý hoàn/trừ kho
+// ================================================================
+ordersRouter.patch('/:id/status', async (req: Request, res: Response) => {
+  try {
+    const orderId = BigInt(req.params.id);
+    const { orderStatus, paymentStatus } = req.body;
+
+    const existingOrder = await prisma.orders.findUnique({
+      where: { id: orderId },
+      include: { order_items: true },
+    });
+
+    if (!existingOrder) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng.' });
+    }
+
+    // Ánh xạ trạng thái tiếng Việt / frontend sang enum database
+    const mapToDbStatus: Record<string, 'pending' | 'confirmed' | 'shipping' | 'completed' | 'cancelled'> = {
+      'cho-xac-nhan': 'pending',
+      'pending': 'pending',
+      'dang-chuan-bi': 'confirmed',
+      'confirmed': 'confirmed',
+      'dang-giao': 'shipping',
+      'shipping': 'shipping',
+      'hoan-thanh': 'completed',
+      'completed': 'completed',
+      'da-huy': 'cancelled',
+      'cancelled': 'cancelled',
+    };
+
+    const targetOrderStatus = orderStatus ? mapToDbStatus[orderStatus] || orderStatus : undefined;
+    const prevStatus = existingOrder.order_status;
+    const updateData: any = {};
+
+    if (targetOrderStatus) updateData.order_status = targetOrderStatus;
+    if (paymentStatus) updateData.payment_status = paymentStatus;
+
+    // Tự động cập nhật payment_status = 'paid' khi hoàn thành
+    if (targetOrderStatus === 'completed' && !paymentStatus) {
+      updateData.payment_status = 'paid';
+    }
+
+    // Nếu đơn hàng chuyển sang huỷ (cancelled) mà trước đó chưa hủy -> Hoàn lại tồn kho biến thể
+    if (targetOrderStatus === 'cancelled' && prevStatus !== 'cancelled') {
+      for (const item of existingOrder.order_items) {
+        const vId = item.variant_id;
+        if (vId) {
+          try {
+            await prisma.product_variants.update({
+              where: { id: vId },
+              data: { stock_quantity: { increment: item.quantity } },
+            });
+          } catch (e) {
+            console.warn('Lỗi hoàn tồn kho biến thể ID:', vId, e);
+          }
+        }
+      }
+    }
+
+    // Nếu mở lại đơn hàng từng bị hủy -> Trừ lại tồn kho biến thể
+    if (prevStatus === 'cancelled' && targetOrderStatus && targetOrderStatus !== 'cancelled') {
+      for (const item of existingOrder.order_items) {
+        const vId = item.variant_id;
+        if (vId) {
+          try {
+            const v = await prisma.product_variants.findUnique({ where: { id: vId } });
+            const curr = Number(v?.stock_quantity ?? 0);
+            await prisma.product_variants.update({
+              where: { id: vId },
+              data: { stock_quantity: Math.max(0, curr - item.quantity) },
+            });
+          } catch (e) {}
+        }
+      }
+    }
+
+    const updatedOrder = await prisma.orders.update({
+      where: { id: orderId },
+      data: updateData,
+    });
+
+    return res.json({
+      success: true,
+      message: 'Cập nhật trạng thái đơn hàng thành công!',
+      data: {
+        id: Number(updatedOrder.id),
+        orderCode: updatedOrder.order_code,
+        orderStatus: updatedOrder.order_status,
+        paymentStatus: updatedOrder.payment_status,
+      },
+    });
+  } catch (error: any) {
+    console.error('Lỗi khi cập nhật trạng thái đơn hàng:', error);
     return res.status(500).json({ success: false, message: 'Lỗi máy chủ.', error: error.message });
   }
 });

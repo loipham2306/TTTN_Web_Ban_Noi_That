@@ -67,7 +67,13 @@ try {
         paymentMethod: o.paymentMethod === 'bank' ? 'bank' : 'cod',
         paymentMethodLabel: o.paymentMethod === 'bank' ? 'Chuyển khoản ngân hàng' : 'Thanh toán COD',
         paymentStatus: o.paymentStatus === 'completed' ? 'paid' : 'unpaid',
-        orderStatus: o.orderStatus === 'completed' ? 'hoan-thanh' : 'cho-xac-nhan',
+        orderStatus: (() => {
+          if (o.orderStatus === 'completed' || o.orderStatus === 'hoan-thanh') return 'hoan-thanh';
+          if (o.orderStatus === 'confirmed' || o.orderStatus === 'dang-chuan-bi') return 'dang-chuan-bi';
+          if (o.orderStatus === 'shipping' || o.orderStatus === 'dang-giao') return 'dang-giao';
+          if (o.orderStatus === 'cancelled' || o.orderStatus === 'da-huy') return 'da-huy';
+          return 'cho-xac-nhan';
+        })(),
         createdAt: new Date(o.createdAt).toLocaleString('vi-VN'),
         items: Array.isArray(o.items) ? o.items.map((it: any) => ({
           name: it.name,
@@ -384,21 +390,35 @@ const totalRevenue = displayOrders
       </div>
 
       <!-- MODAL FOOTER (STICKY BOTTOM) -->
-      <div class="px-6 py-4 sm:px-8 bg-white border-t border-walnut-900/15 flex items-center justify-end gap-3 shrink-0 shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
+      <div class="px-6 py-4 sm:px-8 bg-white border-t border-walnut-900/15 flex flex-wrap items-center justify-between gap-3 shrink-0 shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
         <button 
           type="button" 
-          id="btn-cancel-order-modal" 
-          class="border border-walnut-900/20 px-5 py-2.5 text-xs uppercase tracking-[0.15em] font-semibold text-walnut-800 hover:bg-sand-100 hover:border-walnut-900 transition-colors cursor-pointer"
+          id="btn-print-order" 
+          class="inline-flex items-center gap-2 border border-walnut-900/30 bg-sand-50 px-4 py-2.5 text-xs uppercase tracking-[0.15em] font-semibold text-walnut-900 hover:bg-sand-200 transition-colors cursor-pointer"
+          title="In phiếu xuất kho và giao hàng"
         >
-          Đóng
+          <svg class="h-4 w-4 text-walnut-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+          </svg>
+          <span>In Phiếu Giao Hàng</span>
         </button>
-        <button 
-          type="button" 
-          id="btn-save-order-status" 
-          class="bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] px-6 py-2.5 text-xs uppercase tracking-[0.18em] font-bold text-[#173524] hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#E0C582]/50"
-        >
-          Lưu cập nhật
-        </button>
+
+        <div class="flex items-center gap-3">
+          <button 
+            type="button" 
+            id="btn-cancel-order-modal" 
+            class="border border-walnut-900/20 px-5 py-2.5 text-xs uppercase tracking-[0.15em] font-semibold text-walnut-800 hover:bg-sand-100 hover:border-walnut-900 transition-colors cursor-pointer"
+          >
+            Đóng
+          </button>
+          <button 
+            type="button" 
+            id="btn-save-order-status" 
+            class="bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] px-6 py-2.5 text-xs uppercase tracking-[0.18em] font-bold text-[#173524] hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#E0C582]/50"
+          >
+            Lưu cập nhật
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -532,35 +552,181 @@ const totalRevenue = displayOrders
     btnClose?.addEventListener('click', closeModal);
     btnCancel?.addEventListener('click', closeModal);
 
-    // SAVE ORDER STATUS
-    btnSaveStatus?.addEventListener('click', () => {
+    // 1. IN PHIẾU XUẤT KHO KIÊM GIAO HÀNG
+    const btnPrint = document.getElementById('btn-print-order');
+    btnPrint?.addEventListener('click', () => {
       if (!currentActiveRow) return;
-      const newSt = statusSelect.value;
-      currentActiveRow.dataset.status = newSt;
+      const code = currentActiveRow.dataset.code || '';
+      const name = currentActiveRow.dataset.name || '';
+      const phone = currentActiveRow.dataset.phone || '';
+      const address = [currentActiveRow.dataset.address, currentActiveRow.dataset.district, currentActiveRow.dataset.province].filter(Boolean).join(', ');
+      const note = currentActiveRow.dataset.note || 'Không có';
+      const items = JSON.parse(currentActiveRow.dataset.items || '[]');
+      const subtotal = Number(currentActiveRow.dataset.subtotal || 0);
+      const shipFee = Number(currentActiveRow.dataset.shipFee || 0);
+      const total = Number(currentActiveRow.dataset.total || 0);
+      const time = currentActiveRow.dataset.time || new Date().toLocaleDateString('vi-VN');
 
-      const badge = currentActiveRow.querySelector('[data-status-badge]') as HTMLElement;
-      if (badge) {
-        const labels: Record<string, string> = {
-          'cho-xac-nhan': 'Chờ xác nhận',
-          'dang-chuan-bi': 'Đang chuẩn bị',
-          'dang-giao': 'Đang giao hàng',
-          'hoan-thanh': 'Đã hoàn thành',
-          'da-huy': 'Đã hủy',
-        };
-        const clses: Record<string, string> = {
-          'cho-xac-nhan': 'bg-amber-100 text-amber-900 border border-amber-300',
-          'dang-chuan-bi': 'bg-blue-100 text-blue-900 border border-blue-300',
-          'dang-giao': 'bg-purple-100 text-purple-900 border border-purple-300',
-          'hoan-thanh': 'bg-emerald-100 text-emerald-900 border border-emerald-300',
-          'da-huy': 'bg-red-100 text-red-900 border border-red-300',
-        };
-        badge.textContent = labels[newSt] || newSt;
-        badge.className = `inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded ${clses[newSt]}`;
+      const printWindow = window.open('', '_blank', 'width=800,height=900');
+      if (!printWindow) {
+        alert('Trình duyệt chặn popup. Vui lòng cấp quyền mở tab mới để in phiếu!');
+        return;
       }
 
-      showToast(`Đã cập nhật trạng thái đơn ${currentActiveRow.dataset.code}!`);
-      closeModal();
-      render();
+      const rowsHtml = items.map((it: any, idx: number) => `
+        <tr>
+          <td style="border: 1px solid #ccc; padding: 8px; text-align: center;">${idx + 1}</td>
+          <td style="border: 1px solid #ccc; padding: 8px;"><b>${it.name}</b><br><small style="color: #666;">SKU: ${it.sku || 'N/A'}</small></td>
+          <td style="border: 1px solid #ccc; padding: 8px; text-align: right;">${formatVndClient(it.price)}</td>
+          <td style="border: 1px solid #ccc; padding: 8px; text-align: center;"><b>${it.qty}</b></td>
+          <td style="border: 1px solid #ccc; padding: 8px; text-align: right; font-weight: bold;">${formatVndClient(it.price * it.qty)}</td>
+        </tr>
+      `).join('');
+
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Phiếu Giao Hàng - ${code}</title>
+          <style>
+            body { font-family: "Times New Roman", Times, serif; padding: 30px; color: #111; line-height: 1.5; }
+            .header { display: flex; justify-content: space-between; border-bottom: 2px solid #173524; padding-bottom: 12px; margin-bottom: 20px; }
+            .brand { font-size: 24px; font-weight: bold; text-transform: uppercase; color: #173524; letter-spacing: 1px; }
+            .title { text-align: center; font-size: 20px; font-weight: bold; text-transform: uppercase; margin: 25px 0 15px 0; color: #173524; }
+            table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+            .signatures { display: flex; justify-content: space-between; margin-top: 45px; text-align: center; }
+            .signatures div { width: 30%; }
+            @media print { body { padding: 0; } }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div>
+              <div class="brand">KTUFA LUXURY FURNITURE</div>
+              <div style="font-size: 13px; color: #444; margin-top: 4px;">Showroom: 123 Nam Kỳ Khởi Nghĩa, Quận 1, TP. Hồ Chí Minh</div>
+              <div style="font-size: 13px; color: #444;">Hotline CSKH: 1900 8888 · Website: www.noithat.vn</div>
+            </div>
+            <div style="text-align: right; font-size: 14px;">
+              <div><b>MÃ ĐƠN: ${code}</b></div>
+              <div style="color: #666; font-size: 12px; margin-top: 4px;">Ngày tạo: ${time}</div>
+            </div>
+          </div>
+
+          <div class="title">PHIẾU XUẤT KHO KIÊM GIAO HÀNG & LẮP ĐẶT</div>
+
+          <div style="margin-bottom: 15px; font-size: 14px; background: #fafafa; padding: 12px; border: 1px solid #e5e5e5; border-radius: 4px;">
+            <div><b>Khách hàng:</b> ${name}</div>
+            <div><b>Điện thoại:</b> ${phone}</div>
+            <div><b>Địa chỉ giao hàng:</b> ${address}</div>
+            <div><b>Ghi chú đơn hàng:</b> ${note}</div>
+          </div>
+
+          <table>
+            <thead>
+              <tr style="background: #f4ede4;">
+                <th style="border: 1px solid #ccc; padding: 8px; width: 40px;">STT</th>
+                <th style="border: 1px solid #ccc; padding: 8px; text-align: left;">Tên sản phẩm</th>
+                <th style="border: 1px solid #ccc; padding: 8px; text-align: right; width: 110px;">Đơn giá</th>
+                <th style="border: 1px solid #ccc; padding: 8px; text-align: center; width: 50px;">SL</th>
+                <th style="border: 1px solid #ccc; padding: 8px; text-align: right; width: 120px;">Thành tiền</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rowsHtml}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td colspan="4" style="border: 1px solid #ccc; padding: 8px; text-align: right;">Tạm tính:</td>
+                <td style="border: 1px solid #ccc; padding: 8px; text-align: right;">${formatVndClient(subtotal)}</td>
+              </tr>
+              <tr>
+                <td colspan="4" style="border: 1px solid #ccc; padding: 8px; text-align: right;">Phí vận chuyển & lắp đặt:</td>
+                <td style="border: 1px solid #ccc; padding: 8px; text-align: right;">${formatVndClient(shipFee)}</td>
+              </tr>
+              <tr style="font-size: 15px; background: #fff8eb;">
+                <td colspan="4" style="border: 1px solid #ccc; padding: 8px; text-align: right; font-weight: bold; color: #173524;">TỔNG THANH TOÁN:</td>
+                <td style="border: 1px solid #ccc; padding: 8px; text-align: right; font-weight: bold; color: #b88e28;">${formatVndClient(total)}</td>
+              </tr>
+            </tfoot>
+          </table>
+
+          <div class="signatures">
+            <div>
+              <b>Người lập phiếu</b><br><br><br><br>
+              <i style="font-size: 12px; color: #666;">(Ký & ghi rõ họ tên)</i>
+            </div>
+            <div>
+              <b>Nhân viên giao nhận</b><br><br><br><br>
+              <i style="font-size: 12px; color: #666;">(Ký & ghi rõ họ tên)</i>
+            </div>
+            <div>
+              <b>Khách hàng nhận hàng</b><br><br><br><br>
+              <i style="font-size: 12px; color: #666;">(Đã kiểm tra nguyên vẹn & ký nhận)</i>
+            </div>
+          </div>
+        </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+      }, 500);
+    });
+
+    // 2. LƯU CẬP NHẬT TRẠNG THÁI VÀO CSDL QUA API
+    btnSaveStatus?.addEventListener('click', async () => {
+      if (!currentActiveRow) return;
+      const newSt = statusSelect.value;
+      const orderId = currentActiveRow.dataset.id;
+      if (!orderId) return;
+
+      btnSaveStatus.disabled = true;
+      btnSaveStatus.textContent = 'Đang lưu...';
+
+      try {
+        const res = await fetch(`http://localhost:4000/api/orders/${orderId}/status`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ orderStatus: newSt }),
+        });
+        const json = await res.json();
+
+        if (json.success) {
+          currentActiveRow.dataset.status = newSt;
+
+          const badge = currentActiveRow.querySelector('[data-status-badge]') as HTMLElement;
+          if (badge) {
+            const labels: Record<string, string> = {
+              'cho-xac-nhan': 'Chờ xác nhận',
+              'dang-chuan-bi': 'Đang chuẩn bị',
+              'dang-giao': 'Đang giao hàng',
+              'hoan-thanh': 'Đã hoàn thành',
+              'da-huy': 'Đã hủy',
+            };
+            const clses: Record<string, string> = {
+              'cho-xac-nhan': 'bg-amber-100 text-amber-900 border border-amber-300',
+              'dang-chuan-bi': 'bg-blue-100 text-blue-900 border border-blue-300',
+              'dang-giao': 'bg-purple-100 text-purple-900 border border-purple-300',
+              'hoan-thanh': 'bg-emerald-100 text-emerald-900 border border-emerald-300',
+              'da-huy': 'bg-red-100 text-red-900 border border-red-300',
+            };
+            badge.textContent = labels[newSt] || newSt;
+            badge.className = `inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded ${clses[newSt]}`;
+          }
+
+          showToast(`Đã cập nhật đơn ${currentActiveRow.dataset.code} thành công!`);
+          closeModal();
+          render();
+        } else {
+          showToast(json.message || 'Lỗi khi cập nhật trạng thái đơn');
+        }
+      } catch (err) {
+        showToast('Không thể kết nối máy chủ backend!');
+      } finally {
+        btnSaveStatus.disabled = false;
+        btnSaveStatus.textContent = 'Lưu cập nhật';
+      }
     });
 
     render();

@@ -100,9 +100,70 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7"/>
                 </svg>
-                <span>Đã xác thực 2 lớp (2FA)</span>
+                <span>Đã xác thực an toàn</span>
               </span>
             </div>
+          </div>
+
+          <!-- KHỐI ĐỔI MẬT KHẨU -->
+          <div class="rounded-none border border-walnut-900/15 bg-white p-5 space-y-4 shadow-xs">
+            <div class="border-b border-walnut-900/10 pb-3">
+              <h2 class="text-xs uppercase tracking-wider text-walnut-900 font-bold flex items-center gap-2">
+                <svg class="w-4 h-4 text-clay-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                </svg>
+                <span>Đổi Mật Khẩu Tài Khoản</span>
+              </h2>
+              <p class="text-[11px] text-walnut-800/70 mt-0.5">Đặt mật khẩu kết hợp chữ và số để tăng cường bảo vệ thông tin đơn hàng.</p>
+            </div>
+
+            <form id="form-change-password" class="space-y-3 max-w-lg">
+              <div>
+                <label for="input-old-password" class="block text-[11px] font-semibold text-walnut-900 mb-1">Mật khẩu hiện tại</label>
+                <input 
+                  type="password" 
+                  id="input-old-password" 
+                  required 
+                  placeholder="Nhập mật khẩu hiện tại..." 
+                  class="w-full border border-walnut-900/20 bg-sand-50/50 p-2.5 text-xs outline-none focus:border-walnut-900"
+                />
+              </div>
+
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label for="input-new-password" class="block text-[11px] font-semibold text-walnut-900 mb-1">Mật khẩu mới</label>
+                  <input 
+                    type="password" 
+                    id="input-new-password" 
+                    required 
+                    minlength="6"
+                    placeholder="Tối thiểu 6 ký tự..." 
+                    class="w-full border border-walnut-900/20 bg-sand-50/50 p-2.5 text-xs outline-none focus:border-walnut-900"
+                  />
+                </div>
+                <div>
+                  <label for="input-confirm-password" class="block text-[11px] font-semibold text-walnut-900 mb-1">Xác nhận mật khẩu</label>
+                  <input 
+                    type="password" 
+                    id="input-confirm-password" 
+                    required 
+                    minlength="6"
+                    placeholder="Nhập lại mật khẩu mới..." 
+                    class="w-full border border-walnut-900/20 bg-sand-50/50 p-2.5 text-xs outline-none focus:border-walnut-900"
+                  />
+                </div>
+              </div>
+
+              <div id="change-pass-msg" class="hidden text-xs py-2 px-3 rounded font-medium"></div>
+
+              <button 
+                type="submit" 
+                id="btn-submit-change-pass" 
+                class="bg-[#173524] text-[#D8B670] border border-[#D8B670]/40 px-5 py-2.5 text-xs uppercase tracking-wider font-bold hover:bg-walnut-900 transition-colors shadow-xs cursor-pointer"
+              >
+                Cập nhật mật khẩu
+              </button>
+            </form>
           </div>
         </div>
 
@@ -848,6 +909,85 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
     renderPageWishlist();
     window.addEventListener('wishlist:changed', renderPageWishlist);
+
+    // =========================================================
+    // XỬ LÝ ĐỔI MẬT KHẨU
+    // =========================================================
+    const formChangePass = document.getElementById('form-change-password') as HTMLFormElement | null;
+    const msgEl = document.getElementById('change-pass-msg');
+    const btnSubmitPass = document.getElementById('btn-submit-change-pass') as HTMLButtonElement | null;
+
+    if (formChangePass) {
+      formChangePass.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const oldPassInput = document.getElementById('input-old-password') as HTMLInputElement | null;
+        const newPassInput = document.getElementById('input-new-password') as HTMLInputElement | null;
+        const confirmPassInput = document.getElementById('input-confirm-password') as HTMLInputElement | null;
+
+        const oldPass = oldPassInput?.value || '';
+        const newPass = newPassInput?.value || '';
+        const confirmPass = confirmPassInput?.value || '';
+
+        const showMsg = (text: string, isError: boolean) => {
+          if (!msgEl) return;
+          msgEl.textContent = text;
+          msgEl.className = isError 
+            ? 'text-xs py-2 px-3 rounded font-medium bg-red-50 text-red-700 border border-red-200' 
+            : 'text-xs py-2 px-3 rounded font-medium bg-emerald-50 text-emerald-700 border border-emerald-200';
+          msgEl.classList.remove('hidden');
+        };
+
+        if (!newPass || newPass.length < 6) {
+          showMsg('Mật khẩu mới phải có ít nhất 6 ký tự.', true);
+          return;
+        }
+
+        if (newPass !== confirmPass) {
+          showMsg('Xác nhận mật khẩu mới không khớp, vui lòng nhập lại chính xác.', true);
+          return;
+        }
+
+        const token = localStorage.getItem('auth_token');
+        if (!token) {
+          showMsg('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', true);
+          return;
+        }
+
+        if (btnSubmitPass) {
+          btnSubmitPass.disabled = true;
+          btnSubmitPass.textContent = 'Đang xử lý...';
+        }
+
+        try {
+          const res = await fetch('http://localhost:4000/api/auth/change-password', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              oldPassword: oldPass,
+              newPassword: newPass
+            })
+          });
+
+          const data = await res.json();
+          if (res.ok && data.success) {
+            showMsg(data.message || 'Đổi mật khẩu thành công! Bạn có thể sử dụng mật khẩu mới.', false);
+            formChangePass.reset();
+          } else {
+            showMsg(data.message || 'Mật khẩu hiện tại không chính xác.', true);
+          }
+        } catch (err: any) {
+          showMsg('Không thể kết nối đến máy chủ. Vui lòng thử lại sau ít phút.', true);
+        } finally {
+          if (btnSubmitPass) {
+            btnSubmitPass.disabled = false;
+            btnSubmitPass.textContent = 'Cập nhật mật khẩu';
+          }
+        }
+      });
+    }
   }
 
   // =========================================================

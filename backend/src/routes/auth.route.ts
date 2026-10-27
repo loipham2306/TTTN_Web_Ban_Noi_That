@@ -177,14 +177,19 @@ authRouter.post('/login', authLimiter, async (req: Request, res: Response) => {
       });
     }
 
+    const cleanPassword = typeof password === 'string' ? password.trim() : '';
+
     if (isBcryptHash) {
-      isMatch = await bcrypt.compare(password, user.password_hash);
+      isMatch = await bcrypt.compare(cleanPassword, user.password_hash);
+      if (!isMatch && cleanPassword !== password) {
+        isMatch = await bcrypt.compare(password, user.password_hash);
+      }
     } else {
       // Đối chiếu mật khẩu cũ chưa mã hóa
-      if (user.password_hash === password) {
+      if (user.password_hash === cleanPassword || user.password_hash === password) {
         isMatch = true;
         // Tự động nâng cấp mã hóa mật khẩu sang Bcrypt ngay lập tức
-        const newHash = await bcrypt.hash(password, 10);
+        const newHash = await bcrypt.hash(cleanPassword, 10);
         await prisma.users.update({
           where: { id: user.id },
           data: { password_hash: newHash },
@@ -361,5 +366,77 @@ authRouter.get('/customers', verifyToken, requireAdmin, async (_req: Request, re
   } catch (error: any) {
     console.error('Lỗi lấy danh sách khách hàng:', error);
     return res.status(500).json({ success: false, message: 'Lỗi máy chủ.', error: error.message });
+  }
+});
+
+// ================================================================
+// POST /api/auth/change-password - Đổi mật khẩu cá nhân
+// ================================================================
+authRouter.post('/change-password', verifyToken, async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ success: false, message: 'Chưa đăng nhập hoặc phiên làm việc đã hết hạn.' });
+    }
+
+    const { oldPassword, newPassword } = req.body;
+    const cleanOld = String(oldPassword || '').trim();
+    const cleanNew = String(newPassword || '').trim();
+
+    if (!cleanNew || cleanNew.length < 6) {
+      return res.status(400).json({ success: false, message: 'Mật khẩu mới phải có tối thiểu 6 ký tự.' });
+    }
+
+    const userId = BigInt(req.user.id);
+    const user = await prisma.users.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy thông tin tài khoản người dùng.' });
+    }
+
+    // Nếu tài khoản có mật khẩu cũ (không phải tài khoản Google OAuth không đặt pass)
+    if (user.password_hash && user.password_hash !== 'guest_no_login' && user.password_hash !== 'GOOGLE_OAUTH_ACCOUNT') {
+      if (!cleanOld) {
+        return res.status(400).json({ success: false, message: 'Vui lòng nhập mật khẩu hiện tại.' });
+      }
+
+      let isMatch = false;
+      const isBcrypt = user.password_hash.startsWith('$2a$') || user.password_hash.startsWith('$2b$');
+      if (isBcrypt) {
+        isMatch = await bcrypt.compare(cleanOld, user.password_hash);
+        if (!isMatch && oldPassword && oldPassword !== cleanOld) {
+          isMatch = await bcrypt.compare(oldPassword, user.password_hash);
+        }
+      } else {
+        isMatch = (user.password_hash === cleanOld || user.password_hash === oldPassword);
+      }
+
+      if (!isMatch) {
+        return res.status(400).json({ success: false, message: 'Mật khẩu hiện tại không chính xác. Vui lòng thử lại.' });
+      }
+    }
+
+    // Băm mật khẩu mới bằng Bcrypt
+    const salt = await bcrypt.genSalt(10);
+    const newPasswordHash = await bcrypt.hash(cleanNew, salt);
+
+    await prisma.users.update({
+      where: { id: userId },
+      data: { 
+        password_hash: newPasswordHash,
+        updated_at: new Date(),
+      },
+    });
+
+    console.log(`[AUTH] Đã đổi mật khẩu thành công cho tài khoản ${user.email} (ID: ${userId})`);
+
+    return res.json({
+      success: true,
+      message: 'Đổi mật khẩu thành công! Bạn có thể sử dụng mật khẩu mới để đăng nhập.',
+    });
+  } catch (error: any) {
+    console.error('Lỗi khi đổi mật khẩu:', error);
+    return res.status(500).json({ success: false, message: 'Lỗi máy chủ khi đổi mật khẩu.', error: error.message });
   }
 });

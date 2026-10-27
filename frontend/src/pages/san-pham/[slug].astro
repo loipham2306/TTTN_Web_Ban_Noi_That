@@ -145,9 +145,9 @@ try {
     if (revJson.success && Array.isArray(revJson.data)) {
       reviews = revJson.data.map((r: any) => ({
         id: r.id,
-        name: r.userName || 'Khách hàng',
+        name: r.customer || r.userName || 'Khách hàng',
         rating: r.rating || 5,
-        date: new Date(r.createdAt).toLocaleDateString('vi-VN'),
+        date: r.date || (r.createdAt ? new Date(r.createdAt).toLocaleDateString('vi-VN') : 'Mới đây'),
         verified: true,
         comment: r.comment || '',
         reply: r.adminReply || '',
@@ -1015,53 +1015,90 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
     });
   });
 
-  // Submit Review Form
-  form?.addEventListener('submit', (e) => {
+  // Submit Review Form qua API backend và lưu vào MySQL
+  form?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const name = (document.getElementById('review-author-name') as HTMLInputElement)?.value.trim();
+    const phone = (document.getElementById('review-author-phone') as HTMLInputElement)?.value.trim();
     const comment = (document.getElementById('review-comment-input') as HTMLTextAreaElement)?.value.trim();
     const rating = Number(starInput?.value || '5');
 
     if (!name || !comment || !reviewList) return;
 
-    const initials = name.split(' ').map((n) => n[0]).slice(-2).join('');
-    const newDiv = document.createElement('div');
-    newDiv.className = 'rounded-lg border border-walnut-900/10 bg-sand-50 p-5 sm:p-6 transition-all hover:border-walnut-900/20 bg-emerald-50/20';
-    newDiv.setAttribute('data-review-item', '');
-    newDiv.dataset.rating = String(rating);
-    newDiv.dataset.hasReply = 'false';
+    const pathParts = window.location.pathname.split('/').filter(Boolean);
+    const productSlug = pathParts[pathParts.length - 1] || '';
 
-    const starsHtml = Array.from({ length: rating }).map(() => '<span>★</span>').join('') +
-      Array.from({ length: 5 - rating }).map(() => '<span class="text-walnut-900/20">★</span>').join('');
+    const submitBtn = form.querySelector('button[type="submit"]') as HTMLButtonElement | null;
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Đang gửi...';
+    }
 
-    newDiv.innerHTML = `
-      <div class="flex items-start justify-between gap-4">
-        <div class="flex items-center gap-3">
-          <div class="h-10 w-10 rounded-full bg-emerald-800 text-sand-50 font-bold flex items-center justify-center text-xs">
-            ${initials}
-          </div>
-          <div>
-            <div class="flex items-center gap-2">
-              <h3 class="font-bold text-sm text-walnut-900">${name}</h3>
-              <span class="inline-flex items-center gap-1 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 px-1.5 py-0.5 text-[10px] font-semibold">
-                ✓ Đã mua hàng chính hãng
-              </span>
+    try {
+      const res = await fetch('http://localhost:4000/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          productSlug,
+          name,
+          phone,
+          rating,
+          content: comment,
+        }),
+      });
+
+      const json = await res.json();
+      if (json.success) {
+        const initials = name.split(' ').map((n) => n[0]).slice(-2).join('');
+        const newDiv = document.createElement('div');
+        newDiv.className = 'rounded-lg border border-walnut-900/10 bg-sand-50 p-5 sm:p-6 transition-all hover:border-walnut-900/20 bg-emerald-50/20';
+        newDiv.setAttribute('data-review-item', '');
+        newDiv.dataset.rating = String(rating);
+        newDiv.dataset.hasReply = 'false';
+
+        const starsHtml = Array.from({ length: rating }).map(() => '<span>★</span>').join('') +
+          Array.from({ length: 5 - rating }).map(() => '<span class="text-walnut-900/20">★</span>').join('');
+
+        newDiv.innerHTML = `
+          <div class="flex items-start justify-between gap-4">
+            <div class="flex items-center gap-3">
+              <div class="h-10 w-10 rounded-full bg-emerald-800 text-sand-50 font-bold flex items-center justify-center text-xs">
+                ${initials}
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <h3 class="font-bold text-sm text-walnut-900">${name}</h3>
+                  <span class="inline-flex items-center gap-1 rounded bg-emerald-100 text-emerald-800 border border-emerald-300 px-1.5 py-0.5 text-[10px] font-semibold">
+                    ✓ Đã mua hàng chính hãng
+                  </span>
+                </div>
+                <p class="text-[11px] text-walnut-800/60 mt-0.5">Vừa xong</p>
+              </div>
             </div>
-            <p class="text-[11px] text-walnut-800/60 mt-0.5">Vừa xong</p>
+            <div class="flex text-amber-500 text-sm">
+              ${starsHtml}
+            </div>
           </div>
-        </div>
-        <div class="flex text-amber-500 text-sm">
-          ${starsHtml}
-        </div>
-      </div>
-      <p class="mt-3.5 text-sm leading-relaxed text-walnut-900 font-normal">
-        ${comment}
-      </p>
-    `;
+          <p class="mt-3.5 text-sm leading-relaxed text-walnut-900 font-normal">
+            ${comment}
+          </p>
+        `;
 
-    reviewList.prepend(newDiv);
-    closeModal();
-    showToast('Cảm ơn bạn! Đánh giá của bạn đã được ghi nhận thành công.');
+        reviewList.prepend(newDiv);
+        closeModal();
+        form.reset();
+        showToast('Cảm ơn bạn! Đánh giá đã được lưu vào hệ thống thành công.');
+      } else {
+        showToast(json.message || 'Lỗi khi gửi đánh giá');
+      }
+    } catch {
+      showToast('Không thể kết nối máy chủ gửi đánh giá!');
+    } finally {
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Gửi đánh giá';
+      }
+    }
   });
 
   // GALLERY SLIDER & SMOOTH HORIZONTAL SLIDE ANIMATION (HIỆU ỨNG LƯỚT ẢNH)
