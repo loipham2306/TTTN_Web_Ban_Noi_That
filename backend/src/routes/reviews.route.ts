@@ -1,5 +1,7 @@
 import { Router, Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 import { prisma } from '../config/prisma.js';
+import { ENV } from '../config/env.js';
 
 export const reviewsRouter = Router();
 
@@ -60,86 +62,247 @@ reviewsRouter.get('/', async (req: Request, res: Response) => {
 });
 
 // ================================================================
-// POST /api/reviews - Khách hàng gửi đánh giá sản phẩm
+// GET /api/reviews/check-eligibility - Kiểm tra khách đã mua hàng hay chưa
 // ================================================================
-reviewsRouter.post('/', async (req: Request, res: Response) => {
+reviewsRouter.get('/check-eligibility', async (req: Request, res: Response) => {
   try {
-    const { productSlug, rating, content, name, phone } = req.body;
+    const { productSlug, phone, email } = req.query;
 
-    if (!productSlug || !content) {
-      return res.status(400).json({ success: false, message: 'Vui lòng cung cấp sản phẩm và nội dung đánh giá.' });
+    if (!productSlug) {
+      return res.status(400).json({ success: false, message: 'Thiếu productSlug' });
     }
 
-    // 1. Tìm sản phẩm theo slug
+    let authUserId: bigint | null = null;
+    let authUserEmail: string | null = null;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      try {
+        const decoded = jwt.verify(token, ENV.JWT_SECRET) as any;
+        if (decoded?.id) authUserId = BigInt(decoded.id);
+        if (decoded?.email) authUserEmail = String(decoded.email).trim().toLowerCase();
+      } catch {}
+    }
+
+    const slugStr = String(productSlug);
     const product = await prisma.products.findFirst({
-      where: { slug: String(productSlug) },
+      where: {
+        OR: [
+          { slug: slugStr },
+          { id: !isNaN(Number(slugStr)) ? BigInt(slugStr) : -1 },
+        ],
+      },
     });
 
     if (!product) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm.' });
     }
 
-    // 2. Tìm hoặc tạo tài khoản khách
-    let user = null;
     const cleanPhone = phone ? String(phone).trim() : '';
+    const cleanEmail = email ? String(email).trim().toLowerCase() : (authUserEmail || '');
 
-    if (cleanPhone) {
-      user = await prisma.users.findFirst({ where: { phone: cleanPhone } });
-    }
+    const userMatchConditions: any[] = [];
+    if (authUserId) userMatchConditions.push({ user_id: authUserId });
+    if (cleanPhone) userMatchConditions.push({ users: { phone: cleanPhone } });
+    if (cleanEmail) userMatchConditions.push({ users: { email: cleanEmail } });
 
-    if (!user) {
-      const guestEmail = `khach_${Date.now()}_${Math.floor(Math.random() * 1000)}@noithat.local`;
-      const customerRole = await prisma.roles.findFirst({ where: { name: 'CUSTOMER' } });
-      user = await prisma.users.create({
-        data: {
-          full_name: name || 'Khách hàng',
-          phone: cleanPhone || null,
-          email: guestEmail,
-          password_hash: 'guest_review',
-          role_id: customerRole ? customerRole.id : 1,
-          status: true,
-        },
+    if (userMatchConditions.length === 0) {
+      return res.json({
+        success: true,
+        canReview: false,
+        reason: 'not_authenticated',
+        message: 'Vui lòng đăng nhập hoặc nhập số điện thoại đặt hàng để đánh giá.',
       });
     }
 
-    // 3. Tìm order_id để liên kết hợp lệ với foreign key
-    let order = await prisma.orders.findFirst({
+    const purchasedOrder = await prisma.orders.findFirst({
       where: {
-        user_id: user.id,
-        order_items: { some: { product_id: product.id } },
+        OR: userMatchConditions,
+        order_items: {
+          some: {
+            OR: [
+              { product_id: product.id },
+              { product_name: { contains: product.name } },
+            ],
+          },
+        },
+        order_status: { not: 'cancelled' },
+      },
+      orderBy: { id: 'desc' },
+    });
+
+    if (!purchasedOrder) {
+      return res.json({
+        success: true,
+        canReview: false,
+        reason: 'not_purchased',
+        message: 'Bạn chưa mua sản phẩm này hoặc đơn hàng đã bị hủy.',
+      });
+    }
+
+    const reviewed = await prisma.reviews.findFirst({
+      where: {
+        product_id: product.id,
+        order_id: purchasedOrder.id,
       },
     });
 
-    if (!order) {
-      order = await prisma.orders.findFirst({ where: { user_id: user.id } });
-    }
-    if (!order) {
-      order = await prisma.orders.findFirst({ orderBy: { id: 'desc' } });
-    }
-
-    // Nếu hệ thống hoàn toàn chưa có đơn hàng nào, tạo 1 đơn tượng trưng
-    if (!order) {
-      order = await prisma.orders.create({
-        data: {
-          order_code: `NT-INIT-${Date.now().toString().slice(-4)}`,
-          user_id: user.id,
-          shipping_address: 'Hệ thống đánh giá',
-          subtotal_amount: 0,
-          total_amount: 0,
-          payment_method: 'cod',
-          payment_status: 'paid',
-          order_status: 'completed',
-        },
+    if (reviewed) {
+      return res.json({
+        success: true,
+        canReview: false,
+        reason: 'already_reviewed',
+        message: 'Bạn đã gửi đánh giá cho sản phẩm này rồi.',
       });
     }
 
-    // 4. Tạo đánh giá vào MySQL
+    return res.json({
+      success: true,
+      canReview: true,
+      orderCode: purchasedOrder.order_code,
+      message: 'Bạn đủ điều kiện đánh giá sản phẩm này.',
+    });
+  } catch (error: any) {
+    console.error('Lỗi kiểm tra quyền đánh giá:', error);
+    return res.status(500).json({ success: false, message: 'Lỗi máy chủ.', error: error.message });
+  }
+});
+
+// ================================================================
+// POST /api/reviews - Khách hàng gửi đánh giá sản phẩm
+// RÀNG BUỘC: Khách hàng PHẢI ĐÃ TỪNG MUA sản phẩm đó thành công
+// ================================================================
+reviewsRouter.post('/', async (req: Request, res: Response) => {
+  try {
+    const { productSlug, rating, content, name, phone, email } = req.body;
+
+    if (!productSlug || !content) {
+      return res.status(400).json({ success: false, message: 'Vui lòng cung cấp sản phẩm và nội dung đánh giá.' });
+    }
+
+    // 1. Tìm sản phẩm theo slug hoặc id
+    const slugStr = String(productSlug);
+    const product = await prisma.products.findFirst({
+      where: {
+        OR: [
+          { slug: slugStr },
+          { id: !isNaN(Number(slugStr)) ? BigInt(slugStr) : -1 },
+        ],
+      },
+    });
+
+    if (!product) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm.' });
+    }
+
+    // 2. Xác thực tài khoản người dùng từ Bearer Token (nếu đăng nhập)
+    let authUser: any = null;
+    const authHeader = req.headers.authorization;
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      const token = authHeader.split(' ')[1];
+      try {
+        const decoded = jwt.verify(token, ENV.JWT_SECRET) as any;
+        if (decoded?.id) {
+          authUser = await prisma.users.findUnique({
+            where: { id: BigInt(decoded.id) },
+          });
+        }
+      } catch (err) {
+        // Token hết hạn hoặc không hợp lệ, tiếp tục kiểm tra theo sđt/email
+      }
+    }
+
+    const cleanPhone = phone ? String(phone).trim() : '';
+    const cleanEmail = email ? String(email).trim().toLowerCase() : (authUser?.email || '');
+
+    let user = authUser;
+    if (!user && cleanPhone) {
+      user = await prisma.users.findFirst({ where: { phone: cleanPhone } });
+    }
+    if (!user && cleanEmail) {
+      user = await prisma.users.findFirst({ where: { email: cleanEmail } });
+    }
+
+    // 3. RÀNG BUỘC CHẶT CHẼ: KHÁCH HÀNG PHẢI ĐÃ TỪNG MUA SẢN PHẨM NÀY
+    const userMatchConditions: any[] = [];
+    if (user) {
+      userMatchConditions.push({ user_id: user.id });
+    }
+    if (cleanPhone) {
+      userMatchConditions.push({ users: { phone: cleanPhone } });
+    }
+    if (cleanEmail) {
+      userMatchConditions.push({ users: { email: cleanEmail } });
+    }
+
+    if (userMatchConditions.length === 0) {
+      return res.status(403).json({
+        success: false,
+        message: 'Vui lòng đăng nhập hoặc nhập số điện thoại đặt hàng để hệ thống xác thực bạn đã mua sản phẩm này.',
+      });
+    }
+
+    // Tìm đơn hàng hợp lệ có chứa sản phẩm này (không bị hủy)
+    const purchasedOrder = await prisma.orders.findFirst({
+      where: {
+        OR: userMatchConditions,
+        order_items: {
+          some: {
+            OR: [
+              { product_id: product.id },
+              { product_name: { contains: product.name } },
+            ],
+          },
+        },
+        order_status: { not: 'cancelled' },
+      },
+      orderBy: { id: 'desc' },
+      include: {
+        users: true,
+      },
+    });
+
+    if (!purchasedOrder) {
+      return res.status(403).json({
+        success: false,
+        message: 'Bạn chưa mua sản phẩm này (hoặc đơn hàng đã bị hủy). Chỉ khách hàng đã mua sản phẩm mới có quyền gửi đánh giá.',
+      });
+    }
+
+    // Gán user từ đơn hàng nếu chưa tìm thấy
+    if (!user) {
+      user = purchasedOrder.users;
+    }
+
+    if (!user) {
+      return res.status(403).json({
+        success: false,
+        message: 'Không tìm thấy tài khoản người mua hợp lệ tương ứng với đơn hàng.',
+      });
+    }
+
+    // 4. Kiểm tra xem người dùng đã từng gửi đánh giá cho sản phẩm này chưa
+    const existingReview = await prisma.reviews.findFirst({
+      where: {
+        product_id: product.id,
+        user_id: user.id,
+      },
+    });
+
+    if (existingReview) {
+      return res.status(400).json({
+        success: false,
+        message: 'Bạn đã gửi đánh giá cho sản phẩm này rồi. Cảm ơn quý khách đã đóng góp ý kiến!',
+      });
+    }
+
+    // 5. Tạo đánh giá vào MySQL
     const numericRating = Math.min(5, Math.max(1, parseInt(rating) || 5));
     const newRev = await prisma.reviews.create({
       data: {
         product_id: product.id,
         user_id: user.id,
-        order_id: order.id,
+        order_id: purchasedOrder.id,
         rating: numericRating,
         content: String(content).trim(),
         status: true, // Mặc định hiển thị
@@ -151,13 +314,14 @@ reviewsRouter.post('/', async (req: Request, res: Response) => {
 
     return res.status(201).json({
       success: true,
-      message: 'Cảm ơn quý khách đã đánh giá sản phẩm!',
+      message: 'Cảm ơn quý khách đã mua hàng và đánh giá sản phẩm!',
       data: {
         id: Number(newRev.id),
-        customer: newRev.users?.full_name || name,
+        customer: newRev.users?.full_name || name || 'Khách hàng chính hãng',
         rating: newRev.rating,
         comment: newRev.content,
         date: 'Vừa xong',
+        isVerifiedBuyer: true,
       },
     });
   } catch (error: any) {

@@ -684,7 +684,18 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
         </button>
       </div>
 
-      <form id="write-review-form" class="mt-6 flex flex-col gap-4">
+      <!-- Thông báo điều kiện đánh giá -->
+      <div class="mt-4 rounded bg-amber-50/90 border border-amber-200/80 p-3.5 text-xs text-amber-950 flex items-start gap-2.5">
+        <svg class="w-4 h-4 text-amber-700 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+        </svg>
+        <div class="leading-relaxed">
+          <p class="font-bold text-amber-900">Ràng buộc mua hàng thực tế:</p>
+          <p class="text-[11px] text-amber-800/90 mt-0.5">Để bảo vệ tính chân thực và khách quan, hệ thống chỉ cho phép khách hàng <strong>đã từng mua sản phẩm này</strong> gửi đánh giá. Vui lòng nhập đúng số điện thoại đặt hàng hoặc đăng nhập tài khoản của bạn.</p>
+        </div>
+      </div>
+
+      <form id="write-review-form" class="mt-4 flex flex-col gap-4">
         <div>
           <label class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-medium mb-1.5">Mức độ hài lòng của bạn *</label>
           <div class="flex items-center gap-2 cursor-pointer text-2xl text-amber-500" id="star-picker">
@@ -939,20 +950,34 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
   const toast = document.getElementById('review-user-toast') as HTMLElement | null;
   const toastMsg = document.getElementById('review-user-toast-msg') as HTMLElement | null;
 
-  const showToast = (msg: string) => {
+  const showToast = (msg: string, isError = false) => {
     if (!toast || !toastMsg) return;
     toastMsg.textContent = msg;
+    toast.className = isError
+      ? 'fixed bottom-6 right-6 z-50 rounded bg-red-950 px-5 py-3.5 text-xs tracking-normal text-white shadow-2xl transition-all duration-300 border border-red-500 max-w-md flex items-center gap-2.5 font-medium'
+      : 'fixed bottom-6 right-6 z-50 rounded bg-[#173524] px-5 py-3.5 text-xs tracking-normal text-sand-50 shadow-2xl transition-all duration-300 border border-emerald-500/50 max-w-md flex items-center gap-2.5 font-medium';
     toast.classList.remove('hidden');
     requestAnimationFrame(() => toast.classList.remove('translate-y-4'));
     setTimeout(() => {
       toast.classList.add('translate-y-4');
       setTimeout(() => toast.classList.add('hidden'), 300);
-    }, 3500);
+    }, 4500);
   };
 
   const closeModal = () => modal?.classList.add('hidden');
   btnOpenModal?.addEventListener('click', () => {
     form?.reset();
+    import('../../scripts/auth').then(({ readUser }) => {
+      const u = readUser();
+      if (u) {
+        const nameInput = document.getElementById('review-author-name') as HTMLInputElement | null;
+        const phoneInput = document.getElementById('review-author-phone') as HTMLInputElement | null;
+        if (nameInput && u.name && u.name !== 'Khách') nameInput.value = u.name;
+        if (phoneInput && u.phone && u.phone !== 'Chưa cập nhật' && u.phone !== 'Đăng nhập Google') {
+          phoneInput.value = u.phone;
+        }
+      }
+    });
     modal?.classList.remove('hidden');
   });
   btnCloseModal?.addEventListener('click', closeModal);
@@ -1034,10 +1059,14 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
       submitBtn.textContent = 'Đang gửi...';
     }
 
+    const token = localStorage.getItem('auth_token');
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (token) headers['Authorization'] = `Bearer ${token}`;
+
     try {
       const res = await fetch('http://localhost:4000/api/reviews', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           productSlug,
           name,
@@ -1048,7 +1077,7 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
       });
 
       const json = await res.json();
-      if (json.success) {
+      if (res.ok && json.success) {
         const initials = name.split(' ').map((n) => n[0]).slice(-2).join('');
         const newDiv = document.createElement('div');
         newDiv.className = 'rounded-lg border border-walnut-900/10 bg-sand-50 p-5 sm:p-6 transition-all hover:border-walnut-900/20 bg-emerald-50/20';
@@ -1087,12 +1116,12 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
         reviewList.prepend(newDiv);
         closeModal();
         form.reset();
-        showToast('Cảm ơn bạn! Đánh giá đã được lưu vào hệ thống thành công.');
+        showToast('Cảm ơn bạn! Đánh giá đã được lưu vào hệ thống thành công.', false);
       } else {
-        showToast(json.message || 'Lỗi khi gửi đánh giá');
+        showToast(json.message || 'Chỉ khách hàng đã mua sản phẩm mới có quyền đánh giá!', true);
       }
     } catch {
-      showToast('Không thể kết nối máy chủ gửi đánh giá!');
+      showToast('Không thể kết nối máy chủ gửi đánh giá!', true);
     } finally {
       if (submitBtn) {
         submitBtn.disabled = false;
