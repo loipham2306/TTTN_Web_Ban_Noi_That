@@ -23,12 +23,11 @@ export function getToken(): string | null {
 }
 
 export function sanitizeUserName(name?: string | null, role?: string): string {
-  if (!name) return role === 'admin' ? 'Quản Trị Viên' : 'Khách';
+  if (!name || !name.trim()) return role === 'admin' ? 'Quản Trị Viên' : 'Khách';
   let cleaned = name.trim();
 
-  // Phát hiện và chuẩn hóa tên admin nếu bị lỗi font hoặc là tên admin mặc định
+  // Chỉ chuẩn hóa nếu tên bị lỗi hoặc là từ khóa admin mặc định của hệ thống
   if (
-    /qu[aá][º°\?]?n\s*tr[aá][»\?]?\s*vi[aăa][ª\?]?n/i.test(cleaned) ||
     cleaned.toLowerCase() === 'admin' ||
     cleaned.toLowerCase().includes('admin@noithat.vn')
   ) {
@@ -71,6 +70,15 @@ export function readUser(): AuthUser | null {
 }
 
 export function isAdmin(): boolean {
+  try {
+    const adminUserRaw = localStorage.getItem('admin_user');
+    const adminToken = localStorage.getItem('admin_token');
+    if (adminToken && adminUserRaw) {
+      const au = JSON.parse(adminUserRaw);
+      if (au.role === 'admin' || au.role === 'seller') return true;
+    }
+  } catch {}
+
   const user = readUser();
   const token = getToken();
   return Boolean(token && user && (user.role === 'admin' || user.role === 'seller'));

@@ -239,7 +239,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
         const data = await res.json();
         if (data.success && data.token) {
-          localStorage.setItem('auth_token', data.token);
           if (data.user) {
             googleUser.id = data.user.id;
             googleUser.role = data.user.role || 'customer';
@@ -247,15 +246,21 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             if (data.user.phone) googleUser.phone = data.user.phone;
             if (data.user.avatar) googleUser.avatar = data.user.avatar;
           }
+
+          const isAdminUser = googleUser.role === 'admin' || googleUser.role === 'seller';
+          if (isAdminUser) {
+            localStorage.setItem('admin_token', data.token);
+            localStorage.setItem('admin_user', JSON.stringify(googleUser));
+          }
+
+          localStorage.setItem('auth_token', data.token);
+          localStorage.setItem('current_user', JSON.stringify(googleUser));
+          try { mergeGuestCartOnLogin(); } catch {}
+          window.dispatchEvent(new Event('auth:changed'));
         }
       } catch (e) {
         console.warn('Lỗi kết nối Backend Google Auth:', e);
       }
-
-      // 2. Lưu phiên người dùng hiện tại đang đăng nhập
-      localStorage.setItem('current_user', JSON.stringify(googleUser));
-      try { mergeGuestCartOnLogin(); } catch {}
-      window.dispatchEvent(new Event('auth:changed'));
 
       showToast(`Xin chào ${googleUser.name}! Đăng nhập Google thành công.`);
       setTimeout(() => {
@@ -376,11 +381,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           return;
         }
 
-        // Lưu JWT Token và thông tin User an toàn vào Client
-        if (data.token) {
-          localStorage.setItem('auth_token', data.token);
-        }
-
+        // Lưu thông tin phiên đăng nhập
+        const isAdminUser = data.user.role === 'admin' || data.user.role === 'seller';
         const loggedInUser = {
           id: data.user.id,
           name: data.user.full_name || email.split('@')[0],
@@ -389,6 +391,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           role: data.user.role || 'customer',
         };
 
+        if (isAdminUser) {
+          // Lưu phiên Quản trị viên
+          if (data.token) {
+            localStorage.setItem('admin_token', data.token);
+          }
+          localStorage.setItem('admin_user', JSON.stringify(loggedInUser));
+        }
+
+        // Đồng thời thiết lập phiên hiện tại cho tài khoản này để có thể mua hàng, đổi mật khẩu và trải nghiệm đầy đủ như User
+        if (data.token) {
+          localStorage.setItem('auth_token', data.token);
+        }
         localStorage.setItem('current_user', JSON.stringify(loggedInUser));
         try { mergeGuestCartOnLogin(); } catch {}
         window.dispatchEvent(new Event('auth:changed'));

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th10 23, 2026 lúc 06:21 AM
+-- Thời gian đã tạo: Th10 28, 2026 lúc 03:31 AM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -181,6 +181,37 @@ INSERT INTO `coupons` (`id`, `code`, `discount_type`, `discount_value`, `min_ord
 -- --------------------------------------------------------
 
 --
+-- Cấu trúc bảng cho bảng `email_campaigns`
+--
+
+CREATE TABLE `email_campaigns` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `code` varchar(50) NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `target_audience` varchar(100) NOT NULL DEFAULT 'all',
+  `recipients_count` int(11) NOT NULL DEFAULT 0,
+  `action_type` varchar(50) NOT NULL DEFAULT 'send-now',
+  `status` varchar(50) NOT NULL DEFAULT 'Đã hoàn tất',
+  `content` text NOT NULL,
+  `open_rate` decimal(5,2) NOT NULL DEFAULT 0.00,
+  `click_rate` decimal(5,2) NOT NULL DEFAULT 0.00,
+  `sent_count` int(11) NOT NULL DEFAULT 0,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `email_campaigns`
+--
+
+INSERT INTO `email_campaigns` (`id`, `code`, `title`, `target_audience`, `recipients_count`, `action_type`, `status`, `content`, `open_rate`, `click_rate`, `sent_count`, `created_at`, `updated_at`) VALUES
+(1, 'CAM-001', 'Chào mừng thành viên mới - Nhận ngay Voucher 10% đơn đầu tiên', 'Tất cả khách hàng', 9, 'send-now', 'Đã hoàn tất', 'Kính gửi Quý khách hàng,\n\nCảm ơn Quý khách đã đăng ký thành viên tại Cửa hàng Nội Thất. Để bắt đầu hành trình kiến tạo không gian sống mơ ước, chúng tôi xin gửi tặng Quý khách mã giảm giá 10% cho đơn hàng đầu tiên: WELCOME2026.\n\nChúc Quý khách có trải nghiệm mua sắm tuyệt vời!', 88.50, 42.00, 9, '2026-10-20 14:59:13', '2026-10-23 14:59:13'),
+(2, 'CAM-002', 'Tri ân Hội viên VIP - Ra mắt Bộ sưu tập Gỗ Óc Chó Mùa Thu 2026', 'Hội viên VIP (Kim Cương / Vàng)', 2, 'send-now', 'Đã hoàn tất', 'Kính gửi Hội viên VIP,\n\nNhân dịp ra mắt bộ sưu tập nội thất cao cấp Mùa Thu 2026, Nội Thất trân trọng kính mời Quý khách trải nghiệm những tuyệt tác gỗ tự nhiên mới nhất với ưu đãi đặc quyền lên tới 20% cùng dịch vụ tư vấn thiết kế phong thủy miễn phí.\n\nTrân trọng cảm ơn sự đồng hành của Quý khách!', 95.00, 68.50, 2, '2026-10-22 14:59:13', '2026-10-23 14:59:13'),
+(3, 'CAM-003', 'Khuyến mãi cuối tuần - Giảm 15% Sofa & Bàn Ăn', 'Tất cả khách hàng (9 khách)', 9, 'send-now', 'Đã hoàn tất', 'Chương trình ưu đãi giảm 15% toàn bộ sản phẩm Sofa da Ý và Bàn ăn mặt đá cao cấp duy nhất cuối tuần này.', 85.50, 38.00, 9, '2026-10-23 14:59:39', '2026-10-23 14:59:39');
+
+-- --------------------------------------------------------
+
+--
 -- Cấu trúc bảng cho bảng `orders`
 --
 
@@ -232,7 +263,9 @@ INSERT INTO `orders` (`id`, `order_code`, `user_id`, `coupon_id`, `shipping_addr
 (28, 'NT-2610-2866', 6, NULL, '110d tân quý, tân phú, HCM, r, TP. Hồ Chí Minh', 50000.00, 2000.00, 0.00, 52000.00, 'cod', 'pending', 'pending', NULL, NULL, '2026-10-22 08:10:45', '2026-10-22 15:15:57'),
 (29, 'NT-2610-2519', 5, NULL, '543b tân phú, r, TP. Hồ Chí Minh', 50000.00, 2000.00, 0.00, 52000.00, 'sepay', 'pending', 'pending', NULL, NULL, '2026-10-22 15:34:01', '2026-10-22 15:34:01'),
 (30, 'NT-2610-7865', 5, NULL, '110d tân quý, tân phú, HCM, r, TP. Hồ Chí Minh', 50000.00, 4000.00, 0.00, 54000.00, 'cod', 'pending', 'pending', NULL, NULL, '2026-10-22 16:57:01', '2026-10-22 16:57:01'),
-(31, 'NT-2610-5539', 6, NULL, '543b tân phú, r, TP. Hồ Chí Minh', 50000.00, 2000.00, 0.00, 52000.00, 'sepay', 'paid', 'confirmed', '[SePay Webhook] Thanh toán thành công 52.000 đ qua MBBank (Ref: FT26296741390800) lúc 2026-10-23 09:27:00', NULL, '2026-10-23 02:27:01', '2026-10-23 09:27:39');
+(31, 'NT-2610-5539', 6, NULL, '543b tân phú, r, TP. Hồ Chí Minh', 50000.00, 2000.00, 0.00, 52000.00, 'sepay', 'paid', 'cancelled', '[SePay Webhook] Thanh toán thành công 52.000 đ qua MBBank (Ref: FT26296741390800) lúc 2026-10-23 09:27:00', NULL, '2026-10-23 02:27:01', '2026-10-27 09:49:01'),
+(32, 'NT-2610-8123', 13, NULL, '220 nguyễn hồng đào, tân bình, TP. Hồ Chí Minh', 50000.00, 2000.00, 0.00, 52000.00, 'sepay', 'pending', 'pending', NULL, NULL, '2026-10-27 03:17:55', '2026-10-27 03:17:55'),
+(33, 'NT-2610-4939', 13, NULL, '220 nguyễn hồng đào, tân bình, TP. Hồ Chí Minh', 50000.00, 2000.00, 0.00, 52000.00, 'cod', 'paid', 'completed', NULL, NULL, '2026-10-27 03:18:22', '2026-10-27 10:19:49');
 
 -- --------------------------------------------------------
 
@@ -282,7 +315,9 @@ INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `variant_id`, `produc
 (29, 28, 21, 21, 'cham trang trí', NULL, 'CHAM_TRANG_TRI_001', 1, 2000.00, 2000.00),
 (30, 29, 21, 21, 'cham trang trí', NULL, 'CHAM_TRANG_TRI_001', 1, 2000.00, 2000.00),
 (31, 30, 21, 21, 'cham trang trí', NULL, 'CHAM_TRANG_TRI_001', 2, 2000.00, 4000.00),
-(32, 31, 21, 21, 'cham trang trí', NULL, 'CHAM_TRANG_TRI_001', 1, 2000.00, 2000.00);
+(32, 31, 21, 21, 'cham trang trí', NULL, 'CHAM_TRANG_TRI_001', 1, 2000.00, 2000.00),
+(33, 32, 21, 21, 'cham trang trí', NULL, 'CHAM_TRANG_TRI_001', 1, 2000.00, 2000.00),
+(34, 33, 21, 21, 'cham trang trí', NULL, 'CHAM_TRANG_TRI_001', 1, 2000.00, 2000.00);
 
 -- --------------------------------------------------------
 
@@ -310,27 +345,27 @@ CREATE TABLE `products` (
 --
 
 INSERT INTO `products` (`id`, `category_id`, `name`, `slug`, `short_description`, `content`, `brand`, `view_count`, `status`, `created_at`, `updated_at`, `deleted_at`) VALUES
-(1, 1, 'Sofa da Ý Milano', 'sofa-da-y-milano', 'Sofa ba chỗ bọc da bò Ý nguyên tấm, khung gỗ sồi sấy khô và đệm mút đàn hồi cao cấp, giữ phom bền theo thời gian.', NULL, NULL, 49, 1, '2026-10-08 09:00:01', '2026-10-22 23:55:00', NULL),
-(2, 1, 'Sofa vải linen Oslo', 'sofa-vai-linen-oslo', 'Sofa vải linen thoáng mát, đường may tỉ mỉ, chân gỗ chế tác thủ công, phù hợp không gian sống tối giản.', NULL, NULL, 55, 1, '2026-10-08 09:00:01', '2026-10-22 23:55:00', NULL),
-(3, 1, 'Sofa góc Bắc Âu', 'sofa-goc-bac-au', 'Sofa góc chữ L phong cách Bắc Âu, các mô-đun tháo rời và đổi hướng linh hoạt theo bố cục phòng.', NULL, NULL, 52, 1, '2026-10-08 09:00:01', '2026-10-22 23:55:00', NULL),
-(4, 2, 'Bàn ăn đá marble Carrara', 'ban-an-da-marble-carrara', 'Bàn ăn mặt đá marble Carrara nhập khẩu, chân kim loại mạ titan chống gỉ, mặt bàn được xử lý chống thấm.', NULL, NULL, 53, 1, '2026-10-08 09:00:01', '2026-10-22 23:55:00', NULL),
-(5, 2, 'Bàn ăn gỗ sồi Nga', 'ban-an-go-soi-nga', 'Bàn ăn gỗ sồi Nga nguyên khối, phủ dầu bảo vệ tự nhiên giữ trọn vân gỗ và độ ấm của chất liệu.', NULL, NULL, 44, 1, '2026-10-08 09:00:01', '2026-10-22 23:55:00', NULL),
-(6, 3, 'Ghế ăn da bọc Ý', 'ghe-an-da-boc-y', 'Ghế ăn bọc da công nghiệp cao cấp, khung thép chịu lực, đệm êm vừa vặn cho bữa ăn dài.', NULL, NULL, 44, 1, '2026-10-08 09:00:01', '2026-10-22 23:55:00', NULL),
-(7, 3, 'Ghế thư giãn gỗ óc chó', 'ghe-thu-gian-go-oc-cho', 'Ghế thư giãn gỗ óc chó, tựa lưng cong theo cơ thể, đệm vải nhập khẩu tạo cảm giác dễ chịu khi đọc sách.', NULL, NULL, 46, 1, '2026-10-08 09:00:01', '2026-10-22 23:55:00', NULL),
-(8, 3, 'Ghế công thái học Ergo', 'ghe-cong-thai-hoc-ergo', 'Ghế công thái học lưng lưới, tựa đầu và tay vịn điều chỉnh ba hướng, hỗ trợ cột sống khi làm việc dài.', NULL, NULL, 44, 1, '2026-10-08 09:00:01', '2026-10-22 23:55:00', NULL),
-(9, 3, 'Ghế ngoài trời gỗ teak', 'ghe-ngoai-troi-go-teak', 'Ghế ngoài trời gỗ teak chống mối mọt và chịu được mưa nắng, phù hợp ban công, sân vườn.', NULL, NULL, 44, 1, '2026-10-08 09:00:01', '2026-10-22 23:55:00', NULL),
-(10, 4, 'Giường ngủ bọc nỉ Velvet', 'giuong-boc-ni-velvet', 'Giường bọc nỉ velvet với đầu giường cao, khung gỗ chắc chắn và hệ nan đệm êm ái.', NULL, NULL, 44, 1, '2026-10-08 09:00:01', '2026-10-22 23:55:00', NULL),
-(11, 4, 'Giường gỗ tự nhiên Scandinavian', 'giuong-go-tu-nhien-scandinavian', 'Giường gỗ sồi tự nhiên tối giản, bề mặt phủ dầu mờ an toàn cho sức khỏe và dễ vệ sinh.', NULL, NULL, 44, 1, '2026-10-08 09:00:01', '2026-10-22 23:55:00', NULL),
-(12, 5, 'Tủ quần áo 4 cánh', 'tu-quan-ao-4-canh', 'Tủ quần áo bốn cánh gỗ MDF chống ẩm, ray giảm chấn và hệ ngăn chia tiện dụng.', NULL, NULL, 54, 1, '2026-10-08 09:00:02', '2026-10-22 23:55:00', NULL),
-(13, 5, 'Kệ tivi treo tường', 'ke-tivi-treo-tuong', 'Kệ tivi treo tường gọn gàng, có lỗ đi dây điện và tải trọng tới 60 kg.', NULL, NULL, 47, 1, '2026-10-08 09:00:02', '2026-10-22 23:55:00', NULL),
-(14, 5, 'Kệ sách gỗ thông', 'ke-sach-go-thong', 'Kệ sách gỗ thông năm tầng, thiết kế mở giúp góc làm việc thoáng đãng và dễ sắp xếp.', NULL, NULL, 47, 1, '2026-10-08 09:00:02', '2026-10-22 23:55:00', NULL),
-(15, 6, 'Đèn sàn đồng thau', 'den-san-dong-thau', 'Đèn sàn đồng thau thân mảnh, chao vải tản sáng dịu, tạo điểm nhấn cho góc đọc sách.', NULL, NULL, 44, 1, '2026-10-08 09:00:02', '2026-10-22 23:55:00', NULL),
-(16, 6, 'Đèn thả trần mây', 'den-tha-tran-may', 'Đèn thả trần đan mây tự nhiên, ánh sáng ấm áp, phù hợp treo trên bàn ăn hoặc đảo bếp.', NULL, NULL, 48, 1, '2026-10-08 09:00:02', '2026-10-22 23:55:00', NULL),
-(17, 6, 'Đèn bàn gốm', 'den-ban-gom', 'Đèn bàn gốm men mờ, chụp vải, cho ánh sáng vàng ấm phù hợp bàn làm việc và đầu giường.', NULL, NULL, 44, 1, '2026-10-08 09:00:02', '2026-10-22 23:55:00', NULL),
-(18, 7, 'Bàn trà mặt kính', 'ban-tra-mat-kinh', 'Bàn trà mặt kính cường lực 12 mm, khung inox mạ vàng sang trọng, dễ lau chùi.', NULL, NULL, 44, 1, '2026-10-08 09:00:02', '2026-10-22 23:55:00', NULL),
-(19, 7, 'Gương trang trí viền mạ vàng', 'guong-trang-tri-vien-vang', 'Gương trang trí viền hợp kim mạ vàng, treo ngang hoặc dọc đều cân đối cho phòng ngủ.', NULL, NULL, 44, 1, '2026-10-08 09:00:02', '2026-10-22 23:55:00', NULL),
-(20, 1, 'Sofa da bò Ý cao cấp', 'sofaden-nham', 'Sofa da màu đen nhám quý phái, đệm êm ái cho không gian phòng khách hiện đại.', NULL, NULL, 158, 1, '2026-10-15 16:33:12', '2026-10-22 23:55:00', NULL),
-(21, 7, 'cham trang trí', 'cham-trang-tri', 'sản phẩm trang trí nổi bật', NULL, NULL, 48, 1, '2026-10-22 03:38:08', '2026-10-23 09:30:24', NULL),
+(1, 1, 'Sofa da Ý Milano', 'sofa-da-y-milano', 'Sofa ba chỗ bọc da bò Ý nguyên tấm, khung gỗ sồi sấy khô và đệm mút đàn hồi cao cấp, giữ phom bền theo thời gian.', NULL, NULL, 54, 1, '2026-10-08 09:00:01', '2026-10-26 23:59:35', NULL),
+(2, 1, 'Sofa vải linen Oslo', 'sofa-vai-linen-oslo', 'Sofa vải linen thoáng mát, đường may tỉ mỉ, chân gỗ chế tác thủ công, phù hợp không gian sống tối giản.', NULL, NULL, 60, 1, '2026-10-08 09:00:01', '2026-10-26 23:59:35', NULL),
+(3, 1, 'Sofa góc Bắc Âu', 'sofa-goc-bac-au', 'Sofa góc chữ L phong cách Bắc Âu, các mô-đun tháo rời và đổi hướng linh hoạt theo bố cục phòng.', NULL, NULL, 57, 1, '2026-10-08 09:00:01', '2026-10-26 23:59:35', NULL),
+(4, 2, 'Bàn ăn đá marble Carrara', 'ban-an-da-marble-carrara', 'Bàn ăn mặt đá marble Carrara nhập khẩu, chân kim loại mạ titan chống gỉ, mặt bàn được xử lý chống thấm.', NULL, NULL, 58, 1, '2026-10-08 09:00:01', '2026-10-26 23:59:35', NULL),
+(5, 2, 'Bàn ăn gỗ sồi Nga', 'ban-an-go-soi-nga', 'Bàn ăn gỗ sồi Nga nguyên khối, phủ dầu bảo vệ tự nhiên giữ trọn vân gỗ và độ ấm của chất liệu.', NULL, NULL, 49, 1, '2026-10-08 09:00:01', '2026-10-26 23:59:35', NULL),
+(6, 3, 'Ghế ăn da bọc Ý', 'ghe-an-da-boc-y', 'Ghế ăn bọc da công nghiệp cao cấp, khung thép chịu lực, đệm êm vừa vặn cho bữa ăn dài.', NULL, NULL, 49, 1, '2026-10-08 09:00:01', '2026-10-26 23:59:35', NULL),
+(7, 3, 'Ghế thư giãn gỗ óc chó', 'ghe-thu-gian-go-oc-cho', 'Ghế thư giãn gỗ óc chó, tựa lưng cong theo cơ thể, đệm vải nhập khẩu tạo cảm giác dễ chịu khi đọc sách.', NULL, NULL, 51, 1, '2026-10-08 09:00:01', '2026-10-26 23:59:35', NULL),
+(8, 3, 'Ghế công thái học Ergo', 'ghe-cong-thai-hoc-ergo', 'Ghế công thái học lưng lưới, tựa đầu và tay vịn điều chỉnh ba hướng, hỗ trợ cột sống khi làm việc dài.', NULL, NULL, 49, 1, '2026-10-08 09:00:01', '2026-10-26 23:59:36', NULL),
+(9, 3, 'Ghế ngoài trời gỗ teak', 'ghe-ngoai-troi-go-teak', 'Ghế ngoài trời gỗ teak chống mối mọt và chịu được mưa nắng, phù hợp ban công, sân vườn.', NULL, NULL, 49, 1, '2026-10-08 09:00:01', '2026-10-26 23:59:36', NULL),
+(10, 4, 'Giường ngủ bọc nỉ Velvet', 'giuong-boc-ni-velvet', 'Giường bọc nỉ velvet với đầu giường cao, khung gỗ chắc chắn và hệ nan đệm êm ái.', NULL, NULL, 49, 1, '2026-10-08 09:00:01', '2026-10-26 23:59:36', NULL),
+(11, 4, 'Giường gỗ tự nhiên Scandinavian', 'giuong-go-tu-nhien-scandinavian', 'Giường gỗ sồi tự nhiên tối giản, bề mặt phủ dầu mờ an toàn cho sức khỏe và dễ vệ sinh.', NULL, NULL, 49, 1, '2026-10-08 09:00:01', '2026-10-26 23:59:36', NULL),
+(12, 5, 'Tủ quần áo 4 cánh', 'tu-quan-ao-4-canh', 'Tủ quần áo bốn cánh gỗ MDF chống ẩm, ray giảm chấn và hệ ngăn chia tiện dụng.', NULL, NULL, 59, 1, '2026-10-08 09:00:02', '2026-10-26 23:59:36', NULL),
+(13, 5, 'Kệ tivi treo tường', 'ke-tivi-treo-tuong', 'Kệ tivi treo tường gọn gàng, có lỗ đi dây điện và tải trọng tới 60 kg.', NULL, NULL, 52, 1, '2026-10-08 09:00:02', '2026-10-26 23:59:36', NULL),
+(14, 5, 'Kệ sách gỗ thông', 'ke-sach-go-thong', 'Kệ sách gỗ thông năm tầng, thiết kế mở giúp góc làm việc thoáng đãng và dễ sắp xếp.', NULL, NULL, 52, 1, '2026-10-08 09:00:02', '2026-10-26 23:59:36', NULL),
+(15, 6, 'Đèn sàn đồng thau', 'den-san-dong-thau', 'Đèn sàn đồng thau thân mảnh, chao vải tản sáng dịu, tạo điểm nhấn cho góc đọc sách.', NULL, NULL, 49, 1, '2026-10-08 09:00:02', '2026-10-26 23:59:36', NULL),
+(16, 6, 'Đèn thả trần mây', 'den-tha-tran-may', 'Đèn thả trần đan mây tự nhiên, ánh sáng ấm áp, phù hợp treo trên bàn ăn hoặc đảo bếp.', NULL, NULL, 53, 1, '2026-10-08 09:00:02', '2026-10-26 23:59:36', NULL),
+(17, 6, 'Đèn bàn gốm', 'den-ban-gom', 'Đèn bàn gốm men mờ, chụp vải, cho ánh sáng vàng ấm phù hợp bàn làm việc và đầu giường.', NULL, NULL, 49, 1, '2026-10-08 09:00:02', '2026-10-26 23:59:36', NULL),
+(18, 7, 'Bàn trà mặt kính', 'ban-tra-mat-kinh', 'Bàn trà mặt kính cường lực 12 mm, khung inox mạ vàng sang trọng, dễ lau chùi.', NULL, NULL, 49, 1, '2026-10-08 09:00:02', '2026-10-26 23:59:36', NULL),
+(19, 7, 'Gương trang trí viền mạ vàng', 'guong-trang-tri-vien-vang', 'Gương trang trí viền hợp kim mạ vàng, treo ngang hoặc dọc đều cân đối cho phòng ngủ.', NULL, NULL, 49, 1, '2026-10-08 09:00:02', '2026-10-26 23:59:36', NULL),
+(20, 1, 'Sofa da bò Ý cao cấp', 'sofaden-nham', 'Sofa da màu đen nhám quý phái, đệm êm ái cho không gian phòng khách hiện đại.', NULL, NULL, 163, 1, '2026-10-15 16:33:12', '2026-10-26 23:59:36', NULL),
+(21, 7, 'cham trang trí', 'cham-trang-tri', 'sản phẩm trang trí nổi bật', NULL, NULL, 53, 1, '2026-10-22 03:38:08', '2026-10-26 23:59:36', NULL),
 (22, 1, 'S?n ph?m th? nghi?m Phuong �n 3', 'test-pa3-product-1792641888', NULL, NULL, NULL, 0, 0, '2026-10-22 04:04:48', '2026-10-22 11:04:54', '2026-10-22 04:04:54');
 
 -- --------------------------------------------------------
@@ -424,7 +459,7 @@ INSERT INTO `product_variants` (`id`, `product_id`, `sku`, `color`, `material`, 
 (18, 18, 'SKU-BAN-TRA-MAT-KINH', NULL, 'Kính cường lực', 5600000.00, NULL, 20, NULL, '120 × 60 × 42 cm'),
 (19, 19, 'SKU-GUONG-TRANG-TRI-VIEN-VANG', NULL, 'Hợp kim mạ', 3100000.00, NULL, 20, NULL, '60 × 90 cm'),
 (20, 20, 'SOFADEN_NHAM_001', NULL, 'Da bò Ý', 7500000.00, NULL, 20, NULL, '220 × 90 × 75 cm'),
-(21, 21, 'CHAM_TRANG_TRI_001', NULL, 'gốm', 2000.00, 4000.00, 20, NULL, NULL),
+(21, 21, 'CHAM_TRANG_TRI_001', NULL, 'gốm', 2000.00, 4000.00, 19, NULL, NULL),
 (22, 22, 'TEST_PA3_PRODUCT_1792641888_001', NULL, NULL, 3500000.00, NULL, 15, NULL, NULL);
 
 -- --------------------------------------------------------
@@ -443,6 +478,13 @@ CREATE TABLE `reviews` (
   `status` tinyint(1) DEFAULT 1,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `reviews`
+--
+
+INSERT INTO `reviews` (`id`, `product_id`, `user_id`, `order_id`, `rating`, `content`, `status`, `created_at`) VALUES
+(2, 21, 13, 31, 5, 'very nice', 1, '2026-10-27 03:04:28');
 
 -- --------------------------------------------------------
 
@@ -463,7 +505,10 @@ CREATE TABLE `roles` (
 INSERT INTO `roles` (`id`, `name`, `description`) VALUES
 (1, 'admin', 'Quáº£n trá»‹ viĂªn toĂ n quyá»n'),
 (2, 'seller', 'NgÆ°á»i bĂ¡n hĂ ng, quáº£n lĂ½ sáº£n pháº©m, Ä‘Æ¡n hĂ ng'),
-(3, 'customer', 'KhĂ¡ch mua hĂ ng');
+(3, 'customer', 'KhĂ¡ch mua hĂ ng'),
+(4, 'consultant', 'Chuyên viên tư vấn phong thủy'),
+(5, 'warehouse', 'Thủ kho & vận chuyển'),
+(6, 'marketing', 'Marketing & truyền thông');
 
 -- --------------------------------------------------------
 
@@ -478,6 +523,53 @@ CREATE TABLE `shopping_carts` (
   `created_at` datetime DEFAULT current_timestamp(),
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `showcases`
+--
+
+CREATE TABLE `showcases` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `title` varchar(255) NOT NULL,
+  `subtitle` varchar(255) DEFAULT NULL,
+  `image_url` text DEFAULT NULL,
+  `link_url` varchar(255) DEFAULT '/san-pham',
+  `display_order` int(11) DEFAULT 0,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `spaces`
+--
+
+CREATE TABLE `spaces` (
+  `id` int(10) UNSIGNED NOT NULL,
+  `name` varchar(100) NOT NULL,
+  `slug` varchar(150) NOT NULL,
+  `image_url` text DEFAULT NULL,
+  `display_order` int(11) DEFAULT 0,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `spaces`
+--
+
+INSERT INTO `spaces` (`id`, `name`, `slug`, `image_url`, `display_order`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 'Phòng khách', 'phong-khach', 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80', 1, 1, '2026-10-23 04:38:26', '2026-10-23 04:38:26'),
+(2, 'Phòng ngủ', 'phong-ngu', 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=80', 2, 1, '2026-10-23 04:38:26', '2026-10-23 04:38:26'),
+(3, 'Phòng ăn', 'phong-an', 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=1200&q=80', 3, 1, '2026-10-23 04:38:26', '2026-10-23 04:38:26'),
+(4, 'Làm việc', 'lam-viec', 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1200&q=80', 4, 1, '2026-10-23 04:38:26', '2026-10-23 04:38:26'),
+(5, 'Chiếu sáng', 'chieu-sang', 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=1200&q=80', 5, 1, '2026-10-23 04:38:26', '2026-10-23 04:38:26'),
+(6, 'Ngoài trời', 'ngoai-troi', 'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=1200&q=80', 6, 1, '2026-10-23 04:38:26', '2026-10-23 04:38:26');
 
 -- --------------------------------------------------------
 
@@ -525,11 +617,15 @@ INSERT INTO `users` (`id`, `role_id`, `email`, `password_hash`, `full_name`, `ph
 (4, 3, 'truongvy2762005@gmail.com', 'GOOGLE_OAUTH_ACCOUNT', 'Vỹ kC', NULL, 'https://lh3.googleusercontent.com/a/ACg8ocJ2NPbtjfbyyXQ6uch4KEjQnd--kzitj9wQpAmn2toz_4Tn4Bo=s96-c', 1, '2026-10-15 05:57:00', '2026-10-22 09:28:50', NULL),
 (5, 3, 'truongvy1022@gmail.com', 'GOOGLE_OAUTH_ACCOUNT', 'TC Vỹ', NULL, 'https://lh3.googleusercontent.com/a/ACg8ocLhZ6L4w2K-WVrG7afxpApEK-nu_0Wpy6X0FIBpJWPBMPTP2KQ=s96-c', 1, '2026-10-15 06:20:28', '2026-10-22 09:28:50', NULL),
 (6, 1, 'admin@noithat.vn', '$2b$10$pZW98jYWOjFUbibKOUiAPuAIEQyHsLYFTzkVF4oowryYGtmgu0agG', 'Quản Trị Viên', '0359180209', NULL, 1, '2026-10-16 05:07:04', '2026-10-23 09:27:01', NULL),
-(7, 1, 'huuloi230605@gmail.com', '$2b$10$eEOn1NBbmWBILnUzlZ6qHepjpy2xYhXV9ecPFrZYj7vOURP07GlDq', 'Phạm Hữu Lợi', NULL, 'https://lh3.googleusercontent.com/a/ACg8ocLzhk1m_1LhcUGjj9gfktop0CQekD7_cbSo3lFwSz1ZgAnUK4_EBA=s96-c', 1, '2026-10-18 12:53:49', '2026-10-22 09:28:50', NULL),
-(8, 3, 'test@example.com', 'guest_no_login', 'Tran Van Test', '0988777666', NULL, 1, '2026-10-21 04:19:14', '2026-10-21 04:19:14', NULL),
+(7, 1, 'huuloi230605@gmail.com', '$2b$10$eEOn1NBbmWBILnUzlZ6qHepjpy2xYhXV9ecPFrZYj7vOURP07GlDq', 'Phạm Hữu Lợi', '0902455063', 'https://lh3.googleusercontent.com/a/ACg8ocLzhk1m_1LhcUGjj9gfktop0CQekD7_cbSo3lFwSz1ZgAnUK4_EBA=s96-c', 1, '2026-10-18 12:53:49', '2026-10-22 09:28:50', NULL),
+(8, 3, 'test@example.com', 'guest_no_login', 'Trần Văn Test VIP', '0988777666', NULL, 1, '2026-10-21 04:19:14', '2026-10-23 14:47:58', NULL),
 (9, 3, 'testsim@example.com', 'guest_no_login', 'Tran Van Test Simulator', '0988777999', NULL, 1, '2026-10-21 04:19:22', '2026-10-21 04:19:22', NULL),
 (10, 3, 'vabshop2026@gmail.com', '$2b$10$kdtOAo.Wc18c8O7Ux6.JrufiviFJOIoiljjW.m8xYx1x7o56Vq41S', 'Vab Shop', NULL, 'https://lh3.googleusercontent.com/a/ACg8ocJGscgmOMruAxUDT96bPa4yVCtZ8kUztI6RDwngAFTzFlJB1qk=s96-c', 1, '2026-10-21 06:50:32', '2026-10-21 06:50:32', NULL),
-(11, 3, 'khach_1792651669064@noithat.local', 'guest_no_login', 'Khách Test Coupon', '0987654321', NULL, 1, '2026-10-22 06:47:49', '2026-10-22 06:47:49', NULL);
+(11, 3, 'khach_1792651669064@noithat.local', 'guest_no_login', 'Khách Test Coupon', '0987654321', NULL, 1, '2026-10-22 06:47:49', '2026-10-22 06:47:49', NULL),
+(12, 2, 'vy.dang@noithat.vn', '$2b$10$pqyJbU4XM/qEuQ3eWFCKoeP1.27WnKaTxXLcxHPe0Gj41jc/dcI6e', 'Đặng Thảo Vy', '0909003003', NULL, 1, '2026-10-23 07:29:41', '2026-10-23 14:29:56', NULL),
+(13, 3, 'kkhoa2304@gmail.com', '$2b$10$t.8oOrU25q8lSoxmSkReWOChoemJ.PMoAS6HzQ/MMPKWpSSOe3t1m', 'K Khoa', '0877766122', NULL, 1, '2026-10-27 02:22:57', '2026-10-27 02:43:46', NULL),
+(14, 3, 'khach_1793067441199_269@noithat.local', 'guest_review', 'Nguyễn Văn Test', '0901234567', NULL, 1, '2026-10-27 02:17:21', '2026-10-27 02:17:21', NULL),
+(15, 3, 'huuloi2005@gmail.com', '$2b$10$OeapyVSWs1605d2VWuQGfe7KHgXztqCgUMM9qx8Vpcp/k2enQZDsO', 'Phạm Lợi', '0902455060', NULL, 1, '2026-10-28 02:55:10', '2026-10-28 10:43:17', NULL);
 
 -- --------------------------------------------------------
 
@@ -569,50 +665,6 @@ CREATE TABLE `wishlists` (
 INSERT INTO `wishlists` (`id`, `user_id`, `product_id`, `created_at`) VALUES
 (2, 4, 13, '2026-10-16 08:09:57'),
 (4, 5, 16, '2026-10-22 02:47:34');
-
-
--- --------------------------------------------------------
--- Cấu trúc bảng bổ sung từ Database_kkhoa: `spaces`
--- --------------------------------------------------------
-DROP TABLE IF EXISTS `spaces`;
-CREATE TABLE `spaces` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `name` varchar(100) NOT NULL,
-  `slug` varchar(150) NOT NULL,
-  `image_url` text DEFAULT NULL,
-  `display_order` int(11) DEFAULT 0,
-  `is_active` tinyint(1) DEFAULT 1,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `slug` (`slug`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
--- Dữ liệu mẫu khởi tạo cho `spaces` đồng bộ với Frontend
-INSERT INTO `spaces` (`id`, `name`, `slug`, `image_url`, `display_order`, `is_active`) VALUES
-(1, 'Phòng khách', 'phong-khach', 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80', 1, 1),
-(2, 'Phòng ngủ', 'phong-ngu', 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1200&q=80', 2, 1),
-(3, 'Phòng ăn', 'phong-an', 'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=1200&q=80', 3, 1),
-(4, 'Làm việc', 'lam-viec', 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1200&q=80', 4, 1),
-(5, 'Chiếu sáng', 'chieu-sang', 'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=1200&q=80', 5, 1),
-(6, 'Ngoài trời', 'ngoai-troi', 'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=1200&q=80', 6, 1);
-
--- --------------------------------------------------------
--- Cấu trúc bảng bổ sung từ Database_kkhoa: `showcases`
--- --------------------------------------------------------
-DROP TABLE IF EXISTS `showcases`;
-CREATE TABLE `showcases` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `title` varchar(255) NOT NULL,
-  `subtitle` varchar(255) DEFAULT NULL,
-  `image_url` text DEFAULT NULL,
-  `link_url` varchar(255) DEFAULT '/san-pham',
-  `display_order` int(11) DEFAULT 0,
-  `is_active` tinyint(1) DEFAULT 1,
-  `created_at` timestamp NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 --
 -- Chỉ mục cho các bảng đã đổ
@@ -668,6 +720,13 @@ ALTER TABLE `chat_sessions`
 ALTER TABLE `coupons`
   ADD PRIMARY KEY (`id`),
   ADD UNIQUE KEY `code` (`code`);
+
+--
+-- Chỉ mục cho bảng `email_campaigns`
+--
+ALTER TABLE `email_campaigns`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `unique_campaign_code` (`code`);
 
 --
 -- Chỉ mục cho bảng `orders`
@@ -735,6 +794,19 @@ ALTER TABLE `shopping_carts`
   ADD KEY `user_id` (`user_id`);
 
 --
+-- Chỉ mục cho bảng `showcases`
+--
+ALTER TABLE `showcases`
+  ADD PRIMARY KEY (`id`);
+
+--
+-- Chỉ mục cho bảng `spaces`
+--
+ALTER TABLE `spaces`
+  ADD PRIMARY KEY (`id`),
+  ADD UNIQUE KEY `slug` (`slug`);
+
+--
 -- Chỉ mục cho bảng `system_logs`
 --
 ALTER TABLE `system_logs`
@@ -774,7 +846,7 @@ ALTER TABLE `wishlists`
 -- AUTO_INCREMENT cho bảng `banners`
 --
 ALTER TABLE `banners`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT cho bảng `bot_prompts`
@@ -813,10 +885,16 @@ ALTER TABLE `coupons`
   MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
 
 --
+-- AUTO_INCREMENT cho bảng `email_campaigns`
+--
+ALTER TABLE `email_campaigns`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+
+--
 -- AUTO_INCREMENT cho bảng `orders`
 --
 ALTER TABLE `orders`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=35;
 
 --
 -- AUTO_INCREMENT cho bảng `order_items`
@@ -846,19 +924,31 @@ ALTER TABLE `product_variants`
 -- AUTO_INCREMENT cho bảng `reviews`
 --
 ALTER TABLE `reviews`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT cho bảng `roles`
 --
 ALTER TABLE `roles`
-  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT cho bảng `shopping_carts`
 --
 ALTER TABLE `shopping_carts`
   MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT cho bảng `showcases`
+--
+ALTER TABLE `showcases`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT cho bảng `spaces`
+--
+ALTER TABLE `spaces`
+  MODIFY `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 
 --
 -- AUTO_INCREMENT cho bảng `system_logs`
@@ -870,7 +960,7 @@ ALTER TABLE `system_logs`
 -- AUTO_INCREMENT cho bảng `users`
 --
 ALTER TABLE `users`
-  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT cho bảng `user_addresses`
@@ -980,38 +1070,12 @@ ALTER TABLE `users`
 ALTER TABLE `user_addresses`
   ADD CONSTRAINT `user_addresses_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 
--- --------------------------------------------------------
-
 --
--- Cấu trúc bảng cho bảng `email_campaigns`
+-- Các ràng buộc cho bảng `wishlists`
 --
-
-CREATE TABLE IF NOT EXISTS `email_campaigns` (
-  `id` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-  `code` varchar(50) NOT NULL,
-  `title` varchar(255) NOT NULL,
-  `target_audience` varchar(100) NOT NULL DEFAULT 'all',
-  `recipients_count` int(11) NOT NULL DEFAULT 0,
-  `action_type` varchar(50) NOT NULL DEFAULT 'send-now',
-  `status` varchar(50) NOT NULL DEFAULT 'Đã hoàn tất',
-  `content` text NOT NULL,
-  `open_rate` decimal(5, 2) NOT NULL DEFAULT 0.00,
-  `click_rate` decimal(5, 2) NOT NULL DEFAULT 0.00,
-  `sent_count` int(11) NOT NULL DEFAULT 0,
-  `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_campaign_code` (`code`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
---
--- Đang đổ dữ liệu cho bảng `email_campaigns`
---
-
-INSERT INTO `email_campaigns` (`id`, `code`, `title`, `target_audience`, `recipients_count`, `action_type`, `status`, `content`, `open_rate`, `click_rate`, `sent_count`, `created_at`) VALUES
-(1, 'CAM-001', 'Chào mừng thành viên mới - Nhận ngay Voucher 10% đơn đầu tiên', 'Tất cả khách hàng', 9, 'send-now', 'Đã hoàn tất', 'Kính gửi Quý khách hàng,\n\nCảm ơn Quý khách đã đăng ký thành viên tại Cửa hàng Nội Thất. Để bắt đầu hành trình kiến tạo không gian sống mơ ước, chúng tôi xin gửi tặng Quý khách mã giảm giá 10% cho đơn hàng đầu tiên: WELCOME2026.\n\nChúc Quý khách có trải nghiệm mua sắm tuyệt vời!', 88.50, 42.00, 9, '2026-10-20 08:00:00'),
-(2, 'CAM-002', 'Tri ân Hội viên VIP - Ra mắt Bộ sưu tập Gỗ Óc Chó Mùa Thu 2026', 'Hội viên VIP (Kim Cương / Vàng)', 2, 'send-now', 'Đã hoàn tất', 'Kính gửi Hội viên VIP,\n\nNhân dịp ra mắt bộ sưu tập nội thất cao cấp Mùa Thu 2026, Nội Thất trân trọng kính mời Quý khách trải nghiệm những tuyệt tác gỗ tự nhiên mới nhất với ưu đãi đặc quyền lên tới 20% cùng dịch vụ tư vấn thiết kế phong thủy miễn phí.\n\nTrân trọng cảm ơn sự đồng hành của Quý khách!', 95.00, 68.50, 2, '2026-10-22 10:30:00');
-
+ALTER TABLE `wishlists`
+  ADD CONSTRAINT `wishlists_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  ADD CONSTRAINT `wishlists_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

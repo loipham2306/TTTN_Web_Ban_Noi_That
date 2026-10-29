@@ -132,8 +132,8 @@ for (const g of navGroups) {
   <script is:inline>
     (function () {
       try {
-        var token = localStorage.getItem('auth_token');
-        var userRaw = localStorage.getItem('current_user');
+        var token = localStorage.getItem('admin_token') || localStorage.getItem('auth_token');
+        var userRaw = localStorage.getItem('admin_user') || localStorage.getItem('current_user');
         var user = userRaw ? JSON.parse(userRaw) : null;
         if (!token || !user || (user.role !== 'admin' && user.role !== 'seller')) {
           var target = window.location.pathname;
@@ -237,6 +237,7 @@ for (const g of navGroups) {
       <div class="p-4 mt-6 border-t border-white/10 bg-black/10">
         <a
           href="/"
+          id="btn-admin-go-home"
           class="flex items-center gap-2 rounded px-3 py-2 text-xs uppercase tracking-[0.15em] text-white/70 hover:bg-white/10 hover:text-white transition-colors"
         >
           <svg class="h-4 w-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -324,27 +325,67 @@ for (const g of navGroups) {
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       // Xử lý thông tin user
-      try {
-        const userRaw = localStorage.getItem('current_user');
-        if (userRaw) {
-          const u = JSON.parse(userRaw);
-          const nameEl = document.getElementById('admin-header-name');
-          const emailEl = document.getElementById('admin-header-email');
-          const avatarEl = document.getElementById('admin-header-avatar');
-          if (nameEl && u.name) nameEl.textContent = u.name;
-          if (emailEl && u.email) emailEl.textContent = u.email;
-          if (avatarEl && u.name) {
-            const initials = u.name.split(' ').map((w: string) => w[0]).join('').slice(0, 2).toUpperCase();
-            avatarEl.textContent = initials || 'AD';
-          }
+      const renderAdminInfo = (u: any) => {
+        if (!u) return;
+        const nameEl = document.getElementById('admin-header-name');
+        const emailEl = document.getElementById('admin-header-email');
+        const avatarEl = document.getElementById('admin-header-avatar');
+        if (nameEl && u.name) nameEl.textContent = u.name;
+        if (emailEl && u.email) emailEl.textContent = u.email;
+        if (avatarEl && u.name) {
+          const initials = u.name.split(' ').filter(Boolean).map((w: string) => w[0]).join('').slice(-2).toUpperCase();
+          avatarEl.textContent = initials || 'AD';
         }
+      };
+
+      // 1. Hiển thị ngay từ LocalStorage để giao diện mượt mà
+      try {
+        const userRaw = localStorage.getItem('admin_user') || localStorage.getItem('current_user');
+        if (userRaw) renderAdminInfo(JSON.parse(userRaw));
       } catch (e) {}
+
+      // 2. Tự động đồng bộ thông tin mới nhất trực tiếp từ MySQL Database
+      const syncAdminFromBackend = async () => {
+        const token = localStorage.getItem('admin_token') || localStorage.getItem('auth_token');
+        if (!token) return;
+        try {
+          const res = await fetch('http://localhost:4000/api/auth/me', {
+            headers: { Authorization: `Bearer ${token}` }
+          });
+          const data = await res.json();
+          if (data.success && data.user) {
+            let au: any = {};
+            try {
+              au = JSON.parse(localStorage.getItem('admin_user') || '{}');
+            } catch {}
+            au.id = data.user.id;
+            au.name = data.user.full_name;
+            au.email = data.user.email;
+            au.role = data.user.role;
+            if (data.user.phone) au.phone = data.user.phone;
+            localStorage.setItem('admin_user', JSON.stringify(au));
+            renderAdminInfo(au);
+          }
+        } catch {}
+      };
+      syncAdminFromBackend();
+
+      // Khi Admin bấm "Quay về trang chủ", đồng bộ phiên admin sang storefront để hiển thị đúng tài khoản admin
+      const btnGoHome = document.getElementById('btn-admin-go-home');
+      btnGoHome?.addEventListener('click', () => {
+        const at = localStorage.getItem('admin_token');
+        const au = localStorage.getItem('admin_user');
+        if (at && au) {
+          localStorage.setItem('auth_token', at);
+          localStorage.setItem('current_user', au);
+        }
+      });
 
       // Xử lý Đăng xuất
       const handleLogout = () => {
         if (confirm('Bạn có chắc chắn muốn đăng xuất khỏi trang Quản trị viên?')) {
-          localStorage.removeItem('auth_token');
-          localStorage.removeItem('current_user');
+          localStorage.removeItem('admin_token');
+          localStorage.removeItem('admin_user');
           window.location.href = '/dang-nhap';
         }
       };
