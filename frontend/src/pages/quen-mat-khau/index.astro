@@ -1,0 +1,733 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Quên mật khẩu | Nội Thất" description="Khôi phục quyền truy cập tài khoản Nội Thất thông qua mã xác thực OTP gửi qua email.">
+
+  <section class="mx-auto max-w-7xl px-4 py-12 sm:py-16">
+    <div class="grid gap-12 lg:grid-cols-2 lg:gap-16">
+
+      <!-- Banner thương hiệu bên trái (Đồng bộ với Đăng nhập & Đăng ký) -->
+      <div class="hidden bg-walnut-900 p-10 text-sand-50 lg:flex lg:flex-col lg:justify-between rounded shadow-sm">
+        <p class="text-lg uppercase tracking-[0.32em]">NỘI THẤT CAO CẤP</p>
+        <div>
+          <p class="font-display text-3xl leading-snug">Khôi phục quyền truy cập tài khoản của bạn.</p>
+          <p class="mt-6 text-sm text-sand-200/80 leading-relaxed">
+            Hệ thống bảo vệ dữ liệu hội viên theo chuẩn an toàn cao. Mã OTP 6 chữ số sẽ được gửi trực tiếp đến hòm thư bảo mật để bảo vệ tuyệt đối thông tin đơn hàng và tài khoản của bạn.
+          </p>
+          <div class="mt-8 flex items-center gap-4 text-xs text-sand-300">
+            <div class="flex items-center gap-2">
+              <span class="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
+              <span>Xác thực OTP 5 phút</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="inline-block h-2 w-2 rounded-full bg-amber-400"></span>
+              <span>Mã hóa HMAC-SHA256</span>
+            </div>
+          </div>
+        </div>
+        <div class="pt-6 border-t border-sand-50/15 text-xs text-sand-200/60">
+          Cần hỗ trợ trực tiếp? Hotline: <strong class="text-sand-100">0359.180.209</strong> (8:00 - 21:00)
+        </div>
+      </div>
+
+      <!-- Khung biểu mẫu 3 bước bên phải -->
+      <div class="max-w-md w-full mx-auto lg:mx-0">
+        
+        <!-- Thanh tiến trình 3 bước trực quan -->
+        <div class="mb-8 flex items-center justify-between border-b border-walnut-900/10 pb-4">
+          <div id="step-indicator-1" class="flex items-center gap-2 text-xs font-bold text-clay-700 transition-colors">
+            <span class="flex h-6 w-6 items-center justify-center rounded-full bg-clay-700 text-white text-[11px]">1</span>
+            <span>Email</span>
+          </div>
+          <div class="h-0.5 w-8 bg-walnut-900/15"></div>
+          <div id="step-indicator-2" class="flex items-center gap-2 text-xs font-semibold text-walnut-800/40 transition-colors">
+            <span class="flex h-6 w-6 items-center justify-center rounded-full bg-sand-200 text-walnut-800 text-[11px]">2</span>
+            <span>Mã OTP</span>
+          </div>
+          <div class="h-0.5 w-8 bg-walnut-900/15"></div>
+          <div id="step-indicator-3" class="flex items-center gap-2 text-xs font-semibold text-walnut-800/40 transition-colors">
+            <span class="flex h-6 w-6 items-center justify-center rounded-full bg-sand-200 text-walnut-800 text-[11px]">3</span>
+            <span>Mật khẩu mới</span>
+          </div>
+        </div>
+
+        <!-- ============================================================ -->
+        <!-- BƯỚC 1: NHẬP EMAIL ĐỂ GỬI MÃ OTP -->
+        <!-- ============================================================ -->
+        <div id="step-1-container" class="space-y-6">
+          <div>
+            <h1 class="font-display text-2xl tracking-tight sm:text-3xl text-walnut-900">Quên mật khẩu?</h1>
+            <p class="mt-2 text-sm text-walnut-800/80 leading-relaxed">
+              Nhập địa chỉ email liên kết với tài khoản của bạn. Chúng tôi sẽ gửi mã OTP 6 số để bạn đặt lại mật khẩu.
+            </p>
+          </div>
+
+          <form id="form-step-1" novalidate class="space-y-4">
+            <div>
+              <label for="step1-email" class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800 font-medium">
+                Địa chỉ Email *
+              </label>
+              <input 
+                id="step1-email" 
+                name="email" 
+                type="email" 
+                required 
+                placeholder="vidu: an.nguyen@gmail.com" 
+                autocomplete="email" 
+                class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-4 py-2.5 text-sm outline-none transition-colors focus:border-clay-600 focus:bg-sand-100/30" 
+              />
+              <p id="err-step1-email" class="mt-1.5 hidden text-xs text-red-600 font-medium"></p>
+            </div>
+
+            <button 
+              type="submit" 
+              id="btn-send-otp"
+              class="w-full bg-clay-600 px-8 py-3.5 text-xs uppercase tracking-[0.2em] font-semibold text-sand-50 transition-all hover:bg-clay-500 shadow-sm cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <span>Gửi mã xác thực OTP</span>
+            </button>
+          </form>
+
+          <p class="text-xs text-walnut-800 text-center pt-2">
+            Nhớ lại mật khẩu?
+            <a href="/dang-nhap" class="font-bold text-walnut-900 underline underline-offset-4 transition-colors hover:text-clay-600">Đăng nhập ngay</a>
+          </p>
+        </div>
+
+
+        <!-- ============================================================ -->
+        <!-- BƯỚC 2: NHẬP MÃ OTP 6 CHỮ SỐ -->
+        <!-- ============================================================ -->
+        <div id="step-2-container" class="hidden space-y-6">
+          <div>
+            <h2 class="font-display text-2xl tracking-tight sm:text-3xl text-walnut-900">Xác thực mã OTP</h2>
+            <p class="mt-2 text-sm text-walnut-800/80 leading-relaxed">
+              Mã xác thực 6 số đã được gửi tới email <strong id="display-target-email" class="font-bold text-walnut-900 break-all"></strong>. Vui lòng kiểm tra hộp thư đến (hoặc hòm thư rác).
+            </p>
+          </div>
+
+          <form id="form-step-2" novalidate class="space-y-5">
+            <div>
+              <label class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800 font-medium mb-2 text-center">
+                Nhập 6 chữ số OTP *
+              </label>
+              
+              <!-- 6 ô nhập mã OTP hỗ trợ tự động nhảy ô và paste -->
+              <!-- Vùng nhập OTP: 1 ô input thật ẩn phủ lên trên + 6 ô hiển thị giao diện bên dưới -->
+              <div class="relative mx-auto flex items-center justify-center max-w-[340px] sm:max-w-[380px]" id="otp-wrapper">
+                <!-- 1 Ô INPUT THẬT DUY NHẤT (PHỦ TOÀN BỘ VÙNG BẤM, TRONG SUỐT ĐÓN PHÍM GÕ/DÁN) -->
+                <input
+                  type="text"
+                  id="otp-real-input"
+                  name="otp"
+                  inputmode="numeric"
+                  autocomplete="one-time-code"
+                  maxlength="6"
+                  pattern="[0-9]*"
+                  class="absolute inset-0 z-20 h-full w-full opacity-0 cursor-text"
+                  autofocus
+                />
+
+                <!-- 6 Ô HIỂN THỊ GIAO DIỆN (ĐỒNG BỘ 100% THEO Ô THẬT) -->
+                <div class="flex items-center justify-center gap-2 sm:gap-3 pointer-events-none select-none" id="otp-cells-wrapper">
+                  <div class="otp-cell h-12 w-11 sm:h-14 sm:w-12 flex items-center justify-center text-center text-xl font-bold font-mono border-2 border-clay-600 ring-2 ring-clay-600/25 bg-white text-walnut-900 rounded transition-all shadow-xs" data-index="0"></div>
+                  <div class="otp-cell h-12 w-11 sm:h-14 sm:w-12 flex items-center justify-center text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900/40 rounded transition-all shadow-xs" data-index="1"></div>
+                  <div class="otp-cell h-12 w-11 sm:h-14 sm:w-12 flex items-center justify-center text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900/40 rounded transition-all shadow-xs" data-index="2"></div>
+                  <span class="text-walnut-900/30 font-bold select-none">-</span>
+                  <div class="otp-cell h-12 w-11 sm:h-14 sm:w-12 flex items-center justify-center text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900/40 rounded transition-all shadow-xs" data-index="3"></div>
+                  <div class="otp-cell h-12 w-11 sm:h-14 sm:w-12 flex items-center justify-center text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900/40 rounded transition-all shadow-xs" data-index="4"></div>
+                  <div class="otp-cell h-12 w-11 sm:h-14 sm:w-12 flex items-center justify-center text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900/40 rounded transition-all shadow-xs" data-index="5"></div>
+                </div>
+              </div>
+              <p id="err-step2-otp" class="mt-2 hidden text-xs text-red-600 font-medium text-center"></p>
+            </div>
+
+            <!-- Đếm ngược hiệu lực 5 phút & Nút gửi lại mã 60s -->
+            <div class="rounded-lg bg-sand-100/60 p-3.5 text-xs text-walnut-800 space-y-2 border border-walnut-900/10">
+              <div class="flex items-center justify-between">
+                <span class="text-walnut-800/70">Mã hết hạn sau:</span>
+                <span id="otp-timer-display" class="font-mono font-bold text-clay-700">05:00</span>
+              </div>
+              <div class="flex items-center justify-between pt-2 border-t border-walnut-900/10">
+                <span class="text-walnut-800/70">Chưa nhận được mã?</span>
+                <button 
+                  type="button" 
+                  id="btn-resend-otp" 
+                  class="font-bold text-clay-700 underline hover:text-clay-900 disabled:opacity-50 disabled:no-underline disabled:cursor-not-allowed cursor-pointer transition-colors"
+                >
+                  Gửi lại mã (<span id="resend-countdown">60</span>s)
+                </button>
+              </div>
+            </div>
+
+            <button 
+              type="submit" 
+              id="btn-verify-otp"
+              class="w-full bg-clay-600 px-8 py-3.5 text-xs uppercase tracking-[0.2em] font-semibold text-sand-50 transition-all hover:bg-clay-500 shadow-sm cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <span>Xác nhận mã OTP</span>
+            </button>
+          </form>
+
+          <div class="text-center pt-1">
+            <button 
+              type="button" 
+              id="btn-back-to-step1" 
+              class="text-xs text-walnut-800/70 hover:text-clay-600 underline transition-colors cursor-pointer"
+            >
+              ← Thay đổi địa chỉ email
+            </button>
+          </div>
+        </div>
+
+
+        <!-- ============================================================ -->
+        <!-- BƯỚC 3: ĐẶT MẬT KHẨU MỚI -->
+        <!-- ============================================================ -->
+        <div id="step-3-container" class="hidden space-y-6">
+          <div>
+            <h2 class="font-display text-2xl tracking-tight sm:text-3xl text-walnut-900">Thiết lập mật khẩu mới</h2>
+            <p class="mt-2 text-sm text-walnut-800/80 leading-relaxed">
+              Mã OTP đã được xác thực thành công. Vui lòng tạo mật khẩu mới an toàn cho tài khoản của bạn.
+            </p>
+          </div>
+
+          <form id="form-step-3" novalidate class="space-y-4">
+            <div>
+              <label for="step3-password" class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800 font-medium">
+                Mật khẩu mới *
+              </label>
+              <div class="relative mt-1.5">
+                <input 
+                  id="step3-password" 
+                  name="newPassword" 
+                  type="password" 
+                  required 
+                  autocomplete="new-password" 
+                  placeholder="Nhập ít nhất 6 ký tự" 
+                  class="w-full border border-walnut-900/20 bg-sand-50 pl-4 pr-11 py-2.5 text-sm outline-none transition-colors focus:border-clay-600 focus:bg-sand-100/30" 
+                />
+                <button
+                  type="button"
+                  id="toggle-step3-password"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-walnut-800/50 hover:text-walnut-900 transition-colors p-1 cursor-pointer focus:outline-none"
+                  aria-label="Xem mật khẩu mới"
+                  title="Xem hoặc ẩn mật khẩu"
+                >
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                </button>
+              </div>
+              
+              <!-- Thanh đo độ an toàn mật khẩu (Tái sử dụng chuẩn kiểm tra từ validate.ts) -->
+              <div id="password-strength-container" class="mt-2 hidden">
+                <div class="flex items-center justify-between text-[11px] mb-1">
+                  <span class="text-walnut-800/70">Độ an toàn:</span>
+                  <span id="password-strength-text" class="font-bold text-red-600">Yếu</span>
+                </div>
+                <div class="h-1.5 w-full bg-sand-200 rounded-full overflow-hidden">
+                  <div id="password-strength-bar" class="h-full w-1/3 bg-red-500 transition-all duration-300"></div>
+                </div>
+              </div>
+              <p id="err-step3-password" class="mt-1.5 hidden text-xs text-red-600 font-medium"></p>
+            </div>
+
+            <div>
+              <label for="step3-confirm" class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800 font-medium">
+                Xác nhận mật khẩu mới *
+              </label>
+              <div class="relative mt-1.5">
+                <input 
+                  id="step3-confirm" 
+                  name="confirmPassword" 
+                  type="password" 
+                  required 
+                  autocomplete="new-password" 
+                  placeholder="Nhập lại mật khẩu mới" 
+                  class="w-full border border-walnut-900/20 bg-sand-50 pl-4 pr-11 py-2.5 text-sm outline-none transition-colors focus:border-clay-600 focus:bg-sand-100/30" 
+                />
+                <button
+                  type="button"
+                  id="toggle-step3-confirm"
+                  class="absolute right-3 top-1/2 -translate-y-1/2 text-walnut-800/50 hover:text-walnut-900 transition-colors p-1 cursor-pointer focus:outline-none"
+                  aria-label="Xem mật khẩu xác nhận"
+                  title="Xem hoặc ẩn mật khẩu"
+                >
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                </button>
+              </div>
+              <p id="err-step3-confirm" class="mt-1.5 hidden text-xs text-red-600 font-medium"></p>
+            </div>
+
+            <button 
+              type="submit" 
+              id="btn-save-password"
+              class="w-full bg-clay-600 px-8 py-3.5 text-xs uppercase tracking-[0.2em] font-semibold text-sand-50 transition-all hover:bg-clay-500 shadow-sm cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            >
+              <span>Lưu mật khẩu mới</span>
+            </button>
+          </form>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- TOAST THÔNG BÁO (GÓC TRÊN BÊN PHẢI) -->
+  <div id="auth-toast" class="fixed top-24 sm:top-28 right-4 sm:right-6 z-[99999] hidden -translate-y-4 rounded-xl bg-walnut-900 px-6 py-4 text-xs font-medium text-sand-50 shadow-2xl transition-all duration-300 border border-sand-50/20 max-w-sm backdrop-blur-md">
+    <p id="toast-title" class="font-bold uppercase tracking-wider text-sand-50 mb-0.5">Thông báo</p>
+    <p id="toast-body" class="text-sand-200">Nội dung thông báo</p>
+  </div>
+
+</BaseLayout>
+
+<script>
+  import { checkPasswordStrength } from '../../scripts/validate';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    // Các phần tử giao diện chính
+    const step1Container = document.getElementById('step-1-container') as HTMLElement;
+    const step2Container = document.getElementById('step-2-container') as HTMLElement;
+    const step3Container = document.getElementById('step-3-container') as HTMLElement;
+
+    const stepIndicator1 = document.getElementById('step-indicator-1') as HTMLElement;
+    const stepIndicator2 = document.getElementById('step-indicator-2') as HTMLElement;
+    const stepIndicator3 = document.getElementById('step-indicator-3') as HTMLElement;
+
+    // Form 1
+    const formStep1 = document.getElementById('form-step-1') as HTMLFormElement;
+    const emailInput = document.getElementById('step1-email') as HTMLInputElement;
+    const errStep1Email = document.getElementById('err-step1-email') as HTMLElement;
+    const btnSendOtp = document.getElementById('btn-send-otp') as HTMLButtonElement;
+
+    // Form 2
+    const formStep2 = document.getElementById('form-step-2') as HTMLFormElement;
+    const displayTargetEmail = document.getElementById('display-target-email') as HTMLElement;
+    const otpRealInput = document.getElementById('otp-real-input') as HTMLInputElement;
+    const otpCells = Array.from(document.querySelectorAll<HTMLElement>('.otp-cell'));
+    const errStep2Otp = document.getElementById('err-step2-otp') as HTMLElement;
+    const btnVerifyOtp = document.getElementById('btn-verify-otp') as HTMLButtonElement;
+    const btnResendOtp = document.getElementById('btn-resend-otp') as HTMLButtonElement;
+    const resendCountdown = document.getElementById('resend-countdown') as HTMLElement;
+    const otpTimerDisplay = document.getElementById('otp-timer-display') as HTMLElement;
+    const btnBackToStep1 = document.getElementById('btn-back-to-step1') as HTMLButtonElement;
+
+    // Form 3
+    // Bật/tắt xem mật khẩu cho Bước 3
+    const toggleStep3Pass = document.getElementById('toggle-step3-password') as HTMLButtonElement;
+    const toggleStep3Confirm = document.getElementById('toggle-step3-confirm') as HTMLButtonElement;
+
+    toggleStep3Pass?.addEventListener('click', () => {
+      if (passInput.type === 'password') {
+        passInput.type = 'text';
+        toggleStep3Pass.innerHTML = `<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" /></svg>`;
+        toggleStep3Pass.setAttribute('aria-label', 'Ẩn mật khẩu');
+      } else {
+        passInput.type = 'password';
+        toggleStep3Pass.innerHTML = `<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>`;
+        toggleStep3Pass.setAttribute('aria-label', 'Xem mật khẩu');
+      }
+    });
+
+    toggleStep3Confirm?.addEventListener('click', () => {
+      if (confirmInput.type === 'password') {
+        confirmInput.type = 'text';
+        toggleStep3Confirm.innerHTML = `<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" /></svg>`;
+        toggleStep3Confirm.setAttribute('aria-label', 'Ẩn mật khẩu');
+      } else {
+        confirmInput.type = 'password';
+        toggleStep3Confirm.innerHTML = `<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>`;
+        toggleStep3Confirm.setAttribute('aria-label', 'Xem mật khẩu');
+      }
+    });
+
+    const formStep3 = document.getElementById('form-step-3') as HTMLFormElement;
+    const passInput = document.getElementById('step3-password') as HTMLInputElement;
+    const confirmInput = document.getElementById('step3-confirm') as HTMLInputElement;
+    const errStep3Password = document.getElementById('err-step3-password') as HTMLElement;
+    const errStep3Confirm = document.getElementById('err-step3-confirm') as HTMLElement;
+    const btnSavePassword = document.getElementById('btn-save-password') as HTMLButtonElement;
+    const strengthContainer = document.getElementById('password-strength-container') as HTMLElement;
+    const strengthText = document.getElementById('password-strength-text') as HTMLElement;
+    const strengthBar = document.getElementById('password-strength-bar') as HTMLElement;
+
+    // Toast
+    const toast = document.getElementById('auth-toast') as HTMLElement;
+    const toastBody = document.getElementById('toast-body') as HTMLElement;
+
+    // Biến trạng thái trong RAM JavaScript (Tuyệt đối không lưu token/OTP vào localStorage)
+    let currentEmail = '';
+    let currentResetToken = '';
+    let otpTimerInterval: any = null;
+    let resendTimerInterval: any = null;
+    let remainingTimerSeconds = 300; // 5 phút
+    let remainingResendSeconds = 60; // 60 giây
+
+    const showToast = (msg: string, isError = false) => {
+      toastBody.textContent = msg;
+      toast.className = `fixed top-24 sm:top-28 right-4 sm:right-6 z-[99999] rounded-xl px-6 py-4 text-xs font-medium text-sand-50 shadow-2xl transition-all duration-300 border max-w-sm backdrop-blur-md ${
+        isError ? 'bg-red-950/95 border-red-500 text-red-50 shadow-red-950/50' : 'bg-walnut-900/95 border-emerald-500/50 text-sand-50 shadow-walnut-950/50'
+      }`;
+      toast.classList.remove('hidden');
+      requestAnimationFrame(() => toast.classList.remove('-translate-y-4'));
+      setTimeout(() => {
+        toast.classList.add('-translate-y-4');
+        setTimeout(() => toast.classList.add('hidden'), 300);
+      }, 4500);
+    };
+
+    // Điều hướng giữa các bước
+    const switchStep = (step: 1 | 2 | 3) => {
+      step1Container.classList.add('hidden');
+      step2Container.classList.add('hidden');
+      step3Container.classList.add('hidden');
+
+      // Reset indicators
+      const activeClass = 'flex items-center gap-2 text-xs font-bold text-clay-700 transition-colors';
+      const inactiveClass = 'flex items-center gap-2 text-xs font-semibold text-walnut-800/40 transition-colors';
+
+      stepIndicator1.className = step >= 1 ? activeClass : inactiveClass;
+      stepIndicator2.className = step >= 2 ? activeClass : inactiveClass;
+      stepIndicator3.className = step >= 3 ? activeClass : inactiveClass;
+
+      if (step === 1) {
+        step1Container.classList.remove('hidden');
+        emailInput.focus();
+      } else if (step === 2) {
+        step2Container.classList.remove('hidden');
+        displayTargetEmail.textContent = currentEmail;
+        if (otpRealInput) {
+          otpRealInput.value = '';
+          renderOtpCells('');
+          otpRealInput.focus();
+        }
+        startOtpCountdown();
+        startResendCountdown();
+      } else if (step === 3) {
+        step3Container.classList.remove('hidden');
+        passInput.focus();
+      }
+    };
+
+    // Đồng hồ đếm ngược 5 phút hết hạn OTP
+    const startOtpCountdown = () => {
+      clearInterval(otpTimerInterval);
+      remainingTimerSeconds = 300;
+      otpTimerDisplay.textContent = '05:00';
+      otpTimerDisplay.classList.remove('text-red-600');
+      otpTimerDisplay.classList.add('text-clay-700');
+
+      otpTimerInterval = setInterval(() => {
+        remainingTimerSeconds--;
+        if (remainingTimerSeconds <= 0) {
+          clearInterval(otpTimerInterval);
+          otpTimerDisplay.textContent = 'Đã hết hạn';
+          otpTimerDisplay.classList.remove('text-clay-700');
+          otpTimerDisplay.classList.add('text-red-600');
+          showToast('Mã OTP đã hết hiệu lực 5 phút. Vui lòng bấm "Gửi lại mã".', true);
+        } else {
+          const m = String(Math.floor(remainingTimerSeconds / 60)).padStart(2, '0');
+          const s = String(remainingTimerSeconds % 60).padStart(2, '0');
+          otpTimerDisplay.textContent = `${m}:${s}`;
+        }
+      }, 1000);
+    };
+
+    // Đồng hồ đếm ngược khóa nút gửi lại 60 giây
+    const startResendCountdown = () => {
+      clearInterval(resendTimerInterval);
+      remainingResendSeconds = 60;
+      btnResendOtp.disabled = true;
+      resendCountdown.textContent = '60';
+
+      resendTimerInterval = setInterval(() => {
+        remainingResendSeconds--;
+        if (remainingResendSeconds <= 0) {
+          clearInterval(resendTimerInterval);
+          btnResendOtp.disabled = false;
+          btnResendOtp.textContent = 'Gửi lại mã ngay';
+        } else {
+          resendCountdown.textContent = String(remainingResendSeconds);
+          btnResendOtp.textContent = `Gửi lại mã (${remainingResendSeconds}s)`;
+        }
+      }, 1000);
+    };
+
+    // ============================================================
+    // LOGIC SEGMENTED OTP INPUT: 1 Ô THẬT ĐỒNG BỘ 6 Ô HIỂN THỊ
+    // (LOẠI BỎ TRIỆT ĐỂ LỖI NHẢY BỘ ĐỆM BÀN PHÍM / UNIKEY TIẾNG VIỆT)
+    // ============================================================
+    const renderOtpCells = (raw: string) => {
+      const digits = (raw || '').replace(/[^0-9]/g, '').slice(0, 6);
+      const activeIdx = Math.min(digits.length, 5);
+
+      otpCells.forEach((cell, idx) => {
+        const digit = digits[idx] || '';
+        cell.textContent = digit;
+
+        if (digit) {
+          // Ô đã có số: viền đậm nổi bật, nền trắng rõ chữ
+          cell.className = 'otp-cell h-12 w-11 sm:h-14 sm:w-12 flex items-center justify-center text-center text-xl font-bold font-mono border border-walnut-900/50 bg-white text-walnut-900 rounded transition-all shadow-xs';
+        } else if (idx === activeIdx) {
+          // Ô đang đợi gõ: viền xanh ngọc, vòng focus ring sang trọng
+          cell.className = 'otp-cell h-12 w-11 sm:h-14 sm:w-12 flex items-center justify-center text-center text-xl font-bold font-mono border-2 border-clay-600 ring-2 ring-clay-600/25 bg-white text-walnut-900 rounded transition-all shadow-xs';
+        } else {
+          // Ô chưa nhập phía sau: viền mờ nhạt
+          cell.className = 'otp-cell h-12 w-11 sm:h-14 sm:w-12 flex items-center justify-center text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900/40 rounded transition-all shadow-xs';
+        }
+      });
+    };
+
+    // Khi người dùng gõ phím trên ô thật
+    otpRealInput?.addEventListener('input', () => {
+      errStep2Otp.classList.add('hidden');
+      const cleanVal = (otpRealInput.value || '').replace(/[^0-9]/g, '').slice(0, 6);
+      otpRealInput.value = cleanVal;
+      renderOtpCells(cleanVal);
+
+      if (cleanVal.length === 6) {
+        btnVerifyOtp.focus();
+      }
+    });
+
+    // Hỗ trợ dán (paste) mã 6 số
+    otpRealInput?.addEventListener('paste', (e: ClipboardEvent) => {
+      e.preventDefault();
+      const clipboard = e.clipboardData || (window as any).clipboardData;
+      const pasted = clipboard ? clipboard.getData('text') : '';
+      const digits = (pasted || '').replace(/[^0-9]/g, '').slice(0, 6);
+      otpRealInput.value = digits;
+      renderOtpCells(digits);
+
+      if (digits.length === 6) {
+        btnVerifyOtp.focus();
+      }
+    });
+
+    // Khi bấm vào vùng OTP, tự động kích hoạt ô thật
+    document.getElementById('otp-wrapper')?.addEventListener('click', () => {
+      otpRealInput?.focus();
+    });
+
+    // ============================================================
+    // BƯỚC 1: SUBMIT YÊU CẦU GỬI OTP
+    // ============================================================
+    formStep1.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errStep1Email.classList.add('hidden');
+      emailInput.classList.remove('border-red-500');
+
+      const emailVal = emailInput.value.trim();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!emailVal) {
+        errStep1Email.textContent = 'Vui lòng nhập địa chỉ email.';
+        errStep1Email.classList.remove('hidden');
+        emailInput.classList.add('border-red-500');
+        return;
+      }
+
+      if (!emailRegex.test(emailVal)) {
+        errStep1Email.textContent = 'Địa chỉ email không đúng định dạng.';
+        errStep1Email.classList.remove('hidden');
+        emailInput.classList.add('border-red-500');
+        return;
+      }
+
+      btnSendOtp.disabled = true;
+      btnSendOtp.innerHTML = '<span>Đang gửi mã...</span>';
+
+      try {
+        const res = await fetch('http://localhost:4000/api/auth/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: emailVal }),
+        });
+
+        const data = await res.json();
+
+        if (res.status === 429) {
+          showToast(data.message || 'Vui lòng đợi trước khi gửi lại.', true);
+          btnSendOtp.disabled = false;
+          btnSendOtp.textContent = 'Gửi mã xác thực OTP';
+          return;
+        }
+
+        currentEmail = emailVal;
+        showToast(data.message || 'Mã xác thực OTP đã được gửi thành công!');
+        switchStep(2);
+      } catch (err) {
+        showToast('Không thể kết nối đến máy chủ Backend. Vui lòng thử lại sau.', true);
+      } finally {
+        btnSendOtp.disabled = false;
+        btnSendOtp.textContent = 'Gửi mã xác thực OTP';
+      }
+    });
+
+    // Gửi lại mã OTP từ Bước 2
+    btnResendOtp.addEventListener('click', async () => {
+      if (!currentEmail || btnResendOtp.disabled) return;
+
+      btnResendOtp.disabled = true;
+      btnResendOtp.textContent = 'Đang gửi lại...';
+
+      try {
+        const res = await fetch('http://localhost:4000/api/auth/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: currentEmail }),
+        });
+
+        const data = await res.json();
+        showToast(data.message || 'Mã xác thực mới đã được gửi!');
+        startOtpCountdown();
+        startResendCountdown();
+      } catch (err) {
+        showToast('Không thể gửi lại mã vào lúc này.', true);
+        btnResendOtp.disabled = false;
+        btnResendOtp.textContent = 'Gửi lại mã ngay';
+      }
+    });
+
+    // Nút quay lại Bước 1
+    btnBackToStep1.addEventListener('click', () => {
+      clearInterval(otpTimerInterval);
+      clearInterval(resendTimerInterval);
+      switchStep(1);
+    });
+
+    // ============================================================
+    // BƯỚC 2: SUBMIT XÁC THỰC MÃ OTP
+    // ============================================================
+    formStep2.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errStep2Otp.classList.add('hidden');
+
+      const otp = (otpRealInput ? otpRealInput.value : '').replace(/[^0-9]/g, '').trim();
+      if (otp.length < 6) {
+        errStep2Otp.textContent = 'Vui lòng nhập đủ 6 chữ số mã OTP.';
+        errStep2Otp.classList.remove('hidden');
+        otpRealInput?.focus();
+        return;
+      }
+
+      btnVerifyOtp.disabled = true;
+      btnVerifyOtp.innerHTML = '<span>Đang xác thực...</span>';
+
+      try {
+        const res = await fetch('http://localhost:4000/api/auth/verify-otp', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: currentEmail, otp }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          errStep2Otp.textContent = data.message || 'Mã xác thực không chính xác.';
+          errStep2Otp.classList.remove('hidden');
+          showToast(data.message || 'Mã OTP không hợp lệ.', true);
+          return;
+        }
+
+        // Nhận resetToken an toàn
+        currentResetToken = data.resetToken;
+        clearInterval(otpTimerInterval);
+        clearInterval(resendTimerInterval);
+
+        showToast('Xác thực OTP thành công! Vui lòng tạo mật khẩu mới.');
+        switchStep(3);
+      } catch (err) {
+        showToast('Lỗi kết nối máy chủ khi xác thực OTP.', true);
+      } finally {
+        btnVerifyOtp.disabled = false;
+        btnVerifyOtp.textContent = 'Xác nhận mã OTP';
+      }
+    });
+
+    // ============================================================
+    // BƯỚC 3: MẬT KHẨU MỚI & ĐỘ MẠNH MẬT KHẨU
+    // ============================================================
+    passInput?.addEventListener('input', () => {
+      const val = passInput.value;
+      if (!val) {
+        strengthContainer.classList.add('hidden');
+        return;
+      }
+
+      strengthContainer.classList.remove('hidden');
+      const strength = checkPasswordStrength(val);
+
+      strengthText.textContent = strength.label;
+      strengthText.className = `font-bold ${strength.colorClass}`;
+      strengthBar.className = `h-full ${strength.barWidthClass} ${strength.barColorClass} transition-all duration-300`;
+    });
+
+    formStep3.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      errStep3Password.classList.add('hidden');
+      errStep3Confirm.classList.add('hidden');
+
+      const newPass = passInput.value;
+      const confirmPass = confirmInput.value;
+
+      if (!newPass) {
+        errStep3Password.textContent = 'Vui lòng nhập mật khẩu mới.';
+        errStep3Password.classList.remove('hidden');
+        return;
+      }
+
+      if (newPass.length < 6) {
+        errStep3Password.textContent = 'Mật khẩu phải chứa ít nhất 6 ký tự để bảo mật.';
+        errStep3Password.classList.remove('hidden');
+        return;
+      }
+
+      if (newPass !== confirmPass) {
+        errStep3Confirm.textContent = 'Mật khẩu xác nhận không khớp.';
+        errStep3Confirm.classList.remove('hidden');
+        return;
+      }
+
+      if (!currentResetToken) {
+        showToast('Phiên đặt lại mật khẩu đã hết hạn. Vui lòng thực hiện lại từ Bước 1.', true);
+        switchStep(1);
+        return;
+      }
+
+      btnSavePassword.disabled = true;
+      btnSavePassword.innerHTML = '<span>Đang cập nhật mật khẩu...</span>';
+
+      try {
+        const res = await fetch('http://localhost:4000/api/auth/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            resetToken: currentResetToken,
+            newPassword: newPass,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+          showToast(data.message || 'Không thể đặt lại mật khẩu.', true);
+          return;
+        }
+
+        // Đặt lại mật khẩu thành công!
+        showToast('Đặt lại mật khẩu thành công! Đang chuyển hướng sang trang Đăng nhập...');
+        setTimeout(() => {
+          window.location.href = '/dang-nhap?reset=1';
+        }, 1200);
+      } catch (err) {
+        showToast('Không thể kết nối đến máy chủ khi cập nhật mật khẩu.', true);
+      } finally {
+        btnSavePassword.disabled = false;
+        btnSavePassword.textContent = 'Lưu mật khẩu mới';
+      }
+    });
+  });
+</script>
+

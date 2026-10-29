@@ -805,8 +805,21 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
       if (getQty() < maxStock) {
         inputQty.value = String(getQty() + 1);
       } else {
-        showCartToast(`Số lượng đã đạt giới hạn tồn kho (${maxStock})!`);
+        showCartToast(`Số lượng đã đạt giới hạn tồn kho (${maxStock} món)!`, 'warning');
       }
+    }
+  });
+
+  inputQty?.addEventListener('input', () => {
+    const raw = inputQty.value.trim();
+    if (!raw) return;
+    const num = parseInt(raw, 10);
+    if (isNaN(num)) return;
+    if (num > maxStock) {
+      inputQty.value = String(maxStock);
+      showCartToast(`Sản phẩm này chỉ còn tối đa ${maxStock} món trong kho!`, 'warning');
+    } else if (num < 1) {
+      inputQty.value = '1';
     }
   });
 

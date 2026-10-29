@@ -49,6 +49,24 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           <div class="h-px flex-1 bg-walnut-900/15"></div>
         </div>
 
+                <!-- CẢNH BÁO NỔI BẬT TRỰC TIẾP TRÊN FORM (RÕ NÉT, KHÔNG BỊ CHE BỞI HEADER HAY CÁC NÚT NỔI) -->
+        <div id="register-alert-banner" class="hidden mb-5 rounded-lg border border-red-300 bg-red-50 p-4 text-xs text-red-900 shadow-sm transition-all duration-300">
+          <div class="flex items-start gap-3">
+            <svg id="alert-banner-icon" class="h-5 w-5 text-red-600 shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            <div class="flex-1">
+              <p id="alert-banner-title" class="font-bold text-red-950 uppercase tracking-wider text-[11px]">Cảnh báo</p>
+              <div id="alert-banner-desc" class="mt-1 text-red-800 leading-relaxed text-xs"></div>
+            </div>
+            <button type="button" id="btn-close-alert" class="text-red-400 hover:text-red-700 transition-colors p-0.5" aria-label="Đóng cảnh báo">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
         <form id="register-form" novalidate class="flex flex-col gap-4">
           <div>
             <label for="reg-name" class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800">Họ và tên *</label>
@@ -71,7 +89,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           <!-- Mật khẩu kèm thanh đo độ mạnh (Yếu / Trung bình / Mạnh) -->
           <div>
             <label for="reg-password" class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800">Mật khẩu *</label>
-            <input id="reg-password" name="password" type="password" required autocomplete="new-password" placeholder="Nhập ít nhất 6 ký tự" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-4 py-2.5 text-sm outline-none transition-colors focus:border-clay-600 focus:bg-sand-100/30" />
+            <div class="relative mt-1.5">
+              <input id="reg-password" name="password" type="password" required autocomplete="new-password" placeholder="Nhập ít nhất 6 ký tự" class="w-full border border-walnut-900/20 bg-sand-50 pl-4 pr-11 py-2.5 text-sm outline-none transition-colors focus:border-clay-600 focus:bg-sand-100/30" />
+              <button
+                type="button"
+                id="toggle-reg-password"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-walnut-800/50 hover:text-walnut-900 transition-colors p-1 cursor-pointer focus:outline-none"
+                aria-label="Xem mật khẩu"
+                title="Xem hoặc ẩn mật khẩu"
+              >
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+              </button>
+            </div>
             
             <!-- THANH ĐO ĐỘ MẠNH MẬT KHẨU (YÊU CẦU ĐẶC TẢ) -->
             <div id="password-strength-container" class="mt-2 hidden">
@@ -88,7 +117,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
           <div>
             <label for="reg-confirm" class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800">Xác nhận mật khẩu *</label>
-            <input id="reg-confirm" name="confirm" type="password" required autocomplete="new-password" placeholder="Nhập lại mật khẩu" class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-4 py-2.5 text-sm outline-none transition-colors focus:border-clay-600 focus:bg-sand-100/30" />
+            <div class="relative mt-1.5">
+              <input id="reg-confirm" name="confirm" type="password" required autocomplete="new-password" placeholder="Nhập lại mật khẩu" class="w-full border border-walnut-900/20 bg-sand-50 pl-4 pr-11 py-2.5 text-sm outline-none transition-colors focus:border-clay-600 focus:bg-sand-100/30" />
+              <button
+                type="button"
+                id="toggle-reg-confirm"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-walnut-800/50 hover:text-walnut-900 transition-colors p-1 cursor-pointer focus:outline-none"
+                aria-label="Xem mật khẩu xác nhận"
+                title="Xem hoặc ẩn mật khẩu"
+              >
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+              </button>
+            </div>
             <p id="err-confirm" class="mt-1 hidden text-xs text-red-600 font-medium"></p>
           </div>
 
@@ -143,6 +183,34 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       : (ENV_CLIENT_ID && !ENV_CLIENT_ID.includes("DÁN_") ? ENV_CLIENT_ID.trim() : "");
 
   document.addEventListener('DOMContentLoaded', () => {
+    // Bật/tắt xem mật khẩu cho trang Đăng ký
+    const toggleRegPass = document.getElementById('toggle-reg-password') as HTMLButtonElement;
+    const toggleRegConfirm = document.getElementById('toggle-reg-confirm') as HTMLButtonElement;
+
+    toggleRegPass?.addEventListener('click', () => {
+      if (passInput.type === 'password') {
+        passInput.type = 'text';
+        toggleRegPass.innerHTML = `<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" /></svg>`;
+        toggleRegPass.setAttribute('aria-label', 'Ẩn mật khẩu');
+      } else {
+        passInput.type = 'password';
+        toggleRegPass.innerHTML = `<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>`;
+        toggleRegPass.setAttribute('aria-label', 'Xem mật khẩu');
+      }
+    });
+
+    toggleRegConfirm?.addEventListener('click', () => {
+      if (confirmInput.type === 'password') {
+        confirmInput.type = 'text';
+        toggleRegConfirm.innerHTML = `<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18" /></svg>`;
+        toggleRegConfirm.setAttribute('aria-label', 'Ẩn mật khẩu');
+      } else {
+        confirmInput.type = 'password';
+        toggleRegConfirm.innerHTML = `<svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>`;
+        toggleRegConfirm.setAttribute('aria-label', 'Xem mật khẩu');
+      }
+    });
+
     const form = document.getElementById('register-form') as HTMLFormElement;
     const nameInput = document.getElementById('reg-name') as HTMLInputElement;
     const emailInput = document.getElementById('reg-email') as HTMLInputElement;

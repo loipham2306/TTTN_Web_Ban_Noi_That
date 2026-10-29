@@ -1,3 +1,10 @@
+SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
+SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO';
+SET NAMES utf8mb4;
+
+CREATE DATABASE IF NOT EXISTS `web_ban_noi_that` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `web_ban_noi_that`;
+
 -- phpMyAdmin SQL Dump
 -- version 5.2.1
 -- https://www.phpmyadmin.net/
@@ -27,6 +34,7 @@ SET time_zone = "+00:00";
 -- Cấu trúc bảng cho bảng `banners`
 --
 
+DROP TABLE IF EXISTS `banners`;
 CREATE TABLE `banners` (
   `id` int(10) UNSIGNED NOT NULL,
   `title` varchar(255) NOT NULL,
@@ -61,6 +69,7 @@ INSERT INTO `banners` (`id`, `title`, `subtitle`, `description`, `image_url`, `l
 -- Cấu trúc bảng cho bảng `bot_prompts`
 --
 
+DROP TABLE IF EXISTS `bot_prompts`;
 CREATE TABLE `bot_prompts` (
   `id` int(10) UNSIGNED NOT NULL,
   `context_key` varchar(50) NOT NULL COMMENT 'system_prompt, return_policy, etc.',
@@ -82,6 +91,7 @@ INSERT INTO `bot_prompts` (`id`, `context_key`, `content`, `is_active`) VALUES
 -- Cấu trúc bảng cho bảng `cart_items`
 --
 
+DROP TABLE IF EXISTS `cart_items`;
 CREATE TABLE `cart_items` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `cart_id` bigint(20) UNSIGNED NOT NULL,
@@ -95,6 +105,7 @@ CREATE TABLE `cart_items` (
 -- Cấu trúc bảng cho bảng `categories`
 --
 
+DROP TABLE IF EXISTS `categories`;
 CREATE TABLE `categories` (
   `id` int(10) UNSIGNED NOT NULL,
   `parent_id` int(10) UNSIGNED DEFAULT NULL,
@@ -123,6 +134,7 @@ INSERT INTO `categories` (`id`, `parent_id`, `name`, `slug`, `image_url`, `statu
 -- Cấu trúc bảng cho bảng `chat_messages`
 --
 
+DROP TABLE IF EXISTS `chat_messages`;
 CREATE TABLE `chat_messages` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `session_id` bigint(20) UNSIGNED NOT NULL,
@@ -138,6 +150,7 @@ CREATE TABLE `chat_messages` (
 -- Cấu trúc bảng cho bảng `chat_sessions`
 --
 
+DROP TABLE IF EXISTS `chat_sessions`;
 CREATE TABLE `chat_sessions` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `user_id` bigint(20) UNSIGNED DEFAULT NULL,
@@ -153,6 +166,7 @@ CREATE TABLE `chat_sessions` (
 -- Cấu trúc bảng cho bảng `coupons`
 --
 
+DROP TABLE IF EXISTS `coupons`;
 CREATE TABLE `coupons` (
   `id` int(10) UNSIGNED NOT NULL,
   `code` varchar(50) NOT NULL,
@@ -184,6 +198,7 @@ INSERT INTO `coupons` (`id`, `code`, `discount_type`, `discount_value`, `min_ord
 -- Cấu trúc bảng cho bảng `email_campaigns`
 --
 
+DROP TABLE IF EXISTS `email_campaigns`;
 CREATE TABLE `email_campaigns` (
   `id` int(10) UNSIGNED NOT NULL,
   `code` varchar(50) NOT NULL,
@@ -215,6 +230,7 @@ INSERT INTO `email_campaigns` (`id`, `code`, `title`, `target_audience`, `recipi
 -- Cấu trúc bảng cho bảng `orders`
 --
 
+DROP TABLE IF EXISTS `orders`;
 CREATE TABLE `orders` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `order_code` varchar(50) NOT NULL,
@@ -265,7 +281,10 @@ INSERT INTO `orders` (`id`, `order_code`, `user_id`, `coupon_id`, `shipping_addr
 (30, 'NT-2610-7865', 5, NULL, '110d tân quý, tân phú, HCM, r, TP. Hồ Chí Minh', 50000.00, 4000.00, 0.00, 54000.00, 'cod', 'pending', 'pending', NULL, NULL, '2026-10-22 16:57:01', '2026-10-22 16:57:01'),
 (31, 'NT-2610-5539', 6, NULL, '543b tân phú, r, TP. Hồ Chí Minh', 50000.00, 2000.00, 0.00, 52000.00, 'sepay', 'paid', 'cancelled', '[SePay Webhook] Thanh toán thành công 52.000 đ qua MBBank (Ref: FT26296741390800) lúc 2026-10-23 09:27:00', NULL, '2026-10-23 02:27:01', '2026-10-27 09:49:01'),
 (32, 'NT-2610-8123', 13, NULL, '220 nguyễn hồng đào, tân bình, TP. Hồ Chí Minh', 50000.00, 2000.00, 0.00, 52000.00, 'sepay', 'pending', 'pending', NULL, NULL, '2026-10-27 03:17:55', '2026-10-27 03:17:55'),
-(33, 'NT-2610-4939', 13, NULL, '220 nguyễn hồng đào, tân bình, TP. Hồ Chí Minh', 50000.00, 2000.00, 0.00, 52000.00, 'cod', 'paid', 'completed', NULL, NULL, '2026-10-27 03:18:22', '2026-10-27 10:19:49');
+(33, 'NT-2610-4939', 13, NULL, '220 Nguyễn Hồng Đào, Tân Bình, TP. Hồ Chí Minh', 50000.00, 2000.00, 0.00, 52000.00, 'cod', 'paid', 'completed', NULL, NULL, '2026-10-27 03:18:22', '2026-10-27 10:19:49'),
+(35, 'NT-2610-5686', 7, NULL, '412 Lũy Bán Bích, Tân Phú, TP. Hồ Chí Minh', 50000.00, 8000.00, 0.00, 58000.00, 'cod', 'paid', 'completed', NULL, NULL, '2026-10-29 08:16:20', '2026-10-29 15:17:48'),
+(36, 'NT-2610-6366', 15, NULL, '412 Lũy Bán Bích, Tân Phú, TP. Hồ Chí Minh', 50000.00, 4000.00, 0.00, 54000.00, 'cod', 'pending', 'shipping', NULL, NULL, '2026-10-29 08:18:50', '2026-10-29 18:30:30'),
+(37, 'NT-2610-7491', 6, 5, '543b Tân Phú, TP. Hồ Chí Minh', 0.00, 2000.00, 50000.00, 2000.00, 'cod', 'pending', 'pending', NULL, NULL, '2026-10-28 03:19:22', '2026-10-28 03:19:22');
 
 -- --------------------------------------------------------
 
@@ -273,6 +292,7 @@ INSERT INTO `orders` (`id`, `order_code`, `user_id`, `coupon_id`, `shipping_addr
 -- Cấu trúc bảng cho bảng `order_items`
 --
 
+DROP TABLE IF EXISTS `order_items`;
 CREATE TABLE `order_items` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `order_id` bigint(20) UNSIGNED NOT NULL,
@@ -317,7 +337,10 @@ INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `variant_id`, `produc
 (31, 30, 21, 21, 'cham trang trí', NULL, 'CHAM_TRANG_TRI_001', 2, 2000.00, 4000.00),
 (32, 31, 21, 21, 'cham trang trí', NULL, 'CHAM_TRANG_TRI_001', 1, 2000.00, 2000.00),
 (33, 32, 21, 21, 'cham trang trí', NULL, 'CHAM_TRANG_TRI_001', 1, 2000.00, 2000.00),
-(34, 33, 21, 21, 'cham trang trí', NULL, 'CHAM_TRANG_TRI_001', 1, 2000.00, 2000.00);
+(34, 33, 21, 21, 'cham trang trí', NULL, 'CHAM_TRANG_TRI_001', 1, 2000.00, 2000.00),
+(35, 35, 21, 21, 'cham trang trí', NULL, 'CHAM_TRANG_TRI_001', 4, 2000.00, 8000.00),
+(36, 36, 21, 21, 'cham trang trí', NULL, 'CHAM_TRANG_TRI_001', 2, 2000.00, 4000.00),
+(37, 37, 21, 21, 'cham trang trí', NULL, 'CHAM_TRANG_TRI_001', 1, 2000.00, 2000.00);
 
 -- --------------------------------------------------------
 
@@ -325,6 +348,7 @@ INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `variant_id`, `produc
 -- Cấu trúc bảng cho bảng `products`
 --
 
+DROP TABLE IF EXISTS `products`;
 CREATE TABLE `products` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `category_id` int(10) UNSIGNED NOT NULL,
@@ -374,6 +398,7 @@ INSERT INTO `products` (`id`, `category_id`, `name`, `slug`, `short_description`
 -- Cấu trúc bảng cho bảng `product_images`
 --
 
+DROP TABLE IF EXISTS `product_images`;
 CREATE TABLE `product_images` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `product_id` bigint(20) UNSIGNED NOT NULL,
@@ -421,6 +446,7 @@ INSERT INTO `product_images` (`id`, `product_id`, `variant_id`, `image_url`, `is
 -- Cấu trúc bảng cho bảng `product_variants`
 --
 
+DROP TABLE IF EXISTS `product_variants`;
 CREATE TABLE `product_variants` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `product_id` bigint(20) UNSIGNED NOT NULL,
@@ -468,6 +494,7 @@ INSERT INTO `product_variants` (`id`, `product_id`, `sku`, `color`, `material`, 
 -- Cấu trúc bảng cho bảng `reviews`
 --
 
+DROP TABLE IF EXISTS `reviews`;
 CREATE TABLE `reviews` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `product_id` bigint(20) UNSIGNED NOT NULL,
@@ -492,6 +519,7 @@ INSERT INTO `reviews` (`id`, `product_id`, `user_id`, `order_id`, `rating`, `con
 -- Cấu trúc bảng cho bảng `roles`
 --
 
+DROP TABLE IF EXISTS `roles`;
 CREATE TABLE `roles` (
   `id` int(10) UNSIGNED NOT NULL,
   `name` varchar(50) NOT NULL,
@@ -503,12 +531,13 @@ CREATE TABLE `roles` (
 --
 
 INSERT INTO `roles` (`id`, `name`, `description`) VALUES
-(1, 'admin', 'Quáº£n trá»‹ viĂªn toĂ n quyá»n'),
-(2, 'seller', 'NgÆ°á»i bĂ¡n hĂ ng, quáº£n lĂ½ sáº£n pháº©m, Ä‘Æ¡n hĂ ng'),
-(3, 'customer', 'KhĂ¡ch mua hĂ ng'),
+(1, 'admin', 'Quản trị viên toàn quyền'),
+(2, 'seller', 'Người bán hàng, quản lý sản phẩm, đơn hàng'),
+(3, 'customer', 'Khách mua hàng'),
 (4, 'consultant', 'Chuyên viên tư vấn phong thủy'),
 (5, 'warehouse', 'Thủ kho & vận chuyển'),
-(6, 'marketing', 'Marketing & truyền thông');
+(6, 'marketing', 'Marketing & truyền thông'),
+(7, 'cashier', 'Thu ngân & Kế toán quỹ, quản lý dòng tiền và đối soát');
 
 -- --------------------------------------------------------
 
@@ -516,6 +545,7 @@ INSERT INTO `roles` (`id`, `name`, `description`) VALUES
 -- Cấu trúc bảng cho bảng `shopping_carts`
 --
 
+DROP TABLE IF EXISTS `shopping_carts`;
 CREATE TABLE `shopping_carts` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `user_id` bigint(20) UNSIGNED DEFAULT NULL,
@@ -530,6 +560,7 @@ CREATE TABLE `shopping_carts` (
 -- Cấu trúc bảng cho bảng `showcases`
 --
 
+DROP TABLE IF EXISTS `showcases`;
 CREATE TABLE `showcases` (
   `id` int(10) UNSIGNED NOT NULL,
   `title` varchar(255) NOT NULL,
@@ -548,6 +579,7 @@ CREATE TABLE `showcases` (
 -- Cấu trúc bảng cho bảng `spaces`
 --
 
+DROP TABLE IF EXISTS `spaces`;
 CREATE TABLE `spaces` (
   `id` int(10) UNSIGNED NOT NULL,
   `name` varchar(100) NOT NULL,
@@ -577,6 +609,7 @@ INSERT INTO `spaces` (`id`, `name`, `slug`, `image_url`, `display_order`, `is_ac
 -- Cấu trúc bảng cho bảng `system_logs`
 --
 
+DROP TABLE IF EXISTS `system_logs`;
 CREATE TABLE `system_logs` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `user_id` bigint(20) UNSIGNED NOT NULL,
@@ -592,6 +625,7 @@ CREATE TABLE `system_logs` (
 -- Cấu trúc bảng cho bảng `users`
 --
 
+DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `role_id` int(10) UNSIGNED NOT NULL,
@@ -624,7 +658,12 @@ INSERT INTO `users` (`id`, `role_id`, `email`, `password_hash`, `full_name`, `ph
 (11, 3, 'khach_1792651669064@noithat.local', 'guest_no_login', 'Khách Test Coupon', '0987654321', NULL, 1, '2026-10-22 06:47:49', '2026-10-22 06:47:49', NULL),
 (12, 2, 'vy.dang@noithat.vn', '$2b$10$pqyJbU4XM/qEuQ3eWFCKoeP1.27WnKaTxXLcxHPe0Gj41jc/dcI6e', 'Đặng Thảo Vy', '0909003003', NULL, 1, '2026-10-23 07:29:41', '2026-10-23 14:29:56', NULL),
 (13, 3, 'kkhoa2304@gmail.com', '$2b$10$t.8oOrU25q8lSoxmSkReWOChoemJ.PMoAS6HzQ/MMPKWpSSOe3t1m', 'K Khoa', '0877766122', NULL, 1, '2026-10-27 02:22:57', '2026-10-27 02:43:46', NULL),
-(14, 3, 'khach_1793067441199_269@noithat.local', 'guest_review', 'Nguyễn Văn Test', '0901234567', NULL, 1, '2026-10-27 02:17:21', '2026-10-27 02:17:21', NULL);
+(14, 3, 'khach_1793067441199_269@noithat.local', 'guest_review', 'Nguyễn Văn Test', '0901234567', NULL, 1, '2026-10-27 02:17:21', '2026-10-27 02:17:21', NULL),
+(15, 3, 'huuloi2005@gmail.com', '$2b$10$OeapyVSWs1605d2VWuQGfe7KHgXztqCgUMM9qx8Vpcp/k2enQZDsO', 'Phạm Hữu Lợi', NULL, NULL, 1, '2026-10-29 08:14:15', '2026-10-29 08:14:15', NULL),
+(30, 3, 'nhi@gmail.com', '$2b$10$U2byzlPlD9J8vxO6cHYA7u1HTj2p.KU733QGZXdJq9lKob0tBrWbK', 'nhi', '0123456799', NULL, 1, '2026-10-28 17:31:14', '2026-10-28 17:31:14', NULL),
+(31, 3, 'truongchivy9a4.19.20.nts1@gmail.com', '$2b$10$Ugskhk8aR5yq0jnqOiyem.6yV0G.eI73UMSLSfLU5MUsfpTeiTlU6', 'truong chí vỹ', '0348571843', NULL, 1, '2026-10-29 06:16:58', '2026-10-29 06:16:58', NULL),
+(32, 3, 'truongchivy27000@gmail.com', '$2b$10$I2yzNfFICapQmnSdDx5bJ.Ux7Ku7T4tHCS.hZ1vRLnU8hyzztd2fS', 'truong chi vy', '0359180208', NULL, 1, '2026-10-29 07:18:03', '2026-10-29 07:20:38', NULL),
+(33, 3, 'truongchivy27001@gmail.com', '$2b$10$q4MNPUudU6Zzlyb3iqzGfOsUu1kKq8Q2jqV8k3rZ1FymNsrq8ppDm', 'truong chi vy', '0359180207', NULL, 1, '2026-10-29 08:06:46', '2026-10-29 08:06:46', NULL);
 
 -- --------------------------------------------------------
 
@@ -632,6 +671,7 @@ INSERT INTO `users` (`id`, `role_id`, `email`, `password_hash`, `full_name`, `ph
 -- Cấu trúc bảng cho bảng `user_addresses`
 --
 
+DROP TABLE IF EXISTS `user_addresses`;
 CREATE TABLE `user_addresses` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `user_id` bigint(20) UNSIGNED NOT NULL,
@@ -650,6 +690,7 @@ CREATE TABLE `user_addresses` (
 -- Cấu trúc bảng cho bảng `wishlists`
 --
 
+DROP TABLE IF EXISTS `wishlists`;
 CREATE TABLE `wishlists` (
   `id` bigint(20) UNSIGNED NOT NULL,
   `user_id` bigint(20) UNSIGNED NOT NULL,
@@ -1075,8 +1116,206 @@ ALTER TABLE `user_addresses`
 ALTER TABLE `wishlists`
   ADD CONSTRAINT `wishlists_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `wishlists_ibfk_2` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE CASCADE;
+
+-- --------------------------------------------------------
+
+--
+-- Cấu trúc bảng cho bảng `password_otps`
+--
+
+DROP TABLE IF EXISTS `password_otps`;
+CREATE TABLE `password_otps` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `otp_hash` varchar(255) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `attempts` int(11) NOT NULL DEFAULT 0,
+  `used_at` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `password_otps_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+
+-- --------------------------------------------------------
+-- Dữ liệu bảng chat_sessions
+-- --------------------------------------------------------
+INSERT INTO `chat_sessions` VALUES (1,15,'guest_mvhqiq99_b6ri','bot_handling','2026-10-29 10:47:11',NULL),(2,15,'guest_mvhqiq99_b6ri','bot_handling','2026-10-29 11:47:31',NULL);
+
+
+-- --------------------------------------------------------
+-- Dữ liệu bảng chat_messages
+-- --------------------------------------------------------
+INSERT INTO `chat_messages` VALUES (1,1,'customer',15,'Sinh nÄƒm 1995 (áº¤t Há»£i) nĂªn chá»n sofa mĂ u gĂ¬?','2026-10-29 10:47:11'),(2,1,'ai_bot',NULL,'Dáº¡, chĂ o quĂ½ khĂ¡ch! TĂ´i lĂ  ChuyĂªn gia tÆ° váº¥n Phong Thá»§y & Ná»™i Tháº¥t cá»§a **KTUFA Luxury Furniture**. Ráº¥t vinh háº¡nh Ä‘Æ°á»£c Ä‘á»“ng hĂ nh cĂ¹ng quĂ½ khĂ¡ch trĂªn hĂ nh trĂ¬nh kiáº¿n táº¡o má»™t khĂ´ng gian sá»‘ng thá»‹nh vÆ°á»£ng vĂ  viĂªn mĂ£n.\n\nÄá»‘i vá»›i gia chá»§ sinh nÄƒm **1995 (tuá»•i áº¤t Há»£i)**, viá»‡c lá»±a chá»n mĂ u sáº¯c cho bá»™ sofa â€“ trĂ¡i tim cá»§a phĂ²ng khĂ¡ch â€“ Ä‘Ă³ng vai trĂ² vĂ´ cĂ¹ng quan trá»ng Ä‘á»ƒ chiĂªu tĂ i hĂºt lá»™c, mang láº¡i bĂ¬nh an vĂ  vÆ°á»£ng khĂ­ cho gia Ä‘Ă¬nh. DÆ°á»›i Ä‘Ă¢y lĂ  nhá»¯ng tÆ° váº¥n chuyĂªn sĂ¢u tá»« **KTUFA Luxury Furniture**:\n\n### 1. PhĂ¢n tĂ­ch Báº£n má»‡nh & NgÅ© hĂ nh\n* **NÄƒm sinh Ă¢m lá»‹ch:** 1995 â€“ áº¤t Há»£i (Con lá»£n).\n* **NgÅ© hĂ nh náº¡p Ă¢m:** **SÆ¡n Äáº§u Há»a** (Lá»­a trĂªn nĂºi).\n\nTheo quy luáº­t ngÅ© hĂ nh tÆ°Æ¡ng sinh - tÆ°Æ¡ng kháº¯c, Ä‘á»ƒ chá»n mĂ u sáº¯c sofa mang láº¡i may máº¯n, chĂºng ta Æ°u tiĂªn cĂ¡c gam mĂ u tÆ°Æ¡ng há»£p (cĂ¹ng hĂ nh Há»a) vĂ  tÆ°Æ¡ng sinh (Há»a sinh Thá»• hoáº·c Má»™c sinh Há»a).\n\n### 2. Gá»£i Ă½ mĂ u sáº¯c Sofa chuáº©n phong thá»§y cho tuá»•i áº¤t Há»£i (1995)\n\n* **MĂ u tÆ°Æ¡ng há»£p (HĂ nh Há»a):** \n  * *MĂ u sáº¯c:* Äá», há»“ng, tĂ­m, cam Ä‘áº­m.\n  * *Ă nghÄ©a:* TÄƒng cÆ°á»ng nÄƒng lÆ°á»£ng báº£n má»‡nh, mang láº¡i sá»± nhiá»‡t huyáº¿t, may máº¯n vĂ  tĂ i lá»™c dá»“i dĂ o. \n  * *Gá»£i Ă½ tá»« **KTUFA Luxury Furniture** phá»‘i ná»™i tháº¥t:* QuĂ½ khĂ¡ch cĂ³ thá»ƒ chá»n cĂ¡c máº«u sofa da cao cáº¥p bá»c da tĂ´ng mĂ u Ä‘á» Ä‘Ă´ sang trá»ng hoáº·c Ä‘iá»ƒm xuyáº¿t gá»‘i Ă´m mĂ u cam/há»“ng tráº§m Ä‘á»ƒ táº¡o Ä‘iá»ƒm nháº¥n quyá»n quĂ½ cho phĂ²ng khĂ¡ch mĂ  váº«n giá»¯ Ä‘Æ°á»£c sá»± nhĂ£ nháº·n.\n\n* **MĂ u tÆ°Æ¡ng sinh (HĂ nh Má»™c - Má»™c sinh Há»a):** \n  * *MĂ u sáº¯c:* Xanh lĂ¡ cĂ¢y, xanh rĂªu, xanh lá»¥c.\n  * *Ă nghÄ©a:* Má»™c sinh Há»a lĂ  má»‘i quan há»‡ sinh trÆ°á»Ÿng, giĂºp gia chá»§ gáº·p nhiá»u quĂ½ nhĂ¢n phĂ¹ trá»£, cĂ´ng danh sá»± nghiá»‡p phĂ¡t triá»ƒn vá»¯ng cháº¯c, sá»©c khá»e hanh thĂ´ng.\n  * *Gá»£i Ă½ tá»« **KTUFA Luxury Furniture** phá»‘i ná»™i tháº¥t:* Má»™t bá»™ sofa da bĂ² Ă cao cáº¥p káº¿t há»£p vá»›i khung gá»— Ă³c chĂ³ tá»± nhiĂªn (Má»™c sinh Há»a cá»±c tá»‘t) hoáº·c má»™t thiáº¿t káº¿ sofa bá»c ná»‰ nhung cao cáº¥p mĂ u xanh rĂªu tráº§m sáº½ lĂ  lá»±a chá»n hoĂ n háº£o, vá»«a há»£p phong thá»§y vá»«a mang Ä‘áº­m hÆ¡i thá»Ÿ kiáº¿n trĂºc thÆ°á»£ng lÆ°u.\n\n### 3. CĂ¡c mĂ u sáº¯c Ä‘áº¡i ká»µ cáº§n trĂ¡nh\n* **MĂ u thuá»™c hĂ nh Thá»§y (Thá»§y kháº¯c Há»a):** Äen, xanh dÆ°Æ¡ng, xanh nÆ°á»›c biá»ƒn. \n  * *LĂ½ do:* NÆ°á»›c dáº­p táº¯t lá»­a, mang theo nÄƒng lÆ°á»£ng xung kháº¯c, dá»… gĂ¢y cáº£n trá»Ÿ tĂ i lá»™c vĂ  báº¥t á»•n trong gia Ä‘áº¡o. Do Ä‘Ă³, quĂ½ khĂ¡ch tuyá»‡t Ä‘á»‘i nĂªn trĂ¡nh chá»n sofa cĂ³ tĂ´ng mĂ u chá»§ Ä‘áº¡o nĂ y.\n* **MĂ u thuá»™c hĂ nh Kim (Há»a kháº¯c Kim):** Tráº¯ng, xĂ¡m, Ă¡nh kim (máº·c dĂ¹ Há»a kháº¯c Kim nhÆ°ng nÄƒng lÆ°á»£ng cá»§a Há»a sáº½ bá»‹ tiĂªu hao khi \"kháº¯c\", khĂ´ng cĂ³ lá»£i cho gia chá»§).\n\n### 4. Gá»£i Ă½ khĂ´ng gian tá»« KTUFA Luxury Furniture\nÄá»ƒ tá»‘i Æ°u hĂ³a nÄƒng lÆ°á»£ng phong thá»§y cho phĂ²ng khĂ¡ch tuá»•i áº¤t Há»£i 1995, khi bĂ i trĂ­ sofa, quĂ½ khĂ¡ch cÅ©ng nĂªn lÆ°u Ă½:\n* **Vá»‹ trĂ­ Ä‘áº·t sofa:** NĂªn kĂª sofa tá»±a lÆ°ng vĂ o bá»©c tÆ°á»ng vá»¯ng chĂ£i (tá»a sÆ¡n) Ä‘á»ƒ táº¡o tháº¿ \"vá»¯ng nhÆ° bĂ n tháº¡ch\", hÆ°á»›ng nhĂ¬n ra khĂ´ng gian má»Ÿ hoáº·c cá»­a chĂ­nh (nhÆ°ng khĂ´ng Ä‘á»‘i diá»‡n trá»±c diá»‡n) Ä‘á»ƒ Ä‘Ă³n tĂ i khĂ­.\n* **Cháº¥t liá»‡u Ä‘á» xuáº¥t:** CĂ¡c dĂ²ng **sofa da tháº­t cao cáº¥p** káº¿t há»£p chĂ¢n gá»— tá»± nhiĂªn hoáº·c **sofa bá»c váº£i nhung cao cáº¥p** cá»§a **KTUFA Luxury Furniture** khĂ´ng chá»‰ Ä‘áº¡t chuáº©n kĂ­ch thÆ°á»›c phong thá»§y theo ThÆ°á»›c Lá»— Ban mĂ  cĂ²n mang Ä‘áº¿n cáº£m giĂ¡c Ăªm Ă¡i, tá»¥ khĂ­ tá»‘t cho ngĂ´i nhĂ .\n\nMá»i quĂ½ khĂ¡ch ghĂ© thÄƒm website cá»§a **KTUFA Luxury Furniture** Ä‘á»ƒ tham kháº£o cĂ¡c bá»™ sÆ°u táº­p sofa phĂ²ng khĂ¡ch thÆ°á»£ng háº¡ng Ä‘Æ°á»£c thiáº¿t káº¿ riĂªng cho tá»«ng báº£n má»‡nh. KhĂ´ng gian sá»‘ng Ä‘áº³ng cáº¥p vĂ  vÆ°á»£ng khĂ­ cá»§a quĂ½ khĂ¡ch Ä‘ang chá» Ä‘Æ°á»£c hoĂ n thiá»‡n! \n\nQuĂ½ khĂ¡ch cĂ³ cáº§n tĂ´i tÆ° váº¥n thĂªm vá» hÆ°á»›ng Ä‘áº·t sofa hay cĂ¡ch phá»‘i mĂ u ná»™i tháº¥t cho khĂ´ng gian phĂ²ng khĂ¡ch nĂ y khĂ´ng áº¡?','2026-10-29 10:47:11'),(3,2,'customer',15,'[Studio BĂ¡t Tráº¡ch] Gia chá»§ Nam máº¡ng sinh nÄƒm 2001 Â· KhĂ´ng gian: PhĂ²ng Äƒn Â· Cung CĂ n (Kim)','2026-10-29 11:47:31'),(4,2,'ai_bot',NULL,'KĂ­nh chĂ o QuĂ½ gia chá»§ sinh nÄƒm 2001 (Nam máº¡ng), thuá»™c cung CĂ n, hĂ nh Kim. Vá»›i tÆ° cĂ¡ch lĂ  ChuyĂªn gia Phong thá»§y cá»§a **KTUFA Luxury Furniture**, tĂ´i xin gá»­i tá»›i anh luáº­n giáº£i chuyĂªn sĂ¢u vĂ  tinh táº¿ cho khĂ´ng gian **PhĂ²ng Äƒn** â€“ nÆ¡i giá»¯ lá»­a háº¡nh phĂºc vĂ  vÆ°á»£ng khĂ­ cho gia Ä‘Ă¬nh.\n\n*   **Nháº­n Ä‘á»‹nh phong thá»§y tá»•ng quan:** Nam máº¡ng sinh nÄƒm 2001 thuá»™c TĂ¢y tá»© má»‡nh, há»£p vá»›i cĂ¡c hÆ°á»›ng TĂ¢y, TĂ¢y Nam, TĂ¢y Báº¯c vĂ  ÄĂ´ng Báº¯c. PhĂ²ng Äƒn lĂ  khĂ´ng gian dung dÆ°á»¡ng nguá»“n nÄƒng lÆ°á»£ng Thá»• (thá»©c Äƒn) sinh Kim (báº£n má»‡nh), tÆ°á»£ng trÆ°ng cho sá»± sung tĂºc vĂ  bá»n vá»¯ng. Viá»‡c bá»‘ trĂ­ phĂ²ng Äƒn tá»a láº¡c á»Ÿ cĂ¡c cung tá»‘t sáº½ giĂºp gia chá»§ kĂ­ch hoáº¡t tĂ i váº­n, gia Ä‘áº¡o hÆ°ng thá»‹nh, cĂ¡c má»‘i quan há»‡ xĂ£ há»™i rá»™ng má»Ÿ vĂ  luĂ´n gáº·p quĂ½ nhĂ¢n phĂ¹ trá»£.\n*   **Bá»‘ trĂ­ Ä‘á»“ Ä‘áº¡c chiĂªu tĂ i Ä‘Ă³n lá»™c:** \n    *   *HÆ°á»›ng bĂ n Äƒn:* NĂªn Ä‘áº·t bĂ n Äƒn quay vá» cĂ¡c hÆ°á»›ng sinh khĂ­ nhÆ° TĂ¢y Nam (DiĂªn NiĂªn) hoáº·c TĂ¢y (Sinh KhĂ­) Ä‘á»ƒ thu hĂºt tĂ i lá»™c vĂ  sá»± hĂ²a há»£p.\n    *   *Vá»‹ trĂ­ tá»±a lÆ°ng:* Gháº¿ ngá»“i cá»§a gia chá»§ khi dĂ¹ng bá»¯a nĂªn hÆ°á»›ng ra cá»­a chĂ­nh hoáº·c Ä‘áº·t á»Ÿ vá»‹ trĂ­ cĂ³ táº§m nhĂ¬n bao quĂ¡t, phĂ­a sau cĂ³ tÆ°á»ng vá»¯ng cháº¯c lĂ m \"tháº¿ tá»±a sÆ¡n\" táº¡o sá»± vá»¯ng chĂ£i, tá»± tin trong sá»± nghiá»‡p.\n    *   *Ănh sĂ¡ng:* Æ¯u tiĂªn Ă¡nh sĂ¡ng vĂ ng áº¥m Ă¡p tá»« há»‡ thá»‘ng Ä‘Ă¨n chĂ¹m pha lĂª Ä‘áº·t giá»¯a bĂ n Äƒn, tÆ°á»£ng trÆ°ng cho sá»± trá»n váº¹n, sung tĂºc vĂ  giĂºp kĂ­ch thĂ­ch vá»‹ giĂ¡c, gáº¯n káº¿t tĂ¬nh cáº£m gia Ä‘Ă¬nh.\n*   **Cháº¥t liá»‡u & MĂ u sáº¯c ná»™i tháº¥t tÆ°Æ¡ng sinh:** \n    *   *MĂ u sáº¯c:* Báº£n má»‡nh Kim ráº¥t há»£p vá»›i cĂ¡c tĂ´ng mĂ u thuáº§n khiáº¿t nhÆ° tráº¯ng, báº¡c, Ă¡nh kim, káº¿t há»£p hĂ i hĂ²a vá»›i mĂ u vĂ ng áº¥m, nĂ¢u Ä‘áº¥t cá»§a hĂ nh Thá»• (Thá»• sinh Kim) nhÆ° mĂ u gá»— sá»“i tá»± nhiĂªn, mĂ u da bĂ². TrĂ¡nh cĂ¡c mĂ u kháº¯c nhÆ° Ä‘á», há»“ng thuá»™c hĂ nh Há»a.\n    *   *Cháº¥t liá»‡u:* KTUFA Luxury Furniture khuyĂªn dĂ¹ng bĂ n Äƒn máº·t Ä‘Ă¡ marble cao cáº¥p (Ä‘áº¡i diá»‡n cho hĂ nh Thá»• vĂ  Kim) káº¿t há»£p chĂ¢n bĂ n inox máº¡ PVD Ă¡nh vĂ ng sang trá»ng, Ä‘i kĂ¨m gháº¿ bá»c da Ă má»m máº¡i. Sá»± káº¿t há»£p nĂ y khĂ´ng chá»‰ nĂ¢ng táº§m Ä‘áº³ng cáº¥p khĂ´ng gian mĂ  cĂ²n táº¡o chuá»—i ngÅ© hĂ nh tÆ°Æ¡ng sinh hoĂ n háº£o, mang láº¡i bĂ¬nh an vĂ  tĂ i lá»™c viĂªn mĂ£n cho gia chá»§ tráº» tuá»•i.','2026-10-29 11:47:31');
+
+
+-- ========================================================
+-- Bảng: suppliers (Nhà cung cấp)
+-- ========================================================
+-- Table structure for table `suppliers`
+--
+
+DROP TABLE IF EXISTS `suppliers`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+DROP TABLE IF EXISTS `suppliers`;
+CREATE TABLE `suppliers` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `code` varchar(50) NOT NULL,
+  `name` varchar(150) NOT NULL,
+  `contact_person` varchar(100) DEFAULT NULL,
+  `phone` varchar(20) DEFAULT NULL,
+  `email` varchar(100) DEFAULT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `status` tinyint(1) DEFAULT 1,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `code` (`code`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT INTO `suppliers` VALUES (1,'NCC-GO-BAC-AU','Xưởng Nội Thất Châu Âu','Trương Chí Vỹá»¹','0912345678','hung.gobackau@noithat.vn','HĂ€ Ná»˜I',1,'2026-10-29 15:47:05','2026-10-29 16:52:37'),(2,'NCC-DA-Y-MILANO','CĂ´ng Ty Sofa Cao Cáº¥p NhĂ  K','K Khoa','0934567890','trang.milano@da-y.vn','Tân Phú, Há»“ ChĂ­ Minh',1,'2026-10-29 15:47:05','2026-10-29 16:53:44'),(3,'NCC-DA-MARBLE','TĂ¡Â»â€¢ng Kho Ă„ÂĂƒÂ¡ TĂ¡Â»Â± NhiĂƒÂªn & BĂƒÂ n Ă„â€n Carrara','LĂƒÂª HoĂƒÂ ng Long','0978901234','long.carrara@stone-viet.com','KCN BiĂƒÂªn HĂƒÂ²a 2, Ă„ÂĂ¡Â»â€œng Nai',0,'2026-10-29 15:47:05','2026-10-29 16:53:52'),(4,'NCC-GOM-DEN','XĂ†Â°Ă¡Â»Å¸ng Ă„ÂĂƒÂ¨n ThĂ¡Â»Â§ CĂƒÂ´ng MĂ¡Â»Â¹ NghĂ¡Â»â€¡ & GĂ¡Â»â€˜m SĂ¡Â»Â©','PhĂ¡ÂºÂ¡m Minh Ă„ÂĂ¡Â»Â©c','0901239876','duc.gomart@noithat.vn','LĂƒÂ ng GĂ¡Â»â€˜m BĂƒÂ¡t TrĂƒÂ ng, Gia LĂƒÂ¢m, HĂƒÂ  NĂ¡Â»â„¢i',0,'2026-10-29 15:47:05','2026-10-29 16:54:06'),(5,'NCC-005','XÆ°á»Ÿng Gá»— Quáº£ng ChĂ¢u','Anh Lá»£i Hotboi','0902566063',NULL,'Há»“ ChĂ­ Minh',1,'2026-10-29 10:41:02','2026-10-29 10:41:02');
+
+
+-- ========================================================
+-- Bảng: import_slips (Phiếu nhập kho)
+-- ========================================================
+-- Table structure for table `import_slips`
+--
+
+DROP TABLE IF EXISTS `import_slips`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+DROP TABLE IF EXISTS `import_slips`;
+CREATE TABLE `import_slips` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `slip_code` varchar(50) NOT NULL,
+  `supplier_id` int(10) unsigned DEFAULT NULL,
+  `user_id` bigint(20) unsigned DEFAULT NULL,
+  `total_items` int(11) NOT NULL DEFAULT 0,
+  `subtotal_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `discount_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `tax_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `shipping_fee` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `total_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `paid_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `debt_amount` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `payment_method` varchar(50) NOT NULL DEFAULT 'cash',
+  `payment_status` varchar(50) NOT NULL DEFAULT 'unpaid',
+  `status` varchar(50) NOT NULL DEFAULT 'completed',
+  `import_date` datetime DEFAULT current_timestamp(),
+  `note` text DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `slip_code` (`slip_code`),
+  KEY `fk_import_supplier` (`supplier_id`),
+  KEY `fk_import_user` (`user_id`),
+  CONSTRAINT `fk_import_supplier` FOREIGN KEY (`supplier_id`) REFERENCES `suppliers` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_import_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT INTO `import_slips` VALUES (1,'PN-202609-001',1,1,15,185000000.00,5000000.00,0.00,2000000.00,182000000.00,182000000.00,0.00,'bank','paid','completed','2026-09-10 09:30:00','NhĂ¡ÂºÂ­p lĂƒÂ´ bĂƒÂ n Ă„Æ’n gĂ¡Â»â€” sĂ¡Â»â€œi vĂƒÂ  kĂ¡Â»â€¡ tivi phĂ¡Â»Â¥c vĂ¡Â»Â¥ mĂƒÂ¹a cao Ă„â€˜iĂ¡Â»Æ’m cuĂ¡Â»â€˜i nĂ„Æ’m','2026-09-10 09:30:00','2026-10-29 15:47:05'),(2,'PN-202610-001',2,1,10,220000000.00,0.00,0.00,3000000.00,223000000.00,223000000.00,0.00,'bank','paid','completed','2026-10-05 14:00:00','NhĂ¡ÂºÂ­p da bĂƒÂ² ĂƒÂ cao cĂ¡ÂºÂ¥p vĂƒÂ  khung ghĂ¡ÂºÂ¿ thĂ†Â° giĂƒÂ£n ĂƒÂ³c chĂƒÂ³','2026-10-05 14:00:00','2026-10-29 15:47:05'),(3,'PN-202610-002',3,1,8,140000000.00,2000000.00,0.00,1500000.00,139500000.00,100000000.00,39500000.00,'bank','partial','completed','2026-10-18 10:15:00','NhĂ¡ÂºÂ­p mĂ¡ÂºÂ·t Ă„â€˜ĂƒÂ¡ Carrara, thanh toĂƒÂ¡n trĂ†Â°Ă¡Â»â€ºc 100tr, cĂƒÂ²n nĂ¡Â»Â£ 39.5tr Ă„â€˜Ă¡ÂºÂ¿n cuĂ¡Â»â€˜i thĂƒÂ¡ng','2026-10-18 10:15:00','2026-10-29 15:47:05'),(4,'PN-202610-003',4,1,25,45000000.00,0.00,0.00,1000000.00,46000000.00,46000000.00,0.00,'cash','paid','completed','2026-10-24 16:30:00','NhĂ¡ÂºÂ­p Ă„â€˜ĂƒÂ¨n thĂ¡ÂºÂ£ trĂ¡ÂºÂ§n vĂƒÂ  Ă„â€˜ĂƒÂ¨n sĂƒÂ n Ă„â€˜Ă¡Â»â€œng thau trĂ¡ÂºÂ£ tiĂ¡Â»Ân mĂ¡ÂºÂ·t trĂ¡Â»Â±c tiĂ¡ÂºÂ¿p','2026-10-24 16:30:00','2026-10-29 15:47:05'),(5,'PN-202610-005',1,1,2,5000.00,0.00,0.00,0.00,5000.00,5000.00,0.00,'cash','paid','completed','2026-10-29 00:00:00',NULL,'2026-10-29 10:25:07','2026-10-29 10:25:07'),(6,'PN-202610-006',2,1,5,5000.00,0.00,0.00,0.00,5000.00,5000.00,0.00,'cash','paid','completed','2026-10-29 00:00:00',NULL,'2026-10-29 10:39:46','2026-10-29 10:39:46');
+
+
+-- ========================================================
+-- Bảng: import_slip_items (Chi tiết phiếu nhập kho)
+-- ========================================================
+-- Table structure for table `import_slip_items`
+--
+
+DROP TABLE IF EXISTS `import_slip_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+DROP TABLE IF EXISTS `import_slip_items`;
+CREATE TABLE `import_slip_items` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `slip_id` bigint(20) unsigned NOT NULL,
+  `product_id` bigint(20) unsigned DEFAULT NULL,
+  `variant_id` bigint(20) unsigned DEFAULT NULL,
+  `sku` varchar(50) NOT NULL,
+  `product_name` varchar(255) NOT NULL,
+  `variant_name` varchar(255) DEFAULT NULL,
+  `quantity` int(11) NOT NULL DEFAULT 1,
+  `import_price` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `selling_price` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `total_price` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `note` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_isi_slip` (`slip_id`),
+  KEY `fk_isi_product` (`product_id`),
+  KEY `fk_isi_variant` (`variant_id`),
+  CONSTRAINT `fk_isi_product` FOREIGN KEY (`product_id`) REFERENCES `products` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_isi_slip` FOREIGN KEY (`slip_id`) REFERENCES `import_slips` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_isi_variant` FOREIGN KEY (`variant_id`) REFERENCES `product_variants` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT INTO `import_slip_items` VALUES (1,1,5,5,'SKU-BAN-AN-GO-SOI-NGA','BĂƒÂ n Ă„â€n GĂ¡Â»â€” SĂ¡Â»â€œi Nga Scandinavian','MĂƒÂ u GĂ¡Â»â€” TĂ¡Â»Â± NhiĂƒÂªn',10,11000000.00,18900000.00,110000000.00,NULL),(2,1,14,14,'SKU-KE-TIVI-TREO-TUONG','KĂ¡Â»â€¡ Tivi Treo TĂ†Â°Ă¡Â»Âng HiĂ¡Â»â€¡n Ă„ÂĂ¡ÂºÂ¡i','GĂ¡Â»â€” Walnut SĂ¡Â»â€œi',5,15000000.00,24500000.00,75000000.00,NULL),(3,2,1,1,'SKU-SOFA-DA-Y-MILANO','Sofa Da BĂƒÂ² ĂƒÂ Milano Grand','Da BĂƒÂ² MĂƒÂ u NĂƒÂ¢u HĂ¡ÂºÂ¡t DĂ¡ÂºÂ»',4,34000000.00,58900000.00,136000000.00,NULL),(4,2,7,7,'SKU-GHE-THU-GIAN-GO-OC-CHO','GhĂ¡ÂºÂ¿ ThĂ†Â° GiĂƒÂ£n Lounge GĂ¡Â»â€” Ăƒâ€œc ChĂƒÂ³','GĂ¡Â»â€” Ăƒâ€œc ChĂƒÂ³ BĂ¡ÂºÂ¯c MĂ¡Â»Â¹',6,14000000.00,24500000.00,84000000.00,NULL),(5,3,4,4,'SKU-BAN-AN-DA-MARBLE-CARRARA','BĂƒÂ n Ă„â€n MĂ¡ÂºÂ·t Ă„ÂĂƒÂ¡ CĂ¡ÂºÂ©m ThĂ¡ÂºÂ¡ch Carrara','Ă„ÂĂƒÂ¡ TrĂ¡ÂºÂ¯ng Carrara',8,17500000.00,32500000.00,140000000.00,NULL),(6,4,16,16,'SKU-DEN-SAN-DONG-THAU','Ă„ÂĂƒÂ¨n SĂƒÂ n Ă„ÂĂ¡Â»Â©ng ThĂƒÂ¢n Ă„ÂĂ¡Â»â€œng Thau BĂ¡ÂºÂ¯c Ăƒâ€u','Ă„ÂĂ¡Â»â€œng Thau CĂ¡Â»â€¢ Ă„ÂiĂ¡Â»Æ’n',15,1800000.00,3200000.00,27000000.00,NULL),(7,4,17,17,'SKU-DEN-THA-TRAN-MAY','Ă„ÂĂƒÂ¨n ThĂ¡ÂºÂ£ TrĂ¡ÂºÂ§n ThĂ¡Â»Â§ CĂƒÂ´ng SĂ¡Â»Â£i MĂƒÂ¢y Ă„Âan','MĂƒÂ¢y Tre Ă„Âan TĂ¡Â»Â± NhiĂƒÂªn',10,1800000.00,2900000.00,18000000.00,NULL),(8,5,1,1,'SKU-TEST','Test Nháº­p HĂ ng','Da bĂ² Ă',2,2500.00,5000.00,5000.00,NULL),(9,6,21,21,'cham-trang-tri','cham trang trĂ­','gá»‘m',5,1000.00,2000.00,5000.00,NULL);
+
+
+-- ========================================================
+-- Bảng: cash_transactions (Sổ quỹ thu chi tiền mặt)
+-- ========================================================
+-- Table structure for table `cash_transactions`
+--
+
+DROP TABLE IF EXISTS `cash_transactions`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+DROP TABLE IF EXISTS `cash_transactions`;
+CREATE TABLE `cash_transactions` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `code` varchar(50) NOT NULL,
+  `type` enum('income','expense') NOT NULL,
+  `category` varchar(100) NOT NULL,
+  `amount` decimal(15,2) NOT NULL DEFAULT 0.00,
+  `payment_method` enum('cash','bank') NOT NULL DEFAULT 'cash',
+  `reference_code` varchar(50) DEFAULT NULL,
+  `performer_id` bigint(20) unsigned DEFAULT NULL,
+  `recipient_name` varchar(150) DEFAULT NULL,
+  `note` text DEFAULT NULL,
+  `status` varchar(50) NOT NULL DEFAULT 'completed',
+  `created_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `code` (`code`),
+  KEY `fk_cash_performer` (`performer_id`),
+  KEY `idx_cash_type` (`type`),
+  KEY `idx_cash_method` (`payment_method`),
+  KEY `idx_cash_ref` (`reference_code`),
+  CONSTRAINT `fk_cash_performer` FOREIGN KEY (`performer_id`) REFERENCES `users` (`id`) ON DELETE SET NULL
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+INSERT INTO `cash_transactions` VALUES (1,'PC-202609-001','expense','import_payment',182000000.00,'bank','PN-202609-001',1,'XĂ†Â°Ă¡Â»Å¸ng GĂ¡Â»â€” TĂ¡Â»Â± NhiĂƒÂªn BĂ¡ÂºÂ¯c Ăƒâ€u','ChuyĂ¡Â»Æ’n khoĂ¡ÂºÂ£n thanh toĂƒÂ¡n tiĂ¡Â»Ân hĂƒÂ ng phiĂ¡ÂºÂ¿u PN-202609-001','completed','2026-09-10 10:00:00'),(2,'PC-202610-001','expense','import_payment',223000000.00,'bank','PN-202610-001',1,'NĂ¡Â»â„¢i ThĂ¡ÂºÂ¥t Da ĂƒÂ Milano','ChuyĂ¡Â»Æ’n khoĂ¡ÂºÂ£n thanh toĂƒÂ¡n phiĂ¡ÂºÂ¿u nhĂ¡ÂºÂ­p PN-202610-001','completed','2026-10-05 15:30:00'),(3,'PC-202610-002','expense','import_payment',100000000.00,'bank','PN-202610-002',1,'TĂ¡Â»â€¢ng Kho Ă„ÂĂƒÂ¡ TĂ¡Â»Â± NhiĂƒÂªn Carrara','TĂ¡ÂºÂ¡m Ă¡Â»Â©ng Ă„â€˜Ă¡Â»Â£t 1 phiĂ¡ÂºÂ¿u nhĂ¡ÂºÂ­p PN-202610-002','completed','2026-10-18 11:00:00'),(4,'PC-202610-003','expense','import_payment',46000000.00,'cash','PN-202610-003',1,'XĂ†Â°Ă¡Â»Å¸ng Ă„ÂĂƒÂ¨n ThĂ¡Â»Â§ CĂƒÂ´ng BĂƒÂ¡t TrĂƒÂ ng','Chi tiĂ¡Â»Ân mĂ¡ÂºÂ·t thanh toĂƒÂ¡n trĂ¡Â»Â±c tiĂ¡ÂºÂ¿p tĂ¡ÂºÂ¡i showroom phiĂ¡ÂºÂ¿u PN-202610-003','completed','2026-10-24 16:45:00'),(5,'PT-202610-001','income','order_bank',58900000.00,'bank','DH-20261005-01',1,'KhĂƒÂ¡ch hĂƒÂ ng TrĂ¡ÂºÂ§n VĂ„Æ’n Test','Thanh toĂƒÂ¡n chuyĂ¡Â»Æ’n khoĂ¡ÂºÂ£n VietQR Ă„â€˜Ă†Â¡n hĂƒÂ ng DH-20261005-01','completed','2026-10-05 16:20:00'),(6,'PT-202610-002','income','order_bank',32500000.00,'bank','DH-20261012-02',1,'KhĂƒÂ¡ch hĂƒÂ ng Ă„ÂĂ¡ÂºÂ·ng ThĂ¡ÂºÂ£o Vy','Thanh toĂƒÂ¡n chuyĂ¡Â»Æ’n khoĂ¡ÂºÂ£n VietQR Ă„â€˜Ă†Â¡n hĂƒÂ ng DH-20261012-02','completed','2026-10-12 11:15:00'),(7,'PT-202610-003','income','order_cod',18900000.00,'cash','DH-20261015-03',1,'Shipper Giao HĂƒÂ ng TiĂ¡ÂºÂ¿t KiĂ¡Â»â€¡m','Thu ngĂƒÂ¢n nhĂ¡ÂºÂ­n tiĂ¡Â»Ân mĂ¡ÂºÂ·t COD tĂ¡Â»Â« shipper Ă„â€˜Ă†Â¡n DH-20261015-03','completed','2026-10-15 17:30:00'),(8,'PT-202610-004','income','order_cod',4420000.00,'cash','DH-20261022-04',1,'Shipper Viettel Post','Thu ngĂƒÂ¢n nhĂ¡ÂºÂ­n tiĂ¡Â»Ân mĂ¡ÂºÂ·t COD tĂ¡Â»Â« shipper Ă„â€˜Ă†Â¡n DH-20261022-04','completed','2026-10-22 18:00:00'),(9,'PC-202610-7189','expense','import_payment',5000.00,'cash','PN-202610-005',1,'Xưởng Nội Thất Châu Âu','Chi thanh toĂ¡n phiáº¿u nháº­p kho PN-202610-005 cho Xưởng Nội Thất Châu Âu','completed','2026-10-29 10:25:07'),(10,'PC-202610-6814','expense','import_payment',5000.00,'cash','PN-202610-006',1,'CĂ´ng Ty Sofa Cao Cáº¥p NhĂ  K','Chi thanh toĂ¡n phiáº¿u nháº­p kho PN-202610-006 cho CĂ´ng Ty Sofa Cao Cáº¥p NhĂ  K','completed','2026-10-29 10:39:46');
+
+
+-- ========================================================
+-- Bảng: password_otps (Mã OTP quên mật khẩu)
+-- ========================================================
+DROP TABLE IF EXISTS `password_otps`;
+CREATE TABLE `password_otps` (
+  `id` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) UNSIGNED NOT NULL,
+  `otp_hash` varchar(255) NOT NULL,
+  `expires_at` datetime NOT NULL,
+  `attempts` int(11) NOT NULL DEFAULT 0,
+  `used_at` datetime DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  CONSTRAINT `password_otps_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT INTO `password_otps` (`id`, `user_id`, `otp_hash`, `expires_at`, `attempts`, `used_at`, `created_at`) VALUES
+(1, 31, '5d5a9a8de376fecc729ab35616a8094cbbbe4b7703f836ff6cbf1d447d82b6c3', '2026-10-29 06:25:09', 0, '2026-10-29 06:21:17', '2026-10-29 06:20:09'),
+(2, 31, '75146e81d7f4fbefb3b4015de106336f0857aa44c333ae104e5634ee24c151d2', '2026-10-29 06:26:17', 0, '2026-10-29 06:22:20', '2026-10-29 06:21:17'),
+(3, 31, 'd0246b0cd49b6e74b1de74afe527241e0247dc8794b5737777ba95cb965ccf73', '2026-10-29 06:27:20', 0, '2026-10-29 06:29:17', '2026-10-29 06:22:20'),
+(4, 31, '2c0030f6be770b6d5ec126259c0df52890d1be564a67d1edbc215d1492146baf', '2026-10-29 06:34:17', 0, '2026-10-29 06:37:08', '2026-10-29 06:29:17'),
+(5, 31, 'feaf0b56e50541bd9e0cad060fc754b64cb25369ebfb31a8a023157e73805209', '2026-10-29 06:42:08', 0, NULL, '2026-10-29 06:37:08'),
+(6, 32, 'bb0314f2497653906843e3b0759991b035b964cf7ce6d0572fb30ecf0ecd94a2', '2026-10-29 07:24:10', 0, '2026-10-29 07:20:19', '2026-10-29 07:19:10');
+
+
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET SQL_MODE=@OLD_SQL_MODE;

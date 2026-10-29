@@ -1,3 +1,5 @@
+import crypto from 'crypto';
+import { MailerService } from '../services/mailer.service.js';
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
@@ -7,6 +9,32 @@ import { verifyToken, requireAdmin } from '../middlewares/auth.middleware.js';
 import { authLimiter } from '../middlewares/rateLimit.middleware.js';
 
 export const authRouter = Router();
+
+const RESET_JWT_SECRET = ENV.JWT_SECRET + '_password_reset_secret_salt_2026';
+
+// Tự động kiểm tra và khởi tạo bảng password_otps nếu chưa có trong MySQL
+const initPasswordOtpsTable = async () => {
+  try {
+    await prisma.$executeRawUnsafe(`
+      CREATE TABLE IF NOT EXISTS \`password_otps\` (
+        \`id\` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+        \`user_id\` bigint(20) UNSIGNED NOT NULL,
+        \`otp_hash\` varchar(255) NOT NULL,
+        \`expires_at\` datetime NOT NULL,
+        \`attempts\` int(11) NOT NULL DEFAULT 0,
+        \`used_at\` datetime DEFAULT NULL,
+        \`created_at\` datetime DEFAULT current_timestamp(),
+        PRIMARY KEY (\`id\`),
+        KEY \`user_id\` (\`user_id\`),
+        CONSTRAINT \`password_otps_ibfk_1\` FOREIGN KEY (\`user_id\`) REFERENCES \`users\` (\`id\`) ON DELETE CASCADE
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+    `);
+  } catch (err) {
+    // Không làm gián đoạn nếu CSDL chưa kết nối
+  }
+};
+initPasswordOtpsTable();
+
 
 // Helper tạo JWT Token
 const generateToken = (payload: { id: number; email: string; role: string; full_name?: string }, expiresIn: any = '7d') => {
@@ -101,13 +129,59 @@ authRouter.post('/register', authLimiter, async (req: Request, res: Response) =>
     // 1. Kiểm tra email đã tồn tại hay chưa
     const existingEmail = await prisma.users.findUnique({
       where: { email: cleanEmail },
+      include: { roles: true },
     });
 
     if (existingEmail) {
+      // Nếu email này thuộc tài khoản khách vãng lai (guest chưa từng tạo mật khẩu)
+      // Cho phép nâng cấp trực tiếp thành viên chính thức
+      if (existingEmail.password_hash === 'guest_no_login' || existingEmail.password_hash === 'guest_review') {
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        let customerRole = await prisma.roles.findFirst({
+          where: { name: 'customer' },
+        });
+        const roleId = customerRole ? customerRole.id : (existingEmail.role_id || 3);
+
+        const updatedUser = await prisma.users.update({
+          where: { id: existingEmail.id },
+          data: {
+            full_name: fullname.trim(),
+            phone: cleanPhone || existingEmail.phone,
+            password_hash: hashedPassword,
+            role_id: roleId,
+            status: true,
+          },
+          include: { roles: true },
+        });
+
+        const userRole = updatedUser.roles?.name || 'customer';
+        const token = generateToken({
+          id: Number(updatedUser.id),
+          email: updatedUser.email,
+          role: userRole,
+          full_name: updatedUser.full_name,
+        }, '7d');
+
+        return res.status(201).json({
+          success: true,
+          message: 'Đăng ký tài khoản thành công! Dữ liệu trước đây của bạn đã được kích hoạt.',
+          token,
+          user: {
+            id: Number(updatedUser.id),
+            email: updatedUser.email,
+            full_name: updatedUser.full_name,
+            phone: updatedUser.phone,
+            role: userRole,
+          },
+        });
+      }
+
       return res.status(409).json({
         success: false,
         field: 'email',
-        message: 'Email này đã được sử dụng. Vui lòng chọn email khác hoặc đăng nhập.'
+        message: 'Email này đã được đăng ký. Vui lòng đăng nhập hoặc chọn Quên mật khẩu.'
       });
     }
 
@@ -117,7 +191,7 @@ authRouter.post('/register', authLimiter, async (req: Request, res: Response) =>
         where: { phone: cleanPhone },
       });
 
-      if (existingPhone) {
+      if (existingPhone && existingPhone.password_hash !== 'guest_no_login' && existingPhone.password_hash !== 'guest_review') {
         return res.status(409).json({
           success: false,
           field: 'phone',
@@ -495,5 +569,311 @@ authRouter.post('/change-password', verifyToken, async (req: Request, res: Respo
   } catch (error: any) {
     console.error('Lỗi khi đổi mật khẩu:', error);
     return res.status(500).json({ success: false, message: 'Lỗi máy chủ khi đổi mật khẩu.', error: error.message });
+  }
+});
+
+
+// ================================================================
+// POST /api/auth/forgot-password - Yêu cầu gửi mã OTP đặt lại mật khẩu
+// ================================================================
+authRouter.post('/forgot-password', authLimiter, async (req: Request, res: Response) => {
+  try {
+    const rawEmail = req.body.email;
+    const cleanEmail = String(rawEmail || '').trim().toLowerCase();
+
+    // Thông báo chung nhất quán để chống dò quét danh sách email người dùng (Anti-Enumeration)
+    const genericResponse = {
+      success: true,
+      message: 'Nếu email tồn tại trong hệ thống, mã xác thực OTP đã được gửi. Vui lòng kiểm tra hộp thư đến (và thư mục Spam).',
+    };
+
+    if (!cleanEmail) {
+      return res.status(400).json({ success: false, message: 'Vui lòng nhập địa chỉ email của bạn.' });
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(cleanEmail)) {
+      return res.status(400).json({ success: false, message: 'Địa chỉ email không đúng định dạng.' });
+    }
+
+    // Đảm bảo bảng đã tồn tại
+    await initPasswordOtpsTable();
+
+    // Tìm kiếm tài khoản người dùng
+    const user = await prisma.users.findUnique({
+      where: { email: cleanEmail },
+      include: { roles: true },
+    });
+
+    // Nếu không tìm thấy hoặc tài khoản bị khóa -> delay nhỏ tránh timing attack rồi trả về cùng thông điệp chung
+    if (!user || user.status === false) {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      return res.json(genericResponse);
+    }
+
+    // Nếu là tài khoản liên kết Google OAuth hoặc khách vãng lai -> không gửi OTP, vẫn trả thông báo chung
+    if (user.password_hash === 'GOOGLE_OAUTH_ACCOUNT' || user.password_hash === 'guest_no_login') {
+      await new Promise((resolve) => setTimeout(resolve, 300));
+      return res.json(genericResponse);
+    }
+
+    // 1. Kiểm tra Cooldown: Mỗi lần gửi phải cách nhau tối thiểu 60 giây
+    const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
+    const recentOtp = await prisma.password_otps.findFirst({
+      where: {
+        user_id: user.id,
+        created_at: { gte: oneMinuteAgo },
+      },
+      orderBy: { created_at: 'desc' },
+    });
+
+    if (recentOtp && recentOtp.created_at) {
+      const remainingSeconds = Math.max(1, Math.ceil((recentOtp.created_at.getTime() + 60000 - Date.now()) / 1000));
+      return res.status(429).json({
+        success: false,
+        message: `Vui lòng đợi ${remainingSeconds} giây trước khi yêu cầu gửi lại mã OTP mới.`,
+        cooldown: remainingSeconds,
+      });
+    }
+
+    // 2. Giới hạn tối đa 5 lần yêu cầu OTP trong vòng 1 giờ cho 1 tài khoản
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const hourlyRequests = await prisma.password_otps.count({
+      where: {
+        user_id: user.id,
+        created_at: { gte: oneHourAgo },
+      },
+    });
+
+    if (hourlyRequests >= 5) {
+      return res.status(429).json({
+        success: false,
+        message: 'Bạn đã yêu cầu gửi mã quá nhiều lần trong vòng 1 giờ. Vui lòng thử lại sau.',
+      });
+    }
+
+    // 3. Vô hiệu hóa các mã OTP chưa sử dụng trước đó của người dùng
+    await prisma.password_otps.updateMany({
+      where: {
+        user_id: user.id,
+        used_at: null,
+      },
+      data: {
+        used_at: new Date(),
+      },
+    });
+
+    // 4. Sinh mã OTP 6 số ngẫu nhiên an toàn bằng crypto.randomInt
+    const otp = crypto.randomInt(100000, 1000000).toString();
+
+    // 5. Băm mã OTP bằng HMAC-SHA256 (tuyệt đối không lưu bản rõ trong cơ sở dữ liệu)
+    const otpHash = crypto.createHmac('sha256', ENV.JWT_SECRET).update(otp).digest('hex');
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // Có hiệu lực trong 5 phút
+
+    // 6. Lưu vào bảng password_otps
+    await prisma.password_otps.create({
+      data: {
+        user_id: user.id,
+        otp_hash: otpHash,
+        expires_at: expiresAt,
+        attempts: 0,
+      },
+    });
+
+    // 7. Gửi mã OTP qua dịch vụ Mailer (SMTP hoặc in console DEV MODE)
+    try {
+      await MailerService.sendOtpMail(user.email, otp, cleanFullName(user.full_name, user.roles?.name));
+    } catch (mailErr: any) {
+      console.error('Lỗi khi gửi email OTP:', mailErr);
+      return res.status(500).json({
+        success: false,
+        message: 'Không thể gửi email chứa mã OTP vào lúc này. Vui lòng thử lại sau.',
+      });
+    }
+
+    return res.json(genericResponse);
+  } catch (error: any) {
+    console.error('Lỗi yêu cầu quên mật khẩu:', error);
+    return res.status(500).json({ success: false, message: 'Lỗi máy chủ khi xử lý quên mật khẩu.', error: error.message });
+  }
+});
+
+// ================================================================
+// POST /api/auth/verify-otp - Xác thực mã OTP 6 số
+// ================================================================
+authRouter.post('/verify-otp', authLimiter, async (req: Request, res: Response) => {
+  try {
+    const { email, otp } = req.body;
+    const cleanEmail = String(email || '').trim().toLowerCase();
+    const cleanOtp = String(otp || '').trim();
+
+    if (!cleanEmail || !cleanOtp) {
+      return res.status(400).json({ success: false, message: 'Vui lòng cung cấp đầy đủ email và mã OTP 6 số.' });
+    }
+
+    if (!/^\d{6}$/.test(cleanOtp)) {
+      return res.status(400).json({ success: false, message: 'Mã OTP không đúng định dạng (phải gồm 6 chữ số).' });
+    }
+
+    const user = await prisma.users.findUnique({
+      where: { email: cleanEmail },
+    });
+
+    if (!user || user.status === false) {
+      return res.status(400).json({ success: false, message: 'Mã xác thực không hợp lệ hoặc đã hết hạn.' });
+    }
+
+    // Tìm mã OTP mới nhất chưa được sử dụng
+    const otpRecord = await prisma.password_otps.findFirst({
+      where: {
+        user_id: user.id,
+        used_at: null,
+      },
+      orderBy: { created_at: 'desc' },
+    });
+
+    if (!otpRecord) {
+      return res.status(400).json({ success: false, message: 'Mã xác thực không tồn tại hoặc đã được sử dụng. Vui lòng yêu cầu mã mới.' });
+    }
+
+    // Kiểm tra thời gian hết hạn (5 phút)
+    if (new Date() > otpRecord.expires_at) {
+      return res.status(400).json({ success: false, message: 'Mã xác thực OTP đã hết hạn (chỉ có hiệu lực trong 5 phút). Vui lòng yêu cầu mã mới.' });
+    }
+
+    // Kiểm tra số lần nhập sai (tối đa 5 lần)
+    if (otpRecord.attempts >= 5) {
+      return res.status(400).json({ success: false, message: 'Mã xác thực đã bị vô hiệu hóa do nhập sai quá 5 lần. Vui lòng yêu cầu gửi mã mới.' });
+    }
+
+    // So sánh bản băm HMAC-SHA256
+    const inputHash = crypto.createHmac('sha256', ENV.JWT_SECRET).update(cleanOtp).digest('hex');
+
+    if (inputHash !== otpRecord.otp_hash) {
+      const newAttempts = otpRecord.attempts + 1;
+      await prisma.password_otps.update({
+        where: { id: otpRecord.id },
+        data: { attempts: newAttempts },
+      });
+
+      const remainingAttempts = 5 - newAttempts;
+      if (remainingAttempts <= 0) {
+        return res.status(400).json({
+          success: false,
+          message: 'Mã xác thực không đúng. Mã đã bị khóa do nhập sai quá 5 lần. Vui lòng yêu cầu mã mới.',
+        });
+      }
+
+      return res.status(400).json({
+        success: false,
+        message: `Mã xác thực không chính xác. Bạn còn ${remainingAttempts} lần thử.`,
+        remainingAttempts,
+      });
+    }
+
+    // Khớp mã thành công -> Đánh dấu used_at
+    await prisma.password_otps.update({
+      where: { id: otpRecord.id },
+      data: { used_at: new Date() },
+    });
+
+    // Tạo resetToken (sống 10 phút, mục đích riêng, KHÔNG chứa trường role)
+    const resetToken = jwt.sign(
+      {
+        id: Number(user.id),
+        email: user.email,
+        purpose: 'password_reset',
+      },
+      RESET_JWT_SECRET,
+      { expiresIn: '10m' }
+    );
+
+    return res.json({
+      success: true,
+      message: 'Xác thực mã OTP thành công. Vui lòng tiến hành tạo mật khẩu mới.',
+      resetToken,
+    });
+  } catch (error: any) {
+    console.error('Lỗi xác thực mã OTP:', error);
+    return res.status(500).json({ success: false, message: 'Lỗi máy chủ khi xác thực mã OTP.', error: error.message });
+  }
+});
+
+// ================================================================
+// POST /api/auth/reset-password - Đặt lại mật khẩu mới bằng resetToken
+// ================================================================
+authRouter.post('/reset-password', authLimiter, async (req: Request, res: Response) => {
+  try {
+    const { resetToken, newPassword } = req.body;
+    const cleanPassword = String(newPassword || '').trim();
+
+    if (!resetToken || !cleanPassword) {
+      return res.status(400).json({ success: false, message: 'Vui lòng cung cấp mã xác thực đặt lại và mật khẩu mới.' });
+    }
+
+    if (cleanPassword.length < 6) {
+      return res.status(400).json({ success: false, message: 'Mật khẩu mới phải có tối thiểu 6 ký tự để bảo mật.' });
+    }
+
+    // Xác thực resetToken bằng khóa bí mật riêng
+    let decoded: any;
+    try {
+      decoded = jwt.verify(resetToken, RESET_JWT_SECRET);
+    } catch (jwtErr: any) {
+      return res.status(401).json({
+        success: false,
+        message: 'Phiên đặt lại mật khẩu đã hết hạn hoặc không hợp lệ. Vui lòng thực hiện lại từ đầu.',
+      });
+    }
+
+    if (!decoded || decoded.purpose !== 'password_reset' || !decoded.id) {
+      return res.status(401).json({
+        success: false,
+        message: 'Mã xác thực đặt lại mật khẩu không hợp lệ.',
+      });
+    }
+
+    const userId = BigInt(decoded.id);
+    const user = await prisma.users.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user || user.status === false) {
+      return res.status(404).json({ success: false, message: 'Tài khoản người dùng không tồn tại hoặc đã bị khóa.' });
+    }
+
+    // Băm mật khẩu mới bằng Bcryptjs
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(cleanPassword, saltRounds);
+
+    // Cập nhật mật khẩu mới cho tài khoản
+    await prisma.users.update({
+      where: { id: userId },
+      data: {
+        password_hash: hashedPassword,
+        updated_at: new Date(),
+      },
+    });
+
+    // Vô hiệu hóa toàn bộ OTP còn lại của tài khoản
+    await prisma.password_otps.updateMany({
+      where: {
+        user_id: userId,
+        used_at: null,
+      },
+      data: {
+        used_at: new Date(),
+      },
+    });
+
+    console.log(`✅ [AUTH] Đã đặt lại mật khẩu thành công qua OTP cho tài khoản: ${user.email} (ID: ${userId})`);
+
+    return res.json({
+      success: true,
+      message: 'Đặt lại mật khẩu thành công! Bạn có thể sử dụng mật khẩu mới để đăng nhập ngay bây giờ.',
+    });
+  } catch (error: any) {
+    console.error('Lỗi đặt lại mật khẩu:', error);
+    return res.status(500).json({ success: false, message: 'Lỗi máy chủ khi đặt lại mật khẩu.', error: error.message });
   }
 });

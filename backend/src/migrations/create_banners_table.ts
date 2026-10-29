@@ -3,7 +3,7 @@ import { prisma } from '../config/prisma.js';
 async function main() {
   console.log('Creating banners table in MySQL...');
   await prisma.$executeRawUnsafe(`
-    CREATE TABLE IF NOT EXISTS banners (
+    h IF NOT EXISTS banners (
       id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
       title VARCHAR(255) NOT NULL,
       subtitle VARCHAR(255) NULL,

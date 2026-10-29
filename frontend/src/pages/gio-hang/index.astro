@@ -91,7 +91,19 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 </BaseLayout>
 
 <script>
-  import { readCart, updateQty, removeItem, clearCart, countItems, totalPrice, formatVnd, CART_EVENT, showCartToast, clampQty } from '../../scripts/cart';
+  import {
+    readCart,
+    updateQty,
+    removeItem,
+    clearCart,
+    countItems,
+    totalPrice,
+    formatVnd,
+    CART_EVENT,
+    showCartToast,
+    clampQty,
+    syncCartWithServerStock,
+  } from '../../scripts/cart';
   import type { CartItem } from '../../scripts/cart';
 
   const root = document.querySelector<HTMLElement>('[data-cart-root]');
@@ -126,11 +138,20 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       }, 900);
     }
   });
+
   const countLabel = document.querySelector<HTMLElement>('[data-cart-count-label]');
 
   if (itemsEl && emptyEl && contentEl && subtotalEl && totalEl) {
-
     const rowHtml = (item: CartItem) => {
+      const maxStock = typeof item.maxStock === 'number' && item.maxStock > 0 ? item.maxStock : 99;
+      const isMax = item.qty >= maxStock;
+      const isMin = item.qty <= 1;
+
+      const stockBadge =
+        maxStock <= 5
+          ? `<span class="inline-flex items-center gap-1 text-[10px] font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80">⚠️ Chỉ còn ${maxStock} món</span>`
+          : `<span class="text-[10px] text-walnut-800/60 font-medium whitespace-nowrap">Kho còn: ${maxStock} món</span>`;
+
       const imgHtml = item.thumbnail
         ? `<img src="${item.thumbnail}" alt="${item.name}" class="h-full w-full object-cover rounded-sm" />`
         : `<div class="flex h-full w-full items-center justify-center text-walnut-900/30">
@@ -150,13 +171,36 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
               <p class="mt-1 text-xs text-walnut-800">${formatVnd(item.price)}</p>
             </div>
             <div class="flex items-center gap-4">
-              <div class="flex h-9 items-center border border-walnut-900/20 rounded bg-white">
-                <button type="button" data-row-down class="h-full px-3 text-walnut-900 transition-colors hover:bg-walnut-900/10" aria-label="Giảm số lượng">-</button>
-                <input data-row-qty type="number" min="1" max="99" value="${item.qty}" aria-label="Số lượng" class="h-full w-12 border-x border-walnut-900/20 bg-transparent text-center text-xs font-semibold outline-none focus:bg-sand-50" />
-                <button type="button" data-row-up class="h-full px-3 text-walnut-900 transition-colors hover:bg-walnut-900/10" aria-label="Tăng số lượng">+</button>
+              <div class="flex flex-col items-end sm:items-center gap-1.5">
+                <div class="flex h-9 items-center border border-walnut-900/20 rounded bg-white shadow-2xs">
+                  <button
+                    type="button"
+                    data-row-down
+                    class="h-full px-3 text-walnut-900 transition-colors hover:bg-walnut-900/10 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                    ${isMin ? 'disabled' : ''}
+                    aria-label="Giảm số lượng"
+                  >-</button>
+                  <input
+                    data-row-qty
+                    type="number"
+                    min="1"
+                    max="${maxStock}"
+                    value="${item.qty}"
+                    aria-label="Số lượng"
+                    class="h-full w-12 border-x border-walnut-900/20 bg-transparent text-center text-xs font-semibold outline-none focus:bg-sand-50 transition-all"
+                  />
+                  <button
+                    type="button"
+                    data-row-up
+                    class="h-full px-3 text-walnut-900 transition-colors hover:bg-walnut-900/10 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
+                    ${isMax ? 'disabled' : ''}
+                    aria-label="Tăng số lượng"
+                  >+</button>
+                </div>
+                ${stockBadge}
               </div>
               <p class="w-28 text-right text-sm font-semibold text-walnut-900">${formatVnd(item.price * item.qty)}</p>
-              <button type="button" data-row-remove class="text-xs uppercase tracking-[0.15em] text-walnut-800 underline underline-offset-4 transition-colors hover:text-red-600" title="Xóa món này">Xóa</button>
+              <button type="button" data-row-remove class="text-xs uppercase tracking-[0.15em] text-walnut-800 underline underline-offset-4 transition-colors hover:text-red-600 cursor-pointer" title="Xóa món này">Xóa</button>
             </div>
           </div>
         </div>
@@ -164,37 +208,152 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     };
 
     const bindRows = () => {
+      const currentCart = readCart();
+
       itemsEl.querySelectorAll<HTMLElement>('[data-row]').forEach((row) => {
         const slug = row.getAttribute('data-row') || '';
         const qtyInput = row.querySelector<HTMLInputElement>('[data-row-qty]');
         const current = () => Number(qtyInput?.value ?? 1) || 1;
 
-        row.querySelector('[data-row-up]')?.addEventListener('click', () => {
+        const currentItem = currentCart.find((entry) => entry.slug === slug);
+        const maxStock = typeof currentItem?.maxStock === 'number' && currentItem.maxStock > 0 ? currentItem.maxStock : 99;
+
+        const parentBox = qtyInput?.parentElement;
+        const upBtn = row.querySelector<HTMLButtonElement>('[data-row-up]');
+        const downBtn = row.querySelector<HTMLButtonElement>('[data-row-down]');
+
+        const flashWarningBox = () => {
+          if (parentBox) {
+            parentBox.classList.add('ring-2', 'ring-red-500', 'bg-red-50');
+            setTimeout(() => {
+              parentBox.classList.remove('ring-2', 'ring-red-500', 'bg-red-50');
+            }, 1000);
+          }
+        };
+
+        // BẤM NÚT TĂNG (+): NẾU ĐẠT TỒN KHO THÌ CẢNH BÁO NGAY
+        upBtn?.addEventListener('click', () => {
+          if (current() >= maxStock) {
+            flashWarningBox();
+            showCartToast(`Sản phẩm "${currentItem?.name || 'này'}" chỉ còn tối đa ${maxStock} món trong kho!`, 'warning');
+            return;
+          }
           updateQty(slug, current() + 1);
           render();
         });
-        row.querySelector('[data-row-down]')?.addEventListener('click', () => {
+
+        // BẤM NÚT GIẢM (-)
+        downBtn?.addEventListener('click', () => {
           updateQty(slug, Math.max(1, current() - 1));
           render();
         });
+
+        // NÚT XÓA MÓN
         row.querySelector('[data-row-remove]')?.addEventListener('click', () => {
           removeItem(slug);
           render();
         });
 
-        const handleManualQty = () => {
+        // GÕ SỐ TRỰC TIẾP (SỰ KIỆN INPUT: CẢNH BÁO TỨC THÌ NGAY KHI GÕ VƯỢT TỒN KHO)
+        qtyInput?.addEventListener('input', () => {
+          const raw = qtyInput.value.trim();
+          if (!raw) return;
+
+          const num = parseInt(raw, 10);
+          if (isNaN(num)) return;
+
+          // Nếu gõ số vượt quá tồn kho: lập tức kéo về maxStock, viền đỏ cảnh báo và bật Toast
+          if (num > maxStock) {
+            qtyInput.value = String(maxStock);
+            flashWarningBox();
+            showCartToast(`Sản phẩm "${currentItem?.name || 'này'}" chỉ còn tối đa ${maxStock} món trong kho!`, 'warning');
+            updateQty(slug, maxStock);
+
+            // Cập nhật thành tiền trực tiếp không gián đoạn con trỏ
+            const priceEl = row.querySelector('.w-28');
+            if (priceEl && currentItem) {
+              priceEl.textContent = formatVnd(currentItem.price * maxStock);
+            }
+            const updatedItems = readCart();
+            const subtotal = totalPrice(updatedItems);
+            subtotalEl.textContent = formatVnd(subtotal);
+            totalEl.textContent = formatVnd(subtotal);
+            if (countLabel) countLabel.textContent = String(countItems(updatedItems));
+
+            if (upBtn) {
+              upBtn.disabled = true;
+              upBtn.classList.add('opacity-30', 'cursor-not-allowed');
+            }
+            if (downBtn) {
+              downBtn.disabled = maxStock <= 1;
+              downBtn.classList.toggle('opacity-30', maxStock <= 1);
+              downBtn.classList.toggle('cursor-not-allowed', maxStock <= 1);
+            }
+          } else if (num < 1) {
+            qtyInput.value = '1';
+            updateQty(slug, 1);
+            const priceEl = row.querySelector('.w-28');
+            if (priceEl && currentItem) {
+              priceEl.textContent = formatVnd(currentItem.price * 1);
+            }
+            const updatedItems = readCart();
+            const subtotal = totalPrice(updatedItems);
+            subtotalEl.textContent = formatVnd(subtotal);
+            totalEl.textContent = formatVnd(subtotal);
+            if (countLabel) countLabel.textContent = String(countItems(updatedItems));
+
+            if (downBtn) {
+              downBtn.disabled = true;
+              downBtn.classList.add('opacity-30', 'cursor-not-allowed');
+            }
+            if (upBtn) {
+              upBtn.disabled = 1 >= maxStock;
+              upBtn.classList.toggle('opacity-30', 1 >= maxStock);
+              upBtn.classList.toggle('cursor-not-allowed', 1 >= maxStock);
+            }
+          } else {
+            updateQty(slug, num);
+            // Cập nhật thành tiền trực tiếp
+            const priceEl = row.querySelector('.w-28');
+            if (priceEl && currentItem) {
+              priceEl.textContent = formatVnd(currentItem.price * num);
+            }
+            // Cập nhật tổng tiền đơn hàng
+            const updatedItems = readCart();
+            const subtotal = totalPrice(updatedItems);
+            subtotalEl.textContent = formatVnd(subtotal);
+            totalEl.textContent = formatVnd(subtotal);
+            if (countLabel) countLabel.textContent = String(countItems(updatedItems));
+
+            if (upBtn) {
+              const isMax = num >= maxStock;
+              upBtn.disabled = isMax;
+              upBtn.classList.toggle('opacity-30', isMax);
+              upBtn.classList.toggle('cursor-not-allowed', isMax);
+            }
+            if (downBtn) {
+              const isMin = num <= 1;
+              downBtn.disabled = isMin;
+              downBtn.classList.toggle('opacity-30', isMin);
+              downBtn.classList.toggle('cursor-not-allowed', isMin);
+            }
+          }
+        });
+
+        // Xử lý khi rời ô nhập (blur) hoặc đổi giá trị (change)
+        const handleFinalizeQty = () => {
           const rawVal = qtyInput?.value;
-          const parsed = clampQty(rawVal, 99);
+          const parsed = clampQty(rawVal, maxStock);
           updateQty(slug, parsed);
           render();
         };
 
-        qtyInput?.addEventListener('change', handleManualQty);
-        qtyInput?.addEventListener('blur', handleManualQty);
+        qtyInput?.addEventListener('change', handleFinalizeQty);
+        qtyInput?.addEventListener('blur', handleFinalizeQty);
         qtyInput?.addEventListener('keydown', (e) => {
           if (e.key === 'Enter') {
             e.preventDefault();
-            handleManualQty();
+            handleFinalizeQty();
           }
         });
       });
@@ -228,5 +387,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     window.addEventListener(CART_EVENT, render);
     window.addEventListener('auth:changed', render);
     render();
+
+    // Tự động kiểm tra và đồng bộ tồn kho thực tế từ CSDL khi mở trang giỏ hàng
+    syncCartWithServerStock().then(({ updated, clampedItems }) => {
+      if (updated) {
+        render();
+        if (clampedItems.length > 0) {
+          showCartToast(`Đã tự động điều chỉnh số lượng theo tồn kho thực tế của: ${clampedItems.join(', ')}`);
+        }
+      }
+    });
   }
 </script>

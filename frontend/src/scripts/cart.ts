@@ -213,19 +213,29 @@ export const countItems = (items: CartItem[]): number =>
 export const totalPrice = (items: CartItem[]): number =>
   items.reduce((sum, entry) => sum + entry.price * entry.qty, 0);
 
-export const showCartToast = (message: string): void => {
+export const showCartToast = (message: string, type: 'success' | 'warning' | 'error' = 'success'): void => {
   if (typeof document === 'undefined') return;
   const existing = document.getElementById('cart-toast-notification');
   if (existing) existing.remove();
 
+  const isWarn = type === 'warning' || type === 'error';
   const toast = document.createElement('div');
   toast.id = 'cart-toast-notification';
-  toast.className = 'fixed bottom-6 left-6 z-[9999] flex items-center gap-3 rounded-md bg-walnut-900 px-5 py-3.5 text-sm font-medium text-sand-50 shadow-2xl transition-all duration-300 translate-y-3 opacity-0';
+  toast.className = isWarn
+    ? 'fixed top-20 right-6 z-[99999] flex items-center gap-3 rounded-lg bg-red-900/95 border border-red-500/60 px-5 py-3.5 text-sm font-semibold text-white shadow-2xl transition-all duration-300 translate-y-[-10px] opacity-0 backdrop-blur-md max-w-md'
+    : 'fixed top-20 right-6 z-[99999] flex items-center gap-3 rounded-lg bg-walnut-900/95 border border-walnut-700/60 px-5 py-3.5 text-sm font-medium text-sand-50 shadow-2xl transition-all duration-300 translate-y-[-10px] opacity-0 backdrop-blur-md max-w-md';
+
+  const iconSvg = isWarn
+    ? `<svg class="h-5 w-5 text-amber-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>`
+    : `<svg class="h-5 w-5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+      </svg>`;
+
   toast.innerHTML = `
-    <svg class="h-5 w-5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-    </svg>
-    <span>${message}</span>
+    ${iconSvg}
+    <span class="leading-snug">${message}</span>
   `;
   document.body.appendChild(toast);
   requestAnimationFrame(() => {
@@ -234,9 +244,9 @@ export const showCartToast = (message: string): void => {
   });
   setTimeout(() => {
     toast.style.opacity = '0';
-    toast.style.transform = 'translateY(10px)';
+    toast.style.transform = 'translateY(-10px)';
     setTimeout(() => toast.remove(), 300);
-  }, 2800);
+  }, 3200);
 };
 
 export const bumpCartIcon = (cartBtn?: HTMLElement | null): void => {
@@ -385,4 +395,58 @@ export const flyToCart = (startEl?: HTMLElement | null, imageSrc?: string): Prom
       resolve();
     };
   });
-};
+};
+/**
+ * Đồng bộ số lượng tồn kho mới nhất từ CSDL máy chủ cho các sản phẩm trong giỏ hàng.
+ * Tự động hạ số lượng (clamp) nếu người dùng đang lưu số lượng lớn hơn tồn kho thực tế.
+ */
+export const syncCartWithServerStock = async (apiUrl?: string): Promise<{ updated: boolean; clampedItems: string[] }> => {
+  if (typeof window === 'undefined') return { updated: false, clampedItems: [] };
+  const items = readCart();
+  if (items.length === 0) return { updated: false, clampedItems: [] };
+
+  const baseUrl = apiUrl || (import.meta as any).env?.PUBLIC_API_URL || 'http://localhost:4000/api';
+  let hasChanges = false;
+  const clampedItems: string[] = [];
+
+  await Promise.all(
+    items.map(async (item) => {
+      try {
+        const res = await fetch(`${baseUrl}/products/${encodeURIComponent(item.slug)}`, {
+          signal: AbortSignal.timeout(3000),
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && json.data) {
+            const serverStock = Number(json.data.stock ?? json.data.variants?.[0]?.stock ?? 99);
+            const serverPrice = Number(json.data.price ?? json.data.variants?.[0]?.price ?? item.price);
+
+            if (typeof serverStock === 'number' && serverStock >= 0 && item.maxStock !== serverStock) {
+              item.maxStock = serverStock;
+              hasChanges = true;
+            }
+            if (serverPrice > 0 && item.price !== serverPrice) {
+              item.price = serverPrice;
+              hasChanges = true;
+            }
+
+            // Nếu số lượng trong giỏ vượt quá tồn kho thực tế
+            if (serverStock > 0 && item.qty > serverStock) {
+              item.qty = serverStock;
+              hasChanges = true;
+              clampedItems.push(item.name);
+            }
+          }
+        }
+      } catch {
+        // Lỗi mạng hoặc backend chưa sẵn sàng thì bỏ qua
+      }
+    })
+  );
+
+  if (hasChanges) {
+    writeCart(items);
+  }
+
+  return { updated: hasChanges, clampedItems };
+};

@@ -149,42 +149,44 @@ model product_images {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model product_variants {
-  id               BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
-  product_id       BigInt           @db.UnsignedBigInt
-  sku              String           @unique(map: "sku") @db.VarChar(50)
-  color            String?          @db.VarChar(50)
-  material         String?          @db.VarChar(50)
-  price            Decimal          @db.Decimal(15, 2)
-  compare_at_price Decimal?         @db.Decimal(15, 2)
-  stock_quantity   Int?             @default(0)
-  weight_gram      Int?
-  dimensions       String?          @db.VarChar(50)
-  cart_items       cart_items[]
-  order_items      order_items[]
-  product_images   product_images[]
-  products         products         @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "product_variants_ibfk_1")
+  id                BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  product_id        BigInt              @db.UnsignedBigInt
+  sku               String              @unique(map: "sku") @db.VarChar(50)
+  color             String?             @db.VarChar(50)
+  material          String?             @db.VarChar(50)
+  price             Decimal             @db.Decimal(15, 2)
+  compare_at_price  Decimal?            @db.Decimal(15, 2)
+  stock_quantity    Int?                @default(0)
+  weight_gram       Int?
+  dimensions        String?             @db.VarChar(50)
+  cart_items        cart_items[]
+  import_slip_items import_slip_items[]
+  order_items       order_items[]
+  product_images    product_images[]
+  products          products            @relation(fields: [product_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "product_variants_ibfk_1")
 
   @@index([product_id], map: "product_id")
 }
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model products {
-  id                BigInt             @id @default(autoincrement()) @db.UnsignedBigInt
-  category_id       Int                @db.UnsignedInt
-  name              String             @db.VarChar(255)
-  slug              String             @unique(map: "slug") @db.VarChar(255)
-  short_description String?            @db.Text
-  content           String?            @db.LongText
-  brand             String?            @db.VarChar(100)
-  view_count        Int?               @default(0)
-  status            Boolean?           @default(true)
-  created_at        DateTime?          @default(now()) @db.DateTime(0)
-  updated_at        DateTime?          @default(now()) @db.DateTime(0)
-  deleted_at        DateTime?          @db.DateTime(0)
+  id                BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  category_id       Int                 @db.UnsignedInt
+  name              String              @db.VarChar(255)
+  slug              String              @unique(map: "slug") @db.VarChar(255)
+  short_description String?             @db.Text
+  content           String?             @db.LongText
+  brand             String?             @db.VarChar(100)
+  view_count        Int?                @default(0)
+  status            Boolean?            @default(true)
+  created_at        DateTime?           @default(now()) @db.DateTime(0)
+  updated_at        DateTime?           @default(now()) @db.DateTime(0)
+  deleted_at        DateTime?           @db.DateTime(0)
+  import_slip_items import_slip_items[]
   order_items       order_items[]
   product_images    product_images[]
   product_variants  product_variants[]
-  categories        categories         @relation(fields: [category_id], references: [id], onUpdate: Restrict, map: "products_ibfk_1")
+  categories        categories          @relation(fields: [category_id], references: [id], onUpdate: Restrict, map: "products_ibfk_1")
   reviews           reviews[]
   wishlists         wishlists[]
 
@@ -259,26 +261,29 @@ model user_addresses {
 
 /// This model or at least one of its fields has comments in the database, and requires an additional setup for migrations: Read more: https://pris.ly/d/database-comments
 model users {
-  id             BigInt           @id @default(autoincrement()) @db.UnsignedBigInt
-  role_id        Int              @db.UnsignedInt
-  email          String           @unique(map: "email") @db.VarChar(100)
-  password_hash  String           @db.VarChar(255)
-  full_name      String           @db.VarChar(100)
-  phone          String?          @unique(map: "phone") @db.VarChar(20)
-  avatar_url     String?          @db.VarChar(255)
-  status         Boolean?         @default(true)
-  created_at     DateTime?        @default(now()) @db.DateTime(0)
-  updated_at     DateTime?        @default(now()) @db.DateTime(0)
-  deleted_at     DateTime?        @db.DateTime(0)
-  chat_messages  chat_messages[]
-  chat_sessions  chat_sessions[]
-  orders         orders[]
-  reviews        reviews[]
-  shopping_carts shopping_carts[]
-  system_logs    system_logs[]
-  user_addresses user_addresses[]
-  roles          roles            @relation(fields: [role_id], references: [id], onUpdate: Restrict, map: "users_ibfk_1")
-  wishlists      wishlists[]
+  id                BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  role_id           Int                 @db.UnsignedInt
+  email             String              @unique(map: "email") @db.VarChar(100)
+  password_hash     String              @db.VarChar(255)
+  full_name         String              @db.VarChar(100)
+  phone             String?             @unique(map: "phone") @db.VarChar(20)
+  avatar_url        String?             @db.VarChar(255)
+  status            Boolean?            @default(true)
+  created_at        DateTime?           @default(now()) @db.DateTime(0)
+  updated_at        DateTime?           @default(now()) @db.DateTime(0)
+  deleted_at        DateTime?           @db.DateTime(0)
+  cash_transactions cash_transactions[]
+  chat_messages     chat_messages[]
+  chat_sessions     chat_sessions[]
+  import_slips      import_slips[]
+  orders            orders[]
+  password_otps     password_otps[]
+  reviews           reviews[]
+  shopping_carts    shopping_carts[]
+  system_logs       system_logs[]
+  user_addresses    user_addresses[]
+  roles             roles               @relation(fields: [role_id], references: [id], onUpdate: Restrict, map: "users_ibfk_1")
+  wishlists         wishlists[]
 
   @@index([role_id], map: "role_id")
 }
@@ -290,7 +295,7 @@ model banners {
   description   String?   @db.Text
   image_url     String?   @db.Text
   link_url      String?   @default("/san-pham") @db.VarChar(255)
-  button_text   String?   @default("Khám phá ngay") @db.VarChar(100)
+  button_text   String?   @default("KhĂ¡m phĂ¡ ngay") @db.VarChar(100)
   position      String    @default("hero") @db.VarChar(50)
   display_order Int?      @default(0)
   is_active     Boolean?  @default(true)
@@ -309,6 +314,143 @@ model wishlists {
   @@unique([user_id, product_id], map: "unique_user_product_wishlist")
   @@index([user_id], map: "user_id")
   @@index([product_id], map: "product_id")
+}
+
+model password_otps {
+  id         BigInt    @id @default(autoincrement()) @db.UnsignedBigInt
+  user_id    BigInt    @db.UnsignedBigInt
+  otp_hash   String    @db.VarChar(255)
+  expires_at DateTime  @db.DateTime(0)
+  attempts   Int       @default(0)
+  used_at    DateTime? @db.DateTime(0)
+  created_at DateTime? @default(now()) @db.DateTime(0)
+  users      users     @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "password_otps_ibfk_1")
+
+  @@index([user_id], map: "user_id")
+}
+
+model cash_transactions {
+  id             BigInt                           @id @default(autoincrement()) @db.UnsignedBigInt
+  code           String                           @unique(map: "code") @db.VarChar(50)
+  type           cash_transactions_type
+  category       String                           @db.VarChar(100)
+  amount         Decimal                          @default(0.00) @db.Decimal(15, 2)
+  payment_method cash_transactions_payment_method @default(cash)
+  reference_code String?                          @db.VarChar(50)
+  performer_id   BigInt?                          @db.UnsignedBigInt
+  recipient_name String?                          @db.VarChar(150)
+  note           String?                          @db.Text
+  status         String                           @default("completed") @db.VarChar(50)
+  created_at     DateTime?                        @default(now()) @db.DateTime(0)
+  users          users?                           @relation(fields: [performer_id], references: [id], onUpdate: Restrict, map: "fk_cash_performer")
+
+  @@index([performer_id], map: "fk_cash_performer")
+  @@index([payment_method], map: "idx_cash_method")
+  @@index([reference_code], map: "idx_cash_ref")
+  @@index([type], map: "idx_cash_type")
+}
+
+model email_campaigns {
+  id               Int       @id @default(autoincrement()) @db.UnsignedInt
+  code             String    @unique(map: "unique_campaign_code") @db.VarChar(50)
+  title            String    @db.VarChar(255)
+  target_audience  String    @default("all") @db.VarChar(100)
+  recipients_count Int       @default(0)
+  action_type      String    @default("send-now") @db.VarChar(50)
+  status           String    @default("Đã hoàn tất") @db.VarChar(50)
+  content          String    @db.Text
+  open_rate        Decimal   @default(0.00) @db.Decimal(5, 2)
+  click_rate       Decimal   @default(0.00) @db.Decimal(5, 2)
+  sent_count       Int       @default(0)
+  created_at       DateTime? @default(now()) @db.DateTime(0)
+  updated_at       DateTime? @default(now()) @db.DateTime(0)
+}
+
+model import_slip_items {
+  id               BigInt            @id @default(autoincrement()) @db.UnsignedBigInt
+  slip_id          BigInt            @db.UnsignedBigInt
+  product_id       BigInt?           @db.UnsignedBigInt
+  variant_id       BigInt?           @db.UnsignedBigInt
+  sku              String            @db.VarChar(50)
+  product_name     String            @db.VarChar(255)
+  variant_name     String?           @db.VarChar(255)
+  quantity         Int               @default(1)
+  import_price     Decimal           @default(0.00) @db.Decimal(15, 2)
+  selling_price    Decimal           @default(0.00) @db.Decimal(15, 2)
+  total_price      Decimal           @default(0.00) @db.Decimal(15, 2)
+  note             String?           @db.VarChar(255)
+  products         products?         @relation(fields: [product_id], references: [id], onUpdate: Restrict, map: "fk_isi_product")
+  import_slips     import_slips      @relation(fields: [slip_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "fk_isi_slip")
+  product_variants product_variants? @relation(fields: [variant_id], references: [id], onUpdate: Restrict, map: "fk_isi_variant")
+
+  @@index([product_id], map: "fk_isi_product")
+  @@index([slip_id], map: "fk_isi_slip")
+  @@index([variant_id], map: "fk_isi_variant")
+}
+
+model import_slips {
+  id                BigInt              @id @default(autoincrement()) @db.UnsignedBigInt
+  slip_code         String              @unique(map: "slip_code") @db.VarChar(50)
+  supplier_id       Int?                @db.UnsignedInt
+  user_id           BigInt?             @db.UnsignedBigInt
+  total_items       Int                 @default(0)
+  subtotal_amount   Decimal             @default(0.00) @db.Decimal(15, 2)
+  discount_amount   Decimal             @default(0.00) @db.Decimal(15, 2)
+  tax_amount        Decimal             @default(0.00) @db.Decimal(15, 2)
+  shipping_fee      Decimal             @default(0.00) @db.Decimal(15, 2)
+  total_amount      Decimal             @default(0.00) @db.Decimal(15, 2)
+  paid_amount       Decimal             @default(0.00) @db.Decimal(15, 2)
+  debt_amount       Decimal             @default(0.00) @db.Decimal(15, 2)
+  payment_method    String              @default("cash") @db.VarChar(50)
+  payment_status    String              @default("unpaid") @db.VarChar(50)
+  status            String              @default("completed") @db.VarChar(50)
+  import_date       DateTime?           @default(now()) @db.DateTime(0)
+  note              String?             @db.Text
+  created_at        DateTime?           @default(now()) @db.DateTime(0)
+  updated_at        DateTime?           @default(now()) @db.DateTime(0)
+  import_slip_items import_slip_items[]
+  suppliers         suppliers?          @relation(fields: [supplier_id], references: [id], onUpdate: Restrict, map: "fk_import_supplier")
+  users             users?              @relation(fields: [user_id], references: [id], onUpdate: Restrict, map: "fk_import_user")
+
+  @@index([supplier_id], map: "fk_import_supplier")
+  @@index([user_id], map: "fk_import_user")
+}
+
+model showcases {
+  id            Int       @id @default(autoincrement()) @db.UnsignedInt
+  title         String    @db.VarChar(255)
+  subtitle      String?   @db.VarChar(255)
+  image_url     String?   @db.Text
+  link_url      String?   @default("/san-pham") @db.VarChar(255)
+  display_order Int?      @default(0)
+  is_active     Boolean?  @default(true)
+  created_at    DateTime? @default(now()) @db.Timestamp(0)
+  updated_at    DateTime? @default(now()) @db.Timestamp(0)
+}
+
+model spaces {
+  id            Int       @id @default(autoincrement()) @db.UnsignedInt
+  name          String    @db.VarChar(100)
+  slug          String    @unique(map: "slug") @db.VarChar(150)
+  image_url     String?   @db.Text
+  display_order Int?      @default(0)
+  is_active     Boolean?  @default(true)
+  created_at    DateTime? @default(now()) @db.Timestamp(0)
+  updated_at    DateTime? @default(now()) @db.Timestamp(0)
+}
+
+model suppliers {
+  id             Int            @id @default(autoincrement()) @db.UnsignedInt
+  code           String         @unique(map: "code") @db.VarChar(50)
+  name           String         @db.VarChar(150)
+  contact_person String?        @db.VarChar(100)
+  phone          String?        @db.VarChar(20)
+  email          String?        @db.VarChar(100)
+  address        String?        @db.VarChar(255)
+  status         Boolean?       @default(true)
+  created_at     DateTime?      @default(now()) @db.DateTime(0)
+  updated_at     DateTime?      @default(now()) @db.DateTime(0)
+  import_slips   import_slips[]
 }
 
 enum chat_messages_sender_type {
@@ -342,4 +484,14 @@ enum orders_order_status {
   shipping
   completed
   cancelled
+}
+
+enum cash_transactions_type {
+  income
+  expense
+}
+
+enum cash_transactions_payment_method {
+  cash
+  bank
 }

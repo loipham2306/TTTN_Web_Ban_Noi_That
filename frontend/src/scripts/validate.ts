@@ -86,3 +86,60 @@ export function initAuthForm(
     });
   });
 }
+
+/**
+ * Đánh giá độ an toàn của mật khẩu (Yếu / Trung bình / Mạnh)
+ * Dùng chung cho cả trang Đăng ký và trang Quên mật khẩu
+ */
+export interface PasswordStrengthResult {
+  score: 'weak' | 'medium' | 'strong';
+  label: string;
+  colorClass: string;
+  barWidthClass: string;
+  barColorClass: string;
+}
+
+export function checkPasswordStrength(val: string): PasswordStrengthResult {
+  if (!val || val.length < 6) {
+    return {
+      score: 'weak',
+      label: 'Mật khẩu yếu (Cần ít nhất 6 ký tự)',
+      colorClass: 'text-red-600',
+      barWidthClass: 'w-1/4',
+      barColorClass: 'bg-red-500',
+    };
+  }
+
+  const hasLetters = /[a-zA-Z]/.test(val);
+  const hasNumbers = /[0-9]/.test(val);
+  const hasSpecial = /[^a-zA-Z0-9]/.test(val);
+  const isLongEnough = val.length >= 8;
+
+  if (isLongEnough && hasLetters && hasNumbers && hasSpecial) {
+    return {
+      score: 'strong',
+      label: 'Mật khẩu mạnh (An toàn cao)',
+      colorClass: 'text-emerald-600',
+      barWidthClass: 'w-full',
+      barColorClass: 'bg-emerald-500',
+    };
+  }
+
+  if (hasLetters && hasNumbers) {
+    return {
+      score: 'medium',
+      label: 'Mật khẩu trung bình',
+      colorClass: 'text-amber-600',
+      barWidthClass: 'w-2/3',
+      barColorClass: 'bg-amber-500',
+    };
+  }
+
+  return {
+    score: 'weak',
+    label: 'Mật khẩu yếu',
+    colorClass: 'text-red-600',
+    barWidthClass: 'w-1/3',
+    barColorClass: 'bg-red-500',
+  };
+}
