@@ -96,6 +96,7 @@ model order_items {
   sku              String            @db.VarChar(50)
   quantity         Int
   unit_price       Decimal           @db.Decimal(15, 2)
+  cost_price       Decimal           @default(0.00) @db.Decimal(15, 2)
   total_price      Decimal           @db.Decimal(15, 2)
   orders           orders            @relation(fields: [order_id], references: [id], onDelete: Cascade, onUpdate: Restrict, map: "order_items_ibfk_1")
   products         products?         @relation(fields: [product_id], references: [id], onUpdate: Restrict, map: "order_items_ibfk_2")
@@ -155,6 +156,7 @@ model product_variants {
   color             String?             @db.VarChar(50)
   material          String?             @db.VarChar(50)
   price             Decimal             @db.Decimal(15, 2)
+  cost_price        Decimal             @default(0.00) @db.Decimal(15, 2)
   compare_at_price  Decimal?            @db.Decimal(15, 2)
   stock_quantity    Int?                @default(0)
   weight_gram       Int?
@@ -277,7 +279,7 @@ model users {
   chat_sessions     chat_sessions[]
   import_slips      import_slips[]
   orders            orders[]
-  password_otps     password_otps[]
+password_otps     password_otps[]
   reviews           reviews[]
   shopping_carts    shopping_carts[]
   system_logs       system_logs[]
@@ -328,7 +330,6 @@ model password_otps {
 
   @@index([user_id], map: "user_id")
 }
-
 model cash_transactions {
   id             BigInt                           @id @default(autoincrement()) @db.UnsignedBigInt
   code           String                           @unique(map: "code") @db.VarChar(50)

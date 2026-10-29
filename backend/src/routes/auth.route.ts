@@ -74,11 +74,8 @@ const ensureDefaultAdmin = async () => {
 ensureDefaultAdmin();
 
 export function cleanFullName(name?: string | null, role?: string): string {
-  if (!name) return '';
+  if (!name || !name.trim()) return role === 'admin' ? 'Quản Trị Viên' : 'Khách';
   let cleaned = name.trim();
-  if (role === 'admin' || /qu[aá][º°\?]?n\s*tr[aá][»\?]?\s*vi[aăa][ª\?]?n/i.test(cleaned)) {
-    return 'Quản Trị Viên';
-  }
   return cleaned
     .replace(/Nguyá»…n/g, 'Nguyễn')
     .replace(/Pháº¡m/g, 'Phạm')
@@ -240,6 +237,7 @@ authRouter.post('/register', authLimiter, async (req: Request, res: Response) =>
         full_name: newUser.full_name,
         phone: newUser.phone,
         role: userRole,
+        avatar: null,
       },
     });
   } catch (error: any) {
@@ -352,6 +350,7 @@ authRouter.post('/login', authLimiter, async (req: Request, res: Response) => {
         full_name: cleanFullName(user.full_name, userRole),
         phone: user.phone,
         role: userRole,
+        avatar: user.avatar_url || null,
       },
     });
   } catch (error: any) {
@@ -466,6 +465,86 @@ authRouter.get('/me', verifyToken, async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error('Lỗi kiểm tra phiên /me:', error);
     return res.status(500).json({ success: false, message: 'Lỗi máy chủ.', error: error.message });
+  }
+});
+
+// ================================================================
+// PUT /api/auth/profile - Cập nhật thông tin cá nhân vào Database
+// ================================================================
+authRouter.put('/profile', verifyToken, async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ success: false, message: 'Chưa đăng nhập hoặc phiên làm việc đã hết hạn.' });
+    }
+
+    const { full_name, phone } = req.body;
+    const userId = BigInt(req.user.id);
+
+    const user = await prisma.users.findUnique({
+      where: { id: userId },
+      include: { roles: true },
+    });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy thông tin tài khoản người dùng.' });
+    }
+
+    const updateData: any = {
+      updated_at: new Date(),
+    };
+
+    if (full_name !== undefined) {
+      const cleanName = String(full_name).trim();
+      if (!cleanName) {
+        return res.status(400).json({ success: false, message: 'Họ và tên không được để trống.' });
+      }
+      updateData.full_name = cleanName;
+    }
+
+    if (phone !== undefined) {
+      const cleanPhone = String(phone).trim();
+      if (cleanPhone) {
+        const existingPhone = await prisma.users.findFirst({
+          where: {
+            phone: cleanPhone,
+            id: { not: userId },
+          },
+        });
+        if (existingPhone) {
+          return res.status(400).json({
+            success: false,
+            message: 'Số điện thoại này đã được liên kết với một tài khoản khác. Vui lòng chọn số khác.',
+          });
+        }
+        updateData.phone = cleanPhone;
+      } else {
+        updateData.phone = null;
+      }
+    }
+
+    const updated = await prisma.users.update({
+      where: { id: userId },
+      data: updateData,
+      include: { roles: true },
+    });
+
+    console.log(`[AUTH] Cập nhật thông tin thành công cho tài khoản ID: ${userId} -> Tên: "${updated.full_name}", SĐT: "${updated.phone}"`);
+
+    return res.json({
+      success: true,
+      message: 'Cập nhật thông tin cá nhân thành công!',
+      user: {
+        id: Number(updated.id),
+        email: updated.email,
+        full_name: cleanFullName(updated.full_name, updated.roles?.name),
+        phone: updated.phone || 'Chưa cập nhật',
+        avatar: updated.avatar_url,
+        role: updated.roles?.name || 'customer',
+      },
+    });
+  } catch (error: any) {
+    console.error('Lỗi cập nhật hồ sơ cá nhân:', error);
+    return res.status(500).json({ success: false, message: 'Lỗi máy chủ khi cập nhật thông tin.', error: error.message });
   }
 });
 

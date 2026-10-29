@@ -72,6 +72,7 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
       slug: string;
       name: string;
       price: number;
+      costPrice: number;
       qty: number;
       productId: bigint | null;
       variantId: bigint | null;
@@ -82,6 +83,7 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
       const slug = String(item.slug || '').trim();
       const requestedQty = Math.max(1, Number(item.qty) || 1);
       let realPrice = Number(item.price) || 0;
+      let costPrice = 0;
       let realName = String(item.name || 'Sản phẩm nội thất');
       let productId: bigint | null = null;
       let variantId: bigint | null = null;
@@ -107,6 +109,8 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
               realPrice = Number(variant.price);
             }
 
+            costPrice = Number(variant.cost_price || 0);
+
             // Ràng buộc tồn kho: Không cho phép đặt khi hết hàng hoặc số lượng vượt quá kho
             const availableStock = Number(variant.stock_quantity ?? 0);
             if (availableStock <= 0) {
@@ -130,6 +134,7 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
         slug,
         name: realName,
         price: realPrice,
+        costPrice: costPrice > 0 ? costPrice : Math.round(realPrice * 0.58),
         qty: requestedQty,
         productId,
         variantId,
@@ -228,6 +233,7 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
           sku: item.sku,
           quantity: item.qty,
           unit_price: item.price,
+          cost_price: item.costPrice || 0,
           total_price: item.price * item.qty,
         },
       });
@@ -413,40 +419,214 @@ ordersRouter.get('/my-orders', verifyToken, async (req: Request, res: Response) 
 });
 
 // ================================================================
-// GET /api/orders/analytics - Thống kê doanh thu, biểu đồ 7 ngày, biểu đồ tháng, tỷ trọng danh mục và KPI
+// GET /api/orders/analytics - Thống kê doanh thu, giá vốn thực tế, sổ quỹ và KPI
 // ================================================================
 ordersRouter.get('/analytics', async (_req: Request, res: Response) => {
   try {
-    // 1. Lấy tất cả đơn hàng hợp lệ (loại trừ đã hủy)
-    const validOrders = await prisma.orders.findMany({
-      where: {
-        order_status: { notIn: ['cancelled'] },
-      },
-      include: {
-        users: { select: { id: true, full_name: true, phone: true } },
-      },
-      orderBy: { created_at: 'asc' },
-    });
+    // 1. Lấy tất cả đơn hàng hợp lệ kèm chi tiết sản phẩm và giá vốn thực
+    const [validOrders, allOrdersCount, cancelledOrdersCount, allImportSlips, allCashTxs, aiConsultationsCount, totalRegisteredCustomers] = await Promise.all([
+      prisma.orders.findMany({
+        where: {
+          order_status: { notIn: ['cancelled'] },
+        },
+        include: {
+          users: { select: { id: true, full_name: true, phone: true } },
+          order_items: {
+            include: {
+              product_variants: { select: { id: true, cost_price: true, price: true } },
+              products: {
+                select: {
+                  id: true,
+                  name: true,
+                  slug: true,
+                  categories: { select: { id: true, name: true } },
+                  product_images: {
+                    select: { image_url: true, is_thumbnail: true },
+                    take: 2,
+                  },
+                },
+              },
+            },
+          },
+        },
+        orderBy: { created_at: 'asc' },
+      }),
+      prisma.orders.count(),
+      prisma.orders.count({ where: { order_status: 'cancelled' } }),
+      prisma.import_slips.findMany({
+        where: { status: { not: 'cancelled' } },
+        select: {
+          total_amount: true,
+          paid_amount: true,
+          debt_amount: true,
+          import_date: true,
+        },
+      }),
+      prisma.cash_transactions.findMany({
+        where: { status: 'completed' },
+        select: {
+          type: true,
+          amount: true,
+          payment_method: true,
+        },
+      }),
+      prisma.chat_sessions.count(),
+      prisma.users.count({
+        where: {
+          roles: { name: 'customer' },
+        },
+      }),
+    ]);
 
-    const allOrdersCount = await prisma.orders.count();
-    const cancelledOrdersCount = await prisma.orders.count({
-      where: { order_status: 'cancelled' },
-    });
+    // 2. Tính toán Giá Vốn Hàng Bán (COGS) và Lợi Nhuận Gộp THỰC TẾ cho từng đơn hàng
+    let totalRevenue = 0;
+    let totalCogs = 0;
 
-    // Tổng doanh thu toàn hệ thống
-    const totalRevenue = validOrders.reduce((sum, o) => sum + Number(o.total_amount), 0);
-    const uniqueCustomerKeys = new Set(validOrders.map((o) => o.users?.phone || o.users?.full_name || String(o.user_id)));
-    const uniqueCustomers = uniqueCustomerKeys.size;
+    // Map chi tiết sản phẩm để tìm Top sản phẩm bán chạy theo số lượt bán & sinh lời
+    const productProfitMap: Record<string, {
+      id?: number;
+      name: string;
+      productName: string;
+      sku: string;
+      quantitySold: number;
+      soldQty: number;
+      revenue: number;
+      cogs: number;
+      cost: number;
+      profit: number;
+      thumbnail?: string | null;
+      category?: string;
+    }> = {};
 
-    // Đếm lượt chat AI phong thuỷ từ chat_sessions
-    let aiConsultations = 0;
-    try {
-      aiConsultations = await prisma.chat_sessions.count();
-    } catch {}
+    for (const order of validOrders) {
+      const orderRev = Number(order.total_amount || 0);
+      totalRevenue += orderRev;
 
-    // 2. Thống kê theo 7 ngày gần nhất
+      let orderItemCogs = 0;
+      for (const item of order.order_items) {
+        const itemQty = item.quantity || 1;
+        const itemPrice = Number(item.unit_price || 0);
+        let itemCost = Number(item.cost_price || 0);
+
+        // Fallback giá vốn nếu chưa có: lấy từ variant hoặc 58% giá bán
+        if (itemCost === 0 && item.product_variants?.cost_price) {
+          itemCost = Number(item.product_variants.cost_price);
+        }
+        if (itemCost === 0) {
+          itemCost = Math.round(itemPrice * 0.58);
+        }
+
+        const lineCogs = itemCost * itemQty;
+        const lineRev = Number(item.total_price || itemPrice * itemQty);
+        orderItemCogs += lineCogs;
+
+        // Lưu thống kê sản phẩm
+        const prodKey = item.product_id ? String(item.product_id) : (item.sku || item.product_name);
+        const prodName = item.products?.name || item.product_name;
+        const thumbnail = item.products?.product_images?.find((img) => img.is_thumbnail)?.image_url
+          || item.products?.product_images?.[0]?.image_url
+          || null;
+        const category = item.products?.categories?.name || 'Nội thất';
+
+        if (!productProfitMap[prodKey]) {
+          productProfitMap[prodKey] = {
+            id: item.product_id ? Number(item.product_id) : undefined,
+            name: prodName,
+            productName: prodName,
+            sku: item.sku,
+            quantitySold: 0,
+            soldQty: 0,
+            revenue: 0,
+            cogs: 0,
+            cost: 0,
+            profit: 0,
+            thumbnail,
+            category,
+          };
+        }
+        productProfitMap[prodKey].quantitySold += itemQty;
+        productProfitMap[prodKey].soldQty += itemQty;
+        productProfitMap[prodKey].revenue += lineRev;
+        productProfitMap[prodKey].cogs += lineCogs;
+        productProfitMap[prodKey].cost += lineCogs;
+        productProfitMap[prodKey].profit += (lineRev - lineCogs);
+      }
+
+      totalCogs += orderItemCogs;
+    }
+
+    const totalGrossProfit = totalRevenue - totalCogs;
+    const overallMargin = totalRevenue > 0 ? ((totalGrossProfit / totalRevenue) * 100).toFixed(1) + '%' : '0.0%';
+
+    // Top 5 sản phẩm bán chạy nhất dựa trên số lượt bán (quantitySold)
+    const topSellingProducts = Object.values(productProfitMap)
+      .sort((a, b) => b.quantitySold - a.quantitySold || b.revenue - a.revenue)
+      .slice(0, 5)
+      .map((p) => ({
+        ...p,
+        margin: p.revenue > 0 ? ((p.profit / p.revenue) * 100).toFixed(1) + '%' : '0.0%',
+      }));
+
+    // Top 5 sản phẩm sinh lời cao nhất
+    const topProfitableProducts = Object.values(productProfitMap)
+      .sort((a, b) => b.profit - a.profit || b.revenue - a.revenue)
+      .slice(0, 5)
+      .map((p) => ({
+        ...p,
+        margin: p.revenue > 0 ? ((p.profit / p.revenue) * 100).toFixed(1) + '%' : '0.0%',
+      }));
+
+    // 3. Phân bổ theo Phương Thức Thanh Toán (Payment Method Breakdown)
+    const paymentMethodsMap: Record<string, { label: string; revenue: number; orders: number; color: string }> = {
+      sepay: { label: 'Chuyển khoản VietQR (SePay)', revenue: 0, orders: 0, color: 'bg-[#173524]' },
+      cod: { label: 'Thanh toán tiền mặt COD', revenue: 0, orders: 0, color: 'bg-clay-600' },
+      bank: { label: 'Chuyển khoản trực tiếp', revenue: 0, orders: 0, color: 'bg-emerald-700' },
+    };
+
+    for (const order of validOrders) {
+      const pm = (order.payment_method || 'cod').toLowerCase();
+      const target = paymentMethodsMap[pm] ? pm : (pm.includes('sepay') || pm.includes('bank') ? 'sepay' : 'cod');
+      paymentMethodsMap[target].revenue += Number(order.total_amount || 0);
+      paymentMethodsMap[target].orders += 1;
+    }
+
+    const paymentMethodsList = Object.entries(paymentMethodsMap)
+      .filter(([_, data]) => data.orders > 0)
+      .map(([key, data]) => ({
+        key,
+        label: data.label,
+        revenue: data.revenue,
+        orders: data.orders,
+        percent: totalRevenue > 0 ? Number(((data.revenue / totalRevenue) * 100).toFixed(1)) : 0,
+        color: data.color,
+      }))
+      .sort((a, b) => b.revenue - a.revenue);
+
+    // 4. Số dư Sổ Quỹ & Dòng tiền thực tế
+    let cashBalance = 0;
+    let bankBalance = 0;
+    let totalCashInflow = 0;
+    let totalCashOutflow = 0;
+
+    for (const tx of allCashTxs) {
+      const amt = Number(tx.amount || 0);
+      if (tx.type === 'income') {
+        totalCashInflow += amt;
+        if (tx.payment_method === 'cash') cashBalance += amt;
+        else bankBalance += amt;
+      } else {
+        totalCashOutflow += amt;
+        if (tx.payment_method === 'cash') cashBalance -= amt;
+        else bankBalance -= amt;
+      }
+    }
+
+    const totalImportSpending = allImportSlips.reduce((sum, s) => sum + Number(s.total_amount || 0), 0);
+    const totalSupplierDebt = allImportSlips.reduce((sum, s) => sum + Number(s.debt_amount || 0), 0);
+
+    // 5. Thống kê theo 7 ngày gần nhất
     const today = new Date();
-    const daysMap: Record<string, { dateStr: string; dayLabel: string; revenue: number; orders: number }> = {};
+    const daysMap: Record<string, { dateStr: string; dayLabel: string; revenue: number; cogs: number; orders: number }> = {};
     const vnDays = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 
     for (let i = 6; i >= 0; i--) {
@@ -458,6 +638,7 @@ ordersRouter.get('/analytics', async (_req: Request, res: Response) => {
         dateStr: isoDate,
         dayLabel: dayOfWeek,
         revenue: 0,
+        cogs: 0,
         orders: 0,
       };
     }
@@ -466,7 +647,10 @@ ordersRouter.get('/analytics', async (_req: Request, res: Response) => {
       if (order.created_at) {
         const orderDateStr = order.created_at.toISOString().split('T')[0];
         if (daysMap[orderDateStr]) {
-          daysMap[orderDateStr].revenue += Number(order.total_amount);
+          const rev = Number(order.total_amount);
+          const cogs = order.order_items.reduce((sum, it) => sum + (Number(it.cost_price || 0) * it.quantity), 0);
+          daysMap[orderDateStr].revenue += rev;
+          daysMap[orderDateStr].cogs += cogs;
           daysMap[orderDateStr].orders += 1;
         }
       }
@@ -475,9 +659,8 @@ ordersRouter.get('/analytics', async (_req: Request, res: Response) => {
     let dailyList = Object.values(daysMap);
     const recent7DaysRevenue = dailyList.reduce((sum, d) => sum + d.revenue, 0);
 
-    // Nếu trong 7 ngày gần nhất doanh thu = 0 (do các ngày test diễn ra trong tháng), lấy các ngày có đơn gần nhất
     if (recent7DaysRevenue === 0 && validOrders.length > 0) {
-      const activeDaysMap: Record<string, { dateStr: string; dayLabel: string; revenue: number; orders: number }> = {};
+      const activeDaysMap: Record<string, { dateStr: string; dayLabel: string; revenue: number; cogs: number; orders: number }> = {};
       for (const order of validOrders) {
         if (order.created_at) {
           const orderDateStr = order.created_at.toISOString().split('T')[0];
@@ -488,10 +671,14 @@ ordersRouter.get('/analytics', async (_req: Request, res: Response) => {
               dateStr: orderDateStr,
               dayLabel: `${dayOfWeek} (${d.getDate()}/${d.getMonth() + 1})`,
               revenue: 0,
+              cogs: 0,
               orders: 0,
             };
           }
-          activeDaysMap[orderDateStr].revenue += Number(order.total_amount);
+          const rev = Number(order.total_amount);
+          const cogs = order.order_items.reduce((sum, it) => sum + (Number(it.cost_price || 0) * it.quantity), 0);
+          activeDaysMap[orderDateStr].revenue += rev;
+          activeDaysMap[orderDateStr].cogs += cogs;
           activeDaysMap[orderDateStr].orders += 1;
         }
       }
@@ -509,18 +696,21 @@ ordersRouter.get('/analytics', async (_req: Request, res: Response) => {
         const pct = Math.max(10, Math.round((d.revenue / maxDayRevenue) * 100));
         height = `${pct}%`;
       }
+      const profit = d.revenue - d.cogs;
       return {
         day: d.dayLabel,
         date: d.dateStr,
         revenue: d.revenue,
+        cogs: d.cogs,
+        profit,
         val: valInMillions,
         orders: d.orders,
         height,
       };
     });
 
-    // 3. Thống kê theo 6 tháng gần nhất
-    const monthsMap: Record<string, { monthLabel: string; yearMonth: string; revenue: number; orders: number }> = {};
+    // 6. Thống kê theo 6 tháng gần nhất với GIÁ VỐN & LỢI NHUẬN THỰC TẾ
+    const monthsMap: Record<string, { monthLabel: string; yearMonth: string; revenue: number; cogs: number; orders: number; importCost: number }> = {};
     for (let i = 5; i >= 0; i--) {
       const mDate = new Date(today.getFullYear(), today.getMonth() - i, 1);
       const ym = `${mDate.getFullYear()}-${String(mDate.getMonth() + 1).padStart(2, '0')}`;
@@ -528,7 +718,9 @@ ordersRouter.get('/analytics', async (_req: Request, res: Response) => {
         monthLabel: `Tháng ${mDate.getMonth() + 1}`,
         yearMonth: ym,
         revenue: 0,
+        cogs: 0,
         orders: 0,
+        importCost: 0,
       };
     }
 
@@ -536,8 +728,20 @@ ordersRouter.get('/analytics', async (_req: Request, res: Response) => {
       if (order.created_at) {
         const ym = `${order.created_at.getFullYear()}-${String(order.created_at.getMonth() + 1).padStart(2, '0')}`;
         if (monthsMap[ym]) {
-          monthsMap[ym].revenue += Number(order.total_amount);
+          const rev = Number(order.total_amount);
+          const cogs = order.order_items.reduce((sum, it) => sum + (Number(it.cost_price || 0) * it.quantity), 0);
+          monthsMap[ym].revenue += rev;
+          monthsMap[ym].cogs += cogs;
           monthsMap[ym].orders += 1;
+        }
+      }
+    }
+
+    for (const slip of allImportSlips) {
+      if (slip.import_date) {
+        const ym = `${slip.import_date.getFullYear()}-${String(slip.import_date.getMonth() + 1).padStart(2, '0')}`;
+        if (monthsMap[ym]) {
+          monthsMap[ym].importCost += Number(slip.total_amount);
         }
       }
     }
@@ -546,9 +750,9 @@ ordersRouter.get('/analytics', async (_req: Request, res: Response) => {
     const maxMonthRev = Math.max(...monthlyList.map((m) => m.revenue), 1);
     const monthlyStats = monthlyList.map((m) => {
       const valInMillions = Math.round(m.revenue / 1_000_000);
-      const cost = Math.round(m.revenue * 0.55);
-      const profit = Math.round(m.revenue * 0.45);
-      const margin = m.revenue > 0 ? '45.0%' : '0.0%';
+      const cost = m.cogs;
+      const profit = m.revenue - m.cogs;
+      const margin = m.revenue > 0 ? ((profit / m.revenue) * 100).toFixed(1) + '%' : '0.0%';
       let height = '0%';
       if (m.revenue > 0) {
         const pct = Math.max(12, Math.round((m.revenue / maxMonthRev) * 100));
@@ -562,36 +766,24 @@ ordersRouter.get('/analytics', async (_req: Request, res: Response) => {
         profit,
         margin,
         orders: m.orders,
+        importCost: m.importCost,
         val: valInMillions,
         height,
       };
     });
 
-    // 4. Tỷ trọng doanh số theo danh mục sản phẩm
-    const orderItemsWithCategory = await prisma.order_items.findMany({
-      where: {
-        orders: {
-          order_status: { notIn: ['cancelled'] },
-        },
-      },
-      include: {
-        products: {
-          include: {
-            categories: true,
-          },
-        },
-      },
-    });
-
+    // 7. Tỷ trọng doanh số theo danh mục sản phẩm
     const categoryRevenueMap: Record<string, number> = {};
-    for (const item of orderItemsWithCategory) {
-      const catName = item.products?.categories?.name || 'Sản phẩm khác';
-      const itemTotal = Number(item.total_price || 0);
-      categoryRevenueMap[catName] = (categoryRevenueMap[catName] || 0) + itemTotal;
+    for (const order of validOrders) {
+      for (const item of order.order_items) {
+        const catName = item.products?.categories?.name || 'Sản phẩm khác';
+        const itemTotal = Number(item.total_price || (item.unit_price * item.quantity) || 0);
+        categoryRevenueMap[catName] = (categoryRevenueMap[catName] || 0) + itemTotal;
+      }
     }
 
     const totalCategorySales = Object.values(categoryRevenueMap).reduce((sum, v) => sum + v, 0);
-    const categoryColors = ['bg-walnut-900', 'bg-clay-600', 'bg-olive-700', 'bg-amber-700', 'bg-stone-600'];
+    const categoryColors = ['bg-[#173524]', 'bg-clay-600', 'bg-emerald-700', 'bg-amber-700', 'bg-stone-600', 'bg-walnut-800'];
 
     const categoryShare = Object.entries(categoryRevenueMap)
       .map(([name, revenue], idx) => {
@@ -605,35 +797,53 @@ ordersRouter.get('/analytics', async (_req: Request, res: Response) => {
       })
       .sort((a, b) => b.revenue - a.revenue);
 
-    // Current month stats
+    // Current month real stats
     const currentYm = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
     const currentMonthOrders = validOrders.filter((o) => {
       if (!o.created_at) return false;
       const ym = `${o.created_at.getFullYear()}-${String(o.created_at.getMonth() + 1).padStart(2, '0')}`;
       return ym === currentYm;
     });
+
     const monthlyRevenue = currentMonthOrders.reduce((sum, o) => sum + Number(o.total_amount), 0);
-    const monthlyProfit = Math.round(monthlyRevenue * 0.45);
-    const monthlyCost = monthlyRevenue - monthlyProfit;
+    const monthlyCost = currentMonthOrders.reduce((sum, o) => {
+      return sum + o.order_items.reduce((iSum, it) => iSum + (Number(it.cost_price || 0) * it.quantity), 0);
+    }, 0);
+    const monthlyProfit = monthlyRevenue - monthlyCost;
+    const monthlyMargin = monthlyRevenue > 0 ? ((monthlyProfit / monthlyRevenue) * 100).toFixed(1) + '%' : '0.0%';
 
     return res.json({
       success: true,
       data: {
         kpis: {
           totalRevenue,
+          totalCogs,
+          totalGrossProfit,
+          overallMargin,
           totalOrders: validOrders.length,
           allOrdersCount,
           cancelledOrdersCount,
           monthlyRevenue,
-          monthlyOrders: currentMonthOrders.length,
-          uniqueCustomers,
-          aiConsultations,
-          monthlyProfit,
           monthlyCost,
+          monthlyProfit,
+          monthlyMargin,
+          monthlyOrders: currentMonthOrders.length,
+          uniqueCustomers: totalRegisteredCustomers,
+          aiConsultations: aiConsultationsCount,
+          // Sổ quỹ & tiền mặt thực tế
+          cashBalance,
+          bankBalance,
+          totalCashInflow,
+          totalCashOutflow,
+          totalImportSpending,
+          totalSupplierDebt,
         },
         daily7Days,
         monthlyStats,
         categoryShare,
+        paymentMethods: paymentMethodsList,
+        topSellingProducts,
+        topProfitableProducts,
       },
     });
   } catch (error: any) {

@@ -302,7 +302,8 @@ CREATE TABLE `order_items` (
   `variant_name` varchar(255) DEFAULT NULL COMMENT 'MĂ u/Cháº¥t liá»‡u lÆ°u cá»©ng',
   `sku` varchar(50) NOT NULL,
   `quantity` int(11) NOT NULL,
-  `unit_price` decimal(15,2) NOT NULL COMMENT 'GiĂ¡ lÆ°u cá»©ng lĂºc mua',
+  `unit_price` decimal(15,2) NOT NULL COMMENT 'Giá lưu cùng lúc mua',
+  `cost_price` decimal(15,2) NOT NULL DEFAULT 0.00,
   `total_price` decimal(15,2) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -454,6 +455,7 @@ CREATE TABLE `product_variants` (
   `color` varchar(50) DEFAULT NULL,
   `material` varchar(50) DEFAULT NULL,
   `price` decimal(15,2) NOT NULL,
+  `cost_price` decimal(15,2) NOT NULL DEFAULT 0.00,
   `compare_at_price` decimal(15,2) DEFAULT NULL,
   `stock_quantity` int(11) DEFAULT 0,
   `weight_gram` int(11) DEFAULT NULL COMMENT 'DĂ¹ng Ä‘á»ƒ tĂ­nh phĂ­ ship',

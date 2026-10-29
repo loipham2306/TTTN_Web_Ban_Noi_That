@@ -1,0 +1,851 @@
+---
+import AdminLayout from '../../layouts/AdminLayout.astro';
+import { formatVnd } from '../../data/products';
+
+let initialTransactions: any[] = [];
+let initialKpis = {
+  cashBalance: 0,
+  bankBalance: 0,
+  totalBalance: 0,
+  totalCashIncome: 0,
+  totalCashExpense: 0,
+  totalBankIncome: 0,
+  totalBankExpense: 0,
+  pendingCodCount: 0,
+  pendingCodAmount: 0,
+  supplierDebtAmount: 0,
+};
+let pendingCodOrders: any[] = [];
+
+try {
+  const [cashbookRes, codRes] = await Promise.all([
+    fetch('http://localhost:4000/api/cashbook', { signal: AbortSignal.timeout(3000) }),
+    fetch('http://localhost:4000/api/cashbook/pending-cod', { signal: AbortSignal.timeout(3000) }),
+  ]);
+
+  if (cashbookRes.ok) {
+    const data = await cashbookRes.json();
+    if (data.success) {
+      initialTransactions = data.data || [];
+      initialKpis = data.kpis || initialKpis;
+    }
+  }
+
+  if (codRes.ok) {
+    const data = await codRes.json();
+    if (data.success) {
+      pendingCodOrders = data.data || [];
+    }
+  }
+} catch (e) {
+  console.error('Lỗi SSR tải dữ liệu sổ quỹ:', e);
+}
+---
+
+<AdminLayout title="Sổ Quỹ & Đối Soát Thu Ngân | KTUFA Admin">
+  <div class="space-y-6 max-w-7xl mx-auto pb-12">
+    
+    <!-- Top Action Bar -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-walnut-900/10 shadow-sm">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
+            <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+            Không Gian Thu Ngân (Cashier Portal)
+          </span>
+          <span class="text-xs text-walnut-800/60">• Két quỹ hoạt động</span>
+        </div>
+        <h1 class="text-2xl font-bold font-display text-[#173524] mt-1">Sổ Quỹ Tiền Mặt & Đối Soát COD</h1>
+        <p class="text-xs text-walnut-800/70 mt-0.5">Kiểm soát dòng tiền mặt trong két, tài khoản ngân hàng và đối soát tiền thu hộ COD từ đơn vị vận chuyển</p>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <button
+          id="btn-open-create-expense"
+          type="button"
+          class="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-red-200 bg-red-50 text-xs font-bold text-red-700 hover:bg-red-100 transition-colors shadow-sm"
+        >
+          <svg class="w-4 h-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Lập Phiếu Chi
+        </button>
+
+        <button
+          id="btn-open-create-income"
+          type="button"
+          class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-emerald-700 text-xs font-bold text-white hover:bg-emerald-800 transition-colors shadow-md shadow-emerald-700/15"
+        >
+          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v3m0 0v3m0-3h3m-3 0H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Lập Phiếu Thu
+        </button>
+      </div>
+    </div>
+
+    <!-- 4 Thẻ KPI Sổ Quỹ Realtime -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <!-- KPI 1: Tiền mặt trong két quỹ -->
+      <div class="bg-white p-5 rounded-2xl border border-walnut-900/10 shadow-sm relative overflow-hidden group hover:border-emerald-500 transition-all">
+        <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-emerald-50 rounded-full group-hover:scale-110 transition-transform -z-0"></div>
+        <div class="relative z-10">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-walnut-800/60">Tiền Mặt Trong Két Quỹ</p>
+          <p class="text-xl font-bold font-display text-emerald-700 mt-2">
+            {formatVnd(initialKpis.cashBalance)}
+          </p>
+          <div class="mt-2 flex items-center justify-between text-[11px] text-walnut-800/70">
+            <span>Thu: <strong class="text-emerald-700">{formatVnd(initialKpis.totalCashIncome)}</strong></span>
+            <span>Chi: <strong class="text-red-600">{formatVnd(initialKpis.totalCashExpense)}</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI 2: Tài khoản VietQR SePay -->
+      <div class="bg-white p-5 rounded-2xl border border-walnut-900/10 shadow-sm relative overflow-hidden group hover:border-blue-500 transition-all">
+        <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-blue-50 rounded-full group-hover:scale-110 transition-transform -z-0"></div>
+        <div class="relative z-10">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-walnut-800/60">Số Dư Ngân Hàng (VietQR)</p>
+          <p class="text-xl font-bold font-display text-blue-700 mt-2">
+            {formatVnd(initialKpis.bankBalance)}
+          </p>
+          <div class="mt-2 flex items-center justify-between text-[11px] text-walnut-800/70">
+            <span>Vào: <strong class="text-blue-700">{formatVnd(initialKpis.totalBankIncome)}</strong></span>
+            <span>Ra: <strong class="text-red-600">{formatVnd(initialKpis.totalBankExpense)}</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI 3: Tiền COD Chờ Đối Soát -->
+      <div class="bg-white p-5 rounded-2xl border border-walnut-900/10 shadow-sm relative overflow-hidden group hover:border-[#D8B670] transition-all">
+        <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-amber-50 rounded-full group-hover:scale-110 transition-transform -z-0"></div>
+        <div class="relative z-10">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-walnut-800/60">COD Chờ Shipper Nộp</p>
+          <p class="text-xl font-bold font-display text-amber-700 mt-2">
+            {formatVnd(initialKpis.pendingCodAmount)}
+          </p>
+          <div class="mt-2 flex items-center gap-1.5 text-xs text-amber-800">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span><strong>{initialKpis.pendingCodCount}</strong> đơn hàng chưa thu tiền</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- KPI 4: Nợ Nhà Cung Cấp -->
+      <div class="bg-white p-5 rounded-2xl border border-walnut-900/10 shadow-sm relative overflow-hidden group hover:border-[#173524] transition-all">
+        <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-purple-50 rounded-full group-hover:scale-110 transition-transform -z-0"></div>
+        <div class="relative z-10">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-walnut-800/60">Công Nợ Phải Trả NCC</p>
+          <p class="text-xl font-bold font-display text-purple-700 mt-2">
+            {formatVnd(initialKpis.supplierDebtAmount)}
+          </p>
+          <div class="mt-2 flex items-center gap-1.5 text-xs text-purple-800">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <span>Từ các phiếu nhập kho</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="flex items-center gap-2 border-b border-walnut-900/10 pb-2">
+      <button
+        id="tab-btn-cod"
+        type="button"
+        class="tab-trigger px-4 py-2 text-xs font-bold rounded-lg transition-colors bg-[#173524] text-white flex items-center gap-2"
+        data-target="tab-content-cod"
+      >
+        <span>Đối Soát Tiền Mặt COD</span>
+        {initialKpis.pendingCodCount > 0 && (
+          <span class="px-2 py-0.5 rounded-full bg-amber-500 text-white text-[10px]">
+            {initialKpis.pendingCodCount}
+          </span>
+        )}
+      </button>
+
+      <button
+        id="tab-btn-ledger"
+        type="button"
+        class="tab-trigger px-4 py-2 text-xs font-bold rounded-lg transition-colors text-walnut-800/80 hover:bg-walnut-900/5 flex items-center gap-2"
+        data-target="tab-content-ledger"
+      >
+        <span>Nhật Ký Sổ Quỹ Thu - Chi</span>
+        <span class="text-[11px] text-walnut-800/60">({initialTransactions.length})</span>
+      </button>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 1: ĐỐI SOÁT TIỀN MẶT COD (CASHIER CORE TASK) -->
+    <!-- ============================================================== -->
+    <div id="tab-content-cod" class="tab-pane space-y-4">
+      <div class="bg-white rounded-2xl border border-walnut-900/10 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-walnut-900/10 bg-sand-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <span class="text-xs font-bold text-[#173524] uppercase tracking-wider">Danh Sách Đơn COD Shipper Cần Nộp Tiền</span>
+            <p class="text-[11px] text-walnut-800/60 mt-0.5">Xác nhận thu tiền mặt từ shipper nộp về két quỹ hoặc chuyển khoản đối soát</p>
+          </div>
+          <span class="text-xs font-bold text-amber-800 bg-amber-100 px-3 py-1 rounded-lg border border-amber-200">
+            Tổng chờ thu: {formatVnd(initialKpis.pendingCodAmount)}
+          </span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-walnut-900">
+            <thead class="bg-sand-100/70 border-b border-walnut-900/10 text-[11px] uppercase tracking-wider text-walnut-800/70">
+              <tr>
+                <th class="py-3 px-4 font-bold">Mã Đơn Hàng</th>
+                <th class="py-3 px-4 font-bold">Ngày Đặt</th>
+                <th class="py-3 px-4 font-bold">Khách Hàng / SĐT</th>
+                <th class="py-3 px-4 font-bold">Địa Chỉ Giao Hàng</th>
+                <th class="py-3 px-4 font-bold text-right">Tiền Thu Hộ (COD)</th>
+                <th class="py-3 px-4 font-bold text-center">Trạng Thái Đơn</th>
+                <th class="py-3 px-4 font-bold text-center">Thao Tác Thu Tiền</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-walnut-900/5">
+              {pendingCodOrders.length === 0 ? (
+                <tr>
+                  <td colspan="7" class="py-8 text-center text-xs text-emerald-700 font-medium">
+                    🎉 Tuyệt vời! Toàn bộ đơn hàng COD đều đã được đối soát và nộp quỹ đầy đủ.
+                  </td>
+                </tr>
+              ) : (
+                pendingCodOrders.map((order) => (
+                  <tr class="hover:bg-sand-50/60 transition-colors">
+                    <td class="py-3 px-4 font-mono font-bold text-[#173524]">{order.orderCode}</td>
+                    <td class="py-3 px-4 text-walnut-800/80">
+                      {new Date(order.createdAt).toLocaleDateString('vi-VN')}
+                    </td>
+                    <td class="py-3 px-4">
+                      <p class="font-bold text-walnut-900">{order.customerName}</p>
+                      <p class="text-[10px] text-walnut-800/60 font-mono">{order.phone}</p>
+                    </td>
+                    <td class="py-3 px-4 text-walnut-800 max-w-xs truncate">{order.shippingAddress}</td>
+                    <td class="py-3 px-4 text-right font-bold text-amber-700 text-sm">
+                      {formatVnd(order.totalAmount)}
+                    </td>
+                    <td class="py-3 px-4 text-center">
+                      <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-800">
+                        {order.status}
+                      </span>
+                    </td>
+                    <td class="py-3 px-4 text-center space-x-1.5 whitespace-nowrap">
+                      <button
+                        type="button"
+                        class="btn-reconcile-cod px-3 py-1.5 rounded-lg bg-emerald-700 text-white hover:bg-emerald-800 transition-colors text-xs font-bold shadow-sm"
+                        data-code={order.orderCode}
+                        data-amount={order.totalAmount}
+                        data-customer={order.customerName}
+                        data-method="cash"
+                      >
+                        Thu Tiền Mặt Vào Két
+                      </button>
+                      <button
+                        type="button"
+                        class="btn-reconcile-cod px-3 py-1.5 rounded-lg border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors text-xs font-bold shadow-sm"
+                        data-code={order.orderCode}
+                        data-amount={order.totalAmount}
+                        data-customer={order.customerName}
+                        data-method="bank"
+                      >
+                        Shipper Chuyển Khoản
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================== -->
+    <!-- TAB 2: NHẬT KÝ SỔ QUỸ THU - CHI -->
+    <!-- ============================================================== -->
+    <div id="tab-content-ledger" class="tab-pane hidden space-y-4">
+      <div class="bg-white rounded-2xl border border-walnut-900/10 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-walnut-900/10 bg-sand-50/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div class="flex items-center gap-3">
+            <span class="text-xs font-bold text-[#173524] uppercase tracking-wider">Nhật Ký Giao Dịch Sổ Quỹ</span>
+            <input
+              id="search-ledger-input"
+              type="text"
+              placeholder="Tìm theo mã phiếu, người nộp/nhận..."
+              class="px-3 py-1.5 rounded-lg border border-walnut-900/15 text-xs bg-white text-walnut-900 focus:outline-none w-64"
+            />
+          </div>
+
+          <div class="flex items-center gap-2">
+            <select id="filter-ledger-type" class="px-3 py-1.5 rounded-lg border border-walnut-900/15 text-xs bg-white text-walnut-800 focus:outline-none">
+              <option value="">Tất cả loại phiếu</option>
+              <option value="income">Phiếu Thu (Tiền vào)</option>
+              <option value="expense">Phiếu Chi (Tiền ra)</option>
+            </select>
+
+            <select id="filter-ledger-method" class="px-3 py-1.5 rounded-lg border border-walnut-900/15 text-xs bg-white text-walnut-800 focus:outline-none">
+              <option value="">Tất cả hình thức</option>
+              <option value="cash">Tiền mặt két quỹ</option>
+              <option value="bank">Chuyển khoản VietQR</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-walnut-900">
+            <thead class="bg-sand-100/70 border-b border-walnut-900/10 text-[11px] uppercase tracking-wider text-walnut-800/70">
+              <tr>
+                <th class="py-3 px-4 font-bold">Mã Phiếu</th>
+                <th class="py-3 px-4 font-bold">Thời Gian</th>
+                <th class="py-3 px-4 font-bold text-center">Loại</th>
+                <th class="py-3 px-4 font-bold">Hạng Mục</th>
+                <th class="py-3 px-4 font-bold">Đối Tượng (Nộp/Nhận)</th>
+                <th class="py-3 px-4 font-bold text-center">Hình Thức</th>
+                <th class="py-3 px-4 font-bold text-right">Số Tiền (VNĐ)</th>
+                <th class="py-3 px-4 font-bold text-right">In Phiếu</th>
+              </tr>
+            </thead>
+            <tbody id="ledger-table-body" class="divide-y divide-walnut-900/5">
+              {initialTransactions.length === 0 ? (
+                <tr>
+                  <td colspan="8" class="py-8 text-center text-xs text-walnut-800/60">
+                    Chưa có giao dịch sổ quỹ nào được ghi nhận.
+                  </td>
+                </tr>
+              ) : (
+                initialTransactions.map((tx) => {
+                  const isIncome = tx.type === 'income';
+                  const isCash = tx.payment_method === 'cash';
+                  return (
+                    <tr class="hover:bg-sand-50/60 transition-colors ledger-row" data-type={tx.type} data-method={tx.payment_method} data-text={`${tx.code} ${tx.recipient_name || ''} ${tx.category || ''}`}>
+                      <td class="py-3 px-4 font-mono font-bold text-[#173524]">{tx.code}</td>
+                      <td class="py-3 px-4 text-walnut-800/80">
+                        {new Date(tx.created_at).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })}
+                      </td>
+                      <td class="py-3 px-4 text-center">
+                        <span class={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                          isIncome ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+                        }`}>
+                          {isIncome ? 'Thu' : 'Chi'}
+                        </span>
+                      </td>
+                      <td class="py-3 px-4 font-medium text-walnut-900">
+                        {tx.category}
+                        {tx.reference_code && (
+                          <span class="block text-[10px] text-walnut-800/60 font-mono">Ref: {tx.reference_code}</span>
+                        )}
+                      </td>
+                      <td class="py-3 px-4 text-walnut-800">{tx.recipient_name || 'Khách vãng lai'}</td>
+                      <td class="py-3 px-4 text-center">
+                        <span class={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold ${
+                          isCash ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-blue-50 text-blue-800 border border-blue-200'
+                        }`}>
+                          {isCash ? 'Két tiền mặt' : 'VietQR Ngân hàng'}
+                        </span>
+                      </td>
+                      <td class={`py-3 px-4 text-right font-bold text-sm ${isIncome ? 'text-emerald-700' : 'text-red-600'}`}>
+                        {isIncome ? '+' : '-'}{formatVnd(tx.amount)}
+                      </td>
+                      <td class="py-3 px-4 text-right">
+                        <button
+                          type="button"
+                          class="btn-print-voucher px-2 py-1 rounded-none bg-[#173524]/10 text-[#173524] hover:bg-[#173524] hover:text-white transition-colors text-[11px] font-bold border border-[#173524]/20 cursor-pointer"
+                          data-code={tx.code}
+                          data-type={tx.type}
+                          data-amount={tx.amount}
+                          data-category={tx.category}
+                          data-recipient={tx.recipient_name || 'Khách hàng'}
+                          data-method={tx.payment_method}
+                          data-note={tx.note || ''}
+                          data-date={tx.created_at}
+                        >
+                          In Phiếu A5
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: LẬP PHIẾU THU / CHI THỦ CÔNG -->
+  <!-- ============================================================== -->
+  <div id="modal-create-voucher" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden p-4 flex items-center justify-center overflow-y-auto">
+    <div class="bg-sand-50 border border-walnut-900/30 w-full max-w-lg shadow-2xl rounded-none relative my-4 max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- MODAL HEADER -->
+      <div class="relative bg-[#173524] px-6 py-4.5 sm:px-8 border-b border-[#D8B670]/40 flex items-center justify-between shrink-0 shadow-md">
+        <div class="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#D8B670] via-[#F3E5AB] to-[#C49E52]"></div>
+        
+        <div class="flex items-center gap-3.5">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#D8B670]/25 to-[#D8B670]/5 border border-[#D8B670]/40 flex items-center justify-center shrink-0 shadow-inner text-[#E6CA85]">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase tracking-[0.22em] text-[#D8B670] font-semibold">SỔ QUỸ & KÉT TIỀN</p>
+            <h3 id="voucher-modal-title" class="text-lg sm:text-xl font-display font-bold text-white tracking-wide mt-0.5">Lập Phiếu Thu Tiền</h3>
+          </div>
+        </div>
+
+        <button 
+          type="button" 
+          class="btn-close-modal h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 text-sand-200 hover:text-white flex items-center justify-center transition-all hover:rotate-90 cursor-pointer border border-white/10"
+          title="Đóng cửa sổ"
+        >
+          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <form id="form-create-voucher" class="flex flex-col flex-1 overflow-hidden">
+        <!-- MODAL BODY -->
+        <div class="p-6 sm:p-8 space-y-4 overflow-y-auto flex-1 bg-[#FAF8F5]">
+          <input type="hidden" id="voucher-type" value="income" />
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold mb-1.5">Số Tiền (VNĐ) *</label>
+              <input
+                id="voucher-amount"
+                type="number"
+                min="1000"
+                required
+                placeholder="1000000"
+                class="w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-xs font-bold text-[#173524] outline-none focus:border-[#173524] rounded-none shadow-xs"
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold mb-1.5">Hình Thức Xuất/Nhập *</label>
+              <select id="voucher-method" class="w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-xs font-semibold text-walnut-900 outline-none focus:border-[#173524] rounded-none shadow-xs">
+                <option value="cash">Tiền mặt tại két quỹ</option>
+                <option value="bank">Chuyển khoản ngân hàng</option>
+              </select>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold mb-1.5">Hạng Mục Thu / Chi *</label>
+            <input
+              id="voucher-category"
+              type="text"
+              required
+              placeholder="VD: Thu cọc đơn hàng showroom, Chi tiền bốc xếp hàng..."
+              class="w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-xs outline-none focus:border-[#173524] rounded-none shadow-xs"
+            />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label id="voucher-recipient-label" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold mb-1.5">Người Nộp Tiền *</label>
+              <input
+                id="voucher-recipient"
+                type="text"
+                required
+                placeholder="Họ tên người nộp/nhận"
+                class="w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-xs outline-none focus:border-[#173524] rounded-none shadow-xs"
+              />
+            </div>
+
+            <div>
+              <label class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold mb-1.5">Số Chứng Từ Tham Chiếu</label>
+              <input
+                id="voucher-ref"
+                type="text"
+                placeholder="VD: HD-098 / ĐH-123"
+                class="w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-xs outline-none focus:border-[#173524] rounded-none shadow-xs"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold mb-1.5">Lý Do & Ghi Chú Chi Tiết</label>
+            <textarea
+              id="voucher-note"
+              rows="2"
+              placeholder="Mô tả cụ thể nghiệp vụ thu chi..."
+              class="w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-xs outline-none focus:border-[#173524] rounded-none shadow-xs resize-none"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- MODAL FOOTER -->
+        <div class="px-6 py-4 sm:px-8 bg-white border-t border-walnut-900/15 flex items-center justify-end gap-3 shrink-0 shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
+          <button 
+            type="button" 
+            class="btn-close-modal border border-walnut-900/20 px-5 py-2.5 text-xs uppercase tracking-[0.15em] font-semibold text-walnut-800 hover:bg-sand-100 hover:border-walnut-900 transition-colors cursor-pointer rounded-none"
+          >
+            Hủy
+          </button>
+          <button 
+            id="btn-submit-voucher" 
+            type="submit" 
+            class="bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] px-6 py-2.5 text-xs uppercase tracking-[0.18em] font-bold text-[#173524] hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#E0C582]/50 rounded-none"
+          >
+            Lưu & Ghi Sổ Quỹ
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: IN PHIẾU THU / PHIẾU CHI A5 CHUẨN KẾ TOÁN -->
+  <!-- ============================================================== -->
+  <div id="modal-print-voucher" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden p-4 flex items-center justify-center overflow-y-auto">
+    <div class="bg-sand-50 border border-walnut-900/30 w-full max-w-2xl shadow-2xl rounded-none relative my-4 max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+      
+      <!-- MODAL HEADER -->
+      <div class="relative bg-[#173524] px-6 py-4.5 sm:px-8 border-b border-[#D8B670]/40 flex items-center justify-between shrink-0 shadow-md no-print">
+        <div class="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#D8B670] via-[#F3E5AB] to-[#C49E52]"></div>
+        
+        <div class="flex items-center gap-3.5">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#D8B670]/25 to-[#D8B670]/5 border border-[#D8B670]/40 flex items-center justify-center shrink-0 shadow-inner text-[#E6CA85]">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase tracking-[0.22em] text-[#D8B670] font-semibold">CHỨNG TỪ KẾ TOÁN</p>
+            <h2 class="text-lg sm:text-xl font-display font-bold text-white tracking-wide mt-0.5">Phiếu Thu / Chi A5</h2>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="btn-do-print-voucher" type="button" class="inline-flex items-center gap-1.5 bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] px-4 py-2 text-xs uppercase tracking-[0.15em] font-bold text-[#173524] hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#E0C582]/50 rounded-none">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            In Phiếu (A5)
+          </button>
+          <button 
+            type="button" 
+            class="btn-close-modal h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 text-sand-200 hover:text-white flex items-center justify-center transition-all hover:rotate-90 cursor-pointer border border-white/10"
+            title="Đóng cửa sổ"
+          >
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Printable Area -->
+      <div id="print-area-voucher" class="p-8 text-xs text-walnut-900 space-y-5 bg-white overflow-y-auto flex-1">
+        <div class="flex justify-between items-start border-b border-walnut-900/15 pb-4">
+          <div>
+            <h3 class="text-base font-bold font-display text-[#173524] uppercase">NỘI THẤT CAO CẤP KTUFA</h3>
+            <p class="text-[10px] text-walnut-800">Địa chỉ: KCN Biên Hòa 2, Đồng Nai | Hotline: 0902.455.060</p>
+          </div>
+          <div class="text-right">
+            <h2 id="print-v-title" class="text-lg font-bold font-display text-[#173524] uppercase">PHIẾU THU TIỀN</h2>
+            <p id="print-v-code" class="font-mono font-bold text-xs text-[#D8B670]">PT-XXXX</p>
+            <p id="print-v-date" class="text-[10px] text-walnut-800/80">Ngày: --/--/----</p>
+          </div>
+        </div>
+
+        <div class="space-y-2 text-xs">
+          <div class="flex">
+            <span class="w-40 text-walnut-800">Họ và tên người <span id="print-v-role-label">nộp</span>:</span>
+            <span id="print-v-recipient" class="font-bold text-[#173524]">--</span>
+          </div>
+          <div class="flex">
+            <span class="w-40 text-walnut-800">Lý do thu / chi:</span>
+            <span id="print-v-category" class="font-semibold text-walnut-900">--</span>
+          </div>
+          <div class="flex">
+            <span class="w-40 text-walnut-800">Hình thức thanh toán:</span>
+            <span id="print-v-method" class="font-bold">--</span>
+          </div>
+          <div class="flex items-baseline">
+            <span class="w-40 text-walnut-800">Số tiền:</span>
+            <span id="print-v-amount" class="text-base font-bold text-[#173524]">--</span>
+          </div>
+          <div class="flex">
+            <span class="w-40 text-walnut-800">Ghi chú kèm theo:</span>
+            <span id="print-v-note" class="italic text-walnut-800/80">--</span>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-4 gap-2 text-center pt-8 border-t border-walnut-900/15">
+          <div>
+            <p class="font-bold uppercase text-[10px]">Giám Đốc</p>
+            <p class="text-[9px] text-walnut-800/60">(Ký, họ tên)</p>
+            <div class="h-14"></div>
+            <p class="font-semibold text-[11px]">Phạm Hữu Lợi</p>
+          </div>
+          <div>
+            <p class="font-bold uppercase text-[10px]">Kế Toán Trưởng</p>
+            <p class="text-[9px] text-walnut-800/60">(Ký, họ tên)</p>
+            <div class="h-14"></div>
+            <p class="font-semibold text-[11px]">KTUFA</p>
+          </div>
+          <div>
+            <p class="font-bold uppercase text-[10px]">Thủ Quỹ</p>
+            <p class="text-[9px] text-walnut-800/60">(Ký, họ tên)</p>
+            <div class="h-14"></div>
+            <p class="font-semibold text-[11px]">Thu Ngân</p>
+          </div>
+          <div>
+            <p id="print-v-sign-label" class="font-bold uppercase text-[10px]">Người Nộp Tiền</p>
+            <p class="text-[9px] text-walnut-800/60">(Ký, họ tên)</p>
+            <div class="h-14"></div>
+            <p id="print-v-sign-name" class="font-semibold text-[11px]">Khách hàng</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <style>
+    @media print {
+      body * { visibility: hidden; }
+      #print-area-voucher, #print-area-voucher * { visibility: visible; }
+      #print-area-voucher {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+      }
+      .no-print { display: none !important; }
+    }
+  </style>
+
+  <script define:vars={{ initialTransactions, pendingCodOrders }}>
+    window.__TRANSACTIONS = initialTransactions || [];
+    window.__COD_ORDERS = pendingCodOrders || [];
+
+    const formatMoney = (amount) => {
+      return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(amount || 0);
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Chuyển Tab
+      const tabBtns = document.querySelectorAll('.tab-trigger');
+      tabBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          tabBtns.forEach((b) => {
+            b.classList.remove('bg-[#173524]', 'text-white');
+            b.classList.add('text-walnut-800/80');
+          });
+          btn.classList.add('bg-[#173524]', 'text-white');
+          btn.classList.remove('text-walnut-800/80');
+
+          const targetId = btn.getAttribute('data-target');
+          document.querySelectorAll('.tab-pane').forEach((p) => p.classList.add('hidden'));
+          document.getElementById(targetId)?.classList.remove('hidden');
+        });
+      });
+
+      // 2. Lọc Nhật ký Sổ quỹ
+      const searchInput = document.getElementById('search-ledger-input');
+      const filterType = document.getElementById('filter-ledger-type');
+      const filterMethod = document.getElementById('filter-ledger-method');
+
+      const filterLedger = () => {
+        const q = searchInput?.value.toLowerCase().trim() || '';
+        const type = filterType?.value || '';
+        const method = filterMethod?.value || '';
+
+        document.querySelectorAll('.ledger-row').forEach((row) => {
+          const rowType = row.getAttribute('data-type') || '';
+          const rowMethod = row.getAttribute('data-method') || '';
+          const rowText = row.getAttribute('data-text')?.toLowerCase() || '';
+
+          const matchQ = !q || rowText.includes(q);
+          const matchType = !type || rowType === type;
+          const matchMethod = !method || rowMethod === method;
+
+          row.style.display = (matchQ && matchType && matchMethod) ? '' : 'none';
+        });
+      };
+
+      searchInput?.addEventListener('input', filterLedger);
+      filterType?.addEventListener('change', filterLedger);
+      filterMethod?.addEventListener('change', filterLedger);
+
+      // 3. Đóng mở modals
+      const openModal = (id) => document.getElementById(id)?.classList.remove('hidden');
+      const closeModal = (id) => document.getElementById(id)?.classList.add('hidden');
+      document.querySelectorAll('.btn-close-modal').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('[id^="modal-"]').forEach((m) => m.classList.add('hidden'));
+        });
+      });
+
+      // 4. Đối Soát COD 1 chạm
+      document.querySelectorAll('.btn-reconcile-cod').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const orderCode = btn.getAttribute('data-code');
+          const amount = parseFloat(btn.getAttribute('data-amount') || '0');
+          const customer = btn.getAttribute('data-customer');
+          const method = btn.getAttribute('data-method');
+
+          const methodText = method === 'cash' ? 'TIỀN MẶT VÀO KÉT QUỸ' : 'CHUYỂN KHOẢN NGÂN HÀNG';
+          const confirmMsg = `Xác nhận thu ${formatMoney(amount)} (${methodText}) cho đơn hàng ${orderCode} của khách hàng ${customer}?`;
+
+          if (!confirm(confirmMsg)) return;
+
+          try {
+            btn.disabled = true;
+            btn.textContent = 'Đang xử lý...';
+            const token = localStorage.getItem('admin_token') || localStorage.getItem('auth_token');
+
+            const res = await fetch('http://localhost:4000/api/cashbook/reconcile-cod', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+              },
+              body: JSON.stringify({
+                orderCode,
+                paymentMethod: method,
+                note: `Thu tiền đối soát COD từ shipper cho đơn ${orderCode}`
+              })
+            });
+
+            const data = await res.json();
+            if (data.success) {
+              alert(`Đối soát thành công! Đã ghi sổ Phiếu Thu: ${data.data.voucherCode}`);
+              window.location.reload();
+            } else {
+              alert(data.message || 'Lỗi đối soát.');
+              btn.disabled = false;
+              btn.textContent = 'Thử lại';
+            }
+          } catch {
+            alert('Lỗi kết nối máy chủ.');
+            btn.disabled = false;
+          }
+        });
+      });
+
+      // 5. Mở Modal Phiếu Thu
+      document.getElementById('btn-open-create-income')?.addEventListener('click', () => {
+        document.getElementById('voucher-type').value = 'income';
+        document.getElementById('voucher-modal-title').textContent = 'Lập Phiếu Thu Tiền Mặt / Ngân Hàng';
+        document.getElementById('voucher-recipient-label').textContent = 'Người Nộp Tiền *';
+        const submitBtn = document.getElementById('btn-submit-voucher');
+        if (submitBtn) {
+          submitBtn.className = 'px-5 py-2 rounded-xl bg-emerald-700 text-xs font-bold text-white hover:bg-emerald-800';
+          submitBtn.textContent = 'Lưu & Nhập Quỹ (Thu)';
+        }
+        openModal('modal-create-voucher');
+      });
+
+      // Mở Modal Phiếu Chi
+      document.getElementById('btn-open-create-expense')?.addEventListener('click', () => {
+        document.getElementById('voucher-type').value = 'expense';
+        document.getElementById('voucher-modal-title').textContent = 'Lập Phiếu Chi Tiền Mặt / Ngân Hàng';
+        document.getElementById('voucher-recipient-label').textContent = 'Người Nhận Tiền *';
+        const submitBtn = document.getElementById('btn-submit-voucher');
+        if (submitBtn) {
+          submitBtn.className = 'px-5 py-2 rounded-xl bg-red-700 text-xs font-bold text-white hover:bg-red-800';
+          submitBtn.textContent = 'Lưu & Xuất Quỹ (Chi)';
+        }
+        openModal('modal-create-voucher');
+      });
+
+      // Submit Phiếu Thu / Chi thủ công
+      document.getElementById('form-create-voucher')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const type = document.getElementById('voucher-type').value;
+        const amount = parseFloat(document.getElementById('voucher-amount').value);
+        const paymentMethod = document.getElementById('voucher-method').value;
+        const category = document.getElementById('voucher-category').value;
+        const recipientName = document.getElementById('voucher-recipient').value;
+        const referenceCode = document.getElementById('voucher-ref').value;
+        const note = document.getElementById('voucher-note').value;
+
+        try {
+          const token = localStorage.getItem('admin_token') || localStorage.getItem('auth_token');
+          const submitBtn = document.getElementById('btn-submit-voucher');
+          if (submitBtn) {
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Đang lưu...';
+          }
+
+          const res = await fetch('http://localhost:4000/api/cashbook', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              type,
+              amount,
+              paymentMethod,
+              category,
+              recipientName,
+              referenceCode,
+              note
+            })
+          });
+
+          const data = await res.json();
+          if (data.success) {
+            alert(`Lập chứng từ ${type === 'income' ? 'Phiếu Thu' : 'Phiếu Chi'} thành công! Mã: ${data.data.code}`);
+            window.location.reload();
+          } else {
+            alert(data.message || 'Lỗi ghi sổ.');
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.textContent = 'Thử lại';
+            }
+          }
+        } catch {
+          alert('Lỗi kết nối máy chủ.');
+        }
+      });
+
+      // 6. In Phiếu Thu / Chi A5
+      document.querySelectorAll('.btn-print-voucher').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const code = btn.getAttribute('data-code');
+          const type = btn.getAttribute('data-type');
+          const amount = parseFloat(btn.getAttribute('data-amount') || '0');
+          const category = btn.getAttribute('data-category');
+          const recipient = btn.getAttribute('data-recipient');
+          const method = btn.getAttribute('data-method');
+          const note = btn.getAttribute('data-note');
+          const date = btn.getAttribute('data-date');
+
+          const isIncome = type === 'income';
+          document.getElementById('print-v-title').textContent = isIncome ? 'PHIẾU THU TIỀN' : 'PHIẾU CHI TIỀN';
+          document.getElementById('print-v-code').textContent = code;
+          document.getElementById('print-v-date').textContent = `Ngày: ${new Date(date).toLocaleString('vi-VN')}`;
+          document.getElementById('print-v-role-label').textContent = isIncome ? 'nộp' : 'nhận';
+          document.getElementById('print-v-recipient').textContent = recipient;
+          document.getElementById('print-v-category').textContent = category;
+          document.getElementById('print-v-method').textContent = method === 'cash' ? 'Tiền mặt (Két quỹ)' : 'Chuyển khoản (VietQR / Ngân hàng)';
+          document.getElementById('print-v-amount').textContent = formatMoney(amount);
+          document.getElementById('print-v-note').textContent = note || 'Không có ghi chú thêm.';
+          document.getElementById('print-v-sign-label').textContent = isIncome ? 'Người Nộp Tiền' : 'Người Nhận Tiền';
+          document.getElementById('print-v-sign-name').textContent = recipient;
+
+          openModal('modal-print-voucher');
+        });
+      });
+
+      document.getElementById('btn-do-print-voucher')?.addEventListener('click', () => {
+        window.print();
+      });
+    });
+  </script>
+</AdminLayout>
