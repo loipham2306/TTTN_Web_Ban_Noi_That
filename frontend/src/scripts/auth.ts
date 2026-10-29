@@ -84,6 +84,7 @@ export function saveAuth(user: AuthUser, token?: string): void {
       localStorage.setItem(TOKEN_KEY, token);
     }
     window.dispatchEvent(new Event(AUTH_EVENT));
+    window.dispatchEvent(new CustomEvent('cart:updated', { detail: [] }));
   } catch (e) {
     console.error('Lỗi khi lưu thông tin xác thực:', e);
   }
@@ -99,6 +100,7 @@ export function clearUser(redirectUrl?: string): void {
     localStorage.removeItem(AUTH_KEY);
     localStorage.removeItem(TOKEN_KEY);
     window.dispatchEvent(new Event(AUTH_EVENT));
+    window.dispatchEvent(new CustomEvent('cart:updated', { detail: [] }));
     if (redirectUrl) {
       window.location.href = redirectUrl;
     }

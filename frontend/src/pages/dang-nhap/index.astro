@@ -115,7 +115,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 <script is:inline src="https://accounts.google.com/gsi/client" async defer></script>
 
 <script>
-  import { mergeGuestCartOnLogin } from '../../scripts/cart';
+  import { mergeGuestCartIntoUser } from '../../scripts/cart';
   // =========================================================================
   // 1. CẤU HÌNH GOOGLE CLIENT ID
   // 👉 DÁN MÃ CÓ ĐUÔI ".apps.googleusercontent.com" VÀO GIỮA 2 DẤU "" DƯỚI ĐÂY:
@@ -254,7 +254,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
       // 2. Lưu phiên người dùng hiện tại đang đăng nhập
       localStorage.setItem('current_user', JSON.stringify(googleUser));
-      try { mergeGuestCartOnLogin(); } catch {}
+      try { mergeGuestCartIntoUser(); } catch {}
       window.dispatchEvent(new Event('auth:changed'));
 
       showToast(`Xin chào ${googleUser.name}! Đăng nhập Google thành công.`);
@@ -390,7 +390,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         };
 
         localStorage.setItem('current_user', JSON.stringify(loggedInUser));
-        try { mergeGuestCartOnLogin(); } catch {}
+        try { mergeGuestCartIntoUser(); } catch {}
         window.dispatchEvent(new Event('auth:changed'));
 
         showToast(`Đăng nhập thành công! Xin chào ${loggedInUser.name}`);

@@ -25,7 +25,7 @@ const comparePrice = (rawCompare && Number(rawCompare) > product.price)
 ---
 
 <article
-  class="product-card group relative flex flex-col rounded-none bg-white p-4 sm:p-5 border border-walnut-900/10 shadow-xs transition-all duration-300 hover:shadow-2xl hover:border-walnut-900/30 overflow-hidden"
+  class="product-card group relative flex flex-col rounded-none bg-white p-3.5 sm:p-4 md:p-5 border border-walnut-900/10 shadow-xs transition-all duration-300 hover:shadow-2xl hover:border-walnut-900/30 overflow-hidden"
   data-product={product.slug}
   data-name={product.name}
   data-category={product.category}
@@ -157,28 +157,28 @@ const comparePrice = (rawCompare && Number(rawCompare) > product.price)
       </button>
 
       <!-- HÀNG ĐÁNH GIÁ SAO (TRÁI) & CHIA SẺ, YÊU THÍCH (PHẢI) -->
-      <div class="mt-2.5 flex items-center justify-between border-t border-neutral-100 pt-2 text-xs">
+      <div class="mt-2.5 flex items-center justify-between gap-2 border-t border-neutral-100 pt-2 text-xs">
         <!-- ĐÁNH GIÁ SAO -->
-        <div class="flex items-center gap-1" title={`Đánh giá ${rating}/5 (${reviewCount} nhận xét)`}>
-          <div class="flex text-amber-400">
+        <div class="flex items-center gap-1.5 shrink-0 min-w-0" title={`Đánh giá ${rating}/5 (${reviewCount} nhận xét)`}>
+          <div class="flex items-center text-amber-400 gap-0.5">
             {Array.from({ length: 5 }).map((_, i) => (
-              <svg class="h-3.5 w-3.5 fill-current" viewBox="0 0 20 20">
+              <svg class="h-2.5 w-2.5 sm:h-3 sm:w-3 fill-current shrink-0" viewBox="0 0 20 20">
                 <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
               </svg>
             ))}
           </div>
-          <span class="font-bold text-walnut-900 text-xs ml-0.5">{rating}</span>
+          <span class="font-bold text-walnut-900 text-[11px] sm:text-xs shrink-0 tracking-tight">{rating}</span>
         </div>
 
         <!-- CÁC THAO TÁC PHỤ: CHIA SẺ & WISHLIST (SẮC CẠNH) -->
-        <div class="flex items-center gap-1.5">
+        <div class="flex items-center gap-1.5 shrink-0">
           <!-- NÚT CHIA SẺ (SHARE / COPY LINK) -->
           <button
             type="button"
             data-btn-share
             data-slug={product.slug}
             data-name={product.name}
-            class="flex h-8 w-8 items-center justify-center rounded-none border border-neutral-200 bg-white text-neutral-600 shadow-2xs transition-all hover:bg-[#173524] hover:text-amber-300 hover:border-[#173524] active:scale-95 cursor-pointer"
+            class="flex h-7 w-7 sm:h-7.5 sm:w-7.5 items-center justify-center rounded-none border border-neutral-200 bg-white text-neutral-600 shadow-2xs transition-all hover:bg-[#173524] hover:text-amber-300 hover:border-[#173524] active:scale-95 cursor-pointer"
             title="Chia sẻ sản phẩm"
             aria-label="Chia sẻ sản phẩm"
           >
@@ -200,7 +200,7 @@ const comparePrice = (rawCompare && Number(rawCompare) > product.price)
             data-price={product.price}
             data-image={imageSrc}
             data-category={product.categoryLabel}
-            class="wishlist-btn flex h-8 w-8 items-center justify-center rounded-none border border-neutral-200 bg-white text-neutral-600 shadow-2xs transition-all hover:bg-rose-50 hover:text-rose-500 hover:border-rose-300 active:scale-95 cursor-pointer"
+            class="wishlist-btn flex h-7 w-7 sm:h-7.5 sm:w-7.5 items-center justify-center rounded-none border border-neutral-200 bg-white text-neutral-600 shadow-2xs transition-all hover:bg-rose-50 hover:text-rose-500 hover:border-rose-300 active:scale-95 cursor-pointer"
             title="Thêm vào yêu thích"
             aria-label="Thêm vào yêu thích"
           >

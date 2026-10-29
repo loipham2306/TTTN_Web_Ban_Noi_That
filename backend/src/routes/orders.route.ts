@@ -18,58 +18,46 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
       });
     }
 
-    // 1. Tìm hoặc tạo user liên kết
-    let user = null;
-
-    // Ưu tiên 1: Người dùng đang đăng nhập có Bearer Token
+    // 1. RÀNG BUỘC BẮT BUỘC: Khách hàng PHẢI ĐĂNG NHẬP trước khi đặt hàng
     const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      try {
-        const token = authHeader.split(' ')[1];
-        const decoded = jwt.verify(token, ENV.JWT_SECRET) as AuthUserPayload;
-        if (decoded && decoded.id) {
-          user = await prisma.users.findUnique({
-            where: { id: BigInt(decoded.id) },
-          });
-        }
-      } catch (tokenErr) {
-        // Token không hợp lệ hoặc hết hạn, tiếp tục tìm theo email/phone
-      }
-    }
-
-    // Ưu tiên 2: Tìm theo email hoặc số điện thoại
-    if (!user && (email || phone)) {
-      user = await prisma.users.findFirst({
-        where: {
-          OR: [
-            ...(email ? [{ email }] : []),
-            ...(phone ? [{ phone }] : []),
-          ],
-        },
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({
+        success: false,
+        message: 'Vui lòng đăng nhập tài khoản trước khi tiến hành đặt hàng.',
       });
     }
 
-    if (!user) {
-      let customerRole = await prisma.roles.findFirst({
-        where: { name: 'customer' },
+    const token = authHeader.split(' ')[1];
+    let decoded: AuthUserPayload;
+    try {
+      decoded = jwt.verify(token, ENV.JWT_SECRET) as AuthUserPayload;
+    } catch (tokenErr) {
+      return res.status(401).json({
+        success: false,
+        message: 'Phiên đăng nhập đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.',
       });
-      if (!customerRole) {
-        customerRole = await prisma.roles.findFirst();
-      }
+    }
 
-      const guestEmail = email || `khach_${Date.now()}@noithat.local`;
-      user = await prisma.users.create({
-        data: {
-          full_name: fullname,
-          email: guestEmail,
-          phone: phone || null,
-          password_hash: 'guest_no_login',
-          role_id: customerRole ? customerRole.id : 1,
-          status: true,
-        },
+    if (!decoded || !decoded.id) {
+      return res.status(401).json({
+        success: false,
+        message: 'Thông tin tài khoản không hợp lệ. Vui lòng đăng nhập lại.',
       });
-    } else if (phone && !user.phone) {
-      // Cập nhật số điện thoại cho tài khoản nếu chưa có
+    }
+
+    const user = await prisma.users.findUnique({
+      where: { id: BigInt(decoded.id) },
+    });
+
+    if (!user || user.status === false) {
+      return res.status(403).json({
+        success: false,
+        message: 'Tài khoản người dùng không tồn tại hoặc đã bị khóa.',
+      });
+    }
+
+    // Cập nhật số điện thoại cho tài khoản nếu khách chưa có
+    if (phone && !user.phone) {
       try {
         await prisma.users.update({
           where: { id: user.id },
@@ -78,24 +66,74 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
       } catch {}
     }
 
-    // 2. Tính toán tiền
+    // 2. Xác thực từng sản phẩm từ CSDL, kiểm tra tồn kho và đối chiếu giá thực tế
     let subtotalAmount = 0;
     const validatedItems: Array<{
       slug: string;
       name: string;
       price: number;
       qty: number;
+      productId: bigint | null;
+      variantId: bigint | null;
+      sku: string;
     }> = [];
 
     for (const item of items) {
-      const price = Number(item.price) || 0;
-      const qty = Math.max(1, Number(item.qty) || 1);
-      subtotalAmount += price * qty;
+      const slug = String(item.slug || '').trim();
+      const requestedQty = Math.max(1, Number(item.qty) || 1);
+      let realPrice = Number(item.price) || 0;
+      let realName = String(item.name || 'Sản phẩm nội thất');
+      let productId: bigint | null = null;
+      let variantId: bigint | null = null;
+      let sku = slug || `SKU-${Date.now()}`;
+
+      if (slug) {
+        const product = await prisma.products.findFirst({
+          where: { slug },
+          include: { product_variants: true },
+        });
+
+        if (product) {
+          productId = product.id;
+          realName = product.name;
+
+          if (product.product_variants && product.product_variants.length > 0) {
+            const variant = product.product_variants[0];
+            variantId = variant.id;
+            sku = variant.sku || sku;
+
+            // Ràng buộc bảo mật: Luôn lấy giá từ CSDL để tránh can thiệp giá client
+            if (variant.price && Number(variant.price) > 0) {
+              realPrice = Number(variant.price);
+            }
+
+            // Ràng buộc tồn kho: Không cho phép đặt khi hết hàng hoặc số lượng vượt quá kho
+            const availableStock = Number(variant.stock_quantity ?? 0);
+            if (availableStock <= 0) {
+              return res.status(400).json({
+                success: false,
+                message: `Sản phẩm "${product.name}" hiện đã hết hàng trong kho. Vui lòng chọn sản phẩm khác hoặc liên hệ cửa hàng.`,
+              });
+            }
+            if (requestedQty > availableStock) {
+              return res.status(400).json({
+                success: false,
+                message: `Sản phẩm "${product.name}" chỉ còn ${availableStock} sản phẩm trong kho (quý khách yêu cầu ${requestedQty}).`,
+              });
+            }
+          }
+        }
+      }
+
+      subtotalAmount += realPrice * requestedQty;
       validatedItems.push({
-        slug: String(item.slug || ''),
-        name: String(item.name || 'Sản phẩm nội thất'),
-        price,
-        qty,
+        slug,
+        name: realName,
+        price: realPrice,
+        qty: requestedQty,
+        productId,
+        variantId,
+        sku,
       });
     }
 
@@ -178,24 +216,16 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
       },
     });
 
-    // 4. Tạo chi tiết đơn hàng trong bảng `order_items`
+    // 4. Tạo chi tiết đơn hàng trong bảng `order_items` và trừ tồn kho thực tế
     for (const item of validatedItems) {
-      let product = null;
-      if (item.slug) {
-        product = await prisma.products.findFirst({
-          where: { slug: item.slug },
-          include: { product_variants: true },
-        });
-      }
-
       await prisma.order_items.create({
         data: {
           order_id: newOrder.id,
-          product_id: product ? product.id : null,
-          variant_id: product?.product_variants?.[0]?.id ?? null,
+          product_id: item.productId,
+          variant_id: item.variantId,
           product_name: item.name,
           variant_name: null,
-          sku: product?.product_variants?.[0]?.sku ?? (item.slug || `SKU-${Date.now()}`),
+          sku: item.sku,
           quantity: item.qty,
           unit_price: item.price,
           total_price: item.price * item.qty,
@@ -203,17 +233,20 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
       });
 
       // Tự động trừ số lượng tồn kho (stock_quantity) của biến thể sản phẩm trong CSDL
-      const variant = product?.product_variants?.[0];
-      if (variant) {
+      if (item.variantId) {
         try {
-          const currentStock = Number(variant.stock_quantity ?? 20);
+          const currentVariant = await prisma.product_variants.findUnique({
+            where: { id: item.variantId },
+            select: { stock_quantity: true },
+          });
+          const currentStock = Number(currentVariant?.stock_quantity ?? 0);
           const newStock = Math.max(0, currentStock - item.qty);
           await prisma.product_variants.update({
-            where: { id: variant.id },
+            where: { id: item.variantId },
             data: { stock_quantity: newStock },
           });
         } catch (stockErr) {
-          console.warn('Lỗi trừ tồn kho biến thể:', variant.id, stockErr);
+          console.warn('Lỗi trừ tồn kho biến thể:', item.variantId, stockErr);
         }
       }
     }
