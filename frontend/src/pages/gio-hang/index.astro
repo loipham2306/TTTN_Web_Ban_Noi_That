@@ -45,70 +45,34 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             <div data-cart-items></div>
           </div>
 
-          <aside class="h-fit rounded-lg border border-walnut-900/10 bg-sand-50 p-6 shadow-sm">
-            <h2 class="text-xs font-semibold uppercase tracking-[0.25em] text-walnut-900">Tóm tắt đơn hàng</h2>
+          <aside class="h-fit rounded-2xl border border-walnut-900/10 bg-white p-6 sm:p-7 shadow-sm sticky top-6">
+            <h2 class="text-xs font-bold uppercase tracking-[0.25em] text-walnut-900 pb-4 border-b border-walnut-900/10">Tóm tắt đơn hàng</h2>
 
-            <!-- KHỐI ÁP DỤNG MÃ GIẢM GIÁ -->
-            <div class="mt-5 border-t border-walnut-900/10 pt-4">
-              <label for="cart-coupon-input" class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800 font-semibold mb-2">
-                Mã ưu đãi / Giảm giá
-              </label>
-              <div id="cart-coupon-input-group" class="flex gap-2">
-                <input
-                  id="cart-coupon-input"
-                  type="text"
-                  placeholder="Nhập mã ưu đãi..."
-                  class="flex-1 uppercase rounded border border-walnut-900/20 bg-white px-3 py-2 text-xs font-semibold tracking-wider outline-none transition-colors focus:border-clay-600 placeholder:normal-case placeholder:font-normal placeholder:tracking-normal"
-                />
-                <button
-                  type="button"
-                  id="cart-apply-coupon-btn"
-                  class="rounded bg-walnut-900 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-sand-50 transition-colors hover:bg-clay-600 cursor-pointer disabled:opacity-50"
-                >
-                  Áp dụng
-                </button>
+            <!-- BỐ CỤC TẠM TÍNH & PHÍ VẬN CHUYỂN CÂN ĐỐI, ĐỀU ĐẸP -->
+            <dl class="mt-5 space-y-3.5 text-sm">
+              <div class="flex items-center justify-between gap-4 pb-3 border-b border-walnut-900/5">
+                <dt class="text-walnut-800 font-medium whitespace-nowrap">Tạm tính</dt>
+                <dd data-cart-subtotal class="font-bold text-walnut-900 text-base text-right whitespace-nowrap">0 đ</dd>
               </div>
-
-              <!-- THẺ MÃ ĐÃ ÁP DỤNG -->
-              <div id="cart-applied-coupon-box" class="hidden mt-2 p-2.5 rounded bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center justify-between">
-                <div class="flex items-center gap-1.5">
-                  <span class="font-bold text-emerald-800">✓ <span id="cart-applied-code-name"></span></span>
-                  <span class="text-[11px] text-emerald-600 font-medium">(Đã giảm <span id="cart-applied-discount-text"></span>)</span>
-                </div>
-                <button type="button" id="cart-remove-coupon-btn" class="text-xs text-red-600 hover:text-red-700 underline font-medium cursor-pointer" title="Hủy mã">Gỡ bỏ</button>
-              </div>
-
-              <p id="cart-coupon-message" class="mt-1.5 hidden text-xs font-medium"></p>
-            </div>
-
-            <dl class="mt-5 flex flex-col gap-3 text-sm border-t border-b border-walnut-900/10 py-5">
-              <div class="flex items-center justify-between">
-                <dt class="text-walnut-800">Tạm tính</dt>
-                <dd data-cart-subtotal class="font-medium text-walnut-900">0 đ</dd>
-              </div>
-              <div id="cart-discount-row" class="hidden items-center justify-between text-emerald-700 font-medium">
-                <dt class="flex items-center gap-1 text-emerald-700">
-                  <span>Giảm giá (Voucher)</span>
-                  <span id="cart-discount-code-tag" class="rounded bg-emerald-100 px-1 py-0.2 text-[10px] font-bold"></span>
-                </dt>
-                <dd id="cart-discount-amount" class="font-semibold text-emerald-700">-0 đ</dd>
-              </div>
-              <div class="flex items-center justify-between">
-                <dt class="text-walnut-800">Phí vận chuyển</dt>
-                <dd class="text-walnut-800 text-xs">Tính khi đặt hàng (Miễn phí từ 2tr)</dd>
+              <div class="flex items-center justify-between gap-4">
+                <dt class="text-walnut-800 font-medium whitespace-nowrap">Phí vận chuyển</dt>
+                <dd class="font-medium text-walnut-800 text-xs text-right whitespace-nowrap">Tính khi thanh toán</dd>
               </div>
             </dl>
 
-            <div class="mt-6 flex items-center justify-between">
-              <span class="text-base font-semibold text-walnut-900">Tổng cộng</span>
-              <span data-cart-total class="font-display text-2xl font-bold text-clay-600">0 đ</span>
+            <!-- TỔNG CỘNG GỌN GÀNG, CĂN ĐỀU -->
+            <div class="mt-5 rounded-xl bg-gradient-to-br from-sand-100/90 to-sand-200/50 p-4 border border-walnut-900/10">
+              <div class="flex items-center justify-between gap-3">
+                <span class="text-xs uppercase tracking-wider font-bold text-walnut-900 whitespace-nowrap">Tổng cộng</span>
+                <span data-cart-total class="font-display text-2xl font-extrabold text-clay-700 tracking-tight text-right whitespace-nowrap">0 đ</span>
+              </div>
             </div>
 
-            <a href="/thanh-toan" class="mt-6 block w-full bg-clay-600 px-6 py-4 text-center text-xs font-medium uppercase tracking-[0.2em] text-sand-50 transition-all hover:bg-clay-500 rounded-sm shadow-sm active:scale-95">
-              Tiến hành đặt hàng
+            <a href="/thanh-toan" class="mt-5 block w-full bg-clay-600 px-6 py-4 text-center text-xs font-bold uppercase tracking-[0.2em] text-sand-50 transition-all hover:bg-clay-500 rounded-sm shadow-sm active:scale-95">
+              Tiến hành đặt hàng →
             </a>
 
-            <button type="button" data-cart-clear class="mt-4 w-full text-center text-xs uppercase tracking-[0.15em] text-walnut-800 underline underline-offset-4 transition-colors hover:text-red-600">
+            <button type="button" data-cart-clear class="mt-4 w-full text-center text-xs uppercase tracking-[0.15em] text-walnut-800/70 hover:text-red-600 underline underline-offset-4 transition-colors cursor-pointer">
               Xóa toàn bộ giỏ hàng
             </button>
           </aside>
@@ -134,142 +98,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   const totalEl = root?.querySelector<HTMLElement>('[data-cart-total]');
   const clearBtn = root?.querySelector<HTMLButtonElement>('[data-cart-clear]');
   const countLabel = document.querySelector<HTMLElement>('[data-cart-count-label]');
-
-  // Coupon DOM elements in Cart
-  const couponInput = root?.querySelector<HTMLInputElement>('#cart-coupon-input');
-  const applyCouponBtn = root?.querySelector<HTMLButtonElement>('#cart-apply-coupon-btn');
-  const appliedBox = root?.querySelector<HTMLElement>('#cart-applied-coupon-box');
-  const appliedCodeName = root?.querySelector<HTMLElement>('#cart-applied-code-name');
-  const appliedDiscountText = root?.querySelector<HTMLElement>('#cart-applied-discount-text');
-  const removeCouponBtn = root?.querySelector<HTMLButtonElement>('#cart-remove-coupon-btn');
-  const couponMessage = root?.querySelector<HTMLElement>('#cart-coupon-message');
-  const discountRow = root?.querySelector<HTMLElement>('#cart-discount-row');
-  const discountCodeTag = root?.querySelector<HTMLElement>('#cart-discount-code-tag');
-  const discountAmountEl = root?.querySelector<HTMLElement>('#cart-discount-amount');
-
-  interface CartCoupon {
-    couponId: number;
-    code: string;
-    discountType: string;
-    discountValue: number;
-    discountAmount: number;
-    minOrderValue: number;
-    maxDiscountAmount?: number | null;
-  }
-
-  let cartCoupon: CartCoupon | null = null;
-
-  const showCouponMessage = (msg: string, type: 'error' | 'success') => {
-    if (!couponMessage) return;
-    couponMessage.textContent = msg;
-    couponMessage.className = type === 'error'
-      ? 'mt-1.5 text-xs font-medium text-red-600 block'
-      : 'mt-1.5 text-xs font-medium text-emerald-600 block';
-  };
-
-  const clearCouponMessage = () => {
-    if (!couponMessage) return;
-    couponMessage.textContent = '';
-    couponMessage.className = 'mt-1.5 hidden text-xs font-medium';
-  };
-
-  const updateCouponUI = () => {
-    const inputGroup = root?.querySelector<HTMLElement>('#cart-coupon-input-group');
-    if (cartCoupon) {
-      inputGroup?.classList.add('hidden');
-      appliedBox?.classList.remove('hidden');
-      if (appliedCodeName) appliedCodeName.textContent = cartCoupon.code;
-      if (appliedDiscountText) {
-        appliedDiscountText.textContent = cartCoupon.discountType === 'free_shipping'
-          ? 'Miễn phí ship (Trừ khi thanh toán)'
-          : formatVnd(cartCoupon.discountAmount);
-      }
-
-      discountRow?.classList.remove('hidden');
-      discountRow?.classList.add('flex');
-      if (discountCodeTag) {
-        discountCodeTag.textContent = cartCoupon.discountType === 'free_shipping'
-          ? `${cartCoupon.code} (Freeship)`
-          : cartCoupon.code;
-      }
-      if (discountAmountEl) {
-        discountAmountEl.textContent = cartCoupon.discountType === 'free_shipping'
-          ? 'Freeship'
-          : '-' + formatVnd(cartCoupon.discountAmount);
-      }
-    } else {
-      inputGroup?.classList.remove('hidden');
-      appliedBox?.classList.add('hidden');
-      discountRow?.classList.add('hidden');
-      discountRow?.classList.remove('flex');
-    }
-  };
-
-  const applyCoupon = async (codeToApply: string) => {
-    const code = codeToApply.trim().toUpperCase();
-    if (!code) {
-      showCouponMessage('Vui lòng nhập mã giảm giá.', 'error');
-      return;
-    }
-
-    const items = readCart();
-    const subtotal = totalPrice(items);
-
-    if (applyCouponBtn) {
-      applyCouponBtn.disabled = true;
-      applyCouponBtn.textContent = '...';
-    }
-    clearCouponMessage();
-
-    try {
-      const res = await fetch('http://localhost:4000/api/coupons/validate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, subtotal }),
-      });
-
-      const json = await res.json();
-
-      if (res.ok && json.success && json.data) {
-        cartCoupon = json.data;
-        localStorage.setItem('cart_coupon', code);
-        showCouponMessage(json.message || 'Áp dụng mã thành công!', 'success');
-        updateCouponUI();
-        render();
-      } else {
-        showCouponMessage(json.message || 'Mã giảm giá không hợp lệ.', 'error');
-      }
-    } catch (err) {
-      showCouponMessage('Không thể kết nối máy chủ để kiểm tra mã.', 'error');
-    } finally {
-      if (applyCouponBtn) {
-        applyCouponBtn.disabled = false;
-        applyCouponBtn.textContent = 'Áp dụng';
-      }
-    }
-  };
-
-  const removeCoupon = () => {
-    cartCoupon = null;
-    localStorage.removeItem('cart_coupon');
-    if (couponInput) couponInput.value = '';
-    clearCouponMessage();
-    updateCouponUI();
-    render();
-  };
-
-  applyCouponBtn?.addEventListener('click', () => {
-    applyCoupon(couponInput?.value || '');
-  });
-
-  couponInput?.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') {
-      e.preventDefault();
-      applyCoupon(couponInput.value);
-    }
-  });
-
-  removeCouponBtn?.addEventListener('click', removeCoupon);
 
   if (itemsEl && emptyEl && contentEl && subtotalEl && totalEl) {
 
@@ -336,38 +164,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       contentEl.classList.toggle('hidden', isEmpty);
 
       const subtotal = totalPrice(items);
-      let discountAmount = 0;
-
-      if (cartCoupon) {
-        if (subtotal < cartCoupon.minOrderValue) {
-          const minText = formatVnd(cartCoupon.minOrderValue);
-          removeCoupon();
-          showCouponMessage(`Đơn hàng cần đạt tối thiểu ${minText} để áp dụng mã.`, 'error');
-        } else {
-          if (cartCoupon.discountType === 'free_shipping') {
-            discountAmount = 0; // Phí ship sẽ được giảm trực tiếp tại thanh toán
-            if (appliedDiscountText) appliedDiscountText.textContent = 'Miễn phí ship (Áp dụng tại thanh toán)';
-            if (discountAmountEl) discountAmountEl.textContent = 'Freeship';
-          } else if (cartCoupon.discountType === 'percent' || cartCoupon.discountType === 'percentage') {
-            discountAmount = Math.round((subtotal * cartCoupon.discountValue) / 100);
-            if (cartCoupon.maxDiscountAmount && discountAmount > cartCoupon.maxDiscountAmount) {
-              discountAmount = cartCoupon.maxDiscountAmount;
-            }
-            if (appliedDiscountText) appliedDiscountText.textContent = formatVnd(discountAmount);
-            if (discountAmountEl) discountAmountEl.textContent = '-' + formatVnd(discountAmount);
-          } else {
-            discountAmount = Math.min(subtotal, cartCoupon.discountValue);
-            if (appliedDiscountText) appliedDiscountText.textContent = formatVnd(discountAmount);
-            if (discountAmountEl) discountAmountEl.textContent = '-' + formatVnd(discountAmount);
-          }
-          cartCoupon.discountAmount = discountAmount;
-        }
-      }
-
-      const grandTotal = Math.max(0, subtotal - discountAmount);
 
       subtotalEl.textContent = formatVnd(subtotal);
-      totalEl.textContent = formatVnd(grandTotal);
+      totalEl.textContent = formatVnd(subtotal);
       if (countLabel) countLabel.textContent = String(countItems(items));
 
       if (!isEmpty) bindRows();
@@ -376,17 +175,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     clearBtn?.addEventListener('click', () => {
       if (confirm('Bạn có chắc chắn muốn xóa toàn bộ giỏ hàng?')) {
         clearCart();
-        removeCoupon();
         render();
       }
     });
-
-    // Tự động nạp mã lưu trong localStorage nếu có
-    const saved = localStorage.getItem('cart_coupon');
-    if (saved) {
-      if (couponInput) couponInput.value = saved;
-      applyCoupon(saved);
-    }
 
     window.addEventListener('storage', render);
     window.addEventListener(CART_EVENT, render);

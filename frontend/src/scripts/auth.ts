@@ -12,11 +12,21 @@ export interface AuthUser {
 
 export const AUTH_KEY = 'current_user';
 export const TOKEN_KEY = 'auth_token';
+export const ADMIN_AUTH_KEY = 'admin_user';
+export const ADMIN_TOKEN_KEY = 'admin_token';
 export const AUTH_EVENT = 'auth:changed';
 
 export function getToken(): string | null {
   try {
     return localStorage.getItem(TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function getAdminToken(): string | null {
+  try {
+    return localStorage.getItem(ADMIN_TOKEN_KEY) || localStorage.getItem(TOKEN_KEY);
   } catch {
     return null;
   }

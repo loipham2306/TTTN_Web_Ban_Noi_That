@@ -225,7 +225,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       };
 
       // 1. Gửi lên Backend để xác thực và lấy Token an toàn
-      localStorage.removeItem('auth_token'); // Xoá token cũ để tránh rò rỉ phiên
       try {
         const res = await fetch('http://localhost:4000/api/auth/google', {
           method: 'POST',
@@ -238,8 +237,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         });
 
         const data = await res.json();
+        const isStaff = data.user && (data.user.role === 'admin' || data.user.role === 'seller');
+
         if (data.success && data.token) {
-          localStorage.setItem('auth_token', data.token);
+          if (isStaff) {
+            localStorage.setItem('admin_token', data.token);
+          } else {
+            localStorage.setItem('auth_token', data.token);
+          }
           if (data.user) {
             googleUser.id = data.user.id;
             googleUser.role = data.user.role || 'customer';
@@ -248,14 +253,18 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             if (data.user.avatar) googleUser.avatar = data.user.avatar;
           }
         }
+
+        // 2. Lưu phiên người dùng (tách riêng cho Admin và Khách hàng để không bị đè phiên)
+        if (isStaff) {
+          localStorage.setItem('admin_user', JSON.stringify(googleUser));
+        } else {
+          localStorage.setItem('current_user', JSON.stringify(googleUser));
+          try { mergeGuestCartOnLogin(); } catch {}
+          window.dispatchEvent(new Event('auth:changed'));
+        }
       } catch (e) {
         console.warn('Lỗi kết nối Backend Google Auth:', e);
       }
-
-      // 2. Lưu phiên người dùng hiện tại đang đăng nhập
-      localStorage.setItem('current_user', JSON.stringify(googleUser));
-      try { mergeGuestCartOnLogin(); } catch {}
-      window.dispatchEvent(new Event('auth:changed'));
 
       showToast(`Xin chào ${googleUser.name}! Đăng nhập Google thành công.`);
       setTimeout(() => {
@@ -376,11 +385,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           return;
         }
 
-        // Lưu JWT Token và thông tin User an toàn vào Client
-        if (data.token) {
-          localStorage.setItem('auth_token', data.token);
-        }
-
+        const isAdminOrSeller = data.user.role === 'admin' || data.user.role === 'seller';
         const loggedInUser = {
           id: data.user.id,
           name: data.user.full_name || email.split('@')[0],
@@ -389,9 +394,20 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           role: data.user.role || 'customer',
         };
 
-        localStorage.setItem('current_user', JSON.stringify(loggedInUser));
-        try { mergeGuestCartOnLogin(); } catch {}
-        window.dispatchEvent(new Event('auth:changed'));
+        // Tách biệt phiên lưu trữ: Admin dùng admin_token/admin_user, Khách dùng auth_token/current_user
+        if (isAdminOrSeller) {
+          if (data.token) {
+            localStorage.setItem('admin_token', data.token);
+          }
+          localStorage.setItem('admin_user', JSON.stringify(loggedInUser));
+        } else {
+          if (data.token) {
+            localStorage.setItem('auth_token', data.token);
+          }
+          localStorage.setItem('current_user', JSON.stringify(loggedInUser));
+          try { mergeGuestCartOnLogin(); } catch {}
+          window.dispatchEvent(new Event('auth:changed'));
+        }
 
         showToast(`Đăng nhập thành công! Xin chào ${loggedInUser.name}`);
 

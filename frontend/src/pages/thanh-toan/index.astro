@@ -57,8 +57,8 @@ const provinces = [
           <li data-step-label="2" class="text-walnut-800">3 — Xác nhận & Đặt hàng</li>
         </ol>
 
-        <!-- ĐÃ FIX: CHIA LẠI GRID 12 CỘT (TỶ LỆ 7-5 CHO BÊN TRÁI RỘNG, BÊN PHẢI TO) -->
-        <div data-checkout-grid class="mt-10 grid gap-10 lg:grid-cols-12 lg:gap-14">
+        <!-- ĐÃ TỐI ƯU: GRID 12 CỘT CÂN ĐỐI (7-5), THOÁNG ĐÃNG VÀ CHẶT CHẼ -->
+        <div data-checkout-grid class="mt-8 grid gap-8 lg:grid-cols-12 lg:gap-10 items-start">
 
           <!-- BÊN TRÁI: FORM ĐIỀN THÔNG TIN (Chiếm 7 phần) -->
           <div class="lg:col-span-7">
@@ -194,15 +194,24 @@ const provinces = [
             </div>
           </div>
 
-          <!-- BÊN PHẢI: ASIDE SUMMARY (Chiếm 5 phần, không gian rộng rãi hơn) -->
-          <aside class="lg:col-span-5 h-fit rounded-lg border border-walnut-900/10 bg-sand-50 p-6 sm:p-8 shadow-sm">
-            <h2 class="text-xs uppercase tracking-[0.25em] text-walnut-900 font-bold border-b border-walnut-900/10 pb-4">Đơn hàng của bạn</h2>
+          <!-- BÊN PHẢI: ASIDE SUMMARY (THIẾT KẾ HIỆN ĐẠI, THOÁNG ĐÃNG, KHÔNG KHOẢNG TRỐNG THỪA) -->
+          <aside class="lg:col-span-5 h-fit rounded-2xl border border-walnut-900/10 bg-white p-5 sm:p-7 shadow-sm sticky top-6 mb-12">
+            <!-- HEADER -->
+            <div class="flex items-center justify-between pb-3.5 border-b border-walnut-900/10">
+              <h2 class="text-xs uppercase tracking-[0.2em] text-walnut-900 font-bold flex items-center gap-2">
+                <svg class="w-4 h-4 text-clay-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+                </svg>
+                <span>Đơn hàng của bạn</span>
+              </h2>
+              <span data-checkout-count class="text-[11px] font-semibold bg-sand-100 text-walnut-800 px-2.5 py-0.5 rounded-full border border-walnut-900/10">0 sản phẩm</span>
+            </div>
 
-            <!-- max-h mở rộng để chứa được nhiều sản phẩm to hơn -->
-            <div data-checkout-items class="max-h-[30rem] overflow-y-auto pr-2"></div>
+            <!-- DANH SÁCH MÓN HÀNG TRONG ĐƠN -->
+            <div data-checkout-items class="max-h-[28rem] overflow-y-auto pr-1 mt-3 space-y-2.5"></div>
 
-            <!-- KHỐI ÁP DỤNG MÃ GIẢM GIÁ (HIỂN THỊ XUYÊN SUỐT CẢ 3 BƯỚC) -->
-            <div class="mt-5 border-t border-walnut-900/10 pt-4">
+            <!-- KHỐI ÁP DỤNG MÃ GIẢM GIÁ -->
+            <div class="mt-4 pt-4 border-t border-walnut-900/10">
               <label for="coupon-code-input" class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800 font-semibold mb-2">
                 Mã ưu đãi / Giảm giá
               </label>
@@ -211,24 +220,24 @@ const provinces = [
                   id="coupon-code-input"
                   type="text"
                   placeholder="Nhập mã giảm giá..."
-                  class="flex-1 uppercase rounded border border-walnut-900/20 bg-white px-3 py-2 text-xs font-semibold tracking-wider outline-none transition-colors focus:border-clay-600 placeholder:normal-case placeholder:font-normal placeholder:tracking-normal"
+                  class="flex-1 uppercase rounded-lg border border-walnut-900/20 bg-sand-50/50 px-3.5 py-2.5 text-xs font-semibold tracking-wider outline-none transition-colors focus:border-clay-600 focus:bg-white placeholder:normal-case placeholder:font-normal placeholder:tracking-normal placeholder:text-walnut-800/40"
                 />
                 <button
                   type="button"
                   id="apply-coupon-btn"
-                  class="rounded bg-walnut-900 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-sand-50 transition-colors hover:bg-clay-600 cursor-pointer disabled:opacity-50"
+                  class="rounded-lg bg-walnut-900 px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-sand-50 transition-colors hover:bg-clay-600 active:scale-95 cursor-pointer disabled:opacity-50 shrink-0"
                 >
                   Áp dụng
                 </button>
               </div>
 
               <!-- THẺ MÃ ĐÃ ÁP DỤNG THÀNH CÔNG -->
-              <div id="applied-coupon-box" class="hidden mt-2 p-2.5 rounded bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center justify-between">
-                <div class="flex items-center gap-1.5">
-                  <span class="font-bold text-emerald-800">✓ <span id="applied-code-name"></span></span>
-                  <span class="text-[11px] text-emerald-600 font-medium">(Đã giảm <span id="applied-discount-text"></span>)</span>
+              <div id="applied-coupon-box" class="hidden mt-2 p-2.5 rounded-lg bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 flex items-center justify-between">
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="font-bold text-emerald-800 shrink-0">✓ <span id="applied-code-name"></span></span>
+                  <span id="applied-discount-text" class="text-xs text-emerald-700 font-semibold"></span>
                 </div>
-                <button type="button" id="remove-coupon-btn" class="text-xs text-red-600 hover:text-red-700 underline font-medium cursor-pointer" title="Hủy mã">Gỡ bỏ</button>
+                <button type="button" id="remove-coupon-btn" class="text-xs text-red-600 hover:text-red-700 underline font-medium cursor-pointer shrink-0 ml-2" title="Hủy mã">Gỡ bỏ</button>
               </div>
 
               <!-- THÔNG BÁO LỖI / THÀNH CÔNG -->
@@ -241,31 +250,41 @@ const provinces = [
               </div>
             </div>
 
-            <dl class="mt-5 flex flex-col gap-3.5 text-sm border-t border-walnut-900/10 pt-4">
-              <div class="flex items-center justify-between">
-                <dt class="text-walnut-800 font-medium">Tạm tính</dt>
+            <!-- TÍNH TOÁN CHI PHÍ -->
+            <dl class="mt-4 pt-4 border-t border-walnut-900/10 space-y-2.5 text-sm">
+              <div class="flex items-center justify-between text-walnut-800">
+                <dt class="font-medium">Tạm tính</dt>
                 <dd data-checkout-subtotal class="font-bold text-walnut-900">0 đ</dd>
               </div>
               <div id="checkout-discount-row" class="hidden items-center justify-between text-emerald-700 font-medium">
-                <dt class="flex items-center gap-1 text-emerald-700">
-                  <span>Giảm giá (Voucher)</span>
-                  <span id="checkout-discount-code-tag" class="rounded bg-emerald-100 px-1 py-0.2 text-[10px] font-bold"></span>
+                <dt class="flex items-center gap-1.5 text-emerald-700">
+                  <span>Giảm giá</span>
+                  <span id="checkout-discount-code-tag" class="rounded bg-emerald-100 px-1.5 py-0.5 text-[10px] font-bold uppercase"></span>
                 </dt>
                 <dd id="checkout-discount-amount" class="font-semibold text-emerald-700">-0 đ</dd>
               </div>
-              <div class="flex items-center justify-between">
-                <dt class="text-walnut-800 font-medium">Phí vận chuyển</dt>
+              <div class="flex items-center justify-between text-walnut-800">
+                <dt class="font-medium">Phí vận chuyển</dt>
                 <dd data-checkout-shipping class="text-walnut-900 font-bold">Miễn phí</dd>
               </div>
             </dl>
 
-            <div class="mt-5 flex items-center justify-between border-t border-walnut-900/10 pt-5">
-              <span class="text-base font-bold text-walnut-900 uppercase tracking-wider">Tổng thanh toán</span>
-              <span data-checkout-total class="font-display text-3xl font-bold text-clay-600">0 đ</span>
+            <!-- TỔNG THANH TOÁN (CARD HIGHLIGHT SANG TRỌNG, TRÁNH BỊ CHATBOT CHE) -->
+            <div class="mt-4 rounded-xl bg-gradient-to-br from-sand-100/90 to-sand-200/50 p-4 border border-walnut-900/10">
+              <div class="flex items-baseline justify-between gap-2">
+                <div>
+                  <span class="block text-xs uppercase tracking-wider font-bold text-walnut-900">Tổng thanh toán</span>
+                  <span class="block text-[11px] text-walnut-800/70 font-normal mt-0.5">(Đã bao gồm VAT)</span>
+                </div>
+                <span data-checkout-total class="font-display text-2xl sm:text-3xl font-extrabold text-clay-700 tracking-tight">0 đ</span>
+              </div>
             </div>
 
-            <a href="/gio-hang" class="mt-8 block text-center text-xs font-bold uppercase tracking-[0.15em] text-walnut-800 underline underline-offset-4 transition-colors hover:text-clay-600">
-              Quay lại giỏ hàng
+            <a href="/gio-hang" class="mt-5 flex items-center justify-center gap-1.5 text-center text-xs font-bold uppercase tracking-[0.15em] text-walnut-800 transition-colors hover:text-clay-600">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+              <span>Quay lại giỏ hàng</span>
             </a>
           </aside>
 
@@ -607,17 +626,13 @@ const provinces = [
         appliedBox?.classList.remove('hidden');
         if (appliedCodeName) appliedCodeName.textContent = currentCoupon.code;
         if (appliedDiscountText) {
-          appliedDiscountText.textContent = currentCoupon.discountType === 'free_shipping'
-            ? `Miễn phí ship (${formatVnd(currentCoupon.discountAmount)})`
-            : formatVnd(currentCoupon.discountAmount);
+          appliedDiscountText.textContent = '-' + formatVnd(currentCoupon.discountAmount);
         }
 
         discountRow?.classList.remove('hidden');
         discountRow?.classList.add('flex');
         if (discountCodeTag) {
-          discountCodeTag.textContent = currentCoupon.discountType === 'free_shipping'
-            ? `${currentCoupon.code} (Freeship)`
-            : currentCoupon.code;
+          discountCodeTag.textContent = currentCoupon.code;
         }
         if (discountAmountEl) discountAmountEl.textContent = '-' + formatVnd(currentCoupon.discountAmount);
       } else {
@@ -656,7 +671,7 @@ const provinces = [
         if (res.ok && json.success && json.data) {
           currentCoupon = json.data;
           localStorage.setItem('cart_coupon', code);
-          showCouponMessage(json.message || 'Áp dụng mã thành công!', 'success');
+          clearCouponMessage(); // Xóa thông báo thành công thừa thãi, chỉ giữ box coupon gọn gàng
           updateCouponUI();
           renderSummary();
         } else {
@@ -708,43 +723,55 @@ const provinces = [
     const successMethodEl = root.querySelector<HTMLElement>('[data-success-method]');
     const successStatusEl = root.querySelector<HTMLElement>('[data-success-status]');
 
-    // ĐÃ FIX: HÌNH ẢNH TO HƠN VÀ THÔNG TIN RÕ NÉT HƠN
+    // ĐÃ NÂNG CẤP: CARD HIỂN THỊ SẢN PHẨM RÕ RÀNG, SANG TRỌNG, ĐẦY ĐẶN
     const buildRow = (item: CartItem) => {
       const row = document.createElement('div');
-      row.className = 'flex items-center justify-between gap-4 border-b border-walnut-900/10 py-4 text-sm';
+      row.className = 'flex items-center justify-between gap-3 p-3 rounded-xl bg-sand-50/70 border border-walnut-900/10 hover:bg-sand-50 transition-colors';
 
       const left = document.createElement('div');
-      left.className = 'flex items-center gap-4 min-w-0';
+      left.className = 'flex items-center gap-3.5 min-w-0';
 
       if (item.thumbnail) {
+        const imgWrap = document.createElement('div');
+        imgWrap.className = 'relative shrink-0';
+
         const img = document.createElement('img');
         img.src = item.thumbnail;
         img.alt = item.name;
-        // Kích thước ảnh to hơn (h-16 w-16 đến h-20 w-20)
-        img.className = 'h-16 w-16 sm:h-20 sm:w-20 shrink-0 rounded object-cover border border-walnut-900/10 shadow-sm';
-        left.appendChild(img);
+        img.className = 'h-18 w-18 sm:h-20 sm:w-20 shrink-0 rounded-lg object-cover border border-walnut-900/10 shadow-xs bg-white';
+        imgWrap.appendChild(img);
+
+        const badge = document.createElement('span');
+        badge.className = 'absolute -top-1.5 -right-1.5 bg-walnut-900 text-sand-50 text-[10px] font-bold px-1.5 py-0.2 rounded-full shadow-xs leading-tight';
+        badge.textContent = `x${item.qty}`;
+        imgWrap.appendChild(badge);
+
+        left.appendChild(imgWrap);
       }
 
       const textCol = document.createElement('div');
       textCol.className = 'min-w-0 flex flex-col justify-center';
       const name = document.createElement('p');
-      name.className = 'text-walnut-900 font-bold leading-snug text-sm sm:text-base line-clamp-2';
+      name.className = 'text-walnut-900 font-bold leading-snug text-sm sm:text-[15px] line-clamp-2';
       name.textContent = item.name;
 
       const meta = document.createElement('p');
-      meta.className = 'mt-1.5 text-xs text-walnut-800 font-medium';
-      meta.textContent = item.qty + ' × ' + formatVnd(item.price);
+      meta.className = 'mt-1 text-xs text-walnut-800/80 font-medium';
+      meta.textContent = `Đơn giá: ${formatVnd(item.price)}`;
 
       textCol.appendChild(name);
       textCol.appendChild(meta);
       left.appendChild(textCol);
 
+      const rightCol = document.createElement('div');
+      rightCol.className = 'text-right shrink-0 pl-2';
       const line = document.createElement('p');
       line.className = 'whitespace-nowrap font-bold text-walnut-900 text-sm sm:text-base';
       line.textContent = formatVnd(item.price * item.qty);
+      rightCol.appendChild(line);
 
       row.appendChild(left);
-      row.appendChild(line);
+      row.appendChild(rightCol);
       return row;
     };
 
@@ -754,6 +781,12 @@ const provinces = [
       if (itemsEl) {
         itemsEl.textContent = '';
         items.forEach((item) => itemsEl.appendChild(buildRow(item)));
+      }
+
+      const countEl = root.querySelector<HTMLElement>('[data-checkout-count]');
+      if (countEl) {
+        const totalQty = items.reduce((sum, item) => sum + item.qty, 0);
+        countEl.textContent = `${totalQty} sản phẩm`;
       }
 
       const subtotal = totalPrice(items);
@@ -1304,7 +1337,7 @@ ${value('phone')}`,
             activeList.slice(0, 3).forEach((cp: any) => {
               const pill = document.createElement('button');
               pill.type = 'button';
-              pill.className = 'inline-flex items-center gap-1 rounded border border-dashed border-clay-600/60 bg-clay-50/50 hover:bg-clay-100/70 px-2 py-1 text-[11px] font-semibold text-clay-700 transition-colors cursor-pointer';
+              pill.className = 'inline-flex items-center gap-1.5 rounded-lg border border-dashed border-clay-600/50 bg-clay-50/70 hover:bg-clay-100 hover:border-clay-700/70 px-2.5 py-1 text-[11px] font-semibold text-clay-800 transition-all cursor-pointer shadow-2xs hover:scale-[1.02] active:scale-95';
               const isFreeShip = cp.discountType === 'free_shipping';
               let valText = '';
               if (isFreeShip) {

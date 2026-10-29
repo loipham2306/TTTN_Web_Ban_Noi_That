@@ -379,6 +379,236 @@ ordersRouter.get('/my-orders', verifyToken, async (req: Request, res: Response) 
   }
 });
 
+// ================================================================
+// GET /api/orders/analytics - Thống kê doanh thu, biểu đồ 7 ngày, biểu đồ tháng, tỷ trọng danh mục và KPI
+// ================================================================
+ordersRouter.get('/analytics', async (_req: Request, res: Response) => {
+  try {
+    // 1. Lấy tất cả đơn hàng hợp lệ (loại trừ đã hủy)
+    const validOrders = await prisma.orders.findMany({
+      where: {
+        order_status: { notIn: ['cancelled'] },
+      },
+      include: {
+        users: { select: { id: true, full_name: true, phone: true } },
+      },
+      orderBy: { created_at: 'asc' },
+    });
+
+    const allOrdersCount = await prisma.orders.count();
+    const cancelledOrdersCount = await prisma.orders.count({
+      where: { order_status: 'cancelled' },
+    });
+
+    // Tổng doanh thu toàn hệ thống
+    const totalRevenue = validOrders.reduce((sum, o) => sum + Number(o.total_amount), 0);
+    const uniqueCustomerKeys = new Set(validOrders.map((o) => o.users?.phone || o.users?.full_name || String(o.user_id)));
+    const uniqueCustomers = uniqueCustomerKeys.size;
+
+    // Đếm lượt chat AI phong thuỷ từ chat_sessions
+    let aiConsultations = 0;
+    try {
+      aiConsultations = await prisma.chat_sessions.count();
+    } catch {}
+
+    // 2. Thống kê theo 7 ngày gần nhất
+    const today = new Date();
+    const daysMap: Record<string, { dateStr: string; dayLabel: string; revenue: number; orders: number }> = {};
+    const vnDays = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setDate(d.getDate() - i);
+      const isoDate = d.toISOString().split('T')[0];
+      const dayOfWeek = vnDays[d.getDay()];
+      daysMap[isoDate] = {
+        dateStr: isoDate,
+        dayLabel: dayOfWeek,
+        revenue: 0,
+        orders: 0,
+      };
+    }
+
+    for (const order of validOrders) {
+      if (order.created_at) {
+        const orderDateStr = order.created_at.toISOString().split('T')[0];
+        if (daysMap[orderDateStr]) {
+          daysMap[orderDateStr].revenue += Number(order.total_amount);
+          daysMap[orderDateStr].orders += 1;
+        }
+      }
+    }
+
+    let dailyList = Object.values(daysMap);
+    const recent7DaysRevenue = dailyList.reduce((sum, d) => sum + d.revenue, 0);
+
+    // Nếu trong 7 ngày gần nhất doanh thu = 0 (do các ngày test diễn ra trong tháng), lấy các ngày có đơn gần nhất
+    if (recent7DaysRevenue === 0 && validOrders.length > 0) {
+      const activeDaysMap: Record<string, { dateStr: string; dayLabel: string; revenue: number; orders: number }> = {};
+      for (const order of validOrders) {
+        if (order.created_at) {
+          const orderDateStr = order.created_at.toISOString().split('T')[0];
+          const d = new Date(order.created_at);
+          const dayOfWeek = vnDays[d.getDay()];
+          if (!activeDaysMap[orderDateStr]) {
+            activeDaysMap[orderDateStr] = {
+              dateStr: orderDateStr,
+              dayLabel: `${dayOfWeek} (${d.getDate()}/${d.getMonth() + 1})`,
+              revenue: 0,
+              orders: 0,
+            };
+          }
+          activeDaysMap[orderDateStr].revenue += Number(order.total_amount);
+          activeDaysMap[orderDateStr].orders += 1;
+        }
+      }
+      const sortedActiveDays = Object.values(activeDaysMap).sort((a, b) => a.dateStr.localeCompare(b.dateStr));
+      if (sortedActiveDays.length > 0) {
+        dailyList = sortedActiveDays.slice(-7);
+      }
+    }
+
+    const maxDayRevenue = Math.max(...dailyList.map((d) => d.revenue), 1);
+    const daily7Days = dailyList.map((d) => {
+      const valInMillions = Number((d.revenue / 1_000_000).toFixed(1));
+      let height = '0%';
+      if (d.revenue > 0) {
+        const pct = Math.max(10, Math.round((d.revenue / maxDayRevenue) * 100));
+        height = `${pct}%`;
+      }
+      return {
+        day: d.dayLabel,
+        date: d.dateStr,
+        revenue: d.revenue,
+        val: valInMillions,
+        orders: d.orders,
+        height,
+      };
+    });
+
+    // 3. Thống kê theo 6 tháng gần nhất
+    const monthsMap: Record<string, { monthLabel: string; yearMonth: string; revenue: number; orders: number }> = {};
+    for (let i = 5; i >= 0; i--) {
+      const mDate = new Date(today.getFullYear(), today.getMonth() - i, 1);
+      const ym = `${mDate.getFullYear()}-${String(mDate.getMonth() + 1).padStart(2, '0')}`;
+      monthsMap[ym] = {
+        monthLabel: `Tháng ${mDate.getMonth() + 1}`,
+        yearMonth: ym,
+        revenue: 0,
+        orders: 0,
+      };
+    }
+
+    for (const order of validOrders) {
+      if (order.created_at) {
+        const ym = `${order.created_at.getFullYear()}-${String(order.created_at.getMonth() + 1).padStart(2, '0')}`;
+        if (monthsMap[ym]) {
+          monthsMap[ym].revenue += Number(order.total_amount);
+          monthsMap[ym].orders += 1;
+        }
+      }
+    }
+
+    const monthlyList = Object.values(monthsMap);
+    const maxMonthRev = Math.max(...monthlyList.map((m) => m.revenue), 1);
+    const monthlyStats = monthlyList.map((m) => {
+      const valInMillions = Math.round(m.revenue / 1_000_000);
+      const cost = Math.round(m.revenue * 0.55);
+      const profit = Math.round(m.revenue * 0.45);
+      const margin = m.revenue > 0 ? '45.0%' : '0.0%';
+      let height = '0%';
+      if (m.revenue > 0) {
+        const pct = Math.max(12, Math.round((m.revenue / maxMonthRev) * 100));
+        height = `${pct}%`;
+      }
+      return {
+        month: m.monthLabel,
+        yearMonth: m.yearMonth,
+        revenue: m.revenue,
+        cost,
+        profit,
+        margin,
+        orders: m.orders,
+        val: valInMillions,
+        height,
+      };
+    });
+
+    // 4. Tỷ trọng doanh số theo danh mục sản phẩm
+    const orderItemsWithCategory = await prisma.order_items.findMany({
+      where: {
+        orders: {
+          order_status: { notIn: ['cancelled'] },
+        },
+      },
+      include: {
+        products: {
+          include: {
+            categories: true,
+          },
+        },
+      },
+    });
+
+    const categoryRevenueMap: Record<string, number> = {};
+    for (const item of orderItemsWithCategory) {
+      const catName = item.products?.categories?.name || 'Sản phẩm khác';
+      const itemTotal = Number(item.total_price || 0);
+      categoryRevenueMap[catName] = (categoryRevenueMap[catName] || 0) + itemTotal;
+    }
+
+    const totalCategorySales = Object.values(categoryRevenueMap).reduce((sum, v) => sum + v, 0);
+    const categoryColors = ['bg-walnut-900', 'bg-clay-600', 'bg-olive-700', 'bg-amber-700', 'bg-stone-600'];
+
+    const categoryShare = Object.entries(categoryRevenueMap)
+      .map(([name, revenue], idx) => {
+        const percent = totalCategorySales > 0 ? Number(((revenue / totalCategorySales) * 100).toFixed(1)) : 0;
+        return {
+          name,
+          revenue,
+          percent,
+          color: categoryColors[idx % categoryColors.length],
+        };
+      })
+      .sort((a, b) => b.revenue - a.revenue);
+
+    // Current month stats
+    const currentYm = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}`;
+    const currentMonthOrders = validOrders.filter((o) => {
+      if (!o.created_at) return false;
+      const ym = `${o.created_at.getFullYear()}-${String(o.created_at.getMonth() + 1).padStart(2, '0')}`;
+      return ym === currentYm;
+    });
+    const monthlyRevenue = currentMonthOrders.reduce((sum, o) => sum + Number(o.total_amount), 0);
+    const monthlyProfit = Math.round(monthlyRevenue * 0.45);
+    const monthlyCost = monthlyRevenue - monthlyProfit;
+
+    return res.json({
+      success: true,
+      data: {
+        kpis: {
+          totalRevenue,
+          totalOrders: validOrders.length,
+          allOrdersCount,
+          cancelledOrdersCount,
+          monthlyRevenue,
+          monthlyOrders: currentMonthOrders.length,
+          uniqueCustomers,
+          aiConsultations,
+          monthlyProfit,
+          monthlyCost,
+        },
+        daily7Days,
+        monthlyStats,
+        categoryShare,
+      },
+    });
+  } catch (error: any) {
+    console.error('Lỗi khi tính toán phân tích doanh thu:', error);
+    return res.status(500).json({ success: false, message: 'Lỗi máy chủ.', error: error.message });
+  }
+});
+
 // GET /api/orders/:code - Xem chi tiết đơn hàng
 ordersRouter.get('/:code', async (req: Request, res: Response) => {
   try {
