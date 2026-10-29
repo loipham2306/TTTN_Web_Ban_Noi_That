@@ -540,9 +540,19 @@ const provinces = [
   import { initAuthForm, required, email, phone, minLength } from '../../scripts/validate';
   import { readUser } from '../../scripts/auth';
 
-  const root = document.querySelector<HTMLElement>('[data-checkout-root]');
+  const initCheckout = () => {
+    const root = document.querySelector<HTMLElement>('[data-checkout-root]');
+    if (!root) return;
 
-  if (root) {
+    // RÀNG BUỘC BẮT BUỘC: Khách hàng PHẢI ĐĂNG NHẬP mới được đặt hàng
+    const authUser = readUser();
+    const token = localStorage.getItem('auth_token');
+
+    if (!authUser || !token) {
+      window.location.href = '/dang-nhap?redirect=/thanh-toan';
+      return;
+    }
+
     const emptyEl = root.querySelector<HTMLElement>('[data-checkout-empty]');
     const contentEl = root.querySelector<HTMLElement>('[data-checkout-content]');
     const gridEl = root.querySelector<HTMLElement>('[data-checkout-grid]');
@@ -551,7 +561,6 @@ const provinces = [
     const form = root.querySelector<HTMLFormElement>('[data-address-form]');
 
     // Tự động điền thông tin tài khoản nếu người dùng đã đăng nhập
-    const authUser = readUser();
     let currentAuthUser: any = authUser;
     try {
       const raw = localStorage.getItem('current_user');
@@ -1238,12 +1247,25 @@ ${value('phone')}`,
         };
 
         const token = localStorage.getItem('auth_token');
+        if (!token) {
+          if (errorBox) {
+            errorBox.textContent = 'Vui lòng đăng nhập tài khoản trước khi hoàn tất đặt hàng.';
+            errorBox.classList.remove('hidden');
+          }
+          if (placeOrderBtn) {
+            placeOrderBtn.disabled = false;
+            placeOrderBtn.textContent = 'Hoàn tất đặt hàng';
+          }
+          setTimeout(() => {
+            window.location.href = '/dang-nhap?redirect=/thanh-toan';
+          }, 1200);
+          return;
+        }
+
         const headers: Record<string, string> = {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         };
-        if (token) {
-          headers['Authorization'] = `Bearer ${token}`;
-        }
 
         const res = await fetch('http://localhost:4000/api/orders', {
           method: 'POST',
@@ -1399,5 +1421,7 @@ ${value('phone')}`,
 
     refresh();
     goTo(0);
-  }
+  };
+
+  initCheckout();
 </script>

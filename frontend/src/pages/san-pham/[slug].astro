@@ -835,7 +835,15 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
       const payload = getItemPayload(btnBuy);
       const qty = getQty();
       addToCart(payload, qty);
-      window.location.href = '/thanh-toan';
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        showCartToast('Vui lòng đăng nhập để tiếp tục đặt hàng!');
+        setTimeout(() => {
+          window.location.href = '/dang-nhap?redirect=/thanh-toan';
+        }, 900);
+      } else {
+        window.location.href = '/thanh-toan';
+      }
     });
   }
 
@@ -981,6 +989,15 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
 
   const closeModal = () => modal?.classList.add('hidden');
   btnOpenModal?.addEventListener('click', () => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      showToast('Vui lòng đăng nhập tài khoản để viết đánh giá sản phẩm!', true);
+      setTimeout(() => {
+        window.location.href = `/dang-nhap?redirect=${encodeURIComponent(window.location.pathname)}`;
+      }, 1200);
+      return;
+    }
+
     form?.reset();
     const modalErr = document.getElementById('review-modal-error');
     if (modalErr) modalErr.classList.add('hidden');

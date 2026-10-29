@@ -5,94 +5,154 @@ export interface CartItem {
   qty: number;
   thumbnail?: string;
   category?: string;
+  maxStock?: number;
 }
 
 export const CART_EVENT = 'cart:updated';
+export const GUEST_KEY = 'noithat_cart_guest';
+export const MAX_QTY = 99;
 
-// Xác định key giỏ hàng động theo tài khoản đang đăng nhập
+/**
+ * Ép số lượng về số nguyên hợp lệ: tối thiểu 1, tối đa limit (mặc định 99 hoặc tồn kho)
+ */
+export const clampQty = (n: any, max: number = MAX_QTY): number => {
+  const parsed = parseInt(String(n), 10);
+  if (isNaN(parsed) || parsed < 1) return 1;
+  const upperLimit = typeof max === 'number' && max > 0 ? max : MAX_QTY;
+  return Math.min(upperLimit, parsed);
+};
+
+/**
+ * Xác định khóa lưu trữ localStorage:
+ * - Khách chưa đăng nhập: 'noithat_cart_guest'
+ * - Người đã đăng nhập: 'noithat_cart_u_<id hoặc email>'
+ */
 export const getCartKey = (): string => {
-  if (typeof window === 'undefined') return 'noithat_cart_guest';
+  if (typeof window === 'undefined') return GUEST_KEY;
   try {
     const raw = window.localStorage.getItem('current_user');
     if (raw) {
       const user = JSON.parse(raw);
-      if (user && user.email) {
-        return `noithat_cart_${user.email.trim().toLowerCase()}`;
+      if (user) {
+        if (user.id !== undefined && user.id !== null && String(user.id).trim() !== '') {
+          return `noithat_cart_u_${String(user.id).trim()}`;
+        }
+        if (user.email && typeof user.email === 'string' && user.email.trim() !== '') {
+          return `noithat_cart_u_${user.email.trim().toLowerCase()}`;
+        }
       }
     }
   } catch {}
-  return 'noithat_cart_guest';
+  return GUEST_KEY;
 };
 
 export const formatVnd = (value: number): string => {
   return Number(value || 0).toLocaleString('vi-VN') + ' đ';
 };
 
-export const readCart = (): CartItem[] => {
+/**
+ * Đọc mảng CartItem từ khóa chỉ định
+ */
+export const readKey = (key: string): CartItem[] => {
   if (typeof window === 'undefined') return [];
   try {
-    const key = getCartKey();
-
-    // Dọn dẹp key cũ dùng chung trên máy nếu còn sót lại
-    if (window.localStorage.getItem('noithat_cart') || window.localStorage.getItem('cart')) {
-      window.localStorage.removeItem('noithat_cart');
-      window.localStorage.removeItem('cart');
-    }
-
     const raw = window.localStorage.getItem(key);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
     if (!Array.isArray(parsed)) return [];
     return parsed
       .filter((item) => item && typeof item.slug === 'string')
-      .map((item) => ({
-        slug: String(item.slug),
-        name: String(item.name ?? ''),
-        price: Number(item.price) || 0,
-        qty: Math.min(99, Math.max(1, Number(item.qty ?? item.quantity) || 1)),
-        thumbnail: item.thumbnail ? String(item.thumbnail) : undefined,
-        category: item.category ? String(item.category) : undefined,
-      }));
+      .map((item) => {
+        const limit = typeof item.maxStock === 'number' && item.maxStock > 0 ? item.maxStock : MAX_QTY;
+        return {
+          slug: String(item.slug),
+          name: String(item.name ?? ''),
+          price: Number(item.price) || 0,
+          qty: clampQty(item.qty ?? item.quantity, limit),
+          thumbnail: item.thumbnail ? String(item.thumbnail) : undefined,
+          category: item.category ? String(item.category) : undefined,
+          maxStock: item.maxStock,
+        };
+      });
   } catch {
     return [];
   }
 };
 
+/**
+ * Ghi mảng CartItem vào khóa chỉ định
+ */
+export const writeKey = (key: string, items: CartItem[]): void => {
+  if (typeof window === 'undefined') return;
+  window.localStorage.setItem(key, JSON.stringify(items));
+};
+
+/**
+ * Đọc giỏ hàng hiện tại (dùng getCartKey()).
+ * Lần đầu: nếu còn khóa cũ noithat_cart thì chuyển sang noithat_cart_guest rồi xóa khóa cũ.
+ */
+export const readCart = (): CartItem[] => {
+  if (typeof window === 'undefined') return [];
+  try {
+    // Migration: chuyển dữ liệu cũ ở noithat_cart sang noithat_cart_guest rồi xóa
+    const oldCart = window.localStorage.getItem('noithat_cart') || window.localStorage.getItem('cart');
+    if (oldCart) {
+      const existingGuest = window.localStorage.getItem(GUEST_KEY);
+      if (!existingGuest) {
+        window.localStorage.setItem(GUEST_KEY, oldCart);
+      }
+      window.localStorage.removeItem('noithat_cart');
+      window.localStorage.removeItem('cart');
+    }
+
+    const key = getCartKey();
+    return readKey(key);
+  } catch {
+    return [];
+  }
+};
+
+/**
+ * Ghi giỏ hàng hiện tại và phát sự kiện CART_EVENT
+ */
 export const writeCart = (items: CartItem[]): void => {
   if (typeof window === 'undefined') return;
   const key = getCartKey();
-  window.localStorage.setItem(key, JSON.stringify(items));
+  writeKey(key, items);
   window.dispatchEvent(new CustomEvent(CART_EVENT, { detail: items }));
 };
 
-// Tự động gộp giỏ hàng của khách vãng lai vào tài khoản khi vừa đăng nhập
-export const mergeGuestCartOnLogin = (): void => {
+/**
+ * Gộp giỏ hàng khách vào giỏ tài khoản khi đăng nhập:
+ * Cùng slug thì cộng dồn qty (có clampQty không vượt MAX_QTY/tồn kho).
+ * Xóa giỏ khách sau khi gộp để không bị gộp lặp.
+ */
+export const mergeGuestCartIntoUser = (): void => {
   if (typeof window === 'undefined') return;
+  const guest = readKey(GUEST_KEY);
+  if (guest.length === 0) return; // Không có gì để gộp
+
   const userKey = getCartKey();
-  if (userKey === 'noithat_cart_guest') return;
+  if (userKey === GUEST_KEY) return; // Chưa đăng nhập thì thoát
 
-  try {
-    const guestRaw = window.localStorage.getItem('noithat_cart_guest');
-    if (!guestRaw) return;
-    const guestItems: CartItem[] = JSON.parse(guestRaw);
-    if (!Array.isArray(guestItems) || guestItems.length === 0) return;
-
-    const userItems = readCart();
-    for (const g of guestItems) {
-      const existing = userItems.find((u) => u.slug === g.slug);
-      if (existing) {
-        existing.qty = Math.min(99, existing.qty + g.qty);
-      } else {
-        userItems.push(g);
-      }
+  const merged = readKey(userKey);
+  for (const item of guest) {
+    const limit = typeof item.maxStock === 'number' && item.maxStock > 0 ? item.maxStock : MAX_QTY;
+    const found = merged.find((i) => i.slug === item.slug);
+    if (found) {
+      found.qty = clampQty(found.qty + item.qty, limit);
+    } else {
+      merged.push({ ...item, qty: clampQty(item.qty, limit) });
     }
-    window.localStorage.setItem(userKey, JSON.stringify(userItems));
-    window.localStorage.removeItem('noithat_cart_guest');
-    window.dispatchEvent(new CustomEvent(CART_EVENT, { detail: userItems }));
-  } catch (e) {
-    console.warn('Lỗi gộp giỏ hàng khách:', e);
   }
+
+  writeKey(userKey, merged);
+  window.localStorage.removeItem(GUEST_KEY); // Xóa giỏ khách để không gộp lặp
+  window.dispatchEvent(new CustomEvent(CART_EVENT, { detail: merged }));
 };
+
+// Export alias để tương thích các nơi đang gọi
+export const mergeGuestCartOnLogin = mergeGuestCartIntoUser;
 
 export const addToCart = (
   item: { slug: string; name: string; price: number; thumbnail?: string; category?: string; maxStock?: number },
@@ -100,10 +160,11 @@ export const addToCart = (
 ): CartItem[] => {
   const items = readCart();
   const existing = items.find((entry) => entry.slug === item.slug);
-  const limit = item.maxStock !== undefined ? item.maxStock : 99;
+  const limit = typeof item.maxStock === 'number' && item.maxStock > 0 ? item.maxStock : MAX_QTY;
+  const validQty = clampQty(qty, limit);
 
   if (existing) {
-    existing.qty = Math.min(limit, existing.qty + qty);
+    existing.qty = clampQty(existing.qty + validQty, limit);
     if (item.thumbnail && !existing.thumbnail) existing.thumbnail = item.thumbnail;
     if (item.price && !existing.price) existing.price = item.price;
   } else {
@@ -111,9 +172,10 @@ export const addToCart = (
       slug: item.slug,
       name: item.name,
       price: item.price,
-      qty: Math.min(limit, Math.max(1, qty)),
+      qty: validQty,
       thumbnail: item.thumbnail,
       category: item.category,
+      maxStock: item.maxStock,
     });
   }
 
@@ -121,11 +183,12 @@ export const addToCart = (
   return items;
 };
 
-export const updateQty = (slug: string, qty: number): CartItem[] => {
+export const updateQty = (slug: string, qty: any): CartItem[] => {
   const items = readCart();
   const existing = items.find((entry) => entry.slug === slug);
   if (existing) {
-    existing.qty = Math.min(99, Math.max(1, qty));
+    const limit = typeof existing.maxStock === 'number' && existing.maxStock > 0 ? existing.maxStock : MAX_QTY;
+    existing.qty = clampQty(qty, limit);
     writeCart(items);
   }
   return items;
@@ -137,7 +200,12 @@ export const removeItem = (slug: string): CartItem[] => {
   return items;
 };
 
-export const clearCart = (): void => writeCart([]);
+export const clearCart = (): void => {
+  if (typeof window === 'undefined') return;
+  const key = getCartKey();
+  writeKey(key, []);
+  window.dispatchEvent(new CustomEvent(CART_EVENT, { detail: [] }));
+};
 
 export const countItems = (items: CartItem[]): number =>
   items.reduce((sum, entry) => sum + entry.qty, 0);

@@ -68,9 +68,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
               </div>
             </div>
 
-            <a href="/thanh-toan" class="mt-5 block w-full bg-clay-600 px-6 py-4 text-center text-xs font-bold uppercase tracking-[0.2em] text-sand-50 transition-all hover:bg-clay-500 rounded-sm shadow-sm active:scale-95">
+<a href="/thanh-toan" id="btn-cart-checkout" class="mt-5 block w-full bg-clay-600 px-6 py-4 text-center text-xs font-bold uppercase tracking-[0.2em] text-sand-50 transition-all hover:bg-clay-500 rounded-sm shadow-sm active:scale-95">
               Tiến hành đặt hàng →
             </a>
+
+            <!-- Gợi ý đăng nhập nếu khách chưa đăng nhập -->
+            <div id="cart-login-hint" class="mt-2.5 hidden rounded bg-amber-50/90 border border-amber-200/80 p-2 text-center text-[11px] text-amber-900 leading-snug">
+              <span>💡 Bạn chưa đăng nhập. Nhấn <strong>Đặt hàng</strong> để đăng nhập và bảo lưu đơn hàng nhé.</span>
+            </div>
 
             <button type="button" data-cart-clear class="mt-4 w-full text-center text-xs uppercase tracking-[0.15em] text-walnut-800/70 hover:text-red-600 underline underline-offset-4 transition-colors cursor-pointer">
               Xóa toàn bộ giỏ hàng
@@ -86,7 +91,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 </BaseLayout>
 
 <script>
-  import { readCart, updateQty, removeItem, clearCart, countItems, totalPrice, formatVnd, CART_EVENT } from '../../scripts/cart';
+  import { readCart, updateQty, removeItem, clearCart, countItems, totalPrice, formatVnd, CART_EVENT, showCartToast, clampQty } from '../../scripts/cart';
   import type { CartItem } from '../../scripts/cart';
 
   const root = document.querySelector<HTMLElement>('[data-cart-root]');
@@ -97,6 +102,30 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   const subtotalEl = root?.querySelector<HTMLElement>('[data-cart-subtotal]');
   const totalEl = root?.querySelector<HTMLElement>('[data-cart-total]');
   const clearBtn = root?.querySelector<HTMLButtonElement>('[data-cart-clear]');
+  const checkoutBtn = root?.querySelector<HTMLAnchorElement>('#btn-cart-checkout, a[href="/thanh-toan"]');
+  const loginHint = root?.querySelector<HTMLElement>('#cart-login-hint');
+
+  const updateLoginHint = () => {
+    const token = localStorage.getItem('auth_token');
+    if (!token && loginHint) {
+      loginHint.classList.remove('hidden');
+    } else if (loginHint) {
+      loginHint.classList.add('hidden');
+    }
+  };
+  updateLoginHint();
+
+  // Chặn khách chưa đăng nhập khi bấm đặt hàng từ giỏ hàng kèm thông báo thân thiện
+  checkoutBtn?.addEventListener('click', (e) => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      e.preventDefault();
+      showCartToast('Vui lòng đăng nhập tài khoản để tiếp tục thanh toán và đặt hàng!');
+      setTimeout(() => {
+        window.location.href = '/dang-nhap?redirect=/thanh-toan';
+      }, 900);
+    }
+  });
   const countLabel = document.querySelector<HTMLElement>('[data-cart-count-label]');
 
   if (itemsEl && emptyEl && contentEl && subtotalEl && totalEl) {
@@ -123,7 +152,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             <div class="flex items-center gap-4">
               <div class="flex h-9 items-center border border-walnut-900/20 rounded bg-white">
                 <button type="button" data-row-down class="h-full px-3 text-walnut-900 transition-colors hover:bg-walnut-900/10" aria-label="Giảm số lượng">-</button>
-                <input data-row-qty type="text" value="${item.qty}" readonly aria-label="Số lượng" class="h-full w-10 border-x border-walnut-900/20 bg-transparent text-center text-xs font-semibold outline-none" />
+                <input data-row-qty type="number" min="1" max="99" value="${item.qty}" aria-label="Số lượng" class="h-full w-12 border-x border-walnut-900/20 bg-transparent text-center text-xs font-semibold outline-none focus:bg-sand-50" />
                 <button type="button" data-row-up class="h-full px-3 text-walnut-900 transition-colors hover:bg-walnut-900/10" aria-label="Tăng số lượng">+</button>
               </div>
               <p class="w-28 text-right text-sm font-semibold text-walnut-900">${formatVnd(item.price * item.qty)}</p>
@@ -151,6 +180,22 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         row.querySelector('[data-row-remove]')?.addEventListener('click', () => {
           removeItem(slug);
           render();
+        });
+
+        const handleManualQty = () => {
+          const rawVal = qtyInput?.value;
+          const parsed = clampQty(rawVal, 99);
+          updateQty(slug, parsed);
+          render();
+        };
+
+        qtyInput?.addEventListener('change', handleManualQty);
+        qtyInput?.addEventListener('blur', handleManualQty);
+        qtyInput?.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            handleManualQty();
+          }
         });
       });
     };
