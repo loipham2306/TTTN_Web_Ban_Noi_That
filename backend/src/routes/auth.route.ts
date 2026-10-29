@@ -72,20 +72,55 @@ authRouter.post('/register', authLimiter, async (req: Request, res: Response) =>
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      return res.status(400).json({ success: false, message: 'Địa chỉ email không đúng định dạng.' });
+      return res.status(400).json({ success: false, field: 'email', message: 'Địa chỉ email không đúng định dạng.' });
     }
 
     if (password.length < 6) {
-      return res.status(400).json({ success: false, message: 'Mật khẩu phải chứa ít nhất 6 ký tự để bảo mật.' });
+      return res.status(400).json({ success: false, field: 'password', message: 'Mật khẩu phải chứa ít nhất 6 ký tự để bảo mật.' });
     }
 
-    // Kiểm tra email đã tồn tại hay chưa
-    const existing = await prisma.users.findUnique({
-      where: { email },
+    // Chuẩn hóa dữ liệu
+    const cleanEmail = email.trim().toLowerCase();
+    const cleanPhone = phone ? phone.trim().replace(/\s+/g, '') : null;
+
+    // Kiểm tra định dạng số điện thoại nếu người dùng nhập
+    if (cleanPhone) {
+      const phoneRegex = /^(0|\+84)[1-9][0-9]{8}$/;
+      if (!phoneRegex.test(cleanPhone)) {
+        return res.status(400).json({
+          success: false,
+          field: 'phone',
+          message: 'Số điện thoại không hợp lệ (phải gồm 10 chữ số, bắt đầu bằng 0 hoặc +84).'
+        });
+      }
+    }
+
+    // 1. Kiểm tra email đã tồn tại hay chưa
+    const existingEmail = await prisma.users.findUnique({
+      where: { email: cleanEmail },
     });
 
-    if (existing) {
-      return res.status(409).json({ success: false, message: 'Email này đã được sử dụng. Vui lòng chọn email khác hoặc đăng nhập.' });
+    if (existingEmail) {
+      return res.status(409).json({
+        success: false,
+        field: 'email',
+        message: 'Email này đã được sử dụng. Vui lòng chọn email khác hoặc đăng nhập.'
+      });
+    }
+
+    // 2. Kiểm tra số điện thoại đã tồn tại hay chưa
+    if (cleanPhone) {
+      const existingPhone = await prisma.users.findFirst({
+        where: { phone: cleanPhone },
+      });
+
+      if (existingPhone) {
+        return res.status(409).json({
+          success: false,
+          field: 'phone',
+          message: 'Số điện thoại này đã được đăng ký cho một tài khoản khác. Vui lòng nhập số khác hoặc đăng nhập.'
+        });
+      }
     }
 
     // Role customer mặc định
@@ -101,8 +136,8 @@ authRouter.post('/register', authLimiter, async (req: Request, res: Response) =>
     const newUser = await prisma.users.create({
       data: {
         full_name: fullname.trim(),
-        email: email.trim().toLowerCase(),
-        phone: phone ? phone.trim() : null,
+        email: cleanEmail,
+        phone: cleanPhone,
         password_hash: hashedPassword,
         role_id: roleId,
         status: true,
@@ -132,6 +167,28 @@ authRouter.post('/register', authLimiter, async (req: Request, res: Response) =>
     });
   } catch (error: any) {
     console.error('Lỗi đăng ký tài khoản:', error);
+
+    // Bắt mã lỗi Unique Constraint (P2002) từ Prisma một cách an toàn
+    if (error.code === 'P2002') {
+      const target = (error.meta?.target as string[]) || [];
+      const targetStr = Array.isArray(target) ? target.join(',') : String(target);
+
+      if (targetStr.includes('email')) {
+        return res.status(409).json({
+          success: false,
+          field: 'email',
+          message: 'Email này đã được đăng ký trong hệ thống. Vui lòng sử dụng email khác hoặc đăng nhập.',
+        });
+      }
+      if (targetStr.includes('phone')) {
+        return res.status(409).json({
+          success: false,
+          field: 'phone',
+          message: 'Số điện thoại này đã được sử dụng. Vui lòng dùng số khác hoặc đăng nhập.',
+        });
+      }
+    }
+
     return res.status(500).json({ success: false, message: 'Lỗi máy chủ khi đăng ký tài khoản.', error: error.message });
   }
 });

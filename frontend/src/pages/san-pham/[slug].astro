@@ -743,6 +743,14 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
           ></textarea>
         </div>
 
+        <!-- THÔNG BÁO LỖI NỘI BỘ TRONG MODAL -->
+        <div id="review-modal-error" class="hidden p-3 rounded bg-red-50 border border-red-200 text-xs text-red-700 font-medium leading-relaxed flex items-center gap-2">
+          <svg class="h-4 w-4 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span id="review-modal-error-msg"></span>
+        </div>
+
         <div class="flex items-center justify-end gap-3 border-t border-walnut-900/10 pt-4 mt-2">
           <button 
             type="button" 
@@ -762,9 +770,10 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
     </div>
   </div>
 
-  <!-- TOAST THÔNG BÁO -->
-  <div id="review-user-toast" class="fixed bottom-6 right-6 z-50 hidden translate-y-4 rounded bg-walnut-900 px-5 py-3 text-xs uppercase tracking-[0.15em] text-sand-50 shadow-lg transition-all duration-300 border border-emerald-500/40">
-    <span id="review-user-toast-msg">Đã gửi đánh giá thành công!</span>
+  <!-- TOAST THÔNG BÁO CAO CẤP (GÓC TRÊN BÊN PHẢI - TRÁNH BỊ NÚT AI & CHAT CHE KHUẤT) -->
+  <div id="review-user-toast" class="fixed top-6 right-6 z-[9999] hidden -translate-y-4 rounded-xl bg-walnut-900 px-5 py-3.5 text-xs text-sand-50 shadow-2xl transition-all duration-300 border border-emerald-500/40 max-w-sm flex items-center gap-3">
+    <div id="review-user-toast-icon" class="shrink-0"></div>
+    <span id="review-user-toast-msg" class="leading-relaxed">Đã gửi đánh giá thành công!</span>
   </div>
 
 </BaseLayout>
@@ -826,7 +835,15 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
       const payload = getItemPayload(btnBuy);
       const qty = getQty();
       addToCart(payload, qty);
-      window.location.href = '/thanh-toan';
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        showCartToast('Vui lòng đăng nhập để tiếp tục đặt hàng!');
+        setTimeout(() => {
+          window.location.href = '/dang-nhap?redirect=/thanh-toan';
+        }, 900);
+      } else {
+        window.location.href = '/thanh-toan';
+      }
     });
   }
 
@@ -953,20 +970,37 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
   const showToast = (msg: string, isError = false) => {
     if (!toast || !toastMsg) return;
     toastMsg.textContent = msg;
+    const toastIcon = document.getElementById('review-user-toast-icon');
+    if (toastIcon) {
+      toastIcon.innerHTML = isError
+        ? `<svg class="h-5 w-5 text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>`
+        : `<svg class="h-5 w-5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>`;
+    }
     toast.className = isError
-      ? 'fixed bottom-6 right-6 z-50 rounded bg-red-950 px-5 py-3.5 text-xs tracking-normal text-white shadow-2xl transition-all duration-300 border border-red-500 max-w-md flex items-center gap-2.5 font-medium'
-      : 'fixed bottom-6 right-6 z-50 rounded bg-[#173524] px-5 py-3.5 text-xs tracking-normal text-sand-50 shadow-2xl transition-all duration-300 border border-emerald-500/50 max-w-md flex items-center gap-2.5 font-medium';
+      ? 'fixed top-6 right-6 z-[9999] rounded-xl bg-red-950/95 px-5 py-3.5 text-xs tracking-normal text-red-50 shadow-2xl transition-all duration-300 border border-red-500 max-w-sm flex items-center gap-3 font-medium backdrop-blur-sm'
+      : 'fixed top-6 right-6 z-[9999] rounded-xl bg-[#173524]/95 px-5 py-3.5 text-xs tracking-normal text-sand-50 shadow-2xl transition-all duration-300 border border-emerald-500/50 max-w-sm flex items-center gap-3 font-medium backdrop-blur-sm';
     toast.classList.remove('hidden');
-    requestAnimationFrame(() => toast.classList.remove('translate-y-4'));
+    requestAnimationFrame(() => toast.classList.remove('-translate-y-4'));
     setTimeout(() => {
-      toast.classList.add('translate-y-4');
+      toast.classList.add('-translate-y-4');
       setTimeout(() => toast.classList.add('hidden'), 300);
     }, 4500);
   };
 
   const closeModal = () => modal?.classList.add('hidden');
   btnOpenModal?.addEventListener('click', () => {
+    const token = localStorage.getItem('auth_token');
+    if (!token) {
+      showToast('Vui lòng đăng nhập tài khoản để viết đánh giá sản phẩm!', true);
+      setTimeout(() => {
+        window.location.href = `/dang-nhap?redirect=${encodeURIComponent(window.location.pathname)}`;
+      }, 1200);
+      return;
+    }
+
     form?.reset();
+    const modalErr = document.getElementById('review-modal-error');
+    if (modalErr) modalErr.classList.add('hidden');
     import('../../scripts/auth').then(({ readUser }) => {
       const u = readUser();
       if (u) {
@@ -1118,10 +1152,24 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
         form.reset();
         showToast('Cảm ơn bạn! Đánh giá đã được lưu vào hệ thống thành công.', false);
       } else {
-        showToast(json.message || 'Chỉ khách hàng đã mua sản phẩm mới có quyền đánh giá!', true);
+        const errMsg = json.message || 'Chỉ khách hàng đã mua sản phẩm mới có quyền đánh giá!';
+        const modalErr = document.getElementById('review-modal-error');
+        const modalErrMsg = document.getElementById('review-modal-error-msg');
+        if (modalErr && modalErrMsg) {
+          modalErrMsg.textContent = errMsg;
+          modalErr.classList.remove('hidden');
+        }
+        showToast(errMsg, true);
       }
     } catch {
-      showToast('Không thể kết nối máy chủ gửi đánh giá!', true);
+      const errMsg = 'Không thể kết nối máy chủ gửi đánh giá!';
+      const modalErr = document.getElementById('review-modal-error');
+      const modalErrMsg = document.getElementById('review-modal-error-msg');
+      if (modalErr && modalErrMsg) {
+        modalErrMsg.textContent = errMsg;
+        modalErr.classList.remove('hidden');
+      }
+      showToast(errMsg, true);
     } finally {
       if (submitBtn) {
         submitBtn.disabled = false;

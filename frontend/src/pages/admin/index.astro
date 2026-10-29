@@ -3,26 +3,57 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 import { formatVnd } from '../../data/products';
 
 let liveOrders: any[] = [];
+let analyticsData: any = null;
+
 try {
-  const res = await fetch('http://localhost:4000/api/orders', {
-    signal: AbortSignal.timeout(2000),
-  });
-  if (res.ok) {
-    const json = await res.json();
+  const [ordersRes, analyticsRes] = await Promise.all([
+    fetch('http://localhost:4000/api/orders', { signal: AbortSignal.timeout(2000) }),
+    fetch('http://localhost:4000/api/orders/analytics', { signal: AbortSignal.timeout(2000) }),
+  ]);
+
+  if (ordersRes.ok) {
+    const json = await ordersRes.json();
     if (json.success && Array.isArray(json.data)) {
       liveOrders = json.data;
     }
   }
+
+  if (analyticsRes.ok) {
+    const aJson = await analyticsRes.json();
+    if (aJson.success) {
+      analyticsData = aJson.data;
+    }
+  }
 } catch {
-  liveOrders = [];
+  // Graceful fallback
 }
 
-const totalRevenue = liveOrders
-  .filter((o: any) => o.orderStatus !== 'da-huy')
+const totalRevenue = analyticsData?.kpis?.totalRevenue ?? liveOrders
+  .filter((o: any) => o.orderStatus !== 'da-huy' && o.orderStatus !== 'cancelled')
   .reduce((acc: number, curr: any) => acc + (curr.total || 0), 0);
 
-const totalOrders = liveOrders.length;
-const uniqueCustomers = new Set(liveOrders.map((o: any) => o.phone || o.customerName)).size;
+const totalOrders = analyticsData?.kpis?.totalOrders ?? liveOrders.length;
+const uniqueCustomers = analyticsData?.kpis?.uniqueCustomers ?? new Set(liveOrders.map((o: any) => o.phone || o.customerName)).size;
+const aiConsultations = analyticsData?.kpis?.aiConsultations ?? 0;
+
+const daily7Days = analyticsData?.daily7Days ?? [
+  { day: 'T2', val: 0, revenue: 0, orders: 0, height: '0%' },
+  { day: 'T3', val: 0, revenue: 0, orders: 0, height: '0%' },
+  { day: 'T4', val: 0, revenue: 0, orders: 0, height: '0%' },
+  { day: 'T5', val: 0, revenue: 0, orders: 0, height: '0%' },
+  { day: 'T6', val: 0, revenue: 0, orders: 0, height: '0%' },
+  { day: 'T7', val: 0, revenue: 0, orders: 0, height: '0%' },
+  { day: 'CN', val: 0, revenue: 0, orders: 0, height: '0%' },
+];
+
+const categoryShare = (analyticsData?.categoryShare && analyticsData.categoryShare.length > 0)
+  ? analyticsData.categoryShare
+  : [
+      { name: 'Sofa & Phòng Khách', percent: 0, color: 'bg-walnut-900' },
+      { name: 'Bàn Ghế Ăn', percent: 0, color: 'bg-clay-600' },
+      { name: 'Giường & Tủ Áo', percent: 0, color: 'bg-olive-700' },
+      { name: 'Đèn & Trang Trí Decor', percent: 0, color: 'bg-amber-700' },
+    ];
 
 const kpis = [
   { 
@@ -48,8 +79,8 @@ const kpis = [
   },
   { 
     label: 'Lượt tư vấn AI Phong Thủy', 
-    value: '0 lượt', 
-    change: '0%', 
+    value: `${aiConsultations} lượt`, 
+    change: aiConsultations > 0 ? `+${aiConsultations}` : '0%', 
     trend: 'up', 
     icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z' 
   },
@@ -128,9 +159,9 @@ const recentOrders = liveOrders.slice(0, 5);
           <span class="text-xs font-semibold text-walnut-900 bg-sand-100 px-2.5 py-1 rounded">Đơn vị: Triệu VNĐ</span>
         </div>
 
-        <!-- Simulated CSS Bar Chart -->
+        <!-- CSS Bar Chart (Dynamic 7 Days) -->
         <div class="mt-6 flex items-center justify-center h-56 pt-6 border-b border-walnut-900/10 pb-2">
-          {totalRevenue === 0 ? (
+          {daily7Days.length === 0 || daily7Days.every((d: any) => d.revenue === 0) ? (
             <div class="flex flex-col items-center justify-center text-center text-xs text-walnut-800/70 py-10">
               <svg class="h-10 w-10 text-walnut-800/30 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
@@ -138,23 +169,21 @@ const recentOrders = liveOrders.slice(0, 5);
               <span>Chưa có phát sinh giao dịch trong 7 ngày gần nhất</span>
             </div>
           ) : (
-            <div class="w-full grid grid-cols-7 gap-3 sm:gap-6 items-end h-full">
-              {[
-                { day: 'T2', val: 0, height: '0%' },
-                { day: 'T3', val: 0, height: '0%' },
-                { day: 'T4', val: 0, height: '0%' },
-                { day: 'T5', val: 0, height: '0%' },
-                { day: 'T6', val: 0, height: '0%' },
-                { day: 'T7', val: 0, height: '0%' },
-                { day: 'CN', val: 0, height: '0%' },
-              ].map((bar) => (
-                <div class="flex flex-col items-center gap-2 h-full justify-end group">
-                  <span class="text-[11px] font-semibold text-walnut-800 opacity-0 group-hover:opacity-100 transition-opacity">{bar.val}M</span>
+            <div class="w-full grid grid-cols-7 gap-2 sm:gap-4 items-end h-full">
+              {daily7Days.map((bar: any) => (
+                <div class="flex flex-col items-center gap-1.5 h-full justify-end group">
+                  <div class="text-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span class="text-[11px] font-bold text-walnut-900 block leading-tight">
+                      {bar.revenue > 0 ? (bar.val >= 1 ? `${bar.val}M` : `${Math.round(bar.revenue / 1000)}k`) : '0đ'}
+                    </span>
+                    <span class="text-[9px] text-walnut-800/60 block">{bar.orders} đơn</span>
+                  </div>
                   <div 
-                    class="w-full rounded-t bg-walnut-900 group-hover:bg-clay-600 transition-all duration-300 relative" 
+                    class="w-full rounded-t bg-walnut-900 group-hover:bg-clay-600 transition-all duration-300 relative shadow-sm cursor-pointer" 
                     style={`height: ${bar.height};`}
+                    title={`${bar.day} (${bar.date || ''}): ${formatVnd(bar.revenue)} - ${bar.orders} đơn hàng`}
                   ></div>
-                  <span class="text-xs font-medium text-walnut-800 mt-1">{bar.day}</span>
+                  <span class="text-xs font-semibold text-walnut-800 mt-1">{bar.day}</span>
                 </div>
               ))}
             </div>
@@ -176,24 +205,19 @@ const recentOrders = liveOrders.slice(0, 5);
           </div>
 
           <div class="mt-5 space-y-4">
-            {totalRevenue === 0 ? (
+            {totalRevenue === 0 || categoryShare.length === 0 ? (
               <div class="py-12 text-center text-xs text-walnut-800/70">
                 Chưa có dữ liệu doanh số theo danh mục
               </div>
             ) : (
-              [
-                { name: 'Sofa & Phòng Khách', percent: 0, color: 'bg-walnut-900' },
-                { name: 'Bàn Ghế Ăn', percent: 0, color: 'bg-clay-600' },
-                { name: 'Giường & Tủ Áo', percent: 0, color: 'bg-olive-700' },
-                { name: 'Đèn & Trang Trí Decor', percent: 0, color: 'bg-amber-700' },
-              ].map((cat) => (
+              categoryShare.map((cat: any) => (
                 <div>
                   <div class="flex justify-between text-xs font-medium mb-1">
-                    <span class="text-walnut-900">{cat.name}</span>
+                    <span class="text-walnut-900 font-medium">{cat.name}</span>
                     <span class="font-bold text-walnut-900">{cat.percent}%</span>
                   </div>
                   <div class="w-full bg-sand-200/60 rounded-full h-2 overflow-hidden">
-                    <div class={`h-2 rounded-full ${cat.color}`} style={`width: ${cat.percent}%`}></div>
+                    <div class={`h-2 rounded-full ${cat.color || 'bg-walnut-900'} transition-all duration-500`} style={`width: ${cat.percent}%`}></div>
                   </div>
                 </div>
               ))

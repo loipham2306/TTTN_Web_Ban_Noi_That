@@ -12,11 +12,21 @@ export interface AuthUser {
 
 export const AUTH_KEY = 'current_user';
 export const TOKEN_KEY = 'auth_token';
+export const ADMIN_AUTH_KEY = 'admin_user';
+export const ADMIN_TOKEN_KEY = 'admin_token';
 export const AUTH_EVENT = 'auth:changed';
 
 export function getToken(): string | null {
   try {
     return localStorage.getItem(TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function getAdminToken(): string | null {
+  try {
+    return localStorage.getItem(ADMIN_TOKEN_KEY) || localStorage.getItem(TOKEN_KEY);
   } catch {
     return null;
   }
@@ -92,6 +102,7 @@ export function saveAuth(user: AuthUser, token?: string): void {
       localStorage.setItem(TOKEN_KEY, token);
     }
     window.dispatchEvent(new Event(AUTH_EVENT));
+    window.dispatchEvent(new CustomEvent('cart:updated', { detail: [] }));
   } catch (e) {
     console.error('Lỗi khi lưu thông tin xác thực:', e);
   }
@@ -107,6 +118,7 @@ export function clearUser(redirectUrl?: string): void {
     localStorage.removeItem(AUTH_KEY);
     localStorage.removeItem(TOKEN_KEY);
     window.dispatchEvent(new Event(AUTH_EVENT));
+    window.dispatchEvent(new CustomEvent('cart:updated', { detail: [] }));
     if (redirectUrl) {
       window.location.href = redirectUrl;
     }

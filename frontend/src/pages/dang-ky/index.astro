@@ -104,7 +104,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
             id="btn-submit"
             class="mt-3 bg-clay-600 px-8 py-3.5 text-xs uppercase tracking-[0.2em] font-semibold text-sand-50 transition-colors hover:bg-clay-500 shadow-sm cursor-pointer flex items-center justify-center gap-2"
           >
-            <span>Tạo tài khoản</span>
+            <span>Đăng ký tài khoản</span>
           </button>
         </form>
 
@@ -117,8 +117,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     </div>
   </section>
 
-  <!-- TOAST THÔNG BÁO -->
-  <div id="auth-toast" class="fixed bottom-6 right-6 z-50 hidden translate-y-4 rounded bg-walnut-900 px-6 py-4 text-xs font-medium text-sand-50 shadow-2xl transition-all duration-300 border border-sand-50/20">
+  <!-- TOAST THÔNG BÁO (GÓC TRÊN BÊN PHẢI) -->
+  <div id="auth-toast" class="fixed top-6 right-6 z-[9999] hidden -translate-y-4 rounded-xl bg-walnut-900 px-6 py-4 text-xs font-medium text-sand-50 shadow-2xl transition-all duration-300 border border-sand-50/20 max-w-sm">
     <p id="toast-title" class="font-bold uppercase tracking-wider text-sand-50 mb-0.5">Thông báo</p>
     <p id="toast-body" class="text-sand-200">Đăng ký thành công! Đang chuyển sang trang Đăng nhập...</p>
   </div>
@@ -153,6 +153,85 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     const btnGoogle = document.getElementById('btn-google-signup') as HTMLButtonElement;
     const googleOfficialContainer = document.getElementById('google-btn-official') as HTMLElement;
 
+    // Error elements
+    const errFullname = document.getElementById('err-fullname') as HTMLElement;
+    const errEmail = document.getElementById('err-email') as HTMLElement;
+    const errPhone = document.getElementById('err-phone') as HTMLElement;
+    const errPassword = document.getElementById('err-password') as HTMLElement;
+    const errConfirm = document.getElementById('err-confirm') as HTMLElement;
+
+    // Clear all inline errors
+    const clearFieldErrors = () => {
+      [errFullname, errEmail, errPhone, errPassword, errConfirm].forEach((el) => {
+        if (el) {
+          el.textContent = '';
+          el.classList.add('hidden');
+        }
+      });
+      [nameInput, emailInput, phoneInput, passInput, confirmInput].forEach((inp) => {
+        if (inp) {
+          inp.classList.remove('border-red-500', 'bg-red-50/20');
+          inp.classList.add('border-walnut-900/20');
+        }
+      });
+    };
+
+    // Set error on a specific field
+    const setFieldError = (field: string, msg: string, isHtml = false) => {
+      let targetErr: HTMLElement | null = null;
+      let targetInput: HTMLInputElement | null = null;
+
+      if (field === 'fullname') {
+        targetErr = errFullname;
+        targetInput = nameInput;
+      } else if (field === 'email') {
+        targetErr = errEmail;
+        targetInput = emailInput;
+      } else if (field === 'phone') {
+        targetErr = errPhone;
+        targetInput = phoneInput;
+      } else if (field === 'password') {
+        targetErr = errPassword;
+        targetInput = passInput;
+      } else if (field === 'confirm') {
+        targetErr = errConfirm;
+        targetInput = confirmInput;
+      }
+
+      if (targetErr) {
+        if (isHtml) {
+          targetErr.innerHTML = msg;
+        } else {
+          targetErr.textContent = msg;
+        }
+        targetErr.classList.remove('hidden');
+      }
+
+      if (targetInput) {
+        targetInput.classList.remove('border-walnut-900/20');
+        targetInput.classList.add('border-red-500', 'bg-red-50/20');
+        targetInput.focus();
+      }
+    };
+
+    // Tự động xóa lỗi khi người dùng chỉnh sửa trường thông tin
+    [
+      { input: nameInput, err: errFullname },
+      { input: emailInput, err: errEmail },
+      { input: phoneInput, err: errPhone },
+      { input: passInput, err: errPassword },
+      { input: confirmInput, err: errConfirm },
+    ].forEach(({ input, err }) => {
+      input?.addEventListener('input', () => {
+        if (err) {
+          err.textContent = '';
+          err.classList.add('hidden');
+        }
+        input.classList.remove('border-red-500', 'bg-red-50/20');
+        input.classList.add('border-walnut-900/20');
+      });
+    });
+
     // Password strength elements
     const strengthContainer = document.getElementById('password-strength-container') as HTMLElement;
     const strengthText = document.getElementById('password-strength-text') as HTMLElement;
@@ -164,11 +243,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
     const showToast = (msg: string, isError = false) => {
       toastBody.textContent = msg;
-      toast.className = `fixed bottom-6 right-6 z-50 rounded px-6 py-4 text-xs font-medium text-sand-50 shadow-2xl transition-all duration-300 border ${
-        isError ? 'bg-red-900 border-red-500' : 'bg-walnut-900 border-emerald-500/50'
+      toast.className = `fixed top-6 right-6 z-[9999] rounded-xl px-6 py-4 text-xs font-medium text-sand-50 shadow-2xl transition-all duration-300 border max-w-sm backdrop-blur-sm ${
+        isError ? 'bg-red-950/95 border-red-500 text-red-50' : 'bg-walnut-900/95 border-emerald-500/50 text-sand-50'
       }`;
       toast.classList.remove('hidden');
-      requestAnimationFrame(() => toast.classList.remove('translate-y-4'));
+      requestAnimationFrame(() => toast.classList.remove('-translate-y-4'));
+      setTimeout(() => {
+        toast.classList.add('-translate-y-4');
+        setTimeout(() => toast.classList.add('hidden'), 300);
+      }, 4500);
     };
 
     // LIVE PASSWORD STRENGTH METER (YẾU / TRUNG BÌNH / MẠNH)
@@ -342,6 +425,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     // SUBMIT FORM REGISTER
     form?.addEventListener('submit', async (e) => {
       e.preventDefault();
+      clearFieldErrors();
 
       const fullname = nameInput.value.trim();
       const email = emailInput.value.trim();
@@ -349,29 +433,52 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       const password = passInput.value;
       const confirm = confirmInput.value;
 
-      if (!fullname || !email || !password) {
-        showToast('Vui lòng điền đầy đủ các trường thông tin.', true);
+      if (!fullname) {
+        setFieldError('fullname', 'Vui lòng nhập họ và tên của bạn.');
+        showToast('Vui lòng điền họ và tên.', true);
+        return;
+      }
+
+      if (!email) {
+        setFieldError('email', 'Vui lòng nhập địa chỉ email.');
+        showToast('Vui lòng điền email.', true);
+        return;
+      }
+
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        setFieldError('email', 'Địa chỉ email không đúng định dạng.');
+        showToast('Địa chỉ email không đúng định dạng.', true);
+        return;
+      }
+
+      const cleanPhone = phone.replace(/\s+/g, '');
+      if (cleanPhone && !/^(0|\+84)[1-9][0-9]{8}$/.test(cleanPhone)) {
+        setFieldError('phone', 'Số điện thoại không hợp lệ (cần 10 chữ số, bắt đầu bằng 0 hoặc +84).');
+        showToast('Số điện thoại không hợp lệ.', true);
+        return;
+      }
+
+      if (!password) {
+        setFieldError('password', 'Vui lòng nhập mật khẩu.');
+        showToast('Vui lòng nhập mật khẩu.', true);
         return;
       }
 
       if (password.length < 6) {
+        setFieldError('password', 'Mật khẩu phải chứa ít nhất 6 ký tự để bảo mật.');
         showToast('Mật khẩu phải chứa ít nhất 6 ký tự.', true);
         return;
       }
 
       if (password !== confirm) {
+        setFieldError('confirm', 'Mật khẩu xác nhận không khớp.');
         showToast('Mật khẩu xác nhận không khớp.', true);
         return;
       }
 
       if (!termsInput.checked) {
         showToast('Bạn cần đồng ý với điều khoản sử dụng.', true);
-        return;
-      }
-
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        showToast('Địa chỉ email không đúng định dạng.', true);
         return;
       }
 
@@ -386,12 +493,25 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         const res = await fetch('http://localhost:4000/api/auth/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ fullname, email, phone, password }),
+          body: JSON.stringify({ fullname, email, phone: cleanPhone, password }),
         });
 
         const data = await res.json();
 
         if (!res.ok || !data.success) {
+          // Gắn lỗi inline cụ thể theo trường phản hồi từ backend
+          if (data.field === 'email' || (data.message && data.message.toLowerCase().includes('email'))) {
+            setFieldError(
+              'email',
+              `<span>${data.message || 'Email này đã được sử dụng.'}</span> <a href="/dang-nhap" class="ml-1 font-bold underline text-clay-700 hover:text-clay-900 inline-flex items-center gap-0.5">Đăng nhập ngay &rarr;</a>`,
+              true
+            );
+          } else if (data.field === 'phone' || (data.message && data.message.toLowerCase().includes('điện thoại'))) {
+            setFieldError('phone', data.message || 'Số điện thoại này đã được đăng ký.');
+          } else if (data.field === 'password') {
+            setFieldError('password', data.message);
+          }
+
           showToast(data.message || 'Đăng ký tài khoản không thành công.', true);
           if (submitBtn) {
             submitBtn.disabled = false;
@@ -400,7 +520,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           return;
         }
 
-        // Tuyệt đối không lưu mật khẩu vào localStorage vì lý do bảo mật
+        // Đăng ký thành công
         showToast('Đăng ký tài khoản thành công! Đang chuyển sang trang Đăng nhập...');
         setTimeout(() => {
           window.location.href = '/dang-nhap?registered=1';

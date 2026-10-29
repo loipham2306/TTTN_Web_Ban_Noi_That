@@ -195,52 +195,51 @@ reviewsRouter.post('/', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, message: 'Không tìm thấy sản phẩm.' });
     }
 
-    // 2. Xác thực tài khoản người dùng từ Bearer Token (nếu đăng nhập)
-    let authUser: any = null;
+    // 2. RÀNG BUỘC BẮT BUỘC: Khách hàng PHẢI ĐĂNG NHẬP mới được gửi đánh giá
     const authHeader = req.headers.authorization;
-    if (authHeader && authHeader.startsWith('Bearer ')) {
-      const token = authHeader.split(' ')[1];
-      try {
-        const decoded = jwt.verify(token, ENV.JWT_SECRET) as any;
-        if (decoded?.id) {
-          authUser = await prisma.users.findUnique({
-            where: { id: BigInt(decoded.id) },
-          });
-        }
-      } catch (err) {
-        // Token hết hạn hoặc không hợp lệ, tiếp tục kiểm tra theo sđt/email
-      }
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({
+        success: false,
+        message: 'Vui lòng đăng nhập tài khoản trước khi gửi đánh giá sản phẩm.',
+      });
     }
 
-    const cleanPhone = phone ? String(phone).trim() : '';
-    const cleanEmail = email ? String(email).trim().toLowerCase() : (authUser?.email || '');
-
-    let user = authUser;
-    if (!user && cleanPhone) {
-      user = await prisma.users.findFirst({ where: { phone: cleanPhone } });
+    const token = authHeader.split(' ')[1];
+    let decoded: any;
+    try {
+      decoded = jwt.verify(token, ENV.JWT_SECRET) as any;
+    } catch (err) {
+      return res.status(401).json({
+        success: false,
+        message: 'Phiên đăng nhập đã hết hạn hoặc không hợp lệ. Vui lòng đăng nhập lại.',
+      });
     }
-    if (!user && cleanEmail) {
-      user = await prisma.users.findFirst({ where: { email: cleanEmail } });
+
+    if (!decoded || !decoded.id) {
+      return res.status(401).json({
+        success: false,
+        message: 'Thông tin xác thực không hợp lệ. Vui lòng đăng nhập lại.',
+      });
+    }
+
+    const user = await prisma.users.findUnique({
+      where: { id: BigInt(decoded.id) },
+    });
+
+    if (!user || user.status === false) {
+      return res.status(403).json({
+        success: false,
+        message: 'Tài khoản người dùng không tồn tại hoặc đã bị khóa.',
+      });
     }
 
     // 3. RÀNG BUỘC CHẶT CHẼ: KHÁCH HÀNG PHẢI ĐÃ TỪNG MUA SẢN PHẨM NÀY
-    const userMatchConditions: any[] = [];
-    if (user) {
-      userMatchConditions.push({ user_id: user.id });
-    }
-    if (cleanPhone) {
-      userMatchConditions.push({ users: { phone: cleanPhone } });
-    }
-    if (cleanEmail) {
-      userMatchConditions.push({ users: { email: cleanEmail } });
-    }
+    const cleanPhone = phone ? String(phone).trim() : (user.phone || '');
+    const cleanEmail = email ? String(email).trim().toLowerCase() : user.email;
 
-    if (userMatchConditions.length === 0) {
-      return res.status(403).json({
-        success: false,
-        message: 'Vui lòng đăng nhập hoặc nhập số điện thoại đặt hàng để hệ thống xác thực bạn đã mua sản phẩm này.',
-      });
-    }
+    const userMatchConditions: any[] = [{ user_id: user.id }];
+    if (cleanPhone) userMatchConditions.push({ users: { phone: cleanPhone } });
+    if (cleanEmail) userMatchConditions.push({ users: { email: cleanEmail } });
 
     // Tìm đơn hàng hợp lệ có chứa sản phẩm này (không bị hủy)
     const purchasedOrder = await prisma.orders.findFirst({
@@ -266,18 +265,6 @@ reviewsRouter.post('/', async (req: Request, res: Response) => {
       return res.status(403).json({
         success: false,
         message: 'Bạn chưa mua sản phẩm này (hoặc đơn hàng đã bị hủy). Chỉ khách hàng đã mua sản phẩm mới có quyền gửi đánh giá.',
-      });
-    }
-
-    // Gán user từ đơn hàng nếu chưa tìm thấy
-    if (!user) {
-      user = purchasedOrder.users;
-    }
-
-    if (!user) {
-      return res.status(403).json({
-        success: false,
-        message: 'Không tìm thấy tài khoản người mua hợp lệ tương ứng với đơn hàng.',
       });
     }
 
