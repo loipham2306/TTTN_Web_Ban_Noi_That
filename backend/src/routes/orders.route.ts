@@ -777,7 +777,7 @@ ordersRouter.get('/analytics', async (_req: Request, res: Response) => {
     for (const order of validOrders) {
       for (const item of order.order_items) {
         const catName = item.products?.categories?.name || 'Sản phẩm khác';
-        const itemTotal = Number(item.total_price || (item.unit_price * item.quantity) || 0);
+        const itemTotal = Number(item.total_price || (Number(item.unit_price) * item.quantity) || 0);
         categoryRevenueMap[catName] = (categoryRevenueMap[catName] || 0) + itemTotal;
       }
     }
