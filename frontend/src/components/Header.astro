@@ -1017,7 +1017,7 @@ const isItemActive = (item: MenuItem): boolean => {
           if (raw) fullUser = JSON.parse(raw);
         } catch {}
 
-        fullUser.avatar = data.user.avatar || fullUser.avatar || '';
+        fullUser.avatar = data.user.avatar || null;
         fullUser.role = data.user.role || 'customer';
         fullUser.name = sanitizeUserName(data.user.full_name || fullUser.name, fullUser.role);
         fullUser.email = data.user.email;

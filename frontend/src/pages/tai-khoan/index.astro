@@ -34,7 +34,7 @@ import PageBanner from '../../components/PageBanner.astro';
       <!-- ===================================================
            CỘT TRÁI: SIDEBAR THÔNG TIN & MENU ĐIỀU HƯỚNG (4 CỘT)
            =================================================== -->
-      <aside class="lg:col-span-4 flex flex-col justify-between h-full space-y-6 lg:space-y-0">
+      <aside class="lg:col-span-4 flex flex-col justify-between h-full space-y-6 lg:space-y-0 account-animate-enter">
 
         <!-- Card Khách Hàng Tóm Tắt (Walnut & Gold Accent) -->
         <div class="rounded-none border border-walnut-900/15 bg-white shadow-md overflow-hidden text-walnut-900 flex-shrink-0">
@@ -219,7 +219,7 @@ import PageBanner from '../../components/PageBanner.astro';
       <!-- ===================================================
            CỘT PHẢI: KHỐI NỘI DUNG CHÍNH THEO TAB (8 CỘT)
            =================================================== -->
-      <main class="lg:col-span-8 space-y-6 flex flex-col justify-between h-full">
+      <main class="lg:col-span-8 space-y-6 flex flex-col justify-between h-full account-animate-enter-delay-1">
 
         <!-- =================================================
              TAB 1: HỒ SƠ CÁ NHÂN & ĐỔI MẬT KHẨU
@@ -714,6 +714,52 @@ import PageBanner from '../../components/PageBanner.astro';
 </BaseLayout>
 
 <style>
+  /* Entrance animations for dashboard */
+  @keyframes accountFadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(18px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes accountFadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .account-animate-enter {
+    animation: accountFadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .account-animate-enter-delay-1 {
+    animation: accountFadeInUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+  }
+
+  /* Smooth transition for active tab panes */
+  .page-tab-pane:not(.hidden) {
+    animation: accountFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .account-animate-enter,
+    .account-animate-enter-delay-1,
+    .page-tab-pane:not(.hidden) {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+  }
+
   /* Active tab indicator in sidebar */
   .page-tab-btn.is-active {
     background-color: #173524;
@@ -779,7 +825,7 @@ import PageBanner from '../../components/PageBanner.astro';
           });
           const meData = await meRes.json();
           if (meData.success && meData.user) {
-            if (meData.user.avatar) fullUser.avatar = meData.user.avatar;
+            fullUser.avatar = meData.user.avatar || null;
             if (meData.user.role) fullUser.role = meData.user.role;
             if (meData.user.full_name) fullUser.name = meData.user.full_name;
             fullUser.email = meData.user.email;
@@ -797,7 +843,7 @@ import PageBanner from '../../components/PageBanner.astro';
     const tier = fullUser.tier || (isAdmin ? 'Quản Trị Viên' : (user ? 'Hội Viên Thân Thiết' : 'Khách Mua Hàng'));
     const spent = fullUser.spent || '0 ₫';
     const orders = typeof fullUser.orders === 'number' ? `${fullUser.orders} đơn hàng` : '0 đơn hàng';
-    const avatar = fullUser.avatar || user?.avatar || '';
+    const avatar = fullUser.avatar || '';
 
     // Cập nhật DOM Header & Card
     const elName = document.getElementById('page-user-name');

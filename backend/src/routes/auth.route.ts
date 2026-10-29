@@ -163,6 +163,7 @@ authRouter.post('/register', authLimiter, async (req: Request, res: Response) =>
         full_name: newUser.full_name,
         phone: newUser.phone,
         role: userRole,
+        avatar: null,
       },
     });
   } catch (error: any) {
@@ -275,6 +276,7 @@ authRouter.post('/login', authLimiter, async (req: Request, res: Response) => {
         full_name: cleanFullName(user.full_name, userRole),
         phone: user.phone,
         role: userRole,
+        avatar: user.avatar_url || null,
       },
     });
   } catch (error: any) {

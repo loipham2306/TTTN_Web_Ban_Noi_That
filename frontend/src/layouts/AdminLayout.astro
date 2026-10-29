@@ -6,6 +6,7 @@ interface NavItem {
   href: string;
   icon: string;
   badge?: string;
+  roles?: string[]; // Allowed roles: admin, cashier, seller. Undefined means admin only.
 }
 
 interface NavGroup {
@@ -27,83 +28,104 @@ const navGroups: NavGroup[] = [
       {
         label: 'Trang tổng quan',
         href: '/admin',
-        icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'
+        icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6',
+        roles: ['admin', 'seller']
       }
     ]
   },
   {
-    groupTitle: 'QUẢN LÝ',
+    groupTitle: 'TÀI CHÍNH & SỔ QUỸ',
     items: [
       {
-        label: 'Quản lý sản phẩm',
-        href: '/admin/san-pham',
-        icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'
-      },
-      {
-        label: 'Quản lý đơn hàng',
-        href: '/admin/don-hang',
-        icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z',
-        badge: 'Mới'
-      },
-      {
-        label: 'Quản lý danh mục',
-        href: '/admin/danh-muc',
-        icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10'
-      },
-      {
-        label: 'Quản lý khách hàng',
-        href: '/admin/khach-hang',
-        icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z'
-      },
-      {
-        label: 'Quản lý nhân viên',
-        href: '/admin/nhan-vien',
-        icon: 'M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2'
-      },
-      {
-        label: 'Tư vấn Phong Thủy AI',
-        href: '/admin/phong-thuy',
-        icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z'
-      }
-    ]
-  },
-  {
-    groupTitle: 'TIẾP THỊ',
-    items: [
-      {
-        label: 'Quản lý Banner',
-        href: '/admin/banner',
-        icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z'
-      },
-      {
-        label: 'Mã giảm giá',
-        href: '/admin/ma-giam-gia',
-        icon: 'M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z'
-      },
-      {
-        label: 'Đánh giá sản phẩm',
-        href: '/admin/danh-gia',
-        icon: 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z'
-      },
-      {
-        label: 'Email & Thông báo',
-        href: '/admin/thong-bao',
-        icon: 'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'
+        label: 'Sổ quỹ & Đối soát COD',
+        href: '/admin/so-quy',
+        icon: 'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z',
+        badge: 'Thu Ngân',
+        roles: ['admin', 'cashier']
       },
       {
         label: 'Báo cáo doanh thu',
         href: '/admin/doanh-thu',
-        icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z'
+        icon: 'M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z',
+        roles: ['admin', 'cashier']
       }
     ]
   },
   {
-    groupTitle: 'HỆ THỐNG',
+    groupTitle: 'BÁN HÀNG & KHO',
     items: [
+      {
+        label: 'Quản lý đơn hàng',
+        href: '/admin/don-hang',
+        icon: 'M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z',
+        badge: 'Mới',
+        roles: ['admin', 'cashier', 'seller']
+      },
+      {
+        label: 'Quản lý nhập hàng',
+        href: '/admin/nhap-hang',
+        icon: 'M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h2',
+        badge: 'Kho',
+        roles: ['admin', 'cashier', 'seller']
+      },
+      {
+        label: 'Quản lý sản phẩm',
+        href: '/admin/san-pham',
+        icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4',
+        roles: ['admin', 'seller']
+      },
+      {
+        label: 'Quản lý danh mục',
+        href: '/admin/danh-muc',
+        icon: 'M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10',
+        roles: ['admin', 'seller']
+      },
+      {
+        label: 'Quản lý khách hàng',
+        href: '/admin/khach-hang',
+        icon: 'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z',
+        roles: ['admin']
+      },
+      {
+        label: 'Quản lý nhân viên',
+        href: '/admin/nhan-vien',
+        icon: 'M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2',
+        roles: ['admin']
+      },
+      {
+        label: 'Tư vấn Phong Thủy AI',
+        href: '/admin/phong-thuy',
+        icon: 'M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z',
+        roles: ['admin']
+      }
+    ]
+  },
+  {
+    groupTitle: 'MARKETING & HỆ THỐNG',
+    items: [
+      {
+        label: 'Quản lý Banner',
+        href: '/admin/banner',
+        icon: 'M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z',
+        roles: ['admin']
+      },
+      {
+        label: 'Mã giảm giá',
+        href: '/admin/ma-giam-gia',
+        icon: 'M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z',
+        roles: ['admin']
+      },
+      {
+        label: 'Đánh giá sản phẩm',
+        href: '/admin/danh-gia',
+        icon: 'M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z',
+        roles: ['admin']
+      },
       {
         label: 'Cài đặt hệ thống',
         href: '/admin/cai-dat',
-        icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z'
+        icon: 'M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z M15 12a3 3 0 11-6 0 3 3 0 016 0z',
+        roles: ['admin']
       }
     ]
   }
@@ -135,9 +157,21 @@ for (const g of navGroups) {
         var token = localStorage.getItem('admin_token') || localStorage.getItem('auth_token');
         var userRaw = localStorage.getItem('admin_user') || localStorage.getItem('current_user');
         var user = userRaw ? JSON.parse(userRaw) : null;
-        if (!token || !user || (user.role !== 'admin' && user.role !== 'seller')) {
+        var allowedRoles = ['admin', 'seller', 'cashier'];
+        if (!token || !user || !allowedRoles.includes(user.role)) {
           var target = window.location.pathname;
           window.location.replace('/dang-nhap?redirect=' + encodeURIComponent(target) + '&error=admin_required');
+          return;
+        }
+
+        // Nếu là Thu Ngân (cashier), chỉ cho phép vào các trang nghiệp vụ tài chính & đơn hàng
+        var cashierAllowedPages = ['/admin/so-quy', '/admin/nhap-hang', '/admin/doanh-thu', '/admin/don-hang'];
+        var currentP = window.location.pathname;
+        if (user.role === 'cashier') {
+          var isAllowed = cashierAllowedPages.some(function(p) { return currentP === p || currentP.startsWith(p + '/'); });
+          if (!isAllowed) {
+            window.location.replace('/admin/so-quy');
+          }
         }
       } catch (e) {
         window.location.replace('/dang-nhap?error=admin_required');
@@ -195,7 +229,7 @@ for (const g of navGroups) {
 
         <nav class="mt-5 space-y-6 px-4" aria-label="Điều hướng quản trị">
           {navGroups.map((group) => (
-            <div>
+            <div data-nav-group>
               <p class="px-3 text-[10px] font-bold uppercase tracking-[0.2em] text-[#D8B670]/70 mb-2">
                 {group.groupTitle}
               </p>
@@ -207,6 +241,7 @@ for (const g of navGroups) {
                   return (
                     <a
                       href={item.href}
+                      data-nav-roles={item.roles ? item.roles.join(',') : 'admin'}
                       class:list={[
                         'flex items-center justify-between rounded px-3 py-2.5 text-xs font-medium transition-all group',
                         isActive
@@ -221,7 +256,7 @@ for (const g of navGroups) {
                         <span>{item.label}</span>
                       </div>
                       {item.badge && (
-                        <span class="rounded bg-red-600 px-1.5 py-0.5 text-[9px] font-bold uppercase text-white tracking-wider">
+                        <span class="rounded bg-[#D8B670]/20 text-[#D8B670] border border-[#D8B670]/40 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider group-hover:bg-[#D8B670] group-hover:text-[#173524] transition-colors">
                           {item.badge}
                         </span>
                       )}
@@ -324,18 +359,45 @@ for (const g of navGroups) {
 
   <script>
     document.addEventListener('DOMContentLoaded', () => {
-      // Xử lý thông tin user (Ưu tiên admin_user riêng biệt)
+      // Xử lý thông tin user và phân quyền giao diện động
       const renderAdminInfo = (u: any) => {
         if (!u) return;
         const nameEl = document.getElementById('admin-header-name');
         const emailEl = document.getElementById('admin-header-email');
         const avatarEl = document.getElementById('admin-header-avatar');
-        if (nameEl && u.name) nameEl.textContent = u.name;
-        if (emailEl && u.email) emailEl.textContent = u.email;
+        const role = u.role || 'admin';
+
+        if (nameEl && u.name) {
+          nameEl.textContent = u.name;
+        }
+        if (emailEl && u.email) {
+          const roleLabel = role === 'cashier' ? 'Thu Ngân KTUFA' : (role === 'admin' ? 'Quản Trị Viên' : 'Nhân Viên');
+          emailEl.textContent = `${roleLabel} • ${u.email}`;
+        }
         if (avatarEl && u.name) {
           const initials = u.name.split(' ').filter(Boolean).map((w: string) => w[0]).join('').slice(-2).toUpperCase();
           avatarEl.textContent = initials || 'AD';
         }
+
+        // Lọc menu hiển thị theo quyền thực tế
+        document.querySelectorAll('[data-nav-roles]').forEach((el) => {
+          const allowed = (el.getAttribute('data-nav-roles') || 'admin').split(',');
+          if (!allowed.includes(role) && role !== 'admin') {
+            (el as HTMLElement).style.display = 'none';
+          } else {
+            (el as HTMLElement).style.display = '';
+          }
+        });
+
+        // Ẩn nhóm menu nếu toàn bộ mục con đã bị ẩn
+        document.querySelectorAll('[data-nav-group]').forEach((groupEl) => {
+          const visibleItems = groupEl.querySelectorAll('[data-nav-roles]:not([style*="display: none"])');
+          if (visibleItems.length === 0) {
+            (groupEl as HTMLElement).style.display = 'none';
+          } else {
+            (groupEl as HTMLElement).style.display = '';
+          }
+        });
       };
 
       // 1. Hiển thị ngay từ LocalStorage để giao diện mượt mà

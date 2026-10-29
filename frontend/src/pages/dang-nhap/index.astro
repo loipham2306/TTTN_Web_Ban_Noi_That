@@ -397,6 +397,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           email: data.user.email,
           phone: data.user.phone || 'Chưa cập nhật',
           role: data.user.role || 'customer',
+          avatar: data.user.avatar || null,
         };
 
         // Tách biệt phiên lưu trữ: Admin dùng admin_token/admin_user, Khách dùng auth_token/current_user

@@ -13,7 +13,7 @@ productsRouter.get('/', async (req: Request, res: Response) => {
     const { category, minPrice, maxPrice, page = '1', limit = '12', search, material, color } = req.query;
 
     const pageNum  = Math.max(1, parseInt(page as string, 10));
-    const limitNum = Math.min(50, parseInt(limit as string, 10));
+    const limitNum = Math.min(500, parseInt(limit as string, 10));
     const skip     = (pageNum - 1) * limitNum;
 
     const where: any = {

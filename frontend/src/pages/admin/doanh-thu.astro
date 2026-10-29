@@ -7,8 +7,8 @@ let analyticsData: any = null;
 
 try {
   const [ordersRes, analyticsRes] = await Promise.all([
-    fetch('http://localhost:4000/api/orders', { signal: AbortSignal.timeout(2000) }),
-    fetch('http://localhost:4000/api/orders/analytics', { signal: AbortSignal.timeout(2000) }),
+    fetch('http://localhost:4000/api/orders', { signal: AbortSignal.timeout(3000) }),
+    fetch('http://localhost:4000/api/orders/analytics', { signal: AbortSignal.timeout(3000) }),
   ]);
 
   if (ordersRes.ok) {
@@ -24,29 +24,33 @@ try {
       analyticsData = aJson.data;
     }
   }
-} catch {
-  // Fallback
+} catch (e) {
+  console.error('Lỗi SSR tải dữ liệu doanh thu:', e);
 }
 
-const totalRevenue = analyticsData?.kpis?.totalRevenue ?? liveOrders
-  .filter((o: any) => o.orderStatus !== 'da-huy' && o.orderStatus !== 'cancelled')
-  .reduce((acc: number, curr: any) => acc + (curr.total || 0), 0);
+// KPI số liệu tài chính thực tế từ CSDL
+const kpis = analyticsData?.kpis || {};
+const totalRevenue = kpis.totalRevenue ?? 0;
+const totalCogs = kpis.totalCogs ?? 0;
+const totalGrossProfit = kpis.totalGrossProfit ?? 0;
+const overallMargin = kpis.overallMargin ?? '0.0%';
+const totalOrders = kpis.totalOrders ?? 0;
 
-const totalOrders = analyticsData?.kpis?.totalOrders ?? liveOrders.length;
-const profit = analyticsData?.kpis?.monthlyProfit ?? Math.round(totalRevenue * 0.45);
-const cost = analyticsData?.kpis?.monthlyCost ?? (totalRevenue - profit);
-const margin = totalRevenue > 0 ? '45.0%' : '0.0%';
+// Sổ quỹ & tiền mặt thực tế
+const cashBalance = kpis.cashBalance ?? 0;
+const bankBalance = kpis.bankBalance ?? 0;
+const totalCashInflow = kpis.totalCashInflow ?? 0;
+const totalSupplierDebt = kpis.totalSupplierDebt ?? 0;
 
-const monthlyStatsRaw = analyticsData?.monthlyStats ?? [
-  { month: 'Tháng 5', yearMonth: '2026-05', revenue: 0, cost: 0, profit: 0, margin: '0.0%', orders: 0, val: 0, height: '0%' },
-  { month: 'Tháng 6', yearMonth: '2026-06', revenue: 0, cost: 0, profit: 0, margin: '0.0%', orders: 0, val: 0, height: '0%' },
-  { month: 'Tháng 7', yearMonth: '2026-07', revenue: 0, cost: 0, profit: 0, margin: '0.0%', orders: 0, val: 0, height: '0%' },
-  { month: 'Tháng 8', yearMonth: '2026-08', revenue: 0, cost: 0, profit: 0, margin: '0.0%', orders: 0, val: 0, height: '0%' },
-  { month: 'Tháng 9', yearMonth: '2026-09', revenue: 0, cost: 0, profit: 0, margin: '0.0%', orders: 0, val: 0, height: '0%' },
-  { month: 'Tháng 10', yearMonth: '2026-10', revenue: totalRevenue, cost: cost, profit: profit, margin: margin, orders: totalOrders, val: Math.round(totalRevenue / 1000000), height: '100%' },
-];
+// Thống kê 6 tháng gần nhất
+const monthlyStats = analyticsData?.monthlyStats || [];
 
-const categoryShare = analyticsData?.categoryShare ?? [];
+// Cơ cấu phương thức thanh toán thực tế
+const paymentMethods = analyticsData?.paymentMethods || [];
+
+// Top sản phẩm sinh lời cao nhất
+const topProfitableProducts = analyticsData?.topProfitableProducts || [];
+
 const todayFormatted = new Intl.DateTimeFormat('vi-VN', { 
   day: '2-digit', 
   month: '2-digit', 
@@ -56,205 +60,325 @@ const todayFormatted = new Intl.DateTimeFormat('vi-VN', {
 }).format(new Date());
 ---
 
-<AdminLayout title="Báo Cáo Doanh Thu & Lợi Nhuận - Nội Thất">
-  <div class="space-y-6">
+<AdminLayout title="Báo Cáo Doanh Thu & Lợi Nhuận Thực Tế | KTUFA Admin">
+  <div class="space-y-6 max-w-7xl mx-auto pb-12">
 
     <!-- Header & Action -->
-    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-walnut-900/10 pb-6">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-2xl border border-walnut-900/10 shadow-sm">
       <div>
-        <h1 class="font-serif text-2xl sm:text-3xl text-walnut-900">Báo Cáo Doanh Thu & Lợi Nhuận</h1>
-        <p class="mt-1 text-sm text-walnut-800/80">Phân tích dòng tiền, chi phí giá vốn và biên độ lợi nhuận thực tế từ CSDL.</p>
+        <div class="flex items-center gap-2">
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-[#173524]/10 text-[#173524]">
+            <span class="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
+            Hệ Thống Kế Toán KTUFA
+          </span>
+          <span class="text-xs text-walnut-800/60">• Tính toán Giá Vốn COGS & Sổ Quỹ Realtime</span>
+        </div>
+        <h1 class="text-2xl font-bold font-display text-[#173524] mt-1">Báo Cáo Doanh Thu & Hiệu Quả Kinh Doanh</h1>
+        <p class="text-xs text-walnut-800/70 mt-0.5">Phân tích doanh thu thuần, giá vốn hàng bán thực tế từ kho và biên độ lợi nhuận gộp chính xác 100%</p>
       </div>
 
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-2.5">
         <button 
           type="button" 
           id="btnOpenFinancialModal"
-          class="inline-flex items-center gap-2 bg-walnut-900 px-4 py-2.5 text-xs uppercase tracking-[0.15em] text-sand-50 transition-colors hover:bg-clay-600 shadow-sm cursor-pointer"
+          class="inline-flex items-center gap-2 bg-[#173524] px-4 py-2.5 rounded-xl text-xs font-bold text-white hover:bg-[#1f4730] transition-colors shadow-md shadow-[#173524]/15 cursor-pointer"
         >
-          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg class="h-4 w-4 text-[#D8B670]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
           </svg>
-          Xuất Báo Cáo Tài Chính (A4 / PDF)
+          Xuất Báo Cáo Tài Chính (A4 / VAS)
         </button>
       </div>
     </div>
 
-    <!-- Quick KPIs -->
-    <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
-      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4 shadow-sm">
-        <p class="text-xs uppercase text-walnut-800/70 font-medium">Doanh thu năm 2026</p>
-        <p class="text-2xl font-bold text-walnut-900 mt-1">{formatVnd(totalRevenue)}</p>
-        <p class="text-[11px] text-walnut-800/60 mt-1">Từ {totalOrders} đơn hàng hoàn tất</p>
+    <!-- 5 Bento KPI Cards Thực Tế -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+      <!-- KPI 1: Doanh thu thuần -->
+      <div class="bg-white p-5 rounded-2xl border border-walnut-900/10 shadow-sm relative overflow-hidden group hover:border-[#173524] transition-all">
+        <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-emerald-50 rounded-full group-hover:scale-110 transition-transform -z-0"></div>
+        <div class="relative z-10">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-walnut-800/60">Doanh Thu Thuần</p>
+          <p class="text-xl font-bold font-display text-[#173524] mt-2">{formatVnd(totalRevenue)}</p>
+          <p class="text-[11px] text-walnut-800/70 mt-1">Từ <strong>{totalOrders}</strong> đơn hàng hợp lệ</p>
+        </div>
       </div>
-      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4 shadow-sm">
-        <p class="text-xs uppercase text-walnut-800/70 font-medium">Lợi nhuận gộp ước tính</p>
-        <p class="text-2xl font-bold text-emerald-700 mt-1">{formatVnd(profit)}</p>
-        <p class="text-[11px] text-emerald-700/80 mt-1">Tỷ suất sinh lời khả quan</p>
+
+      <!-- KPI 2: Giá vốn hàng bán (COGS) Thực tế -->
+      <div class="bg-white p-5 rounded-2xl border border-walnut-900/10 shadow-sm relative overflow-hidden group hover:border-amber-500 transition-all">
+        <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-amber-50 rounded-full group-hover:scale-110 transition-transform -z-0"></div>
+        <div class="relative z-10">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-walnut-800/60">Giá Vốn Hàng Bán (COGS)</p>
+          <p class="text-xl font-bold font-display text-amber-700 mt-2">{formatVnd(totalCogs)}</p>
+          <p class="text-[11px] text-amber-800/80 mt-1">Từ phiếu nhập & kho thực tế</p>
+        </div>
       </div>
-      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4 shadow-sm">
-        <p class="text-xs uppercase text-walnut-800/70 font-medium">Biên lợi nhuận trung bình</p>
-        <p class="text-2xl font-bold text-clay-600 mt-1">{margin}</p>
-        <p class="text-[11px] text-clay-700/80 mt-1">Sau khi trừ giá vốn hàng hóa</p>
+
+      <!-- KPI 3: Lợi nhuận gộp thực tế -->
+      <div class="bg-white p-5 rounded-2xl border border-walnut-900/10 shadow-sm relative overflow-hidden group hover:border-emerald-600 transition-all">
+        <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-emerald-50 rounded-full group-hover:scale-110 transition-transform -z-0"></div>
+        <div class="relative z-10">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-walnut-800/60">Lợi Nhuận Gộp Thực Tế</p>
+          <p class="text-xl font-bold font-display text-emerald-700 mt-2">{formatVnd(totalGrossProfit)}</p>
+          <p class="text-[11px] text-emerald-800/80 mt-1">Doanh thu trừ Giá vốn COGS</p>
+        </div>
       </div>
-      <div class="rounded border border-walnut-900/10 bg-sand-50 p-4 shadow-sm">
-        <p class="text-xs uppercase text-walnut-800/70 font-medium">Tăng trưởng so với cùng kỳ</p>
-        <p class="text-2xl font-bold text-emerald-700 mt-1">{totalRevenue > 0 ? '+100%' : '0%'}</p>
-        <p class="text-[11px] text-emerald-700/80 mt-1">Chỉ số tài chính tích cực</p>
+
+      <!-- KPI 4: Biên lợi nhuận thực tế -->
+      <div class="bg-white p-5 rounded-2xl border border-walnut-900/10 shadow-sm relative overflow-hidden group hover:border-[#D8B670] transition-all">
+        <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-sand-100 rounded-full group-hover:scale-110 transition-transform -z-0"></div>
+        <div class="relative z-10">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-walnut-800/60">Biên Lợi Nhuận Gộp</p>
+          <p class="text-xl font-bold font-display text-[#D8B670] mt-2">{overallMargin}</p>
+          <p class="text-[11px] text-walnut-800/70 mt-1">Tỷ lệ sinh lời trên doanh thu</p>
+        </div>
+      </div>
+
+      <!-- KPI 5: Dòng tiền thực thu -->
+      <div class="bg-white p-5 rounded-2xl border border-walnut-900/10 shadow-sm relative overflow-hidden group hover:border-blue-500 transition-all">
+        <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-blue-50 rounded-full group-hover:scale-110 transition-transform -z-0"></div>
+        <div class="relative z-10">
+          <p class="text-[11px] font-bold uppercase tracking-wider text-walnut-800/60">Dòng Tiền Đã Thu</p>
+          <p class="text-xl font-bold font-display text-blue-700 mt-2">{formatVnd(totalCashInflow)}</p>
+          <p class="text-[11px] text-blue-800/80 mt-1">Qua Két quỹ & VietQR SePay</p>
+        </div>
       </div>
     </div>
 
-    <!-- Revenue Breakdown Chart & Cost Structure -->
+    <!-- Biểu Đồ 6 Tháng: Doanh Thu vs Giá Vốn Thực Tế -->
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
-      <!-- Chart -->
-      <div class="lg:col-span-2 rounded border border-walnut-900/10 bg-sand-50 p-6 shadow-sm">
-        <div class="flex items-center justify-between pb-3 border-b border-walnut-900/10">
+      <!-- Cột Biểu đồ đa cột (Multi-Bar) -->
+      <div class="lg:col-span-2 bg-white rounded-2xl border border-walnut-900/10 p-6 shadow-sm">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-walnut-900/10 gap-2">
           <div>
-            <h2 class="text-base font-bold text-walnut-900">Tăng Trưởng Doanh Thu 6 Tháng Gần Nhất</h2>
-            <p class="text-xs text-walnut-800/70">Số liệu tổng hợp hàng tháng từ các đơn hàng thực tế</p>
+            <h2 class="text-base font-bold text-[#173524]">Biểu Đồ Doanh Thu & Giá Vốn 6 Tháng Gần Nhất</h2>
+            <p class="text-xs text-walnut-800/70">So sánh trực quan giữa Doanh thu và Chi phí giá vốn thực tế của từng kỳ</p>
           </div>
-          <span class="text-xs font-semibold text-walnut-900 bg-sand-100 px-2.5 py-1 rounded">Đơn vị: Triệu VNĐ</span>
+          <div class="flex items-center gap-3 text-xs">
+            <span class="inline-flex items-center gap-1.5 font-semibold text-[#173524]">
+              <span class="w-3 h-3 rounded bg-[#173524]"></span> Doanh thu
+            </span>
+            <span class="inline-flex items-center gap-1.5 font-semibold text-amber-600">
+              <span class="w-3 h-3 rounded bg-amber-500"></span> Giá vốn (COGS)
+            </span>
+            <span class="inline-flex items-center gap-1.5 font-semibold text-emerald-600">
+              <span class="w-3 h-3 rounded bg-emerald-500"></span> Lợi nhuận
+            </span>
+          </div>
         </div>
 
-        {totalRevenue === 0 ? (
-          <div class="flex flex-col items-center justify-center h-52 border-b border-walnut-900/10 text-center text-xs text-walnut-800/70 py-10">
-            <svg class="h-10 w-10 text-walnut-800/30 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            <span>Chưa có phát sinh dữ liệu doanh thu tháng.</span>
-          </div>
+        {monthlyStats.length === 0 ? (
+          <div class="py-16 text-center text-xs text-walnut-800/60">Chưa có phát sinh dữ liệu kỳ kế toán.</div>
         ) : (
-          <div class="grid grid-cols-6 gap-3 sm:gap-4 items-end h-52 border-b border-walnut-900/10 pb-2 mt-4">
-            {monthlyStatsRaw.map((bar: any) => (
-              <div class="flex flex-col items-center gap-1.5 h-full justify-end group">
-                <div class="text-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <span class="text-xs font-bold text-walnut-900 block leading-tight">
-                    {bar.revenue > 0 ? (bar.val >= 1 ? `${bar.val}M` : `${formatVnd(bar.revenue)}`) : '0đ'}
-                  </span>
-                  <span class="text-[9px] text-walnut-800/60 block">{bar.orders} đơn</span>
+          <div class="grid grid-cols-6 gap-2 sm:gap-4 items-end h-56 border-b border-walnut-900/10 pb-2 mt-6">
+            {monthlyStats.map((item: any) => {
+              const maxVal = Math.max(...monthlyStats.map((m: any) => m.revenue || 1));
+              const revPercent = maxVal > 0 ? Math.round((item.revenue / maxVal) * 100) : 0;
+              const costPercent = maxVal > 0 ? Math.round((item.cost / maxVal) * 100) : 0;
+              const profitPercent = maxVal > 0 ? Math.round((item.profit / maxVal) * 100) : 0;
+
+              return (
+                <div class="flex flex-col items-center gap-1 h-full justify-end group">
+                  <div class="text-center opacity-0 group-hover:opacity-100 transition-opacity text-[10px]">
+                    <span class="font-bold text-[#173524] block">{formatVnd(item.revenue)}</span>
+                    <span class="text-emerald-700 block font-semibold">LN: {formatVnd(item.profit)}</span>
+                  </div>
+
+                  <div class="flex items-end gap-1 w-full justify-center h-40">
+                    <!-- Cột Doanh thu -->
+                    <div 
+                      class="w-3 sm:w-4 rounded-t bg-[#173524] transition-all group-hover:opacity-90"
+                      style={`height: ${revPercent}%; min-height: 4px;`}
+                      title={`Doanh thu ${item.month}: ${formatVnd(item.revenue)}`}
+                    ></div>
+                    <!-- Cột Giá vốn -->
+                    <div 
+                      class="w-3 sm:w-4 rounded-t bg-amber-500 transition-all group-hover:opacity-90"
+                      style={`height: ${costPercent}%; min-height: 4px;`}
+                      title={`Giá vốn ${item.month}: ${formatVnd(item.cost)}`}
+                    ></div>
+                    <!-- Cột Lợi nhuận -->
+                    <div 
+                      class="w-3 sm:w-4 rounded-t bg-emerald-500 transition-all group-hover:opacity-90"
+                      style={`height: ${profitPercent}%; min-height: 4px;`}
+                      title={`Lợi nhuận ${item.month}: ${formatVnd(item.profit)}`}
+                    ></div>
+                  </div>
+
+                  <span class="text-[11px] font-bold text-walnut-800 mt-2">{item.month}</span>
+                  <span class="text-[9px] text-walnut-800/60 font-semibold">{item.margin}</span>
                 </div>
-                <div 
-                  class="w-full rounded-t bg-walnut-900 group-hover:bg-clay-600 transition-all duration-300 relative shadow-sm cursor-pointer" 
-                  style={`height: ${bar.height};`}
-                  title={`${bar.month}: ${formatVnd(bar.revenue)} (${bar.orders} đơn hàng)`}
-                ></div>
-                <span class="text-[11px] sm:text-xs font-medium text-walnut-800 mt-1 text-center">{bar.month}</span>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
 
-        <div class="mt-4 flex items-center justify-between text-xs text-walnut-800/80">
-          <span>Kỳ cao điểm: <strong>Tháng 10/2026 ({formatVnd(totalRevenue)})</strong></span>
-          <span class="text-emerald-700 font-medium">✓ Dữ liệu khớp 100% với đơn hàng CSDL</span>
+        <div class="mt-4 flex flex-col sm:flex-row items-center justify-between text-xs text-walnut-800/80 gap-2">
+          <span>Tổng doanh thu toàn kỳ: <strong class="text-[#173524]">{formatVnd(totalRevenue)}</strong></span>
+          <span class="text-emerald-700 font-bold">✓ Giá vốn thực tế chiếm {totalRevenue > 0 ? Math.round((totalCogs / totalRevenue) * 100) : 0}% doanh thu</span>
         </div>
       </div>
 
-      <!-- Cost Structure -->
-      <div class="rounded border border-walnut-900/10 bg-sand-50 p-6 shadow-sm flex flex-col justify-between">
+      <!-- Cơ Cấu Chi Phí & Kênh Thanh Toán Thực Tế -->
+      <div class="bg-white rounded-2xl border border-walnut-900/10 p-6 shadow-sm flex flex-col justify-between">
         <div>
-          <h2 class="text-base font-bold text-walnut-900 mb-1">Cơ Cấu Chi Phí & Lợi Nhuận</h2>
-          <p class="text-xs text-walnut-800/70 mb-5">Tỷ lệ phân bổ trên tổng doanh thu</p>
+          <h2 class="text-base font-bold text-[#173524] mb-1">Cơ Cấu Tài Chính Thực Tế</h2>
+          <p class="text-xs text-walnut-800/70 mb-5">Phân bổ giá vốn và kênh thanh toán</p>
 
           <div class="space-y-4 text-xs">
+            <!-- Tỷ lệ Giá vốn thực tế -->
             <div>
               <div class="flex justify-between mb-1">
-                <span class="font-medium text-walnut-900">Giá vốn hàng hóa (COGS)</span>
-                <span class="font-bold text-walnut-900">{totalRevenue > 0 ? '55.0%' : '0%'}</span>
+                <span class="font-medium text-walnut-900">Giá vốn thực tế (COGS)</span>
+                <span class="font-bold text-amber-700">
+                  {totalRevenue > 0 ? ((totalCogs / totalRevenue) * 100).toFixed(1) + '%' : '0%'}
+                </span>
               </div>
               <div class="h-2 bg-sand-200 rounded-full overflow-hidden">
-                <div class="h-full bg-walnut-900 rounded-full transition-all duration-500" style={`width: ${totalRevenue > 0 ? '55%' : '0%'};`}></div>
+                <div 
+                  class="h-full bg-amber-500 rounded-full" 
+                  style={`width: ${totalRevenue > 0 ? (totalCogs / totalRevenue) * 100 : 0}%;`}
+                ></div>
               </div>
-              <p class="text-[10px] text-walnut-800/60 mt-0.5">{formatVnd(cost)}</p>
+              <p class="text-[10px] text-walnut-800/60 mt-0.5">{formatVnd(totalCogs)}</p>
             </div>
 
+            <!-- Tỷ lệ Lợi nhuận gộp thực tế -->
             <div>
               <div class="flex justify-between mb-1">
                 <span class="font-medium text-walnut-900">Lợi nhuận gộp ròng</span>
-                <span class="font-bold text-emerald-700">{totalRevenue > 0 ? '45.0%' : '0%'}</span>
+                <span class="font-bold text-emerald-700">{overallMargin}</span>
               </div>
               <div class="h-2 bg-sand-200 rounded-full overflow-hidden">
-                <div class="h-full bg-emerald-600 rounded-full transition-all duration-500" style={`width: ${totalRevenue > 0 ? '45%' : '0%'};`}></div>
+                <div 
+                  class="h-full bg-emerald-600 rounded-full" 
+                  style={`width: ${totalRevenue > 0 ? (totalGrossProfit / totalRevenue) * 100 : 0}%;`}
+                ></div>
               </div>
-              <p class="text-[10px] text-emerald-700/80 mt-0.5">{formatVnd(profit)}</p>
+              <p class="text-[10px] text-emerald-700/80 mt-0.5">{formatVnd(totalGrossProfit)}</p>
             </div>
 
-            <div>
-              <div class="flex justify-between mb-1">
-                <span class="font-medium text-walnut-900">Chi phí Marketing / Ads</span>
-                <span class="font-bold text-clay-600">{totalRevenue > 0 ? '8.0%' : '0%'}</span>
-              </div>
-              <div class="h-2 bg-sand-200 rounded-full overflow-hidden">
-                <div class="h-full bg-clay-600 rounded-full transition-all duration-500" style={`width: ${totalRevenue > 0 ? '8%' : '0%'};`}></div>
-              </div>
-              <p class="text-[10px] text-walnut-800/60 mt-0.5">{formatVnd(Math.round(totalRevenue * 0.08))}</p>
-            </div>
-
-            <div>
-              <div class="flex justify-between mb-1">
-                <span class="font-medium text-walnut-900">Vận chuyển & Giao hàng</span>
-                <span class="font-bold text-amber-700">{totalRevenue > 0 ? '5.0%' : '0%'}</span>
-              </div>
-              <div class="h-2 bg-sand-200 rounded-full overflow-hidden">
-                <div class="h-full bg-amber-600 rounded-full transition-all duration-500" style={`width: ${totalRevenue > 0 ? '5%' : '0%'};`}></div>
-              </div>
-              <p class="text-[10px] text-walnut-800/60 mt-0.5">{formatVnd(Math.round(totalRevenue * 0.05))}</p>
+            <!-- Phân bổ phương thức thanh toán -->
+            <div class="pt-3 border-t border-walnut-900/10">
+              <p class="font-bold text-[#173524] mb-2 uppercase tracking-wider text-[11px]">Kênh Thanh Toán Đơn Hàng</p>
+              {paymentMethods.map((pm: any) => (
+                <div class="flex justify-between items-center py-1.5 border-b border-walnut-900/5 last:border-b-0">
+                  <span class="text-walnut-800 font-medium">{pm.methodLabel} ({pm.count} đơn)</span>
+                  <div class="text-right">
+                    <span class="font-bold text-[#173524] block">{formatVnd(pm.amount)}</span>
+                    <span class="text-[10px] text-walnut-800/60">{pm.percentage}</span>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
 
         <div class="mt-6 border-t border-walnut-900/10 pt-3 text-[11px] text-walnut-800/70">
-          Chỉ số tài chính được tính toán tự động dựa trên tổng giá trị các đơn đặt hàng đã phê duyệt.
+          Dữ liệu giá vốn được tính tự động dựa trên biến thể nhập kho và đơn đặt hàng thực tế.
         </div>
       </div>
     </div>
 
-    <!-- Monthly Detailed Table -->
-    <div class="rounded border border-walnut-900/10 bg-sand-50 overflow-hidden shadow-sm">
-      <div class="px-5 py-4 border-b border-walnut-900/10 flex items-center justify-between">
+    <!-- Top Sản Phẩm Sinh Lời Cao Nhất -->
+    <div class="bg-white rounded-2xl border border-walnut-900/10 shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-walnut-900/10 bg-sand-50/50 flex items-center justify-between">
         <div>
-          <h2 class="text-sm font-bold text-walnut-900 uppercase tracking-wider">Bảng Thống Kê Kỳ Kế Toán Tài Chính</h2>
-          <p class="text-xs text-walnut-800/70 mt-0.5">Chi tiết số đơn và dòng tiền qua các tháng trong năm 2026</p>
+          <h2 class="text-sm font-bold text-[#173524] uppercase tracking-wider">Top 5 Mặt Hàng Đem Lại Lợi Nhuận Cao Nhất</h2>
+          <p class="text-xs text-walnut-800/60 mt-0.5">Xếp hạng theo giá trị lợi nhuận gộp thực tế mang về cho công ty</p>
         </div>
-        <span class="text-xs font-semibold text-emerald-800 bg-emerald-100/70 px-2.5 py-1 rounded">
-          {monthlyStatsRaw.filter((m: any) => m.revenue > 0).length} kỳ phát sinh doanh thu
+        <span class="text-xs font-semibold text-emerald-800 bg-emerald-100 px-3 py-1 rounded-full">
+          Hiệu suất sinh lời
         </span>
       </div>
 
       <div class="overflow-x-auto">
-        <table class="w-full text-left text-xs">
-          <thead class="border-b border-walnut-900/10 bg-sand-100/70 text-walnut-900 uppercase tracking-wider text-[11px]">
+        <table class="w-full text-left text-xs text-walnut-900">
+          <thead class="bg-sand-100/70 border-b border-walnut-900/10 text-[11px] uppercase tracking-wider text-walnut-800/70">
             <tr>
-              <th class="py-3 px-4 font-semibold">Kỳ báo cáo</th>
-              <th class="py-3 px-4 font-semibold">Tổng doanh thu</th>
-              <th class="py-3 px-4 font-semibold">Chi phí giá vốn (55%)</th>
-              <th class="py-3 px-4 font-semibold">Lợi nhuận gộp (45%)</th>
-              <th class="py-3 px-4 font-semibold">Biên lợi nhuận</th>
-              <th class="py-3 px-4 font-semibold text-right">Số đơn hàng</th>
+              <th class="py-3 px-4 font-bold text-center w-12">#</th>
+              <th class="py-3 px-4 font-bold">Tên Sản Phẩm</th>
+              <th class="py-3 px-4 font-bold text-center w-24">SL Đã Bán</th>
+              <th class="py-3 px-4 font-bold text-right w-36">Tổng Doanh Thu</th>
+              <th class="py-3 px-4 font-bold text-right w-36">Tổng Giá Vốn</th>
+              <th class="py-3 px-4 font-bold text-right w-36">Lợi Nhuận Gộp</th>
+              <th class="py-3 px-4 font-bold text-center w-28">Biên Lợi Nhuận</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-walnut-900/10">
-            {monthlyStatsRaw.map((s: any) => (
-              <tr class={s.revenue > 0 ? "hover:bg-sand-100/60 bg-emerald-50/20" : "hover:bg-sand-100/30 opacity-60"}>
-                <td class="py-3 px-4 font-bold text-walnut-900">
-                  {s.month}/2026 {s.revenue > 0 ? <span class="ml-1.5 text-[10px] bg-walnut-900 text-sand-50 px-1.5 py-0.5 rounded">Hiện tại</span> : null}
+          <tbody class="divide-y divide-walnut-900/5">
+            {topProfitableProducts.length === 0 ? (
+              <tr>
+                <td colspan="7" class="py-8 text-center text-xs text-walnut-800/60">
+                  Chưa có sản phẩm nào phát sinh lợi nhuận.
                 </td>
-                <td class="py-3 px-4 font-bold text-walnut-900">{formatVnd(s.revenue)}</td>
-                <td class="py-3 px-4 text-walnut-800">{formatVnd(s.cost)}</td>
-                <td class="py-3 px-4 font-bold text-emerald-700">{formatVnd(s.profit)}</td>
-                <td class="py-3 px-4 font-semibold text-clay-600">{s.margin}</td>
-                <td class="py-3 px-4 text-walnut-900 font-medium text-right">{s.orders} đơn</td>
+              </tr>
+            ) : (
+              topProfitableProducts.map((p: any, idx: number) => (
+                <tr class="hover:bg-sand-50/60 transition-colors">
+                  <td class="py-3 px-4 font-bold text-center text-[#173524]">{idx + 1}</td>
+                  <td class="py-3 px-4 font-bold text-[#173524]">{p.productName}</td>
+                  <td class="py-3 px-4 text-center font-semibold">{p.soldQty} cái</td>
+                  <td class="py-3 px-4 text-right font-medium">{formatVnd(p.revenue)}</td>
+                  <td class="py-3 px-4 text-right text-amber-700">{formatVnd(p.cost)}</td>
+                  <td class="py-3 px-4 text-right font-bold text-emerald-700">{formatVnd(p.profit)}</td>
+                  <td class="py-3 px-4 text-center">
+                    <span class="inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-100 text-emerald-800">
+                      {p.margin}
+                    </span>
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Bảng Thống Kê Kỳ Kế Toán Tài Chính Thực Tế -->
+    <div class="bg-white rounded-2xl border border-walnut-900/10 shadow-sm overflow-hidden">
+      <div class="px-6 py-4 border-b border-walnut-900/10 bg-sand-50/50 flex items-center justify-between">
+        <div>
+          <h2 class="text-sm font-bold text-[#173524] uppercase tracking-wider">Bảng Báo Cáo Tài Chính Hàng Tháng Chuẩn Kế Toán</h2>
+          <p class="text-xs text-walnut-800/60 mt-0.5">Toàn bộ chi phí giá vốn và lợi nhuận được lấy trực tiếp từ dữ liệu thực tế</p>
+        </div>
+        <span class="text-xs font-semibold text-[#173524] bg-[#173524]/10 px-3 py-1 rounded-full">
+          Khớp 100% CSDL
+        </span>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs text-walnut-900">
+          <thead class="bg-sand-100/70 border-b border-walnut-900/10 text-[11px] uppercase tracking-wider text-walnut-800/70">
+            <tr>
+              <th class="py-3 px-4 font-bold">Kỳ Báo Cáo</th>
+              <th class="py-3 px-4 font-bold text-right">Doanh Thu Thuần</th>
+              <th class="py-3 px-4 font-bold text-right">Giá Vốn Hàng Bán (COGS)</th>
+              <th class="py-3 px-4 font-bold text-right">Lợi Nhuận Gộp</th>
+              <th class="py-3 px-4 font-bold text-center">Biên Lợi Nhuận</th>
+              <th class="py-3 px-4 font-bold text-right">Số Đơn Hàng</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-walnut-900/5">
+            {monthlyStats.map((s: any) => (
+              <tr class={s.revenue > 0 ? "hover:bg-sand-50/60 bg-emerald-50/20" : "hover:bg-sand-50/30 opacity-60"}>
+                <td class="py-3 px-4 font-bold text-[#173524]">
+                  {s.month}/2026 {s.revenue > 0 ? <span class="ml-1.5 text-[10px] bg-[#173524] text-white px-1.5 py-0.5 rounded">Hiện tại</span> : null}
+                </td>
+                <td class="py-3 px-4 text-right font-bold text-walnut-900">{formatVnd(s.revenue)}</td>
+                <td class="py-3 px-4 text-right text-amber-700">{formatVnd(s.cost)}</td>
+                <td class="py-3 px-4 text-right font-bold text-emerald-700">{formatVnd(s.profit)}</td>
+                <td class="py-3 px-4 text-center font-semibold text-clay-600">{s.margin}</td>
+                <td class="py-3 px-4 text-right font-medium">{s.orders} đơn</td>
               </tr>
             ))}
           </tbody>
           <tfoot class="border-t-2 border-walnut-900/20 bg-sand-100/80 font-bold text-xs text-walnut-900">
             <tr>
               <td class="py-3.5 px-4 uppercase tracking-wider">Tổng cộng cả năm:</td>
-              <td class="py-3.5 px-4 text-emerald-800 text-sm">{formatVnd(totalRevenue)}</td>
-              <td class="py-3.5 px-4 text-walnut-800">{formatVnd(cost)}</td>
-              <td class="py-3.5 px-4 text-emerald-700 text-sm">{formatVnd(profit)}</td>
-              <td class="py-3.5 px-4 text-clay-600">{margin}</td>
+              <td class="py-3.5 px-4 text-right text-[#173524] text-sm">{formatVnd(totalRevenue)}</td>
+              <td class="py-3.5 px-4 text-right text-amber-700 text-sm">{formatVnd(totalCogs)}</td>
+              <td class="py-3.5 px-4 text-right text-emerald-700 text-sm">{formatVnd(totalGrossProfit)}</td>
+              <td class="py-3.5 px-4 text-center text-clay-600">{overallMargin}</td>
               <td class="py-3.5 px-4 text-right">{totalOrders} đơn</td>
             </tr>
           </tfoot>
@@ -264,242 +388,180 @@ const todayFormatted = new Intl.DateTimeFormat('vi-VN', {
 
   </div>
 
-  <!-- Modal / Printable Financial Statement (A4 Standard) -->
-  <div id="financialModal" class="fixed inset-0 z-50 hidden bg-black/60 backdrop-blur-sm overflow-y-auto p-4 sm:p-6 flex items-center justify-center">
-    <div class="relative bg-white text-zinc-900 w-full max-w-4xl rounded shadow-2xl overflow-hidden border border-zinc-200 my-8">
+  <!-- ============================================================== -->
+  <!-- MODAL: XUẤT BÁO CÁO TÀI CHÍNH A4 CHUẨN KẾ TOÁN (VAS) -->
+  <!-- ============================================================== -->
+  <div id="financialModal" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs hidden p-4 flex items-center justify-center overflow-y-auto">
+    <div class="bg-sand-50 border border-walnut-900/30 w-full max-w-4xl shadow-2xl rounded-none relative my-4 max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in-95 duration-200">
       
-      <!-- Modal Top Controls (Hidden on Print) -->
-      <div class="flex items-center justify-between px-6 py-4 bg-sand-100 border-b border-sand-200 no-print">
-        <div class="flex items-center gap-2">
-          <svg class="h-5 w-5 text-walnut-900" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-          </svg>
-          <span class="font-bold text-sm text-walnut-900 uppercase tracking-wider">Xem Trước Phiếu Báo Cáo Tài Chính (Chuẩn A4)</span>
+      <!-- MODAL HEADER -->
+      <div class="relative bg-[#173524] px-6 py-4.5 sm:px-8 border-b border-[#D8B670]/40 flex items-center justify-between shrink-0 shadow-md no-print">
+        <div class="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#D8B670] via-[#F3E5AB] to-[#C49E52]"></div>
+        
+        <div class="flex items-center gap-3.5">
+          <div class="w-10 h-10 rounded-full bg-gradient-to-br from-[#D8B670]/25 to-[#D8B670]/5 border border-[#D8B670]/40 flex items-center justify-center shrink-0 shadow-inner text-[#E6CA85]">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+          </div>
+          <div>
+            <p class="text-[10px] uppercase tracking-[0.22em] text-[#D8B670] font-semibold">BÁO CÁO TÀI CHÍNH NỘI BỘ</p>
+            <h2 class="text-lg sm:text-xl font-display font-bold text-white tracking-wide mt-0.5">Báo Cáo Hoạt Động Kinh Doanh (A4)</h2>
+          </div>
         </div>
 
-        <div class="flex items-center gap-3">
-          <button
-            type="button"
-            id="btnPrintDirectly"
-            class="inline-flex items-center gap-2 bg-walnut-900 hover:bg-clay-600 text-white text-xs uppercase tracking-wider font-semibold px-4 py-2 rounded shadow transition-all cursor-pointer"
-          >
-            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="flex items-center gap-2">
+          <button id="btnPrintFinancial" type="button" class="inline-flex items-center gap-1.5 bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] px-4 py-2 text-xs uppercase tracking-[0.15em] font-bold text-[#173524] hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white shadow-md transition-all active:scale-95 cursor-pointer border border-[#E0C582]/50 rounded-none">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
             </svg>
-            In / Lưu PDF (Ctrl+P)
+            In Báo Cáo / Xuất PDF
           </button>
-          <button
-            type="button"
-            id="btnCloseFinancialModal"
-            class="text-zinc-500 hover:text-zinc-800 p-2 rounded transition-colors cursor-pointer"
+          <button 
+            id="btnCloseFinancialModal" 
+            type="button" 
+            class="h-8 w-8 rounded-full bg-white/10 hover:bg-white/20 text-sand-200 hover:text-white flex items-center justify-center transition-all hover:rotate-90 cursor-pointer border border-white/10"
+            title="Đóng cửa sổ"
           >
-            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
       </div>
 
-      <!-- Printable A4 Paper Content -->
-      <div id="financialPrintSheet" class="p-8 sm:p-12 bg-white text-black font-sans text-xs leading-relaxed">
-        
-        <!-- Document Header / Letterhead -->
-        <div class="flex justify-between items-start border-b-2 border-black pb-5">
+      <!-- Printable A4 Document -->
+      <div id="printAreaFinancial" class="p-8 text-xs text-walnut-900 space-y-6 bg-white overflow-y-auto flex-1">
+        <!-- Header -->
+        <div class="flex justify-between items-start border-b border-walnut-900/15 pb-4">
           <div>
-            <h2 class="text-sm font-bold uppercase tracking-wider">CÔNG TY TNHH KIẾN TRÚC & NỘI THẤT CAO CẤP</h2>
-            <p class="text-[11px] text-zinc-600 mt-0.5">Địa chỉ: 123 Đường Nguyễn Huệ, Quận 1, TP. Hồ Chí Minh</p>
-            <p class="text-[11px] text-zinc-600">Hotline: 1900 6868 | Website: noithatcaocap.local</p>
+            <h3 class="text-base font-bold font-display text-[#173524] uppercase tracking-wider">CÔNG TY TNHH NỘI THẤT CAO CẤP KTUFA</h3>
+            <p class="text-[11px] text-walnut-800">KCN Biên Hòa 2, Tỉnh Đồng Nai | MST: 3600123456</p>
+            <p class="text-[11px] text-walnut-800">Bộ phận Kế Toán Quản Trị & Thu Ngân</p>
           </div>
           <div class="text-right">
-            <span class="inline-block border border-black px-2 py-1 text-[10px] font-bold uppercase tracking-widest">
-              Mẫu số: 02-BCTC/2026
-            </span>
-            <p class="text-[10px] text-zinc-500 mt-1">Xuất từ hệ thống ERP Nội Thất</p>
+            <p class="font-bold text-[10px] uppercase text-walnut-800/60">Mẫu số B02 - DN</p>
+            <p class="text-[10px] text-walnut-800/60">Ban hành theo TT 200/2014/TT-BTC</p>
           </div>
         </div>
 
-        <!-- Title -->
-        <div class="text-center my-6">
-          <h1 class="text-xl sm:text-2xl font-serif font-bold uppercase tracking-wide">BÁO CÁO KẾT QUẢ HOẠT ĐỘNG KINH DOANH</h1>
-          <p class="text-xs text-zinc-600 mt-1 italic">Năm tài chính 2026 - Tính đến thời điểm: {todayFormatted}</p>
+        <div class="text-center space-y-1">
+          <h2 class="text-xl font-bold font-display text-[#173524] uppercase tracking-wide">BÁO CÁO KẾT QUẢ HOẠT ĐỘNG KINH DOANH</h2>
+          <p class="text-xs text-walnut-800/80">Kỳ báo cáo: Năm tài chính 2026 (Tính đến ngày {todayFormatted})</p>
+          <p class="text-[11px] italic text-walnut-800/60">Đơn vị tính: Đồng Việt Nam (VNĐ)</p>
         </div>
 
-        <!-- Meta info -->
-        <div class="grid grid-cols-2 gap-4 bg-zinc-50 border border-zinc-200 p-3 mb-6 text-[11px]">
-          <div>
-            <p><strong>Đơn vị báo cáo:</strong> Khối Quản Trị Kinh Doanh Trực Tuyến</p>
-            <p class="mt-1"><strong>Nguồn dữ liệu:</strong> CSDL MySQL (Bảng orders, order_items)</p>
-          </div>
-          <div>
-            <p><strong>Tổng số đơn hàng thực hiện:</strong> {totalOrders} đơn hàng</p>
-            <p class="mt-1"><strong>Tình trạng thanh toán:</strong> Đồng bộ 100% thời gian thực</p>
-          </div>
-        </div>
-
-        <!-- Key Financial Summary Table -->
-        <h3 class="font-bold text-xs uppercase mb-2">I. TỔNG HỢP CÁC CHỈ TIÊU TÀI CHÍNH CHỦ CHỐT</h3>
-        <table class="w-full border-collapse border border-zinc-400 mb-6 text-[11px]">
-          <thead>
-            <tr class="bg-zinc-100 text-left">
-              <th class="border border-zinc-400 p-2">Mã số</th>
-              <th class="border border-zinc-400 p-2">Chỉ tiêu tài chính</th>
-              <th class="border border-zinc-400 p-2 text-right">Giá trị (VNĐ)</th>
-              <th class="border border-zinc-400 p-2 text-center">Tỷ trọng (%)</th>
+        <!-- Bảng chỉ tiêu tài chính chuẩn kế toán -->
+        <table class="w-full text-left text-xs border border-walnut-900/20">
+          <thead class="bg-sand-100 text-[11px] uppercase tracking-wider text-walnut-800 border-b border-walnut-900/20">
+            <tr>
+              <th class="py-2.5 px-3 border-r border-walnut-900/20">Chỉ Tiêu Tài Chính</th>
+              <th class="py-2.5 px-3 border-r border-walnut-900/20 text-center w-16">Mã Số</th>
+              <th class="py-2.5 px-3 border-r border-walnut-900/20 text-right w-44">Thực Hiện Kỳ Này</th>
+              <th class="py-2.5 px-3 text-center w-28">Tỷ Trọng (%)</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="divide-y divide-walnut-900/10">
             <tr>
-              <td class="border border-zinc-400 p-2 text-center">01</td>
-              <td class="border border-zinc-400 p-2 font-bold">1. Tổng Doanh Thu Bán Hàng</td>
-              <td class="border border-zinc-400 p-2 text-right font-bold">{formatVnd(totalRevenue)}</td>
-              <td class="border border-zinc-400 p-2 text-center">100.0%</td>
+              <td class="py-2 px-3 border-r border-walnut-900/20 font-bold">1. Doanh thu bán hàng và cung cấp dịch vụ</td>
+              <td class="py-2 px-3 border-r border-walnut-900/20 text-center font-mono">01</td>
+              <td class="py-2 px-3 border-r border-walnut-900/20 text-right font-bold text-[#173524]">{formatVnd(totalRevenue)}</td>
+              <td class="py-2 px-3 text-center">100.0%</td>
             </tr>
             <tr>
-              <td class="border border-zinc-400 p-2 text-center">02</td>
-              <td class="border border-zinc-400 p-2">2. Giá vốn hàng bán (COGS)</td>
-              <td class="border border-zinc-400 p-2 text-right">{formatVnd(cost)}</td>
-              <td class="border border-zinc-400 p-2 text-center">55.0%</td>
+              <td class="py-2 px-3 border-r border-walnut-900/20">2. Các khoản giảm trừ doanh thu</td>
+              <td class="py-2 px-3 border-r border-walnut-900/20 text-center font-mono">02</td>
+              <td class="py-2 px-3 border-r border-walnut-900/20 text-right">0 đ</td>
+              <td class="py-2 px-3 text-center">0.0%</td>
             </tr>
-            <tr class="bg-zinc-50 font-semibold">
-              <td class="border border-zinc-400 p-2 text-center">03</td>
-              <td class="border border-zinc-400 p-2 font-bold text-emerald-800">3. Lợi Nhuận Gộp Về Bán Hàng</td>
-              <td class="border border-zinc-400 p-2 text-right font-bold text-emerald-800">{formatVnd(profit)}</td>
-              <td class="border border-zinc-400 p-2 text-center font-bold text-emerald-800">45.0%</td>
-            </tr>
-            <tr>
-              <td class="border border-zinc-400 p-2 text-center">04</td>
-              <td class="border border-zinc-400 p-2">4. Chi phí tiếp thị & quảng cáo (ước tính 8%)</td>
-              <td class="border border-zinc-400 p-2 text-right">{formatVnd(Math.round(totalRevenue * 0.08))}</td>
-              <td class="border border-zinc-400 p-2 text-center">8.0%</td>
+            <tr class="bg-sand-50/50">
+              <td class="py-2 px-3 border-r border-walnut-900/20 font-bold">3. Doanh thu thuần về bán hàng (01 - 02)</td>
+              <td class="py-2 px-3 border-r border-walnut-900/20 text-center font-mono font-bold">10</td>
+              <td class="py-2 px-3 border-r border-walnut-900/20 text-right font-bold text-[#173524]">{formatVnd(totalRevenue)}</td>
+              <td class="py-2 px-3 text-center font-bold">100.0%</td>
             </tr>
             <tr>
-              <td class="border border-zinc-400 p-2 text-center">05</td>
-              <td class="border border-zinc-400 p-2">5. Chi phí vận chuyển & đóng gói (ước tính 5%)</td>
-              <td class="border border-zinc-400 p-2 text-right">{formatVnd(Math.round(totalRevenue * 0.05))}</td>
-              <td class="border border-zinc-400 p-2 text-center">5.0%</td>
+              <td class="py-2 px-3 border-r border-walnut-900/20 text-amber-900 font-semibold">4. Giá vốn hàng bán thực tế (COGS)</td>
+              <td class="py-2 px-3 border-r border-walnut-900/20 text-center font-mono font-semibold">11</td>
+              <td class="py-2 px-3 border-r border-walnut-900/20 text-right font-semibold text-amber-700">{formatVnd(totalCogs)}</td>
+              <td class="py-2 px-3 text-center text-amber-800">
+                {totalRevenue > 0 ? ((totalCogs / totalRevenue) * 100).toFixed(1) + '%' : '0%'}
+              </td>
+            </tr>
+            <tr class="bg-emerald-50/50 font-bold">
+              <td class="py-2.5 px-3 border-r border-walnut-900/20 text-emerald-900">5. Lợi nhuận gộp về bán hàng (10 - 11)</td>
+              <td class="py-2.5 px-3 border-r border-walnut-900/20 text-center font-mono">20</td>
+              <td class="py-2.5 px-3 border-r border-walnut-900/20 text-right text-emerald-700 text-sm">{formatVnd(totalGrossProfit)}</td>
+              <td class="py-2.5 px-3 text-center text-emerald-800">{overallMargin}</td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 border-r border-walnut-900/20 font-medium">6. Dòng tiền mặt đã thu nộp vào Két & Ngân hàng</td>
+              <td class="py-2 px-3 border-r border-walnut-900/20 text-center font-mono">30</td>
+              <td class="py-2 px-3 border-r border-walnut-900/20 text-right font-semibold text-blue-700">{formatVnd(totalCashInflow)}</td>
+              <td class="py-2 px-3 text-center text-blue-800">
+                {totalRevenue > 0 ? ((totalCashInflow / totalRevenue) * 100).toFixed(1) + '%' : '0%'}
+              </td>
+            </tr>
+            <tr>
+              <td class="py-2 px-3 border-r border-walnut-900/20 font-medium">7. Công nợ còn phải trả Nhà Cung Cấp</td>
+              <td class="py-2 px-3 border-r border-walnut-900/20 text-center font-mono">31</td>
+              <td class="py-2 px-3 border-r border-walnut-900/20 text-right font-semibold text-purple-700">{formatVnd(totalSupplierDebt)}</td>
+              <td class="py-2 px-3 text-center text-purple-800">—</td>
             </tr>
           </tbody>
         </table>
 
-        <!-- Category share breakdown -->
-        {categoryShare.length > 0 && (
-          <div class="mb-6">
-            <h3 class="font-bold text-xs uppercase mb-2">II. DOANH THU THEO DANH MỤC NỘI THẤT</h3>
-            <table class="w-full border-collapse border border-zinc-400 text-[11px]">
-              <thead>
-                <tr class="bg-zinc-100 text-left">
-                  <th class="border border-zinc-400 p-2">STT</th>
-                  <th class="border border-zinc-400 p-2">Danh mục sản phẩm</th>
-                  <th class="border border-zinc-400 p-2 text-right">Doanh số thực tế (VNĐ)</th>
-                  <th class="border border-zinc-400 p-2 text-center">Tỷ trọng</th>
-                </tr>
-              </thead>
-              <tbody>
-                {categoryShare.map((cat: any, index: number) => (
-                  <tr>
-                    <td class="border border-zinc-400 p-2 text-center">{index + 1}</td>
-                    <td class="border border-zinc-400 p-2 font-medium">{cat.name}</td>
-                    <td class="border border-zinc-400 p-2 text-right">{formatVnd(cat.revenue)}</td>
-                    <td class="border border-zinc-400 p-2 text-center font-bold">{cat.percent}%</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        <!-- Signatures Area -->
-        <div class="mt-12 pt-6 grid grid-cols-3 text-center text-xs gap-4">
+        <!-- Signatures -->
+        <div class="grid grid-cols-3 gap-6 text-center pt-8 border-t border-walnut-900/15">
           <div>
-            <p class="font-bold uppercase">Người Lập Biểu</p>
-            <p class="text-[10px] text-zinc-500 italic mt-0.5">(Ký, họ tên)</p>
-            <div class="h-20 flex items-end justify-center">
-              <span class="font-medium text-zinc-800">Nguyễn Văn Quản Trị</span>
-            </div>
+            <p class="font-bold uppercase text-[11px]">Người Lập Biểu</p>
+            <p class="text-[10px] text-walnut-800/60 mt-0.5">(Ký, họ tên)</p>
+            <div class="h-16"></div>
+            <p class="font-semibold text-xs">KTUFA Cashier</p>
           </div>
           <div>
-            <p class="font-bold uppercase">Kế Toán Trưởng</p>
-            <p class="text-[10px] text-zinc-500 italic mt-0.5">(Ký, họ tên)</p>
-            <div class="h-20 flex items-end justify-center">
-              <span class="font-medium text-zinc-800">Trần Thị Tài Chính</span>
-            </div>
+            <p class="font-bold uppercase text-[11px]">Kế Toán Trưởng</p>
+            <p class="text-[10px] text-walnut-800/60 mt-0.5">(Ký, họ tên)</p>
+            <div class="h-16"></div>
+            <p class="font-semibold text-xs">Võ Thị Mai</p>
           </div>
           <div>
-            <p class="font-bold uppercase">Giám Đốc Doanh Nghiệp</p>
-            <p class="text-[10px] text-zinc-500 italic mt-0.5">(Ký, đóng dấu)</p>
-            <div class="h-20 flex items-end justify-center">
-              <span class="font-bold text-zinc-900 uppercase">PHẠM TẤN LỢI</span>
-            </div>
+            <p class="font-bold uppercase text-[11px]">Tổng Giám Đốc</p>
+            <p class="text-[10px] text-walnut-800/60 mt-0.5">(Ký, đóng dấu)</p>
+            <div class="h-16"></div>
+            <p class="font-semibold text-xs">Phạm Hữu Lợi</p>
           </div>
         </div>
-
-        <div class="mt-8 pt-4 border-t border-zinc-300 text-[10px] text-zinc-500 text-center">
-          Bản in có giá trị xác thực nội bộ. Được kết xuất tự động từ hệ thống quản trị website Bán Nội Thất Cao Cấp.
-        </div>
-
       </div>
-
     </div>
   </div>
 
   <style>
     @media print {
-      /* Hide all outside elements */
-      body * {
-        visibility: hidden !important;
+      body * { visibility: hidden; }
+      #printAreaFinancial, #printAreaFinancial * { visibility: visible; }
+      #printAreaFinancial {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        padding: 0;
+        margin: 0;
       }
-      /* Only show print sheet */
-      #financialPrintSheet, #financialPrintSheet * {
-        visibility: visible !important;
-      }
-      #financialPrintSheet {
-        position: absolute !important;
-        left: 0 !important;
-        top: 0 !important;
-        width: 100% !important;
-        margin: 0 !important;
-        padding: 10mm 15mm !important;
-        background: white !important;
-        color: black !important;
-      }
-      .no-print {
-        display: none !important;
-      }
+      .no-print { display: none !important; }
     }
   </style>
 
   <script>
-    const modal = document.getElementById('financialModal');
-    const btnOpen = document.getElementById('btnOpenFinancialModal');
-    const btnClose = document.getElementById('btnCloseFinancialModal');
-    const btnPrint = document.getElementById('btnPrintDirectly');
+    document.addEventListener('DOMContentLoaded', () => {
+      const modal = document.getElementById('financialModal');
+      const btnOpen = document.getElementById('btnOpenFinancialModal');
+      const btnClose = document.getElementById('btnCloseFinancialModal');
+      const btnPrint = document.getElementById('btnPrintFinancial');
 
-    if (btnOpen && modal) {
-      btnOpen.addEventListener('click', () => {
-        modal.classList.remove('hidden');
-      });
-    }
-
-    if (btnClose && modal) {
-      btnClose.addEventListener('click', () => {
-        modal.classList.add('hidden');
-      });
-    }
-
-    if (btnPrint) {
-      btnPrint.addEventListener('click', () => {
-        window.print();
-      });
-    }
-
-    // Close on click outside
-    if (modal) {
-      modal.addEventListener('click', (e) => {
-        if (e.target === modal) {
-          modal.classList.add('hidden');
-        }
-      });
-    }
+      btnOpen?.addEventListener('click', () => modal?.classList.remove('hidden'));
+      btnClose?.addEventListener('click', () => modal?.classList.add('hidden'));
+      btnPrint?.addEventListener('click', () => window.print());
+    });
   </script>
-
 </AdminLayout>
