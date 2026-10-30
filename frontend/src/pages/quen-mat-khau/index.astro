@@ -125,7 +125,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
                   autocomplete="one-time-code"
                   maxlength="6"
                   pattern="[0-9]*"
-                  class="absolute inset-0 z-20 h-full w-full opacity-0 cursor-text"
+                  class="absolute inset-0 z-20 h-full w-full cursor-text"
+                  style="opacity: 0 !important; color: transparent !important; -webkit-text-fill-color: transparent !important; caret-color: transparent !important; background: transparent !important; border: none !important; outline: none !important; box-shadow: none !important; font-size: 0px !important; line-height: 0 !important;"
                   autofocus
                 />
 
@@ -730,4 +731,29 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     });
   });
 </script>
+
+<style is:global>
+  #otp-real-input {
+    opacity: 0 !important;
+    color: transparent !important;
+    -webkit-text-fill-color: transparent !important;
+    caret-color: transparent !important;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    font-size: 0px !important;
+    line-height: 0 !important;
+  }
+  #otp-real-input:-webkit-autofill,
+  #otp-real-input:-webkit-autofill:hover,
+  #otp-real-input:-webkit-autofill:focus,
+  #otp-real-input:-webkit-autofill:active {
+    -webkit-text-fill-color: transparent !important;
+    color: transparent !important;
+    opacity: 0 !important;
+    font-size: 0px !important;
+    transition: background-color 5000000s ease-in-out 0s !important;
+  }
+</style>
 
