@@ -126,23 +126,36 @@ const featured = liveProducts.slice(0, 8);
   </section>
 
   {/* CÂU CHUYỆN THƯƠNG HIỆU */}
-  <section id="cau-chuyen" class="mx-auto grid max-w-7xl scroll-mt-20 items-center gap-10 px-4 py-16 sm:py-24 lg:grid-cols-2">
-    <div class="aspect-[4/3] w-full bg-sand-200 lg:aspect-[4/5] rounded border border-walnut-900/10 flex items-center justify-center text-walnut-900/20">
-      <svg width="64" height="64" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-      </svg>
+  <section id="cau-chuyen" class="mx-auto grid max-w-7xl scroll-mt-28 items-center gap-8 lg:gap-14 px-4 py-6 sm:py-8 lg:py-10 lg:grid-cols-12">
+    <div class="relative group aspect-[1.08/1] sm:aspect-[1.12/1] w-full max-h-[460px] lg:max-h-[480px] overflow-hidden rounded border border-walnut-900/10 shadow-md lg:col-span-7">
+      <img
+        src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1200&q=80"
+        alt="Chế tác nội thất thủ công KTUFA"
+        class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+        loading="lazy"
+      />
+      <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent"></div>
+      <div class="absolute bottom-3.5 left-3.5 sm:bottom-4 sm:left-4 bg-[#173524]/90 backdrop-blur-md px-3.5 py-1.5 sm:px-4 sm:py-2 border border-[#D8B670]/40 rounded-xs">
+        <p class="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.2em] text-[#E6CA85]">KTUFA Artisan</p>
+        <p class="text-[11px] sm:text-xs font-semibold text-white mt-0.5">Nghệ nhân trên 15 năm kinh nghiệm</p>
+      </div>
     </div>
-    <div>
-      <p class="text-xs uppercase tracking-[0.3em] text-walnut-800">Câu chuyện thương hiệu</p>
-      <h2 class="mt-4 font-display text-2xl leading-snug tracking-tight sm:text-3xl text-walnut-900">
+    <div class="flex flex-col justify-center lg:col-span-5">
+      <p class="text-xs uppercase tracking-[0.3em] text-[#B88E28] font-bold">Câu chuyện thương hiệu</p>
+      <h2 class="mt-2.5 sm:mt-3 font-display text-2xl leading-snug tracking-tight sm:text-3xl text-walnut-900">
         Mỗi sản phẩm là một cam kết về chất lượng và thẩm mỹ
       </h2>
-      <p class="mt-5 max-w-md text-sm leading-relaxed text-walnut-800">
+      <p class="mt-3.5 sm:mt-4 max-w-md text-sm leading-relaxed text-walnut-800">
         Chúng tôi làm việc trực tiếp với các xưởng chế tác thủ công, chọn lọc những thiết kế bền vững và trường tồn theo thời gian.
       </p>
-      <a href="/san-pham" class="mt-8 inline-block border-b-2 border-walnut-900 pb-1 text-xs uppercase tracking-[0.2em] text-walnut-900 transition hover:border-clay-600 hover:text-clay-600 font-semibold">
-        Tìm hiểu thêm
-      </a>
+      <div class="mt-6 sm:mt-7">
+        <a href="/ve-chung-toi" class="inline-flex items-center gap-2 border-b-2 border-walnut-900 pb-1 text-xs uppercase tracking-[0.2em] text-walnut-900 transition hover:border-[#B88E28] hover:text-[#B88E28] font-bold">
+          <span>Tìm hiểu thêm</span>
+          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+          </svg>
+        </a>
+      </div>
     </div>
   </section>
 

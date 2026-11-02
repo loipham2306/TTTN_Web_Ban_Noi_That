@@ -7,12 +7,14 @@ import QuickViewModal from '../components/QuickViewModal.astro';
 import '../styles/global.css';
 
 interface Props {
-title: string;
-description?: string;
+  title: string;
+  description?: string;
+  noPaddingTop?: boolean;
 }
 
-const { title, description = 'Nội thất thiết kế cho không gian sống đẳng cấp.' } = Astro.props;
+const { title, description = 'Nội thất thiết kế cho không gian sống đẳng cấp.', noPaddingTop = false } = Astro.props;
 const isHome = Astro.url.pathname === '/';
+const hasTopPadding = !isHome && !noPaddingTop;
 ---
 <!doctype html>
 <html lang="vi">
@@ -31,7 +33,7 @@ href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;7
 </head>
 <body class="flex min-h-screen flex-col bg-sand-50 text-walnut-900 font-sans antialiased">
 <Header />
-<main class:list={['flex-1',!isHome && 'pt-24 sm:pt-28']}>
+<main class:list={['flex-1', hasTopPadding && 'pt-24 sm:pt-28']}>
 <slot />
 </main>
 <Footer />

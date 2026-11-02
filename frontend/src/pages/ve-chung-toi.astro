@@ -1,0 +1,823 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { CONTACT } from '../data/contact';
+
+// Dòng thời gian tiến hóa thương hiệu KTUFA
+const timeline = [
+  {
+    year: '2016',
+    tag: 'Khởi thủy',
+    title: 'Từ một xưởng mộc gia đình truyền thống',
+    subtitle: 'Nơi niềm đam mê thủ công bắt đầu',
+    desc: 'Tại ngoại thành Sài Gòn, 5 người thợ lành nghề quy tụ cùng một tâm niệm: tạo nên những món đồ gỗ không chỉ để ngồi hay tựa, mà phải mang hơi thở của thời gian. Mỗi mối ghép mộng âm dương đều được đục đẽo tỉ mẩn bằng tay mà không dùng đến một chiếc đinh kim loại.',
+    image: 'https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?auto=format&fit=crop&w=1000&q=80',
+    highlight: 'Kỹ thuật ghép mộng mộc truyền thống'
+  },
+  {
+    year: '2019',
+    tag: 'Chuyển mình',
+    title: 'Giao thoa giữa Bắc Âu & Da thuộc Ý',
+    subtitle: 'Bước ngoặt định hình phong cách Luxury',
+    desc: 'Nhận thấy khoảng trống lớn của thị trường nội thất cao cấp tại Việt Nam — nơi những thiết kế nhập khẩu quá đắt đỏ còn nội thất trong nước thiếu tính đương đại — KTUFA đã thiết lập quan hệ đối tác độc quyền với các nhà thuộc da Mastrotto lâu đời tại vùng Veneto, Ý và nguồn gỗ sồi chuẩn FSC từ Nga.',
+    image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1000&q=80',
+    highlight: 'Hợp tác trực tiếp nhà thuộc da Veneto (Ý)'
+  },
+  {
+    year: '2023',
+    tag: 'Khẳng định vị thế',
+    title: 'Showroom Flagship & Biểu tượng KTUFA',
+    subtitle: 'Không gian trải nghiệm sống động 1.200m²',
+    desc: 'Khai trương không gian trưng bày trung tâm tại 615 Âu Cơ, TP. HCM. Đây không chỉ là nơi bán hàng mà là một "Bảo tàng không gian sống", nơi khách hàng được chạm vào từng thớ da, ngửi mùi gỗ tự nhiên và nhâm nhi một tách cà phê trong tiếng nhạc jazz êm dịu.',
+    image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1000&q=80',
+    highlight: 'Showroom Flagship 1.200m² tại TP. HCM'
+  },
+  {
+    year: '2026',
+    tag: 'Tiên phong tương lai',
+    title: 'Hòa sắc kiến trúc & Trí tuệ AI Phong Thủy',
+    subtitle: 'Đỉnh cao của sự thấu hiểu gia chủ',
+    desc: 'KTUFA trở thành thương hiệu nội thất tiên phong tích hợp trí tuệ nhân tạo Gemini AI. Không chỉ dừng lại ở kích thước và màu sắc, hệ thống giúp gia chủ tính toán cung mệnh, hướng gió và năng lượng ngũ hành, đem lại vượng khí và bình an cho tổ ấm.',
+    image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1000&q=80',
+    highlight: 'Cá nhân hóa không gian theo AI Phong Thủy'
+  }
+];
+
+// 4 Trụ cột triết lý thương hiệu
+const pillars = [
+  {
+    id: 'bespoke',
+    num: '01',
+    title: 'Tính nguyên bản độc bản',
+    eng: 'Authentic & Bespoke',
+    desc: 'Không sản xuất hàng loạt bằng khuôn dập công nghiệp. Mỗi sản phẩm tại KTUFA có thể tùy chỉnh kích thước, chất liệu vải nỉ hay màu da theo đúng bản vẽ kiến trúc của riêng bạn.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />`,
+    modalImage: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1200&q=80',
+    modalSubtitle: 'Mỗi sản phẩm là một bản tuyên ngôn nghệ thuật độc bản dành riêng cho không gian sống của bạn.',
+    details: [
+      {
+        title: 'Khảo sát & Đo đạc tận nhà',
+        desc: 'Đội ngũ chuyên gia khảo sát mặt bằng, vi khí hậu và phong cách sinh hoạt thực tế.'
+      },
+      {
+        title: 'Phối cảnh 3D tỷ lệ thực',
+        desc: 'Mô phỏng chân thực từng góc nhìn, kích thước công thái học chuẩn diện tích căn hộ.'
+      },
+      {
+        title: 'Tự do tùy biến chất liệu',
+        desc: 'Hơn 80 mẫu da bò Mastrotto Ý, nỉ Bỉ và vân gỗ tự nhiên tuyển chọn theo yêu cầu.'
+      },
+      {
+        title: 'Dấu ấn độc quyền gia chủ',
+        desc: 'Chế tác riêng, hỗ trợ khắc chữ ký chìm hoặc logo gia đình bằng đồng thau tinh tế.'
+      }
+    ],
+    ctaText: 'Đặt lịch tư vấn KTS 1:1',
+    ctaLink: '#showroom'
+  },
+  {
+    id: 'materials',
+    num: '02',
+    title: 'Vật liệu thượng hạng trường tồn',
+    eng: 'Uncompromising Materials',
+    desc: 'Chỉ sử dụng da bò Ý nguyên tấm loại 1 (Full-Grain Mastrotto), gỗ sồi Nga và gỗ óc chó Bắc Mỹ nguyên khối, đá cẩm thạch tự nhiên Marble Carrara thanh khiết.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />`,
+    modalImage: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80',
+    modalSubtitle: 'Chất lượng kiến tạo di sản — Tuyển chọn trực tiếp từ những cái nôi danh tiếng thế giới.',
+    details: [
+      {
+        title: 'Da bò Mastrotto Ý (Full-Grain)',
+        desc: 'Thuộc da thảo mộc vùng Veneto, êm ái thoáng khí, bóng đẹp tự nhiên theo năm tháng.'
+      },
+      {
+        title: 'Gỗ sồi Nga & Óc chó Bắc Mỹ',
+        desc: 'Chứng nhận FSC quốc tế, sấy chân không đạt chuẩn 8-12%, kháng cong vênh nứt nẻ.'
+      },
+      {
+        title: 'Đá Marble Carrara Ý',
+        desc: 'Khai thác từ rặng núi Tuscany với vân mây độc bản, phủ nano chống thấm 3 lớp.'
+      },
+      {
+        title: 'Phụ kiện Blum & Hafele châu Âu',
+        desc: 'Ray trượt và bản lề giảm chấn kiểm định qua hơn 100.000 chu kỳ đóng mở êm ái.'
+      }
+    ],
+    ctaText: 'Khám phá bộ sưu tập',
+    ctaLink: '/san-pham'
+  },
+  {
+    id: 'craftsmanship',
+    num: '03',
+    title: 'Thủ công mỹ nghệ chuẩn mực',
+    eng: 'Artisan Heritage',
+    desc: 'Được thổi hồn bởi những bàn tay tài hoa của nghệ nhân trên 15 năm kinh nghiệm. Từng đường kim mũi chỉ, từng góc bo cong đều đạt tỷ lệ công thái học hoàn mỹ.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879a3 3 0 11-4.242-4.242L10.5 8.5" />`,
+    modalImage: 'https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?auto=format&fit=crop&w=1200&q=80',
+    modalSubtitle: 'Sự tỉ mỉ đến từng mi-li-mét từ bàn tay người thợ cả giàu kinh nghiệm chế tác.',
+    details: [
+      {
+        title: 'Mối ghép mộng mộc âm dương',
+        desc: 'Kế thừa nghề mộc cổ truyền, liên kết gỗ kín khít bền vững không dùng đinh kim loại.'
+      },
+      {
+        title: 'Đường may đôi yên ngựa (Saddle)',
+        desc: 'Khâu tay thủ công bằng chỉ sáp chịu lực, chắc chắn và không bung tuột mũi chỉ.'
+      },
+      {
+        title: 'Bo góc công thái học chuẩn xác',
+        desc: 'Độ ngả tựa lưng và chiều cao bệ ngồi nâng đỡ trọn vẹn sống lưng, an toàn khi chạm.'
+      },
+      {
+        title: 'Dầu sáp lau Osmo của Đức',
+        desc: 'Chiết xuất thực vật sinh thái, tuyệt đối an toàn cho trẻ nhỏ và tỏa hương dịu nhẹ.'
+      }
+    ],
+    ctaText: 'Xem hành trình xưởng mộc',
+    ctaLink: '#timeline'
+  },
+  {
+    id: 'fengshui',
+    num: '04',
+    title: 'Hài hòa Phong thủy sinh khí',
+    eng: 'Harmonious Energy',
+    desc: 'Không gian sống đẹp cần mang lại sự thịnh vượng. Chúng tôi tính toán sự cân bằng âm dương và tương sinh ngũ hành trong từng gam màu và chất liệu.',
+    icon: `<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />`,
+    modalImage: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=1200&q=80',
+    modalSubtitle: 'Giao thoa giữa văn hóa phương Đông và trí tuệ nhân tạo Gemini AI tiên phong.',
+    details: [
+      {
+        title: 'Ngũ hành tương sinh bản mệnh',
+        desc: 'Phối màu da, loại gỗ và hướng bài trí tương sinh Kim - Mộc - Thủy - Hỏa - Thổ.'
+      },
+      {
+        title: 'Kích thước thước Lỗ Ban tài lộc',
+        desc: 'Kích thước bàn ghế, tủ kệ định vị chuẩn xác vào các cung số đỏ: Tài Đức, Phúc Tinh.'
+      },
+      {
+        title: 'Trợ lý AI Phong Thủy độc quyền',
+        desc: 'Tính năm sinh gia chủ và gợi ý phối cảnh ngũ hành cho phòng khách, phòng ngủ.'
+      },
+      {
+        title: 'Tụ khí sinh tài & An yên',
+        desc: 'Tối ưu luồng khí đối lưu, triệt tiêu góc nhọn xung sát, mang lại giấc ngủ trọn vẹn.'
+      }
+    ],
+    ctaText: 'Trải nghiệm AI Phong Thủy',
+    ctaLink: '/phong-thuy'
+  }
+];
+
+// Bộ sưu tập không gian thực tế (Curated Showcases)
+const showcases = [
+  {
+    title: 'Biệt thự Đảo Kim Cương',
+    location: 'Quận 2, TP. Thủ Đức',
+    image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80',
+    tag: 'Sofa da Ý Milano & Bàn Carrara'
+  },
+  {
+    title: 'Penthouse The Metropole',
+    location: 'Thủ Thiêm, TP. HCM',
+    image: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=80',
+    tag: 'Phòng khách Bắc Âu tối giản'
+  },
+  {
+    title: 'Tư gia Ciputra',
+    location: 'Tây Hồ, Hà Nội',
+    image: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=800&q=80',
+    tag: 'Gỗ óc chó Bắc Mỹ thượng hạng'
+  }
+];
+---
+
+<BaseLayout
+  noPaddingTop={true}
+  title="Our Story — Câu Chuyện Thương Hiệu & Triết Lý Chế Tác KTUFA"
+  description="Khám phá hành trình kiến tạo không gian sống thượng lưu, triết lý thiết kế thủ công tinh xảo và dịch vụ đặc quyền từ KTUFA Luxury Furniture."
+>
+  <!-- ============================================================== -->
+  <!-- 1. HERO SECTION CINEMATIC: ĐỒNG BỘ 100% VỚI BANNER TRANG CHỦ    -->
+  <!-- ============================================================== -->
+  <section class="relative w-full h-screen min-h-screen flex items-center justify-center overflow-hidden bg-walnut-900 text-sand-50">
+    <!-- Nền ảnh Cinematic -->
+    <div class="absolute inset-0 z-0 overflow-hidden">
+      <img
+        src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=2000&q=85"
+        alt="Không gian nội thất cao cấp KTUFA"
+        class="h-full w-full object-cover opacity-50 scale-105 transition-transform duration-1000 ease-out will-change-transform"
+        id="hero-bg-img"
+      />
+      <!-- Lớp phủ đồng bộ với Hero Slider trang chủ -->
+      <div class="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/60"></div>
+    </div>
+
+    <!-- Nội dung chính Hero: Font chữ Lora trắng ngà hoa văn, cùng font và layout trang chủ -->
+    <div class="relative z-10 mx-auto max-w-3xl px-6 text-center flex flex-col items-center pt-24 sm:pt-28 pb-16">
+      <!-- Dòng Eyebrow chữ trắng ngà giãn chữ rộng như trang chủ -->
+      <p class="text-[10px] sm:text-[11px] uppercase tracking-[0.4em] sm:tracking-[0.5em] text-sand-50/80 font-sans">
+        The Destination For Premium Living
+      </p>
+
+      <!-- Tiêu đề lớn vừa vặn, không bị đè vào header: Font-display Lora hoa văn, chữ trắng tinh khôi -->
+      <h1 class="mt-4 sm:mt-5 font-display text-2xl sm:text-4xl lg:text-5xl font-medium uppercase tracking-[0.16em] text-sand-50 leading-snug sm:leading-tight">
+        Khởi nguồn từ một ước mơ <br class="hidden sm:inline" />
+        Điểm đến của sự hoàn mỹ
+      </h1>
+
+      <!-- Đoạn mô tả Be Vietnam Pro sang trọng -->
+      <p class="mt-4 sm:mt-5 max-w-xl text-xs sm:text-sm leading-relaxed text-sand-50/80 font-sans font-light">
+        Nội thất thiết kế cho không gian sống đẳng cấp — tuyển chọn từ những xưởng chế tác thủ công danh giá và kiến tạo vượng khí trường tồn cho tổ ấm của bạn.
+      </p>
+
+      <!-- Hai nút CTA bo nhẹ viền trắng thanh tao theo đúng chuẩn trang chủ -->
+      <div class="mt-6 sm:mt-8 flex flex-wrap items-center justify-center gap-3 sm:gap-4">
+        <a
+          href="#timeline"
+          class="rounded-sm border border-sand-50/70 px-6 sm:px-8 py-2.5 sm:py-3 text-[11px] uppercase tracking-[0.2em] text-sand-50 transition-colors hover:bg-sand-50 hover:text-walnut-900 font-medium"
+        >
+          Khám phá hành trình
+        </a>
+        <a
+          href="/san-pham"
+          class="rounded-sm border border-sand-50/40 bg-white/10 px-6 sm:px-8 py-2.5 sm:py-3 text-[11px] uppercase tracking-[0.2em] text-sand-50 transition-colors hover:bg-sand-50 hover:text-walnut-900 font-medium"
+        >
+          Bộ sưu tập sản phẩm
+        </a>
+      </div>
+    </div>
+
+    <!-- Nút Cuộn xuống giữ nguyên ở giữa đáy giống hệt trang chủ -->
+    <a
+      href="#quote-section"
+      class="absolute bottom-5 sm:bottom-7 left-1/2 z-30 flex -translate-x-1/2 flex-col items-center gap-2 text-[10px] uppercase tracking-[0.35em] text-sand-50/70 transition-opacity hover:opacity-100 font-sans"
+    >
+      Cuộn xuống
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" class="h-4 w-4 shrink-0 animate-bounce">
+        <path d="M12 5v14M6 13l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </a>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- 2. QUOTE NGHỆ THUẬT: ĐIỂM NHẤN CỦA NHÀ SÁNG LẬP                  -->
+  <!-- ============================================================== -->
+  <section
+    id="quote-section"
+    class="relative min-h-[calc(100vh-6.5rem)] sm:min-h-[calc(100vh-7rem)] flex items-center justify-center py-10 sm:py-16 bg-sand-100 border-b border-walnut-900/10 overflow-hidden scroll-mt-24 sm:scroll-mt-28"
+  >
+    <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center relative z-10 flex flex-col items-center justify-center">
+      <span class="font-display text-5xl sm:text-6xl text-[#B88E28]/40 leading-none select-none block mb-2 sm:mb-3">“</span>
+      
+      <blockquote class="font-display text-xl sm:text-2xl lg:text-3xl text-walnut-900 leading-relaxed font-normal italic">
+        "Một món đồ nội thất thực thụ không đơn thuần là vật dụng để lấp đầy căn phòng. Nó là nhân chứng cho những khoảnh khắc ấm áp của gia đình, là lời khẳng định về phong cách và niềm kiêu hãnh của chủ nhân."
+      </blockquote>
+
+      <div class="mt-6 sm:mt-8 flex flex-col items-center justify-center">
+        <div class="h-0.5 w-12 bg-[#B88E28] mb-3"></div>
+        <p class="text-xs font-semibold uppercase tracking-[0.25em] text-walnut-900 font-sans">Ban Điều Hành & Sáng Lập KTUFA</p>
+        <p class="text-xs text-[#B88E28] mt-1 font-sans font-medium">Heritage of Craftsmanship & Modern Luxury</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- 3. HÀNH TRÌNH TIẾN HÓA (OUR STORY TIMELINE) - CHUẨN DOMO        -->
+  <!-- ============================================================== -->
+  <section id="timeline" class="py-20 sm:py-28 bg-sand-50 relative scroll-mt-20">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      
+      <!-- Tiêu đề phần đồng bộ chuẩn trang chủ -->
+      <div class="text-center max-w-2xl mx-auto mb-16 sm:mb-24">
+        <p class="text-center text-xs uppercase tracking-[0.3em] text-[#B88E28] font-sans font-bold">Dấu ấn thời gian</p>
+        <h2 class="mt-3 text-center font-display text-2xl tracking-tight sm:text-3xl lg:text-4xl text-walnut-900">
+          Hành trình định hình chuẩn mực sống
+        </h2>
+        <p class="mt-4 text-center text-sm leading-relaxed text-walnut-800/80 font-sans max-w-lg mx-auto">
+          Từ xưởng mộc chế tác thủ công tới thương hiệu nội thất sang trọng được tin chọn bởi hàng ngàn tư gia và kiến trúc sư hàng đầu.
+        </p>
+      </div>
+
+      <!-- Danh sách mốc lịch sử xen kẽ (Z-Pattern) -->
+      <div class="space-y-20 sm:space-y-28">
+        {timeline.map((item, index) => {
+          const isEven = index % 2 === 1;
+          return (
+            <div class={`story-row flex flex-col gap-10 lg:gap-16 items-center ${isEven ? 'lg:flex-row-reverse' : 'lg:flex-row'}`}>
+              
+              <!-- Khối ảnh trực quan -->
+              <div class="w-full lg:w-1/2 relative group">
+                <div class="aspect-[4/3] sm:aspect-[16/11] w-full overflow-hidden rounded border border-walnut-900/10 shadow-sm bg-sand-200">
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                    loading="lazy"
+                    onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1581783342308-f792dbdd27c5?auto=format&fit=crop&w=1000&q=80';"
+                  />
+                </div>
+                <!-- Badge năm nổi bật góc ảnh -->
+                <div class={`absolute -bottom-4 ${isEven ? 'left-6' : 'right-6'} bg-[#173524] text-[#E6CA85] px-6 py-2.5 border border-[#D8B670]/40 shadow-lg`}>
+                  <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#E6CA85] font-sans block">{item.tag}</span>
+                  <span class="block font-display text-xl font-medium text-sand-50 mt-0.5">{item.year}</span>
+                </div>
+              </div>
+
+              <!-- Khối nội dung văn bản -->
+              <div class="w-full lg:w-1/2 space-y-3 px-2 sm:px-6">
+                <p class="text-xs uppercase tracking-[0.25em] text-[#B88E28] font-sans font-bold">
+                  {item.highlight}
+                </p>
+
+                <h3 class="font-display text-2xl sm:text-3xl tracking-tight text-walnut-900 leading-snug">
+                  {item.title}
+                </h3>
+
+                <p class="font-display italic text-sm text-walnut-800/80">
+                  "{item.subtitle}"
+                </p>
+
+                <p class="text-sm text-walnut-800/90 leading-relaxed font-sans pt-1">
+                  {item.desc}
+                </p>
+
+                <div class="pt-3">
+                  <a
+                    href="/san-pham"
+                    class="inline-flex items-center gap-2 border-b border-walnut-900 pb-1 text-xs uppercase tracking-[0.2em] text-walnut-900 transition hover:text-[#B88E28] hover:border-[#B88E28] font-semibold"
+                  >
+                    <span>Khám phá các tuyệt tác</span>
+                    <span class="text-[#B88E28]">→</span>
+                  </a>
+                </div>
+              </div>
+
+            </div>
+          );
+        })}
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- 4. BỐN TRỤ CỘT TRIẾT LÝ CHẾ TAC (CORE PILLARS)                 -->
+  <!-- ============================================================== -->
+  <section id="triet-ly" class="py-10 sm:py-14 bg-[#173524] text-sand-50 relative overflow-hidden scroll-mt-24">
+    <!-- Họa tiết logo nền mờ chìm tạo chiều sâu -->
+    <div class="absolute -right-20 -bottom-20 w-80 h-80 opacity-5 pointer-events-none">
+      <svg viewBox="0 0 24 24" fill="currentColor" class="w-full h-full text-white">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+      </svg>
+    </div>
+
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10">
+      
+      <div class="text-center max-w-2xl mx-auto mb-6 sm:mb-8">
+        <p class="text-[11px] uppercase tracking-[0.3em] text-[#E6CA85] font-sans font-bold">Triết lý thiết kế</p>
+        <h2 class="mt-1.5 font-display text-xl sm:text-2xl lg:text-3xl text-sand-50">
+          Bốn trụ cột tạo nên linh hồn <span class="text-[#E6CA85]">KTUFA</span>
+        </h2>
+        <p class="mt-2 text-xs sm:text-sm text-sand-200/80 leading-relaxed font-sans font-light">
+          Chúng tôi không thỏa hiệp với bất kỳ chi tiết nhỏ nào để bảo đảm mỗi tác phẩm là sự kết hợp hoàn hảo giữa công năng và nghệ thuật.
+        </p>
+      </div>
+
+      <div class="grid gap-4 sm:gap-5 md:grid-cols-2 lg:grid-cols-4">
+        {pillars.map((p) => (
+          <div
+            class="group relative flex flex-col justify-between rounded-sm border border-white/15 bg-white/5 p-5 sm:p-5.5 transition-all duration-300 hover:bg-white/10 hover:border-[#D8B670]/60 hover:shadow-xl hover:shadow-[#D8B670]/10 hover:-translate-y-1 cursor-pointer"
+            data-pillar-card={p.id}
+          >
+            <div>
+              <div class="flex items-center justify-between mb-3.5">
+                <span class="font-display text-2xl sm:text-3xl font-bold text-[#E6CA85] transition-colors group-hover:text-amber-300">
+                  {p.num}
+                </span>
+                <!-- Icon chữ vàng trong khung ánh kim sang trọng -->
+                <div class="h-9 w-9 sm:h-10 sm:w-10 flex items-center justify-center rounded-sm bg-[#D8B670]/15 border border-[#D8B670]/40 text-[#E6CA85] transition-all duration-300 group-hover:scale-110 group-hover:bg-[#D8B670]/25 group-hover:border-[#D8B670]">
+                  <svg class="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <Fragment set:html={p.icon} />
+                  </svg>
+                </div>
+              </div>
+
+              <h3 class="font-display text-base sm:text-lg font-semibold text-[#F7E7C4] group-hover:text-[#E6CA85] transition-colors leading-snug">
+                {p.title}
+              </h3>
+              <p class="text-[10px] uppercase tracking-[0.2em] text-[#D8B670] mt-1 font-sans font-bold">
+                {p.eng}
+              </p>
+
+              <p class="mt-2.5 text-xs leading-relaxed text-sand-200/85 font-sans font-light">
+                {p.desc}
+              </p>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-white/10">
+              <div class="w-full text-[11px] uppercase tracking-[0.2em] text-[#E6CA85] inline-flex items-center justify-between font-bold group-hover:text-amber-300 transition-all">
+                <span>Xem chi tiết</span>
+                <span class="transform group-hover:translate-x-1.5 transition-transform duration-300">→</span>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
+    </div>
+  </section>
+
+  <!-- 5. BỘ SƯU TẬP KHÔNG GIAN THỰC TẾ (CURATED PROJECTS)             -->
+  <!-- ============================================================== -->
+  <section class="py-20 sm:py-28 bg-sand-100/70 border-b border-walnut-900/10">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
+        <div>
+          <p class="text-xs uppercase tracking-[0.3em] text-[#B88E28] font-sans font-bold">Không gian thực tế</p>
+          <h2 class="mt-3 font-display text-2xl tracking-tight sm:text-3xl text-walnut-900">
+            Hiện diện trong những tư gia tinh hoa
+          </h2>
+        </div>
+        <a
+          href="/san-pham"
+          class="text-xs uppercase tracking-[0.2em] text-[#173524] transition hover:text-[#B88E28] font-bold border-b border-current pb-0.5"
+        >
+          <span>Xem tất cả không gian</span> <span class="text-[#B88E28]">→</span>
+        </a>
+      </div>
+
+      <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        {showcases.map((s) => (
+          <div class="group relative overflow-hidden bg-sand-50 rounded border border-walnut-900/10 shadow-sm transition-all hover:shadow-md">
+            <div class="aspect-[4/3] w-full overflow-hidden bg-sand-200">
+              <img
+                src={s.image}
+                alt={s.title}
+                class="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                loading="lazy"
+              />
+            </div>
+            <div class="p-6">
+              <span class="block text-[10px] font-bold uppercase tracking-[0.2em] text-[#B88E28] mb-1.5 font-sans">
+                {s.tag}
+              </span>
+              <h3 class="font-display text-lg font-medium text-walnut-900 group-hover:text-clay-600 transition-colors">
+                {s.title}
+              </h3>
+              <p class="mt-1 text-xs text-walnut-800/70 font-sans flex items-center gap-1.5">
+                <svg class="h-3.5 w-3.5 text-[#B88E28]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                </svg>
+                <span>{s.location}</span>
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- 6. SHOWROOM & TRẢI NGHIỆM ĐẶC QUYỀN (FLAGSHIP INVITATION)        -->
+  <!-- ============================================================== -->
+  <section id="showroom" class="py-20 sm:py-28 bg-sand-50 scroll-mt-20">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      
+      <div class="grid items-center gap-12 lg:grid-cols-2 lg:gap-16">
+        <!-- Khối thông tin Showroom -->
+        <div>
+          <p class="text-xs uppercase tracking-[0.3em] text-[#B88E28] font-sans font-bold">Không gian trải nghiệm</p>
+          <h2 class="mt-3 font-display text-2xl tracking-tight sm:text-3xl lg:text-4xl text-walnut-900">
+            Kính mời quý khách ghé thăm Showroom Flagship
+          </h2>
+
+          <p class="mt-5 text-sm sm:text-base text-walnut-800/90 leading-relaxed font-sans">
+            Chúng tôi tin rằng quyết định mua một món đồ nội thất cao cấp cần được cảm nhận trực tiếp bằng mọi giác quan: Lắng nghe tiếng da thuộc đàn hồi, chạm vào sớ vân gỗ nguyên khối và thưởng thức một tách trà thơm trong không gian thư thái.
+          </p>
+
+          <div class="mt-8 space-y-4 border-l-2 border-[#B88E28] pl-5">
+            <div>
+              <p class="text-xs uppercase tracking-[0.2em] text-walnut-900 font-semibold font-sans">Địa chỉ Flagship</p>
+              <p class="text-sm text-walnut-800 mt-1 font-sans">615 Âu Cơ, Phường Tân Phú, TP. Hồ Chí Minh</p>
+            </div>
+            <div>
+              <p class="text-xs uppercase tracking-[0.2em] text-walnut-900 font-semibold font-sans">Thời gian mở cửa</p>
+              <p class="text-sm text-walnut-800 mt-1 font-sans">08:30 – 21:00 (Tất cả các ngày trong tuần, có chỗ đỗ ô tô)</p>
+            </div>
+            <div>
+              <p class="text-xs uppercase tracking-[0.2em] text-walnut-900 font-semibold font-sans">Hotline VIP & Đặt lịch tư vấn</p>
+              <p class="text-sm font-semibold text-walnut-900 mt-1 font-sans">{CONTACT.phoneLabel}</p>
+            </div>
+          </div>
+
+          <div class="mt-10 flex flex-wrap gap-4">
+            <a
+              href="/phong-thuy"
+              class="inline-flex items-center gap-2 rounded-sm bg-[#173524] border border-[#D8B670]/50 px-8 py-3 text-[11px] uppercase tracking-[0.25em] text-[#E6CA85] transition-all hover:bg-[#204a33] hover:text-white font-semibold shadow-md"
+            >
+              Trải nghiệm AI Phong Thủy
+            </a>
+            <a
+              href="/san-pham"
+              class="inline-block rounded-sm border border-walnut-900/30 px-8 py-3 text-[11px] uppercase tracking-[0.25em] text-walnut-900 transition-colors hover:bg-sand-100 font-medium"
+            >
+              Xem bộ sưu tập
+            </a>
+          </div>
+        </div>
+
+        <!-- Khối ảnh Showroom lớn -->
+        <div class="relative">
+          <div class="aspect-[4/3] sm:aspect-[4/5] w-full overflow-hidden rounded border border-walnut-900/10 shadow-sm">
+            <img
+              src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1200&q=80"
+              alt="Showroom nội thất cao cấp KTUFA"
+              class="h-full w-full object-cover transition-transform duration-700 hover:scale-105"
+            />
+          </div>
+          <!-- Huy hiệu góc dưới -->
+          <div class="absolute -bottom-5 -left-5 bg-[#173524] border border-[#D8B670]/40 p-5 shadow-2xl hidden sm:block max-w-[240px] rounded-sm text-[#E6CA85]">
+            <p class="text-xs uppercase tracking-[0.2em] font-bold text-[#E6CA85] font-sans">Đặc quyền tư vấn</p>
+            <p class="text-xs text-sand-100/90 mt-1.5 leading-relaxed font-sans font-light">Kiến trúc sư hỗ trợ 1:1 phối cảnh 3D và bố trí phong thủy miễn phí.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ============================================================== -->
+  <!-- POPUP CHI TIẾT TRỤ CỘT TRIẾT LÝ (LUXURY POPUP DIALOG)         -->
+  <!-- ============================================================== -->
+  <div
+    id="pillar-popup"
+    class="fixed inset-0 z-[9999] hidden items-center justify-center p-3 sm:p-6 bg-black/45 backdrop-blur-md transition-opacity duration-200 opacity-0"
+    role="dialog"
+    aria-modal="true"
+    aria-hidden="true"
+  >
+    <!-- Khung Popup Box: Bố cục ngang sang trọng (Side-by-side) không cần cuộn trên máy tính -->
+    <div
+      id="pillar-popup-box"
+      class="relative w-full max-w-3xl lg:max-w-4xl max-h-[85vh] md:max-h-[460px] bg-[#122b1c] border border-[#D8B670]/40 rounded-sm shadow-2xl overflow-hidden flex flex-col md:flex-row transform scale-95 transition-all duration-200"
+    >
+      <!-- Nút đóng góc phải -->
+      <button
+        type="button"
+        id="pillar-popup-close"
+        class="absolute top-3.5 right-3.5 z-30 h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-[#E6CA85] hover:text-white flex items-center justify-center transition-all cursor-pointer border border-white/10 shadow-md"
+        aria-label="Đóng popup"
+      >
+        <svg class="h-4 w-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+
+      <!-- CỘT TRÁI: ẢNH NGHỆ THUẬT CINEMATIC + SỐ THỨ TỰ ÁNH KIM -->
+      <div class="relative w-full md:w-5/12 h-36 md:h-auto overflow-hidden shrink-0 bg-[#0a1a11]">
+        <img
+          id="pillar-popup-img"
+          src={pillars[0].modalImage}
+          alt={pillars[0].title}
+          class="h-full w-full object-cover"
+        />
+        <div class="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black/80 via-black/35 to-transparent"></div>
+        
+        <!-- Nhãn huy hiệu & số thứ tự lớn trên ảnh -->
+        <div class="absolute inset-0 p-5 sm:p-6 flex flex-col justify-between pointer-events-none">
+          <div>
+            <span class="inline-block px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.25em] bg-[#173524]/90 text-[#E6CA85] border border-[#D8B670]/40 backdrop-blur-xs">
+              KTUFA HERITAGE
+            </span>
+          </div>
+          <div>
+            <span id="pillar-popup-num" class="font-display text-3xl sm:text-4xl font-bold text-[#E6CA85]/90 block">01</span>
+            <span id="pillar-popup-eng" class="text-[9px] uppercase tracking-[0.25em] text-sand-200/90 font-sans font-bold block mt-0.5">AUTHENTIC & BESPOKE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- CỘT PHẢI: NỘI DUNG CHI TIẾT TINH GỌN, CHUẨN XÁC -->
+      <div class="w-full md:w-7/12 flex flex-col justify-between flex-1 overflow-hidden bg-[#122b1c]">
+        
+        <!-- Tiêu đề & Lời mở đầu -->
+        <div class="px-5 pt-4 pb-2 sm:px-6 sm:pt-4 shrink-0 border-b border-white/10">
+          <h3 id="pillar-popup-title" class="font-display text-lg sm:text-xl font-semibold text-sand-50 tracking-tight leading-snug">
+            Tính nguyên bản độc bản
+          </h3>
+          <p id="pillar-popup-subtitle" class="font-display italic text-xs text-[#E6CA85]/90 mt-1 leading-relaxed">
+            Mỗi món đồ là một bản tuyên ngôn nghệ thuật độc nhất.
+          </p>
+        </div>
+
+        <!-- 4 Điểm nhấn chính: Vừa vặn trên desktop, có thanh cuộn vàng mỏng trên màn hình nhỏ -->
+        <div class="p-4 sm:p-5 overflow-y-auto luxury-scrollbar flex-1">
+          <div id="pillar-popup-details" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <!-- Điền tự động bởi Javascript -->
+          </div>
+        </div>
+
+        <!-- Chân Popup (Footer Action) -->
+        <div class="px-5 py-2.5 sm:px-6 border-t border-white/10 bg-[#0c1f14] flex items-center justify-between gap-3 shrink-0">
+          <div class="text-[11px] text-[#D8B670]/90 font-sans hidden sm:flex items-center gap-1.5">
+            <span class="text-xs">✦</span>
+            <span>Cam kết chất lượng trọn đời</span>
+          </div>
+
+          <div class="flex items-center gap-2.5 ml-auto">
+            <button
+              type="button"
+              id="pillar-popup-dismiss"
+              class="px-3 py-1.5 rounded-sm border border-white/20 text-[11px] uppercase tracking-[0.15em] text-sand-200 hover:text-white hover:border-white/40 transition-colors font-medium font-sans cursor-pointer"
+            >
+              Đóng
+            </button>
+            <a
+              id="pillar-popup-cta"
+              href="#"
+              class="px-4 py-1.5 rounded-sm bg-gradient-to-r from-[#D8B670] to-[#E6CA85] text-walnut-950 font-bold text-[11px] uppercase tracking-[0.15em] hover:brightness-110 shadow-md shadow-[#D8B670]/20 transition-all font-sans inline-flex items-center gap-1.5 cursor-pointer"
+            >
+              <span id="pillar-popup-cta-text">Khám phá</span>
+              <span>→</span>
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</BaseLayout>
+
+<!-- Dữ liệu JSON các trụ cột truyền cho Script -->
+<script id="pillars-json" type="application/json" set:html={JSON.stringify(pillars)}></script>
+
+<!-- Thanh cuộn mạ vàng kim thanh mảnh chuẩn Luxury -->
+<style>
+  .luxury-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #D8B670 rgba(18, 43, 28, 0.6);
+  }
+  .luxury-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  .luxury-scrollbar::-webkit-scrollbar-track {
+    background: rgba(18, 43, 28, 0.5);
+    border-radius: 9999px;
+  }
+  .luxury-scrollbar::-webkit-scrollbar-thumb {
+    background: #D8B670;
+    border-radius: 9999px;
+  }
+  .luxury-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #E6CA85;
+  }
+</style>
+
+<!-- Hiệu ứng chuyển động mượt mà khi cuộn trang & Popup Controller -->
+<script>
+  // Parallax nhẹ nhàng cho Hero image khi cuộn
+  const heroImg = document.getElementById('hero-bg-img');
+  window.addEventListener('scroll', () => {
+    if (!heroImg) return;
+    const scrolled = window.scrollY;
+    if (scrolled < 800) {
+      heroImg.style.transform = `scale(1.05) translateY(${scrolled * 0.25}px)`;
+    }
+  }, { passive: true });
+
+  // Intersection Observer làm xuất hiện từng hàng câu chuyện mượt mà
+  const storyRows = document.querySelectorAll('.story-row');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('opacity-100', 'translate-y-0');
+        entry.target.classList.remove('opacity-0', 'translate-y-8');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15 });
+
+  storyRows.forEach((row) => {
+    row.classList.add('transition-all', 'duration-1000', 'opacity-0', 'translate-y-8');
+    observer.observe(row);
+  });
+
+  // Popup Chi tiết 4 Trụ Cột Triết Lý
+  const pillarsDataElement = document.getElementById('pillars-json');
+  let pillarsData = [];
+  try {
+    pillarsData = JSON.parse(pillarsDataElement?.textContent || '[]');
+  } catch (e) {
+    console.error('Lỗi phân tích dữ liệu pillars:', e);
+  }
+
+  const popup = document.getElementById('pillar-popup');
+  const popupBox = document.getElementById('pillar-popup-box');
+  const popupClose = document.getElementById('pillar-popup-close');
+  const popupDismiss = document.getElementById('pillar-popup-dismiss');
+  const popupImg = document.getElementById('pillar-popup-img');
+  const popupNum = document.getElementById('pillar-popup-num');
+  const popupEng = document.getElementById('pillar-popup-eng');
+  const popupTitle = document.getElementById('pillar-popup-title');
+  const popupSubtitle = document.getElementById('pillar-popup-subtitle');
+  const popupDetails = document.getElementById('pillar-popup-details');
+  const popupCta = document.getElementById('pillar-popup-cta');
+  const popupCtaText = document.getElementById('pillar-popup-cta-text');
+
+  function openPillarPopup(pillarId) {
+    const item = pillarsData.find((p) => p.id === pillarId);
+    if (!item || !popup) return;
+
+    // Di chuyển popup ra trực tiếp document.body để đè lên Header (thoát stacking context)
+    if (popup.parentElement !== document.body) {
+      document.body.appendChild(popup);
+    }
+
+    if (popupImg) {
+      popupImg.src = item.modalImage;
+      popupImg.alt = item.title;
+    }
+    if (popupNum) popupNum.textContent = item.num;
+    if (popupEng) popupEng.textContent = item.eng;
+    if (popupTitle) popupTitle.textContent = item.title;
+    if (popupSubtitle) popupSubtitle.textContent = item.modalSubtitle;
+    if (popupCtaText) popupCtaText.textContent = item.ctaText;
+    if (popupCta) popupCta.href = item.ctaLink;
+
+    if (popupDetails) {
+      popupDetails.innerHTML = (item.details || []).map((d, index) => `
+        <div class="rounded-sm border border-[#D8B670]/25 bg-white/[0.04] p-2.5 transition hover:bg-white/[0.08] hover:border-[#D8B670]/50">
+          <div class="flex items-center gap-1.5 mb-0.5">
+            <span class="text-[10px] font-bold text-[#E6CA85] font-sans">0${index + 1}.</span>
+            <h4 class="text-xs font-semibold text-[#F7E7C4] font-display line-clamp-1">${d.title}</h4>
+          </div>
+          <p class="text-[10.5px] text-sand-200/80 leading-relaxed font-sans font-light">${d.desc}</p>
+        </div>
+      `).join('');
+    }
+
+    popup.classList.remove('hidden');
+    popup.classList.add('flex');
+    requestAnimationFrame(() => {
+      popup.classList.remove('opacity-0');
+      popup.classList.add('opacity-100');
+      if (popupBox) {
+        popupBox.classList.remove('scale-95');
+        popupBox.classList.add('scale-100');
+      }
+    });
+
+    document.body.style.overflow = 'hidden';
+    popup.setAttribute('aria-hidden', 'false');
+  }
+
+  function closePillarPopup() {
+    if (!popup) return;
+    popup.classList.remove('opacity-100');
+    popup.classList.add('opacity-0');
+    if (popupBox) {
+      popupBox.classList.remove('scale-100');
+      popupBox.classList.add('scale-95');
+    }
+
+    setTimeout(() => {
+      popup.classList.remove('flex');
+      popup.classList.add('hidden');
+      document.body.style.overflow = '';
+      popup.setAttribute('aria-hidden', 'true');
+    }, 200);
+  }
+
+  // Click vào thẻ trụ cột để mở popup
+  document.querySelectorAll('[data-pillar-card]').forEach((card) => {
+    card.addEventListener('click', () => {
+      const id = card.getAttribute('data-pillar-card');
+      if (id) openPillarPopup(id);
+    });
+  });
+
+  popupClose?.addEventListener('click', closePillarPopup);
+  popupDismiss?.addEventListener('click', closePillarPopup);
+  popup?.addEventListener('click', (e) => {
+    if (e.target === popup) closePillarPopup();
+  });
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && popup && !popup.classList.contains('hidden')) {
+      closePillarPopup();
+    }
+  });
+
+  // Hỗ trợ cuộn mượt nếu CTA là liên kết neo
+  popupCta?.addEventListener('click', (e) => {
+    const href = popupCta.getAttribute('href');
+    if (href && href.startsWith('#')) {
+      closePillarPopup();
+      const target = document.querySelector(href);
+      if (target) {
+        e.preventDefault();
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  });
+</script>
