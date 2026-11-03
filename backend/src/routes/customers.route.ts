@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
+import { verifyToken, requireAdmin, requireAdminOrInternal } from '../middlewares/auth.middleware.js';
 
 export const customersRouter = Router();
 
@@ -76,7 +77,7 @@ function formatCustomer(c: any) {
 // ================================================================
 // GET /api/customers - Lấy danh sách khách hàng và thống kê KPIs
 // ================================================================
-customersRouter.get('/', async (req: Request, res: Response) => {
+customersRouter.get('/', requireAdminOrInternal, async (req: Request, res: Response) => {
   try {
     const { search, tier, status } = req.query;
 
@@ -157,7 +158,7 @@ customersRouter.get('/', async (req: Request, res: Response) => {
 // ================================================================
 // GET /api/customers/:id - Chi tiết khách hàng kèm lịch sử đơn hàng
 // ================================================================
-customersRouter.get('/:id', async (req: Request, res: Response) => {
+customersRouter.get('/:id', requireAdminOrInternal, async (req: Request, res: Response) => {
   try {
     const rawId = req.params.id.replace(/^KH-0*/, '');
     const customerId = Number(rawId);
@@ -221,7 +222,7 @@ customersRouter.get('/:id', async (req: Request, res: Response) => {
 // ================================================================
 // PUT /api/customers/:id - Chỉnh sửa thông tin khách hàng
 // ================================================================
-customersRouter.put('/:id', async (req: Request, res: Response) => {
+customersRouter.put('/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const rawId = req.params.id.replace(/^KH-0*/, '');
     const customerId = Number(rawId);
@@ -273,7 +274,7 @@ customersRouter.put('/:id', async (req: Request, res: Response) => {
 // ================================================================
 // PATCH /api/customers/:id/status - Khóa / Mở khóa tài khoản khách hàng
 // ================================================================
-customersRouter.patch('/:id/status', async (req: Request, res: Response) => {
+customersRouter.patch('/:id/status', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const rawId = req.params.id.replace(/^KH-0*/, '');
     const customerId = Number(rawId);
@@ -322,7 +323,7 @@ customersRouter.patch('/:id/status', async (req: Request, res: Response) => {
 // ================================================================
 // DELETE /api/customers/:id - Xóa an toàn khách hàng (Soft delete)
 // ================================================================
-customersRouter.delete('/:id', async (req: Request, res: Response) => {
+customersRouter.delete('/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const rawId = req.params.id.replace(/^KH-0*/, '');
     const customerId = Number(rawId);

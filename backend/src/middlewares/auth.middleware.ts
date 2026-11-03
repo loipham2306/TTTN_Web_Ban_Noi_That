@@ -95,3 +95,41 @@ export const optionalToken = (req: Request, _res: Response, next: NextFunction) 
   }
   next();
 };
+
+/**
+ * Middleware cho phép Admin HOẶC cuộc gọi nội bộ SSR từ máy chủ (Node loopback)
+ */
+export const requireAdminOrInternal = (req: Request, res: Response, next: NextFunction) => {
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1];
+    try {
+      const decoded = jwt.verify(token, ENV.JWT_SECRET) as AuthUserPayload;
+      req.user = decoded;
+      if (['admin', 'seller', 'cashier'].includes(decoded.role)) {
+        return next();
+      }
+      return res.status(403).json({
+        success: false,
+        message: 'Bạn không có quyền truy cập dữ liệu quản trị này.',
+      });
+    } catch {
+      return res.status(401).json({
+        success: false,
+        message: 'Mã xác thực không hợp lệ hoặc đã hết hạn.',
+      });
+    }
+  }
+
+  // Cho phép SSR nội bộ từ máy chủ (Node.js fetch trên loopback 127.0.0.1 / ::1)
+  const isLoopback = req.ip === '127.0.0.1' || req.ip === '::1' || req.ip === '::ffff:127.0.0.1';
+  const isNodeClient = req.headers['user-agent']?.includes('node') || !req.headers['sec-ch-ua'];
+  if (isLoopback && isNodeClient) {
+    return next();
+  }
+
+  return res.status(401).json({
+    success: false,
+    message: 'Yêu cầu quyền Quản trị viên để truy cập tài nguyên này.',
+  });
+};

@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import { prisma } from '../config/prisma.js';
 import { ENV } from '../config/env.js';
+import { verifyToken, requireAdmin } from '../middlewares/auth.middleware.js';
 
 export const reviewsRouter = Router();
 
@@ -126,17 +127,25 @@ reviewsRouter.get('/check-eligibility', async (req: Request, res: Response) => {
             ],
           },
         },
-        order_status: { not: 'cancelled' },
       },
       orderBy: { id: 'desc' },
     });
 
-    if (!purchasedOrder) {
+    if (!purchasedOrder || purchasedOrder.order_status === 'cancelled') {
       return res.json({
         success: true,
         canReview: false,
         reason: 'not_purchased',
         message: 'Bạn chưa mua sản phẩm này hoặc đơn hàng đã bị hủy.',
+      });
+    }
+
+    if (purchasedOrder.order_status !== 'completed') {
+      return res.json({
+        success: true,
+        canReview: false,
+        reason: 'order_in_transit',
+        message: 'Đơn hàng của bạn đang được xử lý hoặc đang trên đường giao. Bạn có thể đánh giá sau khi nhận hàng thành công!',
       });
     }
 
@@ -241,7 +250,7 @@ reviewsRouter.post('/', async (req: Request, res: Response) => {
     if (cleanPhone) userMatchConditions.push({ users: { phone: cleanPhone } });
     if (cleanEmail) userMatchConditions.push({ users: { email: cleanEmail } });
 
-    // Tìm đơn hàng hợp lệ có chứa sản phẩm này (không bị hủy)
+    // Tìm đơn hàng hợp lệ có chứa sản phẩm này
     const purchasedOrder = await prisma.orders.findFirst({
       where: {
         OR: userMatchConditions,
@@ -253,7 +262,6 @@ reviewsRouter.post('/', async (req: Request, res: Response) => {
             ],
           },
         },
-        order_status: { not: 'cancelled' },
       },
       orderBy: { id: 'desc' },
       include: {
@@ -261,25 +269,32 @@ reviewsRouter.post('/', async (req: Request, res: Response) => {
       },
     });
 
-    if (!purchasedOrder) {
+    if (!purchasedOrder || purchasedOrder.order_status === 'cancelled') {
       return res.status(403).json({
         success: false,
         message: 'Bạn chưa mua sản phẩm này (hoặc đơn hàng đã bị hủy). Chỉ khách hàng đã mua sản phẩm mới có quyền gửi đánh giá.',
       });
     }
 
-    // 4. Kiểm tra xem người dùng đã từng gửi đánh giá cho sản phẩm này chưa
+    if (purchasedOrder.order_status !== 'completed') {
+      return res.status(400).json({
+        success: false,
+        message: 'Đơn hàng của bạn đang được xử lý hoặc đang trên đường giao. Vui lòng quay lại đánh giá sau khi đã nhận được hàng!',
+      });
+    }
+
+    // 4. Kiểm tra xem người dùng đã từng gửi đánh giá cho đơn hàng & sản phẩm này chưa
     const existingReview = await prisma.reviews.findFirst({
       where: {
         product_id: product.id,
-        user_id: user.id,
+        order_id: purchasedOrder.id,
       },
     });
 
     if (existingReview) {
       return res.status(400).json({
         success: false,
-        message: 'Bạn đã gửi đánh giá cho sản phẩm này rồi. Cảm ơn quý khách đã đóng góp ý kiến!',
+        message: 'Bạn đã gửi đánh giá cho sản phẩm trong đơn hàng này rồi. Cảm ơn quý khách đã đóng góp ý kiến!',
       });
     }
 
@@ -320,7 +335,7 @@ reviewsRouter.post('/', async (req: Request, res: Response) => {
 // ================================================================
 // PATCH /api/reviews/:id/status - Admin Ẩn / Hiện đánh giá
 // ================================================================
-reviewsRouter.patch('/:id/status', async (req: Request, res: Response) => {
+reviewsRouter.patch('/:id/status', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const id = BigInt(req.params.id);
     const { status } = req.body;
@@ -351,7 +366,7 @@ reviewsRouter.patch('/:id/status', async (req: Request, res: Response) => {
 // ================================================================
 // POST /api/reviews/:id/reply - Admin phản hồi đánh giá
 // ================================================================
-reviewsRouter.post('/:id/reply', async (req: Request, res: Response) => {
+reviewsRouter.post('/:id/reply', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const id = BigInt(req.params.id);
     const { reply } = req.body;
@@ -384,7 +399,7 @@ reviewsRouter.post('/:id/reply', async (req: Request, res: Response) => {
 // ================================================================
 // DELETE /api/reviews/:id - Xóa đánh giá
 // ================================================================
-reviewsRouter.delete('/:id', async (req: Request, res: Response) => {
+reviewsRouter.delete('/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const id = BigInt(req.params.id);
     await prisma.reviews.delete({ where: { id } });

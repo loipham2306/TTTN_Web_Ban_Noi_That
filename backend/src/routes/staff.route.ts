@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { prisma } from '../config/prisma.js';
+import { verifyToken, requireAdmin, requireAdminOrInternal } from '../middlewares/auth.middleware.js';
 
 export const staffRouter = Router();
 
@@ -156,7 +157,7 @@ function formatStaffUser(u: any) {
 // ================================================================
 // GET /api/staff - Lấy danh sách toàn bộ nhân viên & thống kê
 // ================================================================
-staffRouter.get('/', async (req: Request, res: Response) => {
+staffRouter.get('/', requireAdminOrInternal, async (req: Request, res: Response) => {
   try {
     const { search, role } = req.query;
 
@@ -216,7 +217,7 @@ staffRouter.get('/', async (req: Request, res: Response) => {
 // ================================================================
 // GET /api/staff/roles - Lấy danh sách các chức vụ nhân sự hợp lệ
 // ================================================================
-staffRouter.get('/roles', async (_req: Request, res: Response) => {
+staffRouter.get('/roles', requireAdminOrInternal, async (_req: Request, res: Response) => {
   try {
     const roles = await prisma.roles.findMany({
       where: { name: { not: 'customer' } },
@@ -247,7 +248,7 @@ staffRouter.get('/roles', async (_req: Request, res: Response) => {
 // ================================================================
 // POST /api/staff - Thêm nhân viên mới vào hệ thống
 // ================================================================
-staffRouter.post('/', async (req: Request, res: Response) => {
+staffRouter.post('/', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { name, email, phone, roleId, roleName, password } = req.body;
 
@@ -346,7 +347,7 @@ staffRouter.post('/', async (req: Request, res: Response) => {
 // ================================================================
 // PUT /api/staff/:id/role - Phân quyền / Cập nhật vai trò nhân sự
 // ================================================================
-staffRouter.put('/:id/role', async (req: Request, res: Response) => {
+staffRouter.put('/:id/role', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const staffId = Number(req.params.id);
     const { roleId, roleName } = req.body;
@@ -409,7 +410,7 @@ staffRouter.put('/:id/role', async (req: Request, res: Response) => {
 // ================================================================
 // PATCH /api/staff/:id/status - Khóa / Mở khóa tài khoản nhân sự
 // ================================================================
-staffRouter.patch('/:id/status', async (req: Request, res: Response) => {
+staffRouter.patch('/:id/status', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const staffId = Number(req.params.id);
     if (isNaN(staffId)) {
@@ -472,7 +473,7 @@ staffRouter.patch('/:id/status', async (req: Request, res: Response) => {
 // ================================================================
 // DELETE /api/staff/:id - Xóa an toàn nhân sự (Soft delete)
 // ================================================================
-staffRouter.delete('/:id', async (req: Request, res: Response) => {
+staffRouter.delete('/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const staffId = Number(req.params.id);
     if (isNaN(staffId)) {

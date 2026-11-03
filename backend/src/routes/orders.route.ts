@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
-import { verifyToken, AuthUserPayload } from '../middlewares/auth.middleware.js';
+import { verifyToken, requireAdmin, requireAdminOrInternal, AuthUserPayload } from '../middlewares/auth.middleware.js';
 import jwt from 'jsonwebtoken';
 import { ENV } from '../config/env.js';
 
@@ -142,120 +142,140 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
       });
     }
 
-    // Tính toán giảm giá từ coupon (nếu có)
-    let discountAmount = 0;
-    let appliedCouponId: number | null = null;
-    let appliedCoupon: any = null;
+    // Thực hiện đặt hàng an toàn trong Database Transaction nguyên tử
+    const newOrder = await prisma.$transaction(async (tx) => {
+      // 1. Kiểm tra và áp dụng mã giảm giá
+      let discountAmount = 0;
+      let appliedCouponId: number | null = null;
+      let appliedCoupon: any = null;
 
-    if (coupon_code) {
-      const cleanCoupon = String(coupon_code).toUpperCase().trim();
-      const coupon = await prisma.coupons.findUnique({
-        where: { code: cleanCoupon },
-      });
+      if (coupon_code) {
+        const cleanCoupon = String(coupon_code).toUpperCase().trim();
+        const coupon = await tx.coupons.findUnique({
+          where: { code: cleanCoupon },
+        });
 
-      if (coupon && coupon.status !== false) {
-        const now = new Date();
-        const isValidDate = (!coupon.start_date || new Date(coupon.start_date) <= now) &&
-                            (!coupon.end_date || new Date(coupon.end_date) >= now);
-        const hasUsage = !coupon.usage_limit || (coupon.used_count || 0) < coupon.usage_limit;
-        const meetsMin = subtotalAmount >= Number(coupon.min_order_value || 0);
+        if (coupon && coupon.status !== false) {
+          const now = new Date();
+          const isValidDate = (!coupon.start_date || new Date(coupon.start_date) <= now) &&
+                              (!coupon.end_date || new Date(coupon.end_date) >= now);
+          const hasUsage = !coupon.usage_limit || (coupon.used_count || 0) < coupon.usage_limit;
+          const meetsMin = subtotalAmount >= Number(coupon.min_order_value || 0);
 
-        if (isValidDate && hasUsage && meetsMin) {
-          appliedCouponId = coupon.id;
-          appliedCoupon = coupon;
-          const val = Number(coupon.discount_value);
-          if (coupon.discount_type === 'percent' || (coupon.discount_type as string) === 'percentage') {
-            discountAmount = Math.round((subtotalAmount * val) / 100);
-            if (coupon.max_discount_amount && discountAmount > Number(coupon.max_discount_amount)) {
-              discountAmount = Number(coupon.max_discount_amount);
+          if (isValidDate && hasUsage && meetsMin) {
+            // Ràng buộc bảo mật: Mỗi khách hàng chỉ được dùng mã ưu đãi này 1 lần duy nhất
+            const userUsedCoupon = await tx.orders.findFirst({
+              where: {
+                user_id: user.id,
+                coupon_id: coupon.id,
+                order_status: { not: 'cancelled' },
+              },
+            });
+
+            if (userUsedCoupon) {
+              throw new Error(`Bạn đã sử dụng mã ưu đãi "${cleanCoupon}" cho một đơn hàng trước đó.`);
             }
-          } else if (coupon.discount_type === 'free_shipping') {
-            const stdShip = subtotalAmount >= 2000000 ? 0 : 50000;
-            discountAmount = (val === 0 || val >= stdShip) ? stdShip : val;
-          } else {
-            discountAmount = Math.min(subtotalAmount, val);
-          }
 
-          // Tăng lượt sử dụng
-          await prisma.coupons.update({
-            where: { id: coupon.id },
-            data: { used_count: { increment: 1 } },
-          });
+            appliedCouponId = coupon.id;
+            appliedCoupon = coupon;
+            const val = Number(coupon.discount_value);
+            if (coupon.discount_type === 'percent' || (coupon.discount_type as string) === 'percentage') {
+              discountAmount = Math.round((subtotalAmount * val) / 100);
+              if (coupon.max_discount_amount && discountAmount > Number(coupon.max_discount_amount)) {
+                discountAmount = Number(coupon.max_discount_amount);
+              }
+            } else if (coupon.discount_type === 'free_shipping') {
+              const stdShip = subtotalAmount >= 2000000 ? 0 : 50000;
+              discountAmount = (val === 0 || val >= stdShip) ? stdShip : val;
+            } else {
+              discountAmount = Math.min(subtotalAmount, val);
+            }
+
+            // Tăng lượt sử dụng mã
+            await tx.coupons.update({
+              where: { id: coupon.id },
+              data: { used_count: { increment: 1 } },
+            });
+          }
         }
       }
-    }
 
-    // Phí vận chuyển tiêu chuẩn: Miễn phí từ 2 triệu, ngược lại 50.000 đ
-    const isFreeShipping = appliedCoupon?.discount_type === 'free_shipping';
-    const baseShippingFee = subtotalAmount >= 2000000 ? 0 : 50000;
-    let actualShippingFee = baseShippingFee;
+      // 2. Tính toán cước phí và tổng tiền
+      const isFreeShipping = appliedCoupon?.discount_type === 'free_shipping';
+      const baseShippingFee = subtotalAmount >= 2000000 ? 0 : 50000;
+      let actualShippingFee = baseShippingFee;
 
-    if (isFreeShipping) {
-      actualShippingFee = Math.max(0, baseShippingFee - discountAmount);
-    }
+      if (isFreeShipping) {
+        actualShippingFee = Math.max(0, baseShippingFee - discountAmount);
+      }
 
-    const totalAmount = Math.max(0, subtotalAmount - (isFreeShipping ? 0 : discountAmount)) + actualShippingFee;
+      const totalAmount = Math.max(0, subtotalAmount - (isFreeShipping ? 0 : discountAmount)) + actualShippingFee;
 
-    // Sinh mã đơn hàng: NT-YYYYMM-XXXX
-    const randomSuffix = Math.floor(1000 + Math.random() * 9000);
-    const dateStr = new Date().toISOString().slice(2, 7).replace('-', '');
-    const orderCode = `NT-${dateStr}-${randomSuffix}`;
-
-    const fullAddress = [address, district, province].filter(Boolean).join(', ');
-
-    // 3. Tạo bản ghi đơn hàng trong bảng `orders`
-    const newOrder = await prisma.orders.create({
-      data: {
-        order_code: orderCode,
-        user_id: user.id,
-        coupon_id: appliedCouponId,
-        shipping_address: fullAddress || 'Tại cửa hàng',
-        shipping_fee: actualShippingFee,
-        subtotal_amount: subtotalAmount,
-        discount_amount: discountAmount,
-        total_amount: totalAmount,
-        payment_method: payment_method || 'cod',
-        payment_status: 'pending',
-        order_status: 'pending',
-        customer_note: note || null,
-      },
-    });
-
-    // 4. Tạo chi tiết đơn hàng trong bảng `order_items` và trừ tồn kho thực tế
-    for (const item of validatedItems) {
-      await prisma.order_items.create({
-        data: {
-          order_id: newOrder.id,
-          product_id: item.productId,
-          variant_id: item.variantId,
-          product_name: item.name,
-          variant_name: null,
-          sku: item.sku,
-          quantity: item.qty,
-          unit_price: item.price,
-          cost_price: item.costPrice || 0,
-          total_price: item.price * item.qty,
-        },
-      });
-
-      // Tự động trừ số lượng tồn kho (stock_quantity) của biến thể sản phẩm trong CSDL
-      if (item.variantId) {
-        try {
-          const currentVariant = await prisma.product_variants.findUnique({
+      // 3. Khóa và kiểm tra lại tồn kho tức thời trong Transaction
+      for (const item of validatedItems) {
+        if (item.variantId) {
+          const currentVariant = await tx.product_variants.findUnique({
             where: { id: item.variantId },
             select: { stock_quantity: true },
           });
-          const currentStock = Number(currentVariant?.stock_quantity ?? 0);
-          const newStock = Math.max(0, currentStock - item.qty);
-          await prisma.product_variants.update({
-            where: { id: item.variantId },
-            data: { stock_quantity: newStock },
-          });
-        } catch (stockErr) {
-          console.warn('Lỗi trừ tồn kho biến thể:', item.variantId, stockErr);
+          const availableStock = Number(currentVariant?.stock_quantity ?? 0);
+          if (availableStock < item.qty) {
+            throw new Error(`Sản phẩm "${item.name}" không đủ số lượng tồn kho (hiện chỉ còn ${availableStock} chiếc).`);
+          }
         }
       }
-    }
+
+      // 4. Sinh mã đơn hàng: NT-YYYYMM-XXXX
+      const randomSuffix = Math.floor(1000 + Math.random() * 9000);
+      const dateStr = new Date().toISOString().slice(2, 7).replace('-', '');
+      const orderCode = `NT-${dateStr}-${randomSuffix}`;
+      const fullAddress = [address, district, province].filter(Boolean).join(', ');
+
+      // 5. Tạo đơn hàng trong bảng `orders`
+      const orderCreated = await tx.orders.create({
+        data: {
+          order_code: orderCode,
+          user_id: user.id,
+          coupon_id: appliedCouponId,
+          shipping_address: fullAddress || 'Tại cửa hàng',
+          shipping_fee: actualShippingFee,
+          subtotal_amount: subtotalAmount,
+          discount_amount: discountAmount,
+          total_amount: totalAmount,
+          payment_method: payment_method || 'cod',
+          payment_status: 'pending',
+          order_status: 'pending',
+          customer_note: note || null,
+        },
+      });
+
+      // 6. Tạo chi tiết đơn hàng `order_items` và trừ tồn kho biến thể
+      for (const item of validatedItems) {
+        await tx.order_items.create({
+          data: {
+            order_id: orderCreated.id,
+            product_id: item.productId,
+            variant_id: item.variantId,
+            product_name: item.name,
+            variant_name: null,
+            sku: item.sku,
+            quantity: item.qty,
+            unit_price: item.price,
+            cost_price: item.costPrice || 0,
+            total_price: item.price * item.qty,
+          },
+        });
+
+        if (item.variantId) {
+          await tx.product_variants.update({
+            where: { id: item.variantId },
+            data: { stock_quantity: { decrement: item.qty } },
+          });
+        }
+      }
+
+      return orderCreated;
+    });
 
     return res.status(201).json({
       success: true,
@@ -263,13 +283,13 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
       data: {
         orderId: Number(newOrder.id),
         orderCode: newOrder.order_code,
-        subtotalAmount,
-        shippingFee: actualShippingFee,
-        totalAmount,
+        subtotalAmount: Number(newOrder.subtotal_amount),
+        shippingFee: Number(newOrder.shipping_fee ?? 0),
+        totalAmount: Number(newOrder.total_amount),
         paymentMethod: newOrder.payment_method,
         customerName: fullname,
         phone,
-        address: fullAddress,
+        address: newOrder.shipping_address,
         createdAt: newOrder.created_at,
       },
     });
@@ -284,7 +304,7 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
 });
 
 // GET /api/orders - Lấy danh sách đơn hàng
-ordersRouter.get('/', async (_req: Request, res: Response) => {
+ordersRouter.get('/', requireAdminOrInternal, async (_req: Request, res: Response) => {
   try {
     const orderList = await prisma.orders.findMany({
       include: {
@@ -421,7 +441,7 @@ ordersRouter.get('/my-orders', verifyToken, async (req: Request, res: Response) 
 // ================================================================
 // GET /api/orders/analytics - Thống kê doanh thu, giá vốn thực tế, sổ quỹ và KPI
 // ================================================================
-ordersRouter.get('/analytics', async (_req: Request, res: Response) => {
+ordersRouter.get('/analytics', requireAdminOrInternal, async (_req: Request, res: Response) => {
   try {
     // 1. Lấy tất cả đơn hàng hợp lệ kèm chi tiết sản phẩm và giá vốn thực
     const [validOrders, allOrdersCount, cancelledOrdersCount, allImportSlips, allCashTxs, aiConsultationsCount, totalRegisteredCustomers] = await Promise.all([
@@ -918,7 +938,7 @@ ordersRouter.get('/:code', async (req: Request, res: Response) => {
 // ================================================================
 // PATCH /api/orders/:id/status - Cập nhật trạng thái đơn hàng & xử lý hoàn/trừ kho
 // ================================================================
-ordersRouter.patch('/:id/status', async (req: Request, res: Response) => {
+ordersRouter.patch('/:id/status', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const orderId = BigInt(req.params.id);
     const { orderStatus, paymentStatus } = req.body;
@@ -958,7 +978,7 @@ ordersRouter.patch('/:id/status', async (req: Request, res: Response) => {
       updateData.payment_status = 'paid';
     }
 
-    // Nếu đơn hàng chuyển sang huỷ (cancelled) mà trước đó chưa hủy -> Hoàn lại tồn kho biến thể
+    // Nếu đơn hàng chuyển sang huỷ (cancelled) mà trước đó chưa hủy -> Hoàn lại tồn kho và hoàn lượt sử dụng coupon
     if (targetOrderStatus === 'cancelled' && prevStatus !== 'cancelled') {
       for (const item of existingOrder.order_items) {
         const vId = item.variant_id;
@@ -973,9 +993,20 @@ ordersRouter.patch('/:id/status', async (req: Request, res: Response) => {
           }
         }
       }
+
+      if (existingOrder.coupon_id) {
+        try {
+          await prisma.coupons.update({
+            where: { id: existingOrder.coupon_id },
+            data: { used_count: { decrement: 1 } },
+          });
+        } catch (couponErr) {
+          console.warn('Lỗi hoàn lượt sử dụng coupon:', couponErr);
+        }
+      }
     }
 
-    // Nếu mở lại đơn hàng từng bị hủy -> Trừ lại tồn kho biến thể
+    // Nếu mở lại đơn hàng từng bị hủy -> Trừ lại tồn kho biến thể và tính lại lượt dùng coupon
     if (prevStatus === 'cancelled' && targetOrderStatus && targetOrderStatus !== 'cancelled') {
       for (const item of existingOrder.order_items) {
         const vId = item.variant_id;
@@ -988,6 +1019,17 @@ ordersRouter.patch('/:id/status', async (req: Request, res: Response) => {
               data: { stock_quantity: Math.max(0, curr - item.quantity) },
             });
           } catch (e) {}
+        }
+      }
+
+      if (existingOrder.coupon_id) {
+        try {
+          await prisma.coupons.update({
+            where: { id: existingOrder.coupon_id },
+            data: { used_count: { increment: 1 } },
+          });
+        } catch (couponErr) {
+          console.warn('Lỗi tăng lại lượt sử dụng coupon:', couponErr);
         }
       }
     }
