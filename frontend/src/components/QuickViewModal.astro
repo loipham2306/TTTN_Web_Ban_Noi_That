@@ -1,7 +1,7 @@
 ---
 ---
 
-<!-- QUICK VIEW POPUP MODAL -->
+<!-- QUICK VIEW POPUP MODAL (ĐỒNG BỘ STYLES VỚI POPUP TRỤ CỘT TRIẾT LÝ) -->
 <div
   id="quick-view-modal"
   class="fixed inset-0 z-[100] hidden bg-walnut-900/60 backdrop-blur-sm p-4 overflow-y-auto flex items-center justify-center transition-opacity duration-300 opacity-0"
@@ -9,15 +9,19 @@
   role="dialog"
   aria-modal="true"
 >
+  <!-- Khung Popup Dialog: Mở rộng ngang (max-w-4xl lg:max-w-5xl) kèm dải nền xanh độc quyền phía dưới -->
   <div
     id="quick-view-dialog"
-    class="relative my-8 w-full max-w-2xl overflow-hidden rounded-none bg-sand-50 p-6 sm:p-8 shadow-2xl border border-walnut-900/15 transition-all duration-300 scale-95 max-h-[92vh] overflow-y-auto"
+    class="relative my-4 sm:my-8 w-full max-w-4xl lg:max-w-5xl overflow-hidden rounded-none bg-sand-50 p-4 sm:p-6 md:px-7 md:py-6 shadow-2xl border border-walnut-900/15 transition-all duration-300 scale-95 max-h-[92vh] overflow-y-auto luxury-scrollbar"
   >
+    <!-- NỀN XANH ĐỘC QUYỀN TRẢI DÀI BÊN DƯỚI TOÀN BỘ POPUP TRÊN DESKTOP (ĐỒNG BỘ POPUP TRỤ CỘT) -->
+    <div class="hidden md:block absolute inset-x-0 bottom-0 md:h-[114px] lg:h-[124px] bg-[#173524] border-t border-[#D8B670]/30 pointer-events-none z-0"></div>
+
     <!-- Nút đóng (X) bo tròn với hiệu ứng xoay 90 độ khi hover -->
     <button
       type="button"
       id="btn-close-quick-view"
-      class="absolute right-4 top-4 z-20 flex h-9 w-9 items-center justify-center rounded-full bg-sand-200/90 text-walnut-800 border border-walnut-900/10 shadow-sm hover:bg-walnut-900 hover:text-amber-300 hover:rotate-90 transition-all duration-300 cursor-pointer"
+      class="absolute right-3 top-3 sm:right-4 sm:top-4 z-20 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-sand-200/90 text-walnut-800 border border-walnut-900/10 shadow-sm hover:bg-walnut-900 hover:text-amber-300 hover:rotate-90 transition-all duration-300 cursor-pointer"
       aria-label="Đóng xem nhanh"
     >
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="h-4 w-4 pointer-events-none">
@@ -25,11 +29,11 @@
       </svg>
     </button>
 
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 items-start">
-      <!-- CỘT TRÁI: ẢNH LỚN + NÚT CHUYỂN ẢNH 2 BÊN + CÁC ẢNH NHỎ BÊN DƯỚI -->
-      <div class="flex flex-col">
-        <!-- KHUNG ẢNH CHÍNH VUÔNG VỨC VỚI 2 NÚT CHUYỂN ẢNH -->
-        <div class="relative aspect-square w-full overflow-hidden rounded-none bg-sand-200 border border-walnut-900/10 shadow-inner group">
+    <div class="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-7 items-stretch">
+      <!-- CỘT TRÁI: ẢNH LỚN + NÚT CHUYỂN ẢNH 2 BÊN + THUMBNAILS BÊN DƯỚI -->
+      <div class="md:col-span-5 flex flex-col justify-between min-h-0">
+        <!-- KHUNG ẢNH CHÍNH VUÔNG VỨC / TỶ LỆ CHUẨN CÓ GRADIENT & BADGE KTUFA -->
+        <div class="relative w-full aspect-square md:aspect-[4/3.8] overflow-hidden rounded-none bg-sand-200 border border-walnut-900/15 shadow-md group">
           <img
             id="qv-image"
             src=""
@@ -41,11 +45,11 @@
           <button
             type="button"
             id="qv-btn-prev"
-            class="absolute left-2 top-1/2 -translate-y-1/2 z-10 flex h-8 w-8 items-center justify-center rounded-none bg-white/90 text-walnut-900 border border-walnut-900/20 shadow-md hover:bg-[#173524] hover:text-amber-300 active:scale-95 transition-all cursor-pointer"
+            class="absolute left-2 top-1/2 -translate-y-1/2 z-10 flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-none bg-black/50 text-white border border-white/20 shadow-md hover:bg-[#173524] hover:text-amber-300 active:scale-95 transition-all cursor-pointer"
             aria-label="Ảnh trước"
             title="Ảnh trước"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="h-4 w-4">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="h-3.5 w-3.5 sm:h-4 sm:w-4">
               <path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </button>
@@ -54,25 +58,25 @@
           <button
             type="button"
             id="qv-btn-next"
-            class="absolute right-2 top-1/2 -translate-y-1/2 z-10 flex h-8 w-8 items-center justify-center rounded-none bg-white/90 text-walnut-900 border border-walnut-900/20 shadow-md hover:bg-[#173524] hover:text-amber-300 active:scale-95 transition-all cursor-pointer"
+            class="absolute right-2 top-1/2 -translate-y-1/2 z-10 flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-none bg-black/50 text-white border border-white/20 shadow-md hover:bg-[#173524] hover:text-amber-300 active:scale-95 transition-all cursor-pointer"
             aria-label="Ảnh tiếp theo"
             title="Ảnh tiếp theo"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="h-4 w-4">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" class="h-3.5 w-3.5 sm:h-4 sm:w-4">
               <path d="M9 18l6-6-6-6" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </button>
 
-          <!-- BADGE DANH MỤC TRÊN ẢNH -->
+          <!-- BADGE DANH MỤC TRÊN ẢNH: ĐỒNG BỘ PHONG CÁCH BADGE KTUFA HERITAGE -->
           <div class="absolute left-2.5 top-2.5 pointer-events-none">
-            <span id="qv-category-badge" class="rounded-none bg-[#173524] px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-amber-300 shadow-sm border border-white/10">
-              Nội Thất
+            <span id="qv-category-badge" class="inline-block px-2 sm:px-2.5 py-0.5 sm:py-1 text-[9px] font-bold uppercase tracking-[0.2em] bg-[#173524]/90 text-amber-300 border border-amber-300/30 backdrop-blur-xs shadow-sm">
+              NỘI THẤT
             </span>
           </div>
 
           <!-- CHỈ SỐ ẢNH GÓC DƯỚI PHẢI (VÍ DỤ: 1/4) -->
           <div class="absolute right-2.5 bottom-2.5 pointer-events-none">
-            <span id="qv-image-counter" class="rounded-none bg-black/60 backdrop-blur-xs px-2 py-0.5 text-[10px] font-bold text-white shadow-xs">
+            <span id="qv-image-counter" class="rounded-none bg-black/60 backdrop-blur-xs px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-white shadow-xs">
               1 / 1
             </span>
           </div>
@@ -80,107 +84,118 @@
 
         <!-- HÀNG CÁC HÌNH ẢNH NHỎ (THUMBNAILS) BÊN DƯỚI -->
         <div id="qv-thumbnails" class="mt-2.5 grid grid-cols-4 gap-2 w-full">
-          <!-- Sẽ được render động khi mở popup -->
+          <!-- Render động -->
         </div>
       </div>
 
-      <!-- CỘT PHẢI: THÔNG SỐ VÀ HÀNH ĐỘNG (CÁC NÚT VUÔNG VỨC) -->
-      <div class="flex flex-col justify-between h-full">
+      <!-- CỘT PHẢI: THÔNG SỐ VÀ CỤM HÀNH ĐỘNG TRÊN NỀN XANH (QUYẾT ĐỊNH CHIỀU CAO POPUP) -->
+      <div class="md:col-span-7 flex flex-col justify-between min-h-0">
         <div>
-          <!-- DANH MỤC VÀ KHÔNG GIAN (ĐẶT BÊN TRÁI, CÓ PR-12 ĐỂ TRÁNH NÚT ĐÓNG) -->
-          <div class="flex flex-wrap items-center gap-2 pr-12">
+          <!-- DANH MỤC VÀ KHÔNG GIAN -->
+          <div class="flex flex-wrap items-center gap-2 pr-8 sm:pr-10">
             <span id="qv-category" class="text-xs font-bold uppercase tracking-[0.2em] text-[#B88E28]"></span>
-            <span id="qv-space" class="text-[11px] font-semibold text-emerald-900 bg-emerald-700/10 border border-emerald-700/20 px-2.5 py-0.5 rounded-none"></span>
+            <span id="qv-space" class="text-[10.5px] font-semibold text-emerald-900 bg-emerald-700/10 border border-emerald-700/20 px-2 py-0.5 rounded-none"></span>
           </div>
 
-          <h3 id="qv-name" class="mt-2 font-display text-xl font-bold tracking-tight text-walnut-900 sm:text-2xl leading-snug"></h3>
-          <div class="mt-2 flex items-baseline gap-2.5">
-            <p id="qv-price" class="text-2xl font-bold font-display text-[#B88E28]"></p>
-            <p id="qv-compare-price" class="hidden text-sm text-neutral-400 line-through font-normal"></p>
+          <!-- TÊN SẢN PHẨM & GIÁ BÁN -->
+          <div class="mt-1 sm:mt-1.5 pr-8 sm:pr-10">
+            <h3 id="qv-name" class="font-display text-lg sm:text-2xl font-bold tracking-tight text-walnut-900 leading-snug"></h3>
+            <div class="mt-1 flex items-baseline gap-2.5">
+              <p id="qv-price" class="text-xl sm:text-2xl font-bold font-display text-[#B88E28]"></p>
+              <p id="qv-compare-price" class="hidden text-xs sm:text-sm text-neutral-400 line-through font-normal"></p>
+            </div>
           </div>
 
-          <p id="qv-description" class="mt-2.5 text-xs leading-relaxed text-walnut-800/80 line-clamp-3"></p>
+          <p id="qv-description" class="mt-1.5 text-xs leading-relaxed text-walnut-800/80 line-clamp-2"></p>
 
-          <!-- BẢNG THÔNG SỐ CƠ BẢN (VUÔNG VỨC) -->
-          <div class="mt-4 rounded-none border border-walnut-900/10 bg-white/80 backdrop-blur-xs p-3.5 space-y-2 text-xs shadow-2xs">
-            <div class="flex items-center justify-between border-b border-walnut-900/10 pb-1.5">
-              <span class="text-walnut-800/70 font-medium">📐 Kích thước:</span>
-              <span id="qv-dimensions" class="font-bold text-walnut-900">Tiêu chuẩn</span>
+          <!-- BẢNG 3 THÔNG SỐ CƠ BẢN: ĐỒNG BỘ STYLE CARD 2 CỘT CỦA TRỤ CỘT -->
+          <div class="mt-3 grid grid-cols-3 gap-2 text-xs">
+            <div class="rounded-none border border-walnut-900/10 bg-white/90 p-2 sm:p-2.5 shadow-2xs">
+              <span class="text-walnut-800/60 text-[10px] block font-medium uppercase tracking-wider">Kích thước</span>
+              <span id="qv-dimensions" class="font-bold text-walnut-900 text-[11px] sm:text-xs block truncate mt-0.5">Tiêu chuẩn</span>
             </div>
-            <div class="flex items-center justify-between border-b border-walnut-900/10 pb-1.5">
-              <span class="text-walnut-800/70 font-medium">🌲 Chất liệu:</span>
-              <span id="qv-material" class="font-bold text-walnut-900">Cao cấp</span>
+            <div class="rounded-none border border-walnut-900/10 bg-white/90 p-2 sm:p-2.5 shadow-2xs">
+              <span class="text-walnut-800/60 text-[10px] block font-medium uppercase tracking-wider">Chất liệu</span>
+              <span id="qv-material" class="font-bold text-walnut-900 text-[11px] sm:text-xs block truncate mt-0.5">Cao cấp</span>
             </div>
-            <div class="flex items-center justify-between">
-              <span class="text-walnut-800/70 font-medium">🛡️ Bảo hành:</span>
-              <span id="qv-warranty" class="font-bold text-walnut-900">24 tháng chính hãng</span>
+            <div class="rounded-none border border-walnut-900/10 bg-white/90 p-2 sm:p-2.5 shadow-2xs">
+              <span class="text-walnut-800/60 text-[10px] block font-medium uppercase tracking-wider">Bảo hành</span>
+              <span id="qv-warranty" class="font-bold text-walnut-900 text-[11px] sm:text-xs block truncate mt-0.5">24 tháng</span>
             </div>
           </div>
         </div>
 
-        <!-- CỤM NÚT THAO TÁC NỔI BẬT: CÁC NÚT ĐỀU VUÔNG VỨC SẮC CẠNH -->
-        <div class="mt-5 space-y-2.5 pt-3.5 border-t border-walnut-900/10">
-          <div class="flex items-center gap-3">
-            <!-- Cụm chọn số lượng & Tồn kho bên dưới -->
-            <div class="flex flex-col items-center">
-              <!-- Tăng giảm số lượng (vuông vức) -->
-              <div class="flex items-center rounded-none border border-walnut-900/20 bg-white p-1 shadow-2xs">
-                <button
-                  type="button"
-                  id="qv-qty-minus"
-                  class="flex h-9 w-9 items-center justify-center rounded-none text-walnut-900 hover:bg-sand-200 transition-colors font-bold text-base active:scale-95 cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
-                  aria-label="Giảm số lượng"
-                >
-                  −
-                </button>
-                <input
-                  type="number"
-                  id="qv-qty"
-                  value="1"
-                  min="1"
-                  max="99"
-                  class="w-10 text-center text-sm font-bold text-walnut-900 outline-none bg-transparent"
-                  readonly
-                />
-                <button
-                  type="button"
-                  id="qv-qty-plus"
-                  class="flex h-9 w-9 items-center justify-center rounded-none text-walnut-900 hover:bg-sand-200 transition-colors font-bold text-base active:scale-95 cursor-pointer disabled:opacity-30 disabled:pointer-events-none"
-                  aria-label="Tăng số lượng"
-                >
-                  +
-                </button>
-              </div>
-              <!-- Tồn kho hiển thị bên dưới mục chọn số lượng, căn ngang với nút thêm giỏ hàng -->
-              <div id="qv-stock-display" class="mt-1 text-[11px] font-medium text-walnut-800 text-center whitespace-nowrap">
-                Còn <span id="qv-stock-count" class="font-bold text-[#B88E28]">--</span> trong kho
-              </div>
+        <!-- CỤM NÚT THAO TÁC NẰM TRÊN NỀN XANH (TRÊN MOBILE CÓ NỀN XANH TRÀN VIỀN, DESKTOP NẰM TRÊN DẢI XANH) -->
+        <div class="mt-3.5 pt-2.5 pb-3 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:pb-0 md:pt-3 md:bg-transparent md:border-t-0 bg-[#173524] border-t border-[#D8B670]/30 space-y-2">
+          <!-- HÀNG 1: BỘ CHỌN SỐ LƯỢNG + NÚT THÊM GIỎ + NÚT XEM TRANG CHI TIẾT -->
+          <div class="flex items-center gap-2 sm:gap-2.5">
+            <!-- Cụm chọn số lượng trên nền xanh -->
+            <div class="flex items-center rounded-none border border-white/20 bg-white/10 p-0.5 shadow-2xs">
+              <button
+                type="button"
+                id="qv-qty-minus"
+                class="flex h-8 w-7 items-center justify-center text-sand-100 hover:text-white hover:bg-white/10 font-bold text-sm cursor-pointer disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                aria-label="Giảm số lượng"
+              >
+                −
+              </button>
+              <input
+                type="number"
+                id="qv-qty"
+                value="1"
+                min="1"
+                max="99"
+                class="w-7 text-center text-xs font-bold text-amber-300 outline-none bg-transparent"
+                readonly
+              />
+              <button
+                type="button"
+                id="qv-qty-plus"
+                class="flex h-8 w-7 items-center justify-center text-sand-100 hover:text-white hover:bg-white/10 font-bold text-sm cursor-pointer disabled:opacity-30 disabled:pointer-events-none transition-colors"
+                aria-label="Tăng số lượng"
+              >
+                +
+              </button>
             </div>
 
-            <!-- Nút Thêm vào giỏ hàng: Căn ngang với cụm chọn số lượng & tồn kho -->
+            <!-- Nút Thêm vào giỏ hàng: Nút màu vàng kim ánh kim đặc trưng -->
             <button
               type="button"
               id="qv-btn-add-cart"
-              class="flex-1 flex items-center justify-center gap-2 rounded-none bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] py-3.5 px-4 text-xs sm:text-sm uppercase tracking-wider text-[#173524] font-bold shadow-md hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white hover:-translate-y-0.5 active:translate-y-0 transition-all cursor-pointer border border-[#E0C582]/50 disabled:opacity-50 disabled:pointer-events-none disabled:cursor-not-allowed disabled:transform-none"
+              class="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 rounded-none bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] py-2 sm:py-2.5 px-2.5 sm:px-3 text-[11px] sm:text-xs uppercase tracking-normal text-[#173524] font-bold shadow-md hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white transition-all cursor-pointer border border-[#E0C582]/50 text-center whitespace-nowrap disabled:opacity-50 disabled:pointer-events-none"
             >
-              <svg viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4 pointer-events-none">
+              <svg viewBox="0 0 24 24" fill="currentColor" class="h-3.5 w-3.5 pointer-events-none shrink-0">
                 <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.58-6.49c.08-.14.12-.31.12-.48 0-.55-.45-1-1-1H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/>
               </svg>
               <span id="qv-btn-add-cart-text">Thêm vào giỏ</span>
             </button>
+
+            <!-- Nút Xem chi tiết: Nút viền trắng mờ sang trọng đồng bộ nút Đóng popup -->
+            <a
+              id="qv-detail-link"
+              href="#"
+              class="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 rounded-none border border-white/25 bg-white/10 hover:bg-white/20 text-sand-100 hover:text-white py-2 sm:py-2.5 px-2 sm:px-2.5 text-[11px] sm:text-xs uppercase tracking-normal font-semibold font-sans shadow-sm transition-all cursor-pointer text-center whitespace-nowrap"
+            >
+              <span>Xem chi tiết</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="h-3.5 w-3.5 pointer-events-none shrink-0">
+                <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </a>
           </div>
 
-          <!-- Nút Xem chi tiết sản phẩm: VUÔNG VỨC SANG TRỌNG -->
-          <a
-            id="qv-detail-link"
-            href="#"
-            class="flex w-full items-center justify-center gap-2 rounded-none border border-walnut-900/20 bg-white py-2.5 px-4 text-xs font-bold uppercase tracking-wider text-walnut-900 shadow-2xs hover:bg-sand-100 hover:border-walnut-900 transition-all active:scale-[0.99]"
-          >
-            <span>Xem trang chi tiết đầy đủ</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="h-3.5 w-3.5 text-walnut-800">
-              <path d="M5 12h14M12 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-          </a>
+          <!-- HÀNG 2: TỒN KHO & DÒNG CAM KẾT CHẤT LƯỢNG TRÊN NỀN XANH -->
+          <div class="flex items-center justify-between text-[11px] sm:text-xs text-[#E6CA85] font-sans pt-0.5 sm:pt-1 px-1 tracking-tight">
+            <!-- Tồn kho -->
+            <div id="qv-stock-display" class="text-[11px] font-medium text-sand-200/90 whitespace-nowrap">
+              Còn <span id="qv-stock-count" class="font-bold text-amber-300">--</span> trong kho
+            </div>
+
+            <!-- Cam kết -->
+            <div class="flex items-center gap-1 text-[11px] text-[#E6CA85] truncate">
+              <span class="text-amber-300 not-italic text-xs shrink-0">✦</span>
+              <span class="leading-relaxed font-normal truncate">Cam kết 100% chính hãng — Bảo hành 24 tháng tận nhà.</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -275,17 +290,17 @@
       imageCounter.textContent = `${currentImageIndex + 1} / ${galleryList.length}`;
     }
 
-    // Highlight thumbnail đang xem
+    // Highlight thumbnail đang xem (viền vàng kim sang trọng trên nền xanh độc quyền)
     if (thumbnailsContainer) {
       const thumbs = thumbnailsContainer.querySelectorAll<HTMLButtonElement>('[data-thumb-idx]');
       thumbs.forEach((th) => {
         const i = Number(th.dataset.thumbIdx);
         if (i === currentImageIndex) {
-          th.classList.add('border-2', 'border-[#173524]', 'ring-1', 'ring-[#173524]', 'opacity-100');
-          th.classList.remove('border-walnut-900/15', 'opacity-60');
+          th.classList.add('border-2', 'border-[#D8B670]', 'ring-1', 'ring-[#D8B670]', 'opacity-100', 'shadow-md');
+          th.classList.remove('border', 'border-white/20', 'border-walnut-900/15', 'opacity-60', 'opacity-70');
         } else {
-          th.classList.remove('border-2', 'border-[#173524]', 'ring-1', 'ring-[#173524]', 'opacity-100');
-          th.classList.add('border-walnut-900/15', 'opacity-60');
+          th.classList.remove('border-2', 'border-[#D8B670]', 'ring-1', 'ring-[#D8B670]', 'shadow-md');
+          th.classList.add('border', 'border-white/20', 'opacity-70');
         }
       });
     }
@@ -300,10 +315,10 @@
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.dataset.thumbIdx = String(i);
-      btn.className = `relative aspect-square w-full overflow-hidden rounded-none border transition-all cursor-pointer bg-sand-50 hover:opacity-100 ${
+      btn.className = `relative aspect-square w-full overflow-hidden rounded-none border transition-all cursor-pointer bg-walnut-900/40 hover:opacity-100 ${
         i === currentImageIndex
-          ? 'border-2 border-[#173524] ring-1 ring-[#173524] opacity-100'
-          : 'border-walnut-900/15 opacity-60'
+          ? 'border-2 border-[#D8B670] ring-1 ring-[#D8B670] opacity-100 shadow-md'
+          : 'border border-white/20 opacity-70 hover:border-white/50'
       }`;
       btn.title = `Xem góc chụp ${i + 1}`;
       btn.innerHTML = `<img src="${url}" alt="Thumbnail ${i + 1}" class="h-full w-full object-cover" loading="lazy" />`;
@@ -408,23 +423,34 @@
     updateActiveImage(0);
     renderThumbnails();
 
+    // Di chuyển modal ra trực tiếp document.body để thoát stacking context
+    if (modal.parentElement !== document.body) {
+      document.body.appendChild(modal);
+    }
+
     modal.classList.remove('hidden');
+    modal.classList.add('flex');
     requestAnimationFrame(() => {
       modal.classList.remove('opacity-0');
+      modal.classList.add('opacity-100');
       dialog?.classList.remove('scale-95');
       dialog?.classList.add('scale-100');
     });
     document.body.style.overflow = 'hidden';
+    modal.setAttribute('aria-hidden', 'false');
   };
 
   const closeModal = () => {
     if (!modal) return;
+    modal.classList.remove('opacity-100');
     modal.classList.add('opacity-0');
     dialog?.classList.remove('scale-100');
     dialog?.classList.add('scale-95');
     setTimeout(() => {
+      modal.classList.remove('flex');
       modal.classList.add('hidden');
       document.body.style.overflow = '';
+      modal.setAttribute('aria-hidden', 'true');
       currentProduct = null;
     }, 250);
   };
@@ -492,3 +518,26 @@
     if (e.detail) openModal(e.detail);
   }) as EventListener);
 </script>
+
+<!-- Thanh cuộn mạ vàng kim thanh mảnh chuẩn Luxury -->
+<style>
+  .luxury-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #D8B670 rgba(18, 43, 28, 0.6);
+  }
+  .luxury-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  .luxury-scrollbar::-webkit-scrollbar-track {
+    background: rgba(18, 43, 28, 0.5);
+    border-radius: 9999px;
+  }
+  .luxury-scrollbar::-webkit-scrollbar-thumb {
+    background: #D8B670;
+    border-radius: 9999px;
+  }
+  .luxury-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #E6CA85;
+  }
+</style>

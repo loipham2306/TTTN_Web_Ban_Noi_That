@@ -73,11 +73,11 @@ try {
   />
 
   <section class="mx-auto max-w-7xl px-4 py-10 sm:py-14">
-    <div class="flex flex-col gap-8 lg:flex-row lg:gap-12">
+    <div class="flex flex-col gap-8 lg:flex-row lg:gap-7 xl:gap-8">
 
       <!-- 1. CỘT BỘ LỌC ĐÃ FIX LỖI STICKY -->
       <!-- Đặt top-[96px] để tránh đụng Header xanh lá, và sticky ngay thẻ aside ngoài cùng -->
-      <aside class="sticky top-[96px] z-40 -mx-4 bg-sand-50 px-4 py-3 shadow-md lg:mx-0 lg:w-68 lg:shrink-0 lg:top-[120px] lg:h-max lg:bg-transparent lg:p-0 lg:shadow-none transition-all">
+      <aside class="sticky top-[96px] z-40 -mx-4 bg-sand-50 px-4 py-3 shadow-md lg:mx-0 lg:w-64 lg:shrink-0 lg:top-[120px] lg:h-max lg:bg-transparent lg:p-0 lg:shadow-none transition-all">
         
         <!-- Nút mở bộ lọc trên mobile -->
         <button
@@ -123,9 +123,9 @@ try {
           </div>
 
           <!-- BỘ LỌC CHẤT LIỆU CAO CẤP -->
-          <fieldset class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
-            <legend class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold px-1">🌲 Chất liệu cao cấp</legend>
-            <div class="mt-3 flex flex-col gap-2.5 max-h-56 overflow-y-auto pr-1">
+          <div class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
+            <h4 class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold block mb-3">🌲 Chất liệu cao cấp</h4>
+            <div class="flex flex-col gap-2.5 max-h-56 overflow-y-auto pr-1 luxury-scrollbar">
               {materials.map((m) => (
                 <label class="flex cursor-pointer items-center justify-between text-xs text-walnut-800 transition-colors hover:text-walnut-900 group">
                   <div class="flex items-center gap-2.5">
@@ -135,12 +135,12 @@ try {
                 </label>
               ))}
             </div>
-          </fieldset>
+          </div>
 
           <!-- BỘ LỌC MÀU SẮC (COLOR SWATCHES) -->
-          <fieldset class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
-            <legend class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold px-1">🎨 Bảng màu sắc</legend>
-            <div class="mt-3.5 grid grid-cols-4 gap-2.5">
+          <div class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
+            <h4 class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold block mb-3">🎨 Bảng màu sắc</h4>
+            <div class="grid grid-cols-4 gap-2.5">
               {colors.map((c) => (
                 <label class="group relative flex flex-col items-center gap-1 cursor-pointer" title={c.label}>
                   <input type="checkbox" data-filter="color" value={c.key} class="peer sr-only" />
@@ -158,12 +158,12 @@ try {
                 </label>
               ))}
             </div>
-          </fieldset>
+          </div>
 
           <!-- BỘ LỌC DANH MỤC -->
-          <fieldset class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
-            <legend class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold px-1">🛋️ Danh mục sản phẩm</legend>
-            <div class="mt-3 flex flex-col gap-2.5">
+          <div class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
+            <h4 class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold block mb-3">🛋️ Danh mục sản phẩm</h4>
+            <div class="flex flex-col gap-2.5">
               {categories.map((item) => (
                 <label class="flex cursor-pointer items-center gap-2.5 text-xs text-walnut-800 transition-colors hover:text-walnut-900">
                   <input type="checkbox" data-filter="category" value={item.key} class="h-3.5 w-3.5 rounded-none accent-[#173524] cursor-pointer" />
@@ -171,12 +171,12 @@ try {
                 </label>
               ))}
             </div>
-          </fieldset>
+          </div>
 
           <!-- BỘ LỌC KHÔNG GIAN -->
-          <fieldset class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
-            <legend class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold px-1">🏡 Không gian sống</legend>
-            <div class="mt-3 flex flex-col gap-2.5">
+          <div class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
+            <h4 class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold block mb-3">🏡 Không gian sống</h4>
+            <div class="flex flex-col gap-2.5">
               {spaces.map((item) => (
                 <label class="flex cursor-pointer items-center gap-2.5 text-xs text-walnut-800 transition-colors hover:text-walnut-900">
                   <input type="checkbox" data-filter="space" value={item.key} class="h-3.5 w-3.5 rounded-none accent-[#173524] cursor-pointer" />
@@ -184,12 +184,12 @@ try {
                 </label>
               ))}
             </div>
-          </fieldset>
+          </div>
 
           <!-- BỘ LỌC KHOẢNG GIÁ -->
-          <fieldset class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
-            <legend class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold px-1">💰 Khoảng giá</legend>
-            <div class="mt-3 flex flex-col gap-2.5">
+          <div class="rounded-none border border-walnut-900/10 bg-white p-4 shadow-2xs">
+            <h4 class="text-[11px] uppercase tracking-[0.2em] text-walnut-900 font-bold block mb-3">💰 Khoảng giá</h4>
+            <div class="flex flex-col gap-2.5">
               <label class="flex cursor-pointer items-center gap-2.5 text-xs text-walnut-800 transition-colors hover:text-walnut-900">
                 <input type="radio" name="price" data-filter="price" value="" checked class="h-3.5 w-3.5 accent-[#173524] cursor-pointer" />
                 <span>Tất cả mức giá</span>
@@ -201,7 +201,7 @@ try {
                 </label>
               ))}
             </div>
-          </fieldset>
+          </div>
 
           <!-- NÚT XOÁ BỘ LỌC -->
           <button
@@ -242,11 +242,11 @@ try {
           </label>
         </div>
 
-        <!-- 2. DANH SÁCH SẢN PHẨM (GRID 2 CỘT MOBILE) -->
+        <!-- 2. DANH SÁCH SẢN PHẨM (NỞ RỘNG CHIỀU NGANG TỪNG CARD, THU HẸP TỐI ĐA KHOẢNG CÁCH GAP-X GIỮA 2 CARD) -->
         <div
           data-product-grid
           data-page-size={productsPerPage}
-          class="mt-6 grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3 lg:grid-cols-4 md:gap-x-6 lg:gap-x-8 lg:gap-y-12"
+          class="mt-6 grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-2 sm:gap-x-2.5 md:gap-x-2.5 lg:gap-x-2.5 xl:gap-x-3 gap-y-5 sm:gap-y-6 lg:gap-y-7"
         >
           {products.map((product) => <ProductCard product={product} />)}
         </div>
@@ -285,7 +285,7 @@ try {
 
   if (grid) {
     const cards = Array.from(grid.querySelectorAll<HTMLElement>('[data-product]'));
-    const pageSize = Number(grid.dataset.pageSize) || 9;
+    const pageSize = Number(grid.dataset.pageSize) || 12;
     const countEl = document.querySelector<HTMLElement>('[data-result-count]');
     const paginationEl = document.querySelector<HTMLElement>('[data-pagination]');
     const emptyEl = document.querySelector<HTMLElement>('[data-empty]');

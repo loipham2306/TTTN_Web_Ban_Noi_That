@@ -221,21 +221,22 @@ export const showCartToast = (message: string, type: 'success' | 'warning' | 'er
   const isWarn = type === 'warning' || type === 'error';
   const toast = document.createElement('div');
   toast.id = 'cart-toast-notification';
+  // Vị trí ghim cố định ở GÓC DƯỚI BÊN TRÁI màn hình theo phong cách KTUFA Luxury
   toast.className = isWarn
-    ? 'fixed top-20 right-6 z-[99999] flex items-center gap-3 rounded-lg bg-red-900/95 border border-red-500/60 px-5 py-3.5 text-sm font-semibold text-white shadow-2xl transition-all duration-300 translate-y-[-10px] opacity-0 backdrop-blur-md max-w-md'
-    : 'fixed top-20 right-6 z-[99999] flex items-center gap-3 rounded-lg bg-walnut-900/95 border border-walnut-700/60 px-5 py-3.5 text-sm font-medium text-sand-50 shadow-2xl transition-all duration-300 translate-y-[-10px] opacity-0 backdrop-blur-md max-w-md';
+    ? 'fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-[99999] flex items-center gap-3 rounded-none bg-red-950/95 border border-red-500/60 px-4 sm:px-5 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold text-white shadow-2xl transition-all duration-300 translate-y-3 opacity-0 backdrop-blur-md max-w-[calc(100vw-2rem)] sm:max-w-md pointer-events-auto'
+    : 'fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-[99999] flex items-center gap-3 rounded-none bg-[#173524]/95 border border-[#D8B670]/50 px-4 sm:px-5 py-3 sm:py-3.5 text-xs sm:text-sm font-medium text-sand-50 shadow-2xl transition-all duration-300 translate-y-3 opacity-0 backdrop-blur-md max-w-[calc(100vw-2rem)] sm:max-w-md pointer-events-auto';
 
   const iconSvg = isWarn
     ? `<svg class="h-5 w-5 text-amber-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
       </svg>`
-    : `<svg class="h-5 w-5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+    : `<svg class="h-5 w-5 text-[#D8B670] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7" />
       </svg>`;
 
   toast.innerHTML = `
     ${iconSvg}
-    <span class="leading-snug">${message}</span>
+    <span class="leading-snug tracking-wide font-sans">${message}</span>
   `;
   document.body.appendChild(toast);
   requestAnimationFrame(() => {
@@ -244,7 +245,7 @@ export const showCartToast = (message: string, type: 'success' | 'warning' | 'er
   });
   setTimeout(() => {
     toast.style.opacity = '0';
-    toast.style.transform = 'translateY(-10px)';
+    toast.style.transform = 'translateY(12px)';
     setTimeout(() => toast.remove(), 300);
   }, 3200);
 };

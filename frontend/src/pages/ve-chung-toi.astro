@@ -72,7 +72,8 @@ const pillars = [
       }
     ],
     ctaText: 'Đặt lịch tư vấn KTS 1:1',
-    ctaLink: '#showroom'
+    ctaLink: '#showroom',
+    commitment: 'Cam kết độc bản duy nhất — Chế tác theo kích thước và gu thẩm mỹ riêng gia chủ.'
   },
   {
     id: 'materials',
@@ -102,7 +103,8 @@ const pillars = [
       }
     ],
     ctaText: 'Khám phá bộ sưu tập',
-    ctaLink: '/san-pham'
+    ctaLink: '/san-pham',
+    commitment: 'Cam kết 100% vật liệu thượng hạng — Tuyển chọn từ cái nôi danh tiếng thế giới.'
   },
   {
     id: 'craftsmanship',
@@ -132,7 +134,8 @@ const pillars = [
       }
     ],
     ctaText: 'Xem hành trình xưởng mộc',
-    ctaLink: '#timeline'
+    ctaLink: '#timeline',
+    commitment: 'Cam kết chuẩn mộng mộc truyền thống — Bền bỉ và trường tồn qua nhiều thế hệ gia đình.'
   },
   {
     id: 'fengshui',
@@ -162,7 +165,8 @@ const pillars = [
       }
     ],
     ctaText: 'Trải nghiệm AI Phong Thủy',
-    ctaLink: '/phong-thuy'
+    ctaLink: '/phong-thuy',
+    commitment: 'Cam kết chuẩn kích thước Lỗ Ban tài lộc — Phối màu tương sinh Ngũ Hành bản mệnh.'
   }
 ];
 
@@ -547,102 +551,120 @@ const showcases = [
   </section>
 
   <!-- ============================================================== -->
-  <!-- POPUP CHI TIẾT TRỤ CỘT TRIẾT LÝ (LUXURY POPUP DIALOG)         -->
+  <!-- POPUP CHI TIẾT TRỤ CỘT TRIẾT LÝ (ĐỒNG BỘ VỚI POPUP XEM NHANH)  -->
   <!-- ============================================================== -->
   <div
     id="pillar-popup"
-    class="fixed inset-0 z-[9999] hidden items-center justify-center p-3 sm:p-6 bg-black/45 backdrop-blur-md transition-opacity duration-200 opacity-0"
+    class="fixed inset-0 z-[9999] hidden bg-walnut-900/60 backdrop-blur-sm p-4 overflow-y-auto flex items-center justify-center transition-opacity duration-300 opacity-0"
     role="dialog"
     aria-modal="true"
     aria-hidden="true"
   >
-    <!-- Khung Popup Box: Bố cục ngang sang trọng (Side-by-side) không cần cuộn trên máy tính -->
+    <!-- Khung Popup Dialog: Mở rộng ngang (max-w-4xl lg:max-w-5xl) kèm dải nền xanh độc quyền phía dưới -->
     <div
       id="pillar-popup-box"
-      class="relative w-full max-w-3xl lg:max-w-4xl max-h-[85vh] md:max-h-[460px] bg-[#122b1c] border border-[#D8B670]/40 rounded-sm shadow-2xl overflow-hidden flex flex-col md:flex-row transform scale-95 transition-all duration-200"
+      class="relative my-4 sm:my-8 w-full max-w-4xl lg:max-w-5xl overflow-hidden rounded-none bg-sand-50 p-4 sm:p-6 md:px-7 md:py-6 shadow-2xl border border-walnut-900/15 transition-all duration-300 scale-95 max-h-[92vh] overflow-y-auto luxury-scrollbar"
     >
-      <!-- Nút đóng góc phải -->
+      <!-- NỀN XANH ĐỘC QUYỀN TRẢI DÀI BÊN DƯỚI TOÀN BỘ POPUP TRÊN DESKTOP (Ôm trọn nút + cam kết + đệm đáy cân xứng) -->
+      <div class="hidden md:block absolute inset-x-0 bottom-0 h-[102px] bg-[#173524] border-t border-[#D8B670]/30 pointer-events-none z-0"></div>
+
+      <!-- Nút đóng (X) bo tròn với hiệu ứng xoay 90 độ khi hover -->
       <button
         type="button"
         id="pillar-popup-close"
-        class="absolute top-3.5 right-3.5 z-30 h-8 w-8 rounded-full bg-black/50 hover:bg-black/80 text-[#E6CA85] hover:text-white flex items-center justify-center transition-all cursor-pointer border border-white/10 shadow-md"
-        aria-label="Đóng popup"
+        class="absolute right-3 top-3 sm:right-4 sm:top-4 z-20 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-sand-200/90 text-walnut-800 border border-walnut-900/10 shadow-sm hover:bg-walnut-900 hover:text-amber-300 hover:rotate-90 transition-all duration-300 cursor-pointer"
+        aria-label="Đóng chi tiết triết lý"
       >
-        <svg class="h-4 w-4 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="h-4 w-4 pointer-events-none">
+          <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
         </svg>
       </button>
 
-      <!-- CỘT TRÁI: ẢNH NGHỆ THUẬT CINEMATIC + SỐ THỨ TỰ ÁNH KIM -->
-      <div class="relative w-full md:w-5/12 h-36 md:h-auto overflow-hidden shrink-0 bg-[#0a1a11]">
-        <img
-          id="pillar-popup-img"
-          src={pillars[0].modalImage}
-          alt={pillars[0].title}
-          class="h-full w-full object-cover"
-        />
-        <div class="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black/80 via-black/35 to-transparent"></div>
-        
-        <!-- Nhãn huy hiệu & số thứ tự lớn trên ảnh -->
-        <div class="absolute inset-0 p-5 sm:p-6 flex flex-col justify-between pointer-events-none">
+      <div class="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-5 sm:gap-7 items-stretch">
+        <!-- CỘT TRÁI: ẢNH NGHỆ THUẬT NẰM ĐÈ LÊN NỀN XANH, CHIỀU CAO ĐỒNG BỘ NỘI DUNG BÊN PHẢI -->
+        <div class="md:col-span-5 relative flex flex-col min-h-0">
+          <div class="relative w-full h-48 sm:h-60 md:h-auto md:absolute md:inset-0 overflow-hidden rounded-none bg-sand-200 border border-walnut-900/15 shadow-xl group">
+            <img
+              id="pillar-popup-img"
+              src={pillars[0].modalImage}
+              alt={pillars[0].title}
+              class="h-full w-full object-cover transition-all duration-300"
+            />
+            <!-- Lớp phủ gradient mờ nghệ thuật phong cách ảnh cũ -->
+            <div class="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-tr from-black/85 via-black/40 to-transparent pointer-events-none"></div>
+
+            <!-- Nhãn huy hiệu & số thứ tự lớn trên ảnh đúng như phong cách ảnh cũ ban đầu -->
+            <div class="absolute inset-0 p-4 sm:p-6 flex flex-col justify-between pointer-events-none">
+              <div>
+                <span class="inline-block px-2 py-0.5 sm:px-2.5 sm:py-1 text-[9px] font-bold uppercase tracking-[0.25em] bg-[#173524]/90 text-amber-300 border border-amber-300/30 backdrop-blur-xs shadow-sm">
+                  KTUFA HERITAGE
+                </span>
+              </div>
+              <div>
+                <span id="pillar-popup-num" class="font-display text-3xl sm:text-5xl font-bold text-amber-300 block leading-none">01</span>
+                <span id="pillar-popup-eng" class="text-[9px] uppercase tracking-[0.25em] text-sand-100 font-sans font-bold block mt-1">AUTHENTIC & BESPOKE</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CỘT PHẢI: NỘI DUNG TRÊN NỀN SÁNG & BỘ NÚT NẰM TRÊN NỀN XANH (QUYẾT ĐỊNH CHIỀU CAO POPUP) -->
+        <div class="md:col-span-7 flex flex-col justify-between min-h-0">
           <div>
-            <span class="inline-block px-2 py-0.5 text-[9px] font-bold uppercase tracking-[0.25em] bg-[#173524]/90 text-[#E6CA85] border border-[#D8B670]/40 backdrop-blur-xs">
-              KTUFA HERITAGE
-            </span>
-          </div>
-          <div>
-            <span id="pillar-popup-num" class="font-display text-3xl sm:text-4xl font-bold text-[#E6CA85]/90 block">01</span>
-            <span id="pillar-popup-eng" class="text-[9px] uppercase tracking-[0.25em] text-sand-200/90 font-sans font-bold block mt-0.5">AUTHENTIC & BESPOKE</span>
-          </div>
-        </div>
-      </div>
+            <!-- Tiêu đề & Lời mở đầu nguyên bản -->
+            <div class="pr-8 sm:pr-10">
+              <h3 id="pillar-popup-title" class="font-display text-lg sm:text-2xl font-bold tracking-tight text-walnut-900 leading-snug">
+                Tính nguyên bản độc bản
+              </h3>
+              <p id="pillar-popup-subtitle" class="font-display italic text-xs sm:text-sm text-walnut-800/80 mt-1 leading-relaxed">
+                Mỗi món đồ là một bản tuyên ngôn nghệ thuật độc nhất.
+              </p>
+            </div>
 
-      <!-- CỘT PHẢI: NỘI DUNG CHI TIẾT TINH GỌN, CHUẨN XÁC -->
-      <div class="w-full md:w-7/12 flex flex-col justify-between flex-1 overflow-hidden bg-[#122b1c]">
-        
-        <!-- Tiêu đề & Lời mở đầu -->
-        <div class="px-5 pt-4 pb-2 sm:px-6 sm:pt-4 shrink-0 border-b border-white/10">
-          <h3 id="pillar-popup-title" class="font-display text-lg sm:text-xl font-semibold text-sand-50 tracking-tight leading-snug">
-            Tính nguyên bản độc bản
-          </h3>
-          <p id="pillar-popup-subtitle" class="font-display italic text-xs text-[#E6CA85]/90 mt-1 leading-relaxed">
-            Mỗi món đồ là một bản tuyên ngôn nghệ thuật độc nhất.
-          </p>
-        </div>
-
-        <!-- 4 Điểm nhấn chính: Vừa vặn trên desktop, có thanh cuộn vàng mỏng trên màn hình nhỏ -->
-        <div class="p-4 sm:p-5 overflow-y-auto luxury-scrollbar flex-1">
-          <div id="pillar-popup-details" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-            <!-- Điền tự động bởi Javascript -->
-          </div>
-        </div>
-
-        <!-- Chân Popup (Footer Action) -->
-        <div class="px-5 py-2.5 sm:px-6 border-t border-white/10 bg-[#0c1f14] flex items-center justify-between gap-3 shrink-0">
-          <div class="text-[11px] text-[#D8B670]/90 font-sans hidden sm:flex items-center gap-1.5">
-            <span class="text-xs">✦</span>
-            <span>Cam kết chất lượng trọn đời</span>
+            <!-- 4 ĐIỂM NHẤN: 2 CỘT 2 HÀNG THU GỌN CHIỀU CAO, HÀI HÒA CHIỀU CAO ẢNH -->
+            <div id="pillar-popup-details" class="mt-3 sm:mt-3.5 grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5">
+              <!-- Render tự động bởi Javascript (2 cột 2 hàng) -->
+            </div>
           </div>
 
-          <div class="flex items-center gap-2.5 ml-auto">
-            <button
-              type="button"
-              id="pillar-popup-dismiss"
-              class="px-3 py-1.5 rounded-sm border border-white/20 text-[11px] uppercase tracking-[0.15em] text-sand-200 hover:text-white hover:border-white/40 transition-colors font-medium font-sans cursor-pointer"
-            >
-              Đóng
-            </button>
-            <a
-              id="pillar-popup-cta"
-              href="#"
-              class="px-4 py-1.5 rounded-sm bg-gradient-to-r from-[#D8B670] to-[#E6CA85] text-walnut-950 font-bold text-[11px] uppercase tracking-[0.15em] hover:brightness-110 shadow-md shadow-[#D8B670]/20 transition-all font-sans inline-flex items-center gap-1.5 cursor-pointer"
-            >
-              <span id="pillar-popup-cta-text">Khám phá</span>
-              <span>→</span>
-            </a>
+          <!-- BỘ 3 CỤM NÚT & DÒNG CAM KẾT (TRÊN MOBILE CÓ NỀN XANH TRÀN VIỀN, TRÊN DESKTOP TRONG SUỐT VÌ ĐÃ CÓ DẢI XANH TRẢI DÀI) -->
+          <div class="mt-4 pt-3 pb-3 -mx-4 px-4 sm:-mx-6 sm:px-6 md:mx-0 md:px-0 md:pb-0 md:bg-transparent md:border-t-0 bg-[#173524] border-t border-[#D8B670]/30 space-y-2">
+            <!-- Hàng 1: 2 nút to tương đương nhau (Đóng cửa sổ & Đặt lịch tư vấn) -->
+            <div class="flex items-center gap-2 sm:gap-2.5">
+              <!-- Nút Đóng cửa sổ (thay thế vị trí nút cam kết cũ) -->
+              <button
+                type="button"
+                id="pillar-popup-dismiss"
+                class="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 rounded-none border border-white/25 bg-white/10 hover:bg-white/20 text-sand-100 hover:text-white py-2 sm:py-2.5 px-2 sm:px-2.5 text-[11px] sm:text-xs uppercase tracking-normal font-semibold font-sans shadow-sm transition-all cursor-pointer text-center whitespace-nowrap"
+              >
+                <span>Đóng cửa sổ</span>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="h-3.5 w-3.5 pointer-events-none shrink-0">
+                  <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+
+              <!-- Nút Đặt lịch tư vấn KTS 1:1 -->
+              <a
+                id="pillar-popup-cta"
+                href="#showroom"
+                class="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 rounded-none bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] py-2 sm:py-2.5 px-2 sm:px-2.5 text-[11px] sm:text-xs uppercase tracking-normal text-[#173524] font-bold shadow-md hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white transition-all cursor-pointer border border-[#E0C582]/50 text-center whitespace-nowrap"
+              >
+                <svg viewBox="0 0 24 24" fill="currentColor" class="h-3.5 w-3.5 pointer-events-none shrink-0">
+                  <path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/>
+                </svg>
+                <span id="pillar-popup-cta-text" class="whitespace-nowrap">Đặt lịch tư vấn KTS 1:1</span>
+              </a>
+            </div>
+
+            <!-- Hàng 2: Dòng cam kết căn giữa 2 nút (thay đổi theo từng trụ cột, font-sans chuẩn tiếng Việt, không bị xuống dòng) -->
+            <div class="flex items-center justify-center text-center gap-1.5 text-[11px] sm:text-[11.5px] lg:text-xs text-[#E6CA85] font-sans pt-0.5 sm:pt-1 px-1 md:whitespace-nowrap tracking-tight">
+              <span class="text-amber-300 not-italic text-xs shrink-0">✦</span>
+              <span id="pillar-popup-commitment" class="leading-relaxed font-normal">
+                Cam kết độc bản duy nhất — Chế tác theo kích thước và gu thẩm mỹ riêng gia chủ.
+              </span>
+            </div>
           </div>
         </div>
-
       </div>
     </div>
   </div>
@@ -705,7 +727,7 @@ const showcases = [
 
   // Popup Chi tiết 4 Trụ Cột Triết Lý
   const pillarsDataElement = document.getElementById('pillars-json');
-  let pillarsData = [];
+  let pillarsData: any[] = [];
   try {
     pillarsData = JSON.parse(pillarsDataElement?.textContent || '[]');
   } catch (e) {
@@ -716,16 +738,17 @@ const showcases = [
   const popupBox = document.getElementById('pillar-popup-box');
   const popupClose = document.getElementById('pillar-popup-close');
   const popupDismiss = document.getElementById('pillar-popup-dismiss');
-  const popupImg = document.getElementById('pillar-popup-img');
+  const popupImg = document.getElementById('pillar-popup-img') as HTMLImageElement | null;
   const popupNum = document.getElementById('pillar-popup-num');
   const popupEng = document.getElementById('pillar-popup-eng');
   const popupTitle = document.getElementById('pillar-popup-title');
   const popupSubtitle = document.getElementById('pillar-popup-subtitle');
   const popupDetails = document.getElementById('pillar-popup-details');
-  const popupCta = document.getElementById('pillar-popup-cta');
+  const popupCta = document.getElementById('pillar-popup-cta') as HTMLAnchorElement | null;
   const popupCtaText = document.getElementById('pillar-popup-cta-text');
+  const popupCommitment = document.getElementById('pillar-popup-commitment');
 
-  function openPillarPopup(pillarId) {
+  function openPillarPopup(pillarId: string) {
     const item = pillarsData.find((p) => p.id === pillarId);
     if (!item || !popup) return;
 
@@ -742,17 +765,18 @@ const showcases = [
     if (popupEng) popupEng.textContent = item.eng;
     if (popupTitle) popupTitle.textContent = item.title;
     if (popupSubtitle) popupSubtitle.textContent = item.modalSubtitle;
+    if (popupCommitment) popupCommitment.textContent = item.commitment || 'Cam kết chất lượng độc bản & bảo hành trọn đời.';
     if (popupCtaText) popupCtaText.textContent = item.ctaText;
     if (popupCta) popupCta.href = item.ctaLink;
 
     if (popupDetails) {
-      popupDetails.innerHTML = (item.details || []).map((d, index) => `
-        <div class="rounded-sm border border-[#D8B670]/25 bg-white/[0.04] p-2.5 transition hover:bg-white/[0.08] hover:border-[#D8B670]/50">
-          <div class="flex items-center gap-1.5 mb-0.5">
-            <span class="text-[10px] font-bold text-[#E6CA85] font-sans">0${index + 1}.</span>
-            <h4 class="text-xs font-semibold text-[#F7E7C4] font-display line-clamp-1">${d.title}</h4>
+      popupDetails.innerHTML = (item.details || []).map((d: any, idx: number) => `
+        <div class="rounded-none border border-walnut-900/10 bg-white/90 p-2.5 sm:p-3 shadow-2xs hover:border-[#B88E28]/50 transition-colors flex flex-col justify-start">
+          <div class="flex items-center gap-1.5 mb-0.5 sm:mb-1">
+            <span class="text-[10px] sm:text-[11px] font-bold text-[#B88E28]">0${idx + 1}.</span>
+            <h4 class="text-[11.5px] sm:text-xs font-bold text-walnut-900 font-display line-clamp-1">${d.title}</h4>
           </div>
-          <p class="text-[10.5px] text-sand-200/80 leading-relaxed font-sans font-light">${d.desc}</p>
+          <p class="text-walnut-800/75 text-[10.5px] sm:text-[11px] leading-relaxed font-sans">${d.desc}</p>
         </div>
       `).join('');
     }
@@ -786,7 +810,7 @@ const showcases = [
       popup.classList.add('hidden');
       document.body.style.overflow = '';
       popup.setAttribute('aria-hidden', 'true');
-    }, 200);
+    }, 250);
   }
 
   // Click vào thẻ trụ cột để mở popup
