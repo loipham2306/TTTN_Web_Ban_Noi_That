@@ -30,7 +30,8 @@ productsRouter.get('/', async (req: Request, res: Response) => {
       where.OR = [
         { name: { contains: q } },
         { brand: { contains: q } },
-        { short_description: { contains: q } },
+        { categories: { name: { contains: q } } },
+        { product_variants: { some: { material: { contains: q } } } },
       ];
     }
 

@@ -458,7 +458,7 @@
     if (v < maxStock) {
       qtyInput.value = String(v + 1);
     } else {
-      showCartToast(`Số lượng đã đạt giới hạn tồn kho (${maxStock})!`);
+      showCartToast(`Số lượng đã đạt giới hạn tồn kho (${maxStock})!`, 'warning');
     }
   });
 
@@ -467,12 +467,11 @@
     if (!currentProduct) return;
     const stock = Number(currentProduct.stock) || 0;
     if (stock <= 0) {
-      showCartToast('Sản phẩm hiện đang tạm hết hàng!');
+      showCartToast('Sản phẩm hiện đang tạm hết hàng!', 'warning');
       return;
     }
     const qty = Math.min(stock, Math.max(1, parseInt(qtyInput?.value || '1') || 1));
-    flyToCart(qvImage, galleryList[currentImageIndex] || currentProduct.image);
-    addToCart(
+    const res = addToCart(
       {
         slug: currentProduct.slug,
         name: currentProduct.name,
@@ -483,7 +482,18 @@
       },
       qty
     );
-    showCartToast(`Đã thêm ${qty} "${currentProduct.name}" vào giỏ hàng!`);
+
+    if (!res.success) {
+      showCartToast(res.message, 'warning');
+      return;
+    }
+
+    flyToCart(qvImage, galleryList[currentImageIndex] || currentProduct.image);
+    if (res.status === 'partially_added') {
+      showCartToast(res.message, 'warning');
+    } else {
+      showCartToast(`Đã thêm ${res.addedQty} "${currentProduct.name}" vào giỏ hàng!`, 'success');
+    }
     closeModal();
   });
 

@@ -71,7 +71,7 @@ export const priceRanges: { key: string; label: string }[] = [
   { key: '50000000-', label: 'Trên 50 triệu' },
 ];
 
-export const productsPerPage = 9;
+export const productsPerPage = 12;
 
 export const products: Product[] = [
   { slug: 'sofa-da-y-milano', name: 'Sofa da Ý Milano', category: 'sofa', categoryLabel: 'Sofa', space: 'phong-khach', spaceLabel: 'Phòng khách', price: 58900000, material: 'Da bò Ý', color: 'nau', colorLabel: 'Nâu da bò', isNew: true, image: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80' },

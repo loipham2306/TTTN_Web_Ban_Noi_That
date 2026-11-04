@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import PageBanner from '../../components/PageBanner.astro';
+import { provinces } from '../../data/provinces';
 ---
 
 <BaseLayout 
@@ -171,9 +172,9 @@ import PageBanner from '../../components/PageBanner.astro';
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
                 </svg>
-                <span>Sổ địa chỉ nhận hàng</span>
+                <span>Địa chỉ nhận hàng</span>
               </span>
-              <svg class="w-3.5 h-3.5 opacity-40 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+              <span id="sidebar-addresses-badge" class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-sand-200 text-walnut-900">0</span>
             </button>
           </nav>
 
@@ -227,7 +228,7 @@ import PageBanner from '../../components/PageBanner.astro';
         <div id="page-pane-profile" class="page-tab-pane space-y-6 flex-1 flex flex-col justify-between">
           
           <!-- Thống Kê Nhanh (3 Bento Cards) -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="rounded-none border border-walnut-900/15 bg-white p-5 shadow-xs hover:border-[#173524]/50 transition-colors">
               <span class="text-[10px] font-bold uppercase tracking-wider text-walnut-800/60 block">Tổng chi tiêu</span>
               <p id="page-info-spent" class="text-xl font-bold font-mono text-[#173524] mt-1">0 ₫</p>
@@ -243,14 +244,7 @@ import PageBanner from '../../components/PageBanner.astro';
               <span class="text-[11px] text-walnut-800/70 mt-1 block">Giao thành công</span>
             </div>
 
-            <div class="rounded-none border border-walnut-900/15 bg-white p-5 shadow-xs hover:border-[#173524]/50 transition-colors">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-walnut-800/60 block">Bảo mật tài khoản</span>
-              <p class="text-base font-bold text-emerald-700 mt-1 flex items-center gap-1.5">
-                <svg class="w-4 h-4 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-                Đã xác thực
-              </p>
-              <span class="text-[11px] text-walnut-800/70 mt-1 block">Mã hóa mật khẩu Bcrypt</span>
-            </div>
+            
           </div>
 
           <!-- Card Chi Tiết Hồ Sơ -->
@@ -616,33 +610,29 @@ import PageBanner from '../../components/PageBanner.astro';
              TAB 5: SỔ ĐỊA CHỈ (ADDRESSES)
              ================================================= -->
         <div id="page-pane-addresses" class="page-tab-pane hidden space-y-4">
-          <div class="bg-white border border-walnut-900/15 p-6 shadow-sm space-y-4">
-            <div class="flex items-center justify-between pb-3 border-b border-walnut-900/10">
+          <div class="bg-white border border-walnut-900/15 p-6 shadow-sm space-y-5">
+            <div class="flex items-center justify-between pb-3 border-b border-walnut-900/10 flex-wrap gap-3">
               <div>
                 <h2 class="font-bold text-sm uppercase tracking-wide text-walnut-900 flex items-center gap-2">
-                  <span>📍 Địa chỉ nhận hàng</span>
+                  <span>Địa chỉ nhận hàng</span>
                 </h2>
                 <p class="text-[11px] text-walnut-800/70 mt-0.5">Địa chỉ mặc định sẽ tự động điền khi bạn đặt mua sản phẩm.</p>
               </div>
+              <button
+                type="button"
+                id="btn-open-add-address"
+                class="inline-flex items-center gap-1.5 bg-[#173524] text-[#D8B670] px-3.5 py-2 text-xs font-bold uppercase tracking-wider hover:bg-walnut-900 transition-colors shadow-xs cursor-pointer border border-[#D8B670]/40"
+              >
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                </svg>
+                <span>Thêm địa chỉ mới</span>
+              </button>
             </div>
 
-            <!-- Default Address Card -->
-            <div class="rounded-none border-2 border-[#173524]/20 bg-[#FAF8F5] p-5 space-y-2 relative">
-              <div class="flex items-center justify-between">
-                <span class="font-bold text-xs uppercase tracking-wider text-walnut-900 flex items-center gap-2">
-                  <span class="w-2 h-2 rounded-full bg-emerald-600"></span>
-                  <span>Địa chỉ nhận hàng mặc định</span>
-                </span>
-                <span class="rounded-none bg-emerald-100 text-emerald-800 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider">
-                  Mặc định
-                </span>
-              </div>
-              <p class="text-xs text-walnut-900 font-semibold">
-                Người nhận: <span id="page-addr-name" class="font-bold text-sm">--</span> — <span id="page-addr-phone" class="font-mono">Chưa cập nhật</span>
-              </p>
-              <p class="text-xs text-walnut-800/90 leading-relaxed font-medium">
-                615 Âu Cơ, Phường Phú Trung, Quận Tân Phú, TP. Hồ Chí Minh
-              </p>
+            <!-- Address List Container -->
+            <div id="address-list-container" class="space-y-3">
+              <div class="p-8 text-center text-xs text-walnut-800/60 font-medium">Đang tải danh sách địa chỉ...</div>
             </div>
           </div>
         </div>
@@ -708,6 +698,140 @@ import PageBanner from '../../components/PageBanner.astro';
           Đóng cửa sổ
         </button>
       </div>
+    </div>
+  </div>
+
+
+  <!-- =====================================================
+       ADDRESS ADD / EDIT MODAL
+       ===================================================== -->
+  <div
+    id="address-modal-overlay"
+    class="fixed inset-0 z-[9999] hidden bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 transition-opacity duration-300 opacity-0"
+    role="dialog"
+    aria-modal="true"
+  >
+    <div
+      id="address-modal-panel"
+      class="relative w-full max-w-lg bg-[#FAF8F5] border border-walnut-900/20 shadow-2xl rounded-none transform transition-all duration-300 scale-95 opacity-0 overflow-hidden"
+    >
+      <!-- Modal Header -->
+      <div class="bg-[#173524] text-white px-5 py-4 flex items-center justify-between border-b border-[#D8B670]/30 relative">
+        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#D8B670] via-[#F3E5AB] to-[#C49E52]"></div>
+        <h3 id="address-modal-title" class="font-bold text-sm uppercase tracking-wider text-[#F3E5AB] flex items-center gap-2">
+          <span>📍 Thêm địa chỉ mới</span>
+        </h3>
+        <button
+          type="button"
+          id="btn-close-address-modal"
+          class="text-white/70 hover:text-white p-1 hover:bg-white/10 transition-colors cursor-pointer text-lg leading-none"
+        >
+          ✕
+        </button>
+      </div>
+
+      <!-- Modal Form -->
+      <form id="address-form" class="p-6 space-y-4">
+        <input type="hidden" id="addr-id" value="" />
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-walnut-800 mb-1">
+              Họ và tên người nhận <span class="text-rose-600">*</span>
+            </label>
+            <input
+              type="text"
+              id="addr-receiver-name"
+              required
+              placeholder="Nguyễn Văn A"
+              class="w-full border border-walnut-900/20 bg-white px-3 py-2 text-xs text-walnut-900 outline-none focus:border-[#173524]"
+            />
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-walnut-800 mb-1">
+              Số điện thoại <span class="text-rose-600">*</span>
+            </label>
+            <input
+              type="tel"
+              id="addr-receiver-phone"
+              required
+              placeholder="0912345678"
+              class="w-full border border-walnut-900/20 bg-white px-3 py-2 text-xs text-walnut-900 outline-none focus:border-[#173524]"
+            />
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-walnut-800 mb-1">
+              Tỉnh / Thành phố <span class="text-rose-600">*</span>
+            </label>
+            <select
+              id="addr-province"
+              required
+              class="w-full border border-walnut-900/20 bg-white px-3 py-2 text-xs text-walnut-900 outline-none focus:border-[#173524]"
+            >
+              <option value="">-- Chọn tỉnh/thành --</option>
+              {provinces.map((p) => <option value={p}>{p}</option>)}
+            </select>
+          </div>
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-walnut-800 mb-1">
+              Quận / Huyện <span class="text-rose-600">*</span>
+            </label>
+            <input
+              type="text"
+              id="addr-district"
+              required
+              placeholder="Quận / Huyện"
+              class="w-full border border-walnut-900/20 bg-white px-3 py-2 text-xs text-walnut-900 outline-none focus:border-[#173524]"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-walnut-800 mb-1">
+            Địa chỉ cụ thể <span class="text-rose-600">*</span>
+          </label>
+          <input
+            type="text"
+            id="addr-specific"
+            required
+            placeholder="Số nhà, tên đường, phường/xã"
+            class="w-full border border-walnut-900/20 bg-white px-3 py-2 text-xs text-walnut-900 outline-none focus:border-[#173524]"
+          />
+        </div>
+
+        <div class="pt-1">
+          <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              id="addr-is-default"
+              class="h-4 w-4 rounded-none border-walnut-900/30 text-[#173524] focus:ring-0 cursor-pointer"
+            />
+            <span class="text-xs text-walnut-900 font-medium">Đặt làm địa chỉ nhận hàng mặc định</span>
+          </label>
+        </div>
+
+        <div id="addr-error" class="hidden text-xs text-rose-600 font-medium"></div>
+
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-walnut-900/10">
+          <button
+            type="button"
+            id="btn-cancel-address"
+            class="border border-walnut-900/20 bg-white px-4 py-2 text-xs font-bold uppercase tracking-wider text-walnut-800 hover:bg-sand-100 transition-colors cursor-pointer"
+          >
+            Hủy bỏ
+          </button>
+          <button
+            type="submit"
+            id="btn-save-address"
+            class="bg-[#173524] text-[#D8B670] border border-[#D8B670]/40 px-5 py-2 text-xs font-bold uppercase tracking-wider hover:bg-walnut-900 transition-colors shadow-xs cursor-pointer"
+          >
+            Lưu địa chỉ
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 
@@ -790,9 +914,28 @@ import PageBanner from '../../components/PageBanner.astro';
   const highlightCode = urlParams.get('highlight');
   const user = readUser();
 
+  // Dọn dẹp khóa chung cũ bị ô nhiễm bởi các tài khoản test khác trên máy
+  try {
+    localStorage.removeItem('my_recent_orders');
+  } catch {}
+
+  const getScopedRecentOrdersKey = (): string => {
+    try {
+      const raw = localStorage.getItem('current_user');
+      if (raw) {
+        const u = JSON.parse(raw);
+        if (u && (u.id || u.email)) {
+          const uid = u.id ? String(u.id).trim() : u.email.trim().toLowerCase();
+          return `noithat_recent_orders_u_${uid}`;
+        }
+      }
+    } catch {}
+    return 'noithat_recent_orders_guest';
+  };
+
   let recentCodes: string[] = [];
   try {
-    recentCodes = JSON.parse(localStorage.getItem('my_recent_orders') || '[]');
+    recentCodes = JSON.parse(localStorage.getItem(getScopedRecentOrdersKey()) || '[]');
   } catch {}
 
   const hasRecentOrders = Array.isArray(recentCodes) && recentCodes.length > 0;
@@ -1346,14 +1489,26 @@ import PageBanner from '../../components/PageBanner.astro';
         }
       }
 
-      // Đơn gần đây từ localStorage
+      // Đơn gần đây từ bộ nhớ đệm: RÀNG BUỘC QUYỀN SỞ HỮU NGHIÊM NGẶT
       for (const code of recentCodes) {
         if (!userOrders.some((o: any) => o.orderCode === code)) {
           try {
             const res = await fetch(`http://localhost:4000/api/orders/${encodeURIComponent(code)}`);
             const json = await res.json();
             if (json.success && json.data) {
-              userOrders.unshift(json.data);
+              const order = json.data;
+              // RÀNG BUỘC BẢO MẬT: Nếu đã đăng nhập, đơn hàng bắt buộc phải thuộc về tài khoản này!
+              const isMatchUser = token
+                ? (
+                    (order.userId && fullUser.id && Number(order.userId) === Number(fullUser.id)) ||
+                    (order.email && fullUser.email && String(order.email).trim().toLowerCase() === String(fullUser.email).trim().toLowerCase()) ||
+                    (order.phone && fullUser.phone && String(order.phone).trim() === String(fullUser.phone).trim())
+                  )
+                : true;
+
+              if (isMatchUser) {
+                userOrders.unshift(order);
+              }
             }
           } catch (err) {}
         }
@@ -1535,6 +1690,260 @@ import PageBanner from '../../components/PageBanner.astro';
 
     loadWishlist();
     window.addEventListener('wishlist:changed', loadWishlist);
+
+    // =========================================================
+    // QUẢN LÝ SỔ ĐỊA CHỈ NHẬN HÀNG (CRUD USER ADDRESSES)
+    // =========================================================
+    const addrContainer = document.getElementById('address-list-container');
+    const addrBadge = document.getElementById('sidebar-addresses-badge');
+    const addrModalOverlay = document.getElementById('address-modal-overlay');
+    const addrModalPanel = document.getElementById('address-modal-panel');
+    const addrModalTitle = document.getElementById('address-modal-title');
+    const btnOpenAddAddr = document.getElementById('btn-open-add-address');
+    const btnCloseAddrModal = document.getElementById('btn-close-address-modal');
+    const btnCancelAddr = document.getElementById('btn-cancel-address');
+    const addrForm = document.getElementById('address-form') as HTMLFormElement | null;
+    const addrInputId = document.getElementById('addr-id') as HTMLInputElement | null;
+    const addrInputName = document.getElementById('addr-receiver-name') as HTMLInputElement | null;
+    const addrInputPhone = document.getElementById('addr-receiver-phone') as HTMLInputElement | null;
+    const addrSelectProvince = document.getElementById('addr-province') as HTMLSelectElement | null;
+    const addrInputDistrict = document.getElementById('addr-district') as HTMLInputElement | null;
+    const addrInputSpecific = document.getElementById('addr-specific') as HTMLInputElement | null;
+    const addrInputDefault = document.getElementById('addr-is-default') as HTMLInputElement | null;
+    const addrError = document.getElementById('addr-error');
+    const btnSaveAddr = document.getElementById('btn-save-address') as HTMLButtonElement | null;
+
+    let userAddresses: any[] = [];
+
+    const openAddressModal = (mode: 'add' | 'edit', addrData?: any) => {
+      if (!addrModalOverlay || !addrModalPanel) return;
+      if (addrError) addrError.classList.add('hidden');
+
+      if (mode === 'add') {
+        if (addrModalTitle) addrModalTitle.innerHTML = '<span>📍 Thêm địa chỉ nhận hàng mới</span>';
+        if (addrInputId) addrInputId.value = '';
+        if (addrInputName) addrInputName.value = fullUser.name || name || '';
+        const rawPhone = (fullUser.phone && fullUser.phone !== 'Chưa cập nhật' && fullUser.phone !== 'Đăng nhập Google') ? fullUser.phone : '';
+        if (addrInputPhone) addrInputPhone.value = rawPhone;
+        if (addrSelectProvince) addrSelectProvince.value = '';
+        if (addrInputDistrict) addrInputDistrict.value = '';
+        if (addrInputSpecific) addrInputSpecific.value = '';
+        if (addrInputDefault) addrInputDefault.checked = userAddresses.length === 0;
+      } else if (addrData) {
+        if (addrModalTitle) addrModalTitle.innerHTML = '<span>✏️ Chỉnh sửa địa chỉ nhận hàng</span>';
+        if (addrInputId) addrInputId.value = String(addrData.id);
+        if (addrInputName) addrInputName.value = addrData.receiverName || '';
+        if (addrInputPhone) addrInputPhone.value = addrData.receiverPhone || '';
+        if (addrSelectProvince) addrSelectProvince.value = addrData.province || '';
+        if (addrInputDistrict) addrInputDistrict.value = addrData.district || '';
+        if (addrInputSpecific) addrInputSpecific.value = addrData.specificAddress || '';
+        if (addrInputDefault) addrInputDefault.checked = Boolean(addrData.isDefault);
+      }
+
+      addrModalOverlay.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        addrModalOverlay.classList.remove('opacity-0');
+        addrModalOverlay.classList.add('opacity-100');
+        addrModalPanel.classList.remove('opacity-0', 'scale-95');
+        addrModalPanel.classList.add('opacity-100', 'scale-100');
+      });
+      addrInputName?.focus();
+    };
+
+    const closeAddressModal = () => {
+      if (!addrModalOverlay || !addrModalPanel) return;
+      addrModalOverlay.classList.remove('opacity-100');
+      addrModalOverlay.classList.add('opacity-0');
+      addrModalPanel.classList.remove('opacity-100', 'scale-100');
+      addrModalPanel.classList.add('opacity-0', 'scale-95');
+      setTimeout(() => {
+        addrModalOverlay.classList.add('hidden');
+      }, 250);
+    };
+
+    btnOpenAddAddr?.addEventListener('click', () => openAddressModal('add'));
+    btnCloseAddrModal?.addEventListener('click', closeAddressModal);
+    btnCancelAddr?.addEventListener('click', closeAddressModal);
+    addrModalOverlay?.addEventListener('click', (e) => {
+      if (e.target === addrModalOverlay) closeAddressModal();
+    });
+
+    const renderAddresses = () => {
+      if (!addrContainer) return;
+      if (addrBadge) addrBadge.textContent = String(userAddresses.length);
+
+      if (userAddresses.length === 0) {
+        addrContainer.innerHTML = `
+          <div class="p-8 text-center border border-dashed border-walnut-900/20 bg-sand-50/50">
+            <span class="text-3xl block mb-2">📍</span>
+            <p class="text-xs font-bold text-walnut-900 uppercase tracking-wider">Chưa có địa chỉ nhận hàng nào</p>
+            <p class="text-[11px] text-walnut-800/70 mt-1 max-w-sm mx-auto">Thêm địa chỉ giao hàng để hệ thống tự động điền khi bạn đặt mua sản phẩm nội thất.</p>
+            <button type="button" class="btn-quick-add-addr mt-3.5 inline-flex items-center gap-1.5 bg-[#173524] text-[#D8B670] px-4 py-2 text-xs font-bold uppercase tracking-wider hover:bg-walnut-900 border border-[#D8B670]/40 transition-colors cursor-pointer shadow-xs">
+              + Thêm địa chỉ đầu tiên
+            </button>
+          </div>
+        `;
+        addrContainer.querySelector('.btn-quick-add-addr')?.addEventListener('click', () => openAddressModal('add'));
+        return;
+      }
+
+      addrContainer.innerHTML = userAddresses.map((addr) => `
+        <div class="rounded-none border ${addr.isDefault ? 'border-2 border-[#173524] bg-[#FAF8F5]' : 'border border-walnut-900/15 bg-white'} p-4 sm:p-5 relative space-y-2 hover:shadow-xs transition-shadow">
+          <div class="flex items-start justify-between gap-3 flex-wrap">
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="font-bold text-xs uppercase tracking-wider text-walnut-900 flex items-center gap-1.5">
+                ${addr.isDefault ? '<span class="w-2 h-2 rounded-full bg-emerald-600 shrink-0"></span>' : ''}
+                <span>${addr.receiverName}</span>
+              </span>
+              <span class="text-xs text-walnut-800/40">|</span>
+              <span class="text-xs font-mono font-semibold text-walnut-800">${addr.receiverPhone}</span>
+              ${addr.isDefault ? '<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">Mặc định</span>' : ''}
+            </div>
+            <div class="flex items-center gap-2 text-xs">
+              ${!addr.isDefault ? `<button type="button" data-set-default="${addr.id}" class="text-xs text-[#173524] hover:underline font-semibold cursor-pointer">Thiết lập mặc định</button><span class="text-walnut-900/20">|</span>` : ''}
+              <button type="button" data-edit-addr="${addr.id}" class="text-xs text-amber-700 hover:text-amber-900 font-semibold cursor-pointer">Sửa</button>
+              <span class="text-walnut-900/20">|</span>
+              <button type="button" data-delete-addr="${addr.id}" class="text-xs text-rose-600 hover:text-rose-800 font-semibold cursor-pointer">Xóa</button>
+            </div>
+          </div>
+          <p class="text-xs text-walnut-800/90 leading-relaxed font-medium">
+            ${addr.fullAddress}
+          </p>
+        </div>
+      `).join('');
+
+      addrContainer.querySelectorAll<HTMLButtonElement>('[data-edit-addr]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const id = Number(btn.dataset.editAddr);
+          const found = userAddresses.find((a) => a.id === id);
+          if (found) openAddressModal('edit', found);
+        });
+      });
+
+      addrContainer.querySelectorAll<HTMLButtonElement>('[data-delete-addr]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const id = Number(btn.dataset.deleteAddr);
+          if (!confirm('Bạn có chắc chắn muốn xóa địa chỉ nhận hàng này?')) return;
+          try {
+            const token = localStorage.getItem('auth_token');
+            const res = await fetch(`http://localhost:4000/api/user-addresses/${id}`, {
+              method: 'DELETE',
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            const json = await res.json();
+            if (json.success) {
+              await loadAddresses();
+            } else {
+              alert(json.message || 'Không thể xóa địa chỉ.');
+            }
+          } catch (e: any) {
+            alert('Lỗi kết nối máy chủ khi xóa địa chỉ.');
+          }
+        });
+      });
+
+      addrContainer.querySelectorAll<HTMLButtonElement>('[data-set-default]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const id = Number(btn.dataset.setDefault);
+          try {
+            const token = localStorage.getItem('auth_token');
+            const res = await fetch(`http://localhost:4000/api/user-addresses/${id}/default`, {
+              method: 'PATCH',
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            const json = await res.json();
+            if (json.success) {
+              await loadAddresses();
+            } else {
+              alert(json.message || 'Không thể đặt địa chỉ mặc định.');
+            }
+          } catch (e: any) {
+            alert('Lỗi kết nối máy chủ.');
+          }
+        });
+      });
+    };
+
+    const loadAddresses = async () => {
+      const token = localStorage.getItem('auth_token');
+      if (!token) return;
+      try {
+        const res = await fetch('http://localhost:4000/api/user-addresses', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json.success && Array.isArray(json.data)) {
+            userAddresses = json.data;
+            renderAddresses();
+          }
+        }
+      } catch (err) {
+        console.warn('Lỗi tải danh sách địa chỉ:', err);
+      }
+    };
+
+    addrForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const token = localStorage.getItem('auth_token');
+      if (!token) return;
+
+      const id = addrInputId?.value ? Number(addrInputId.value) : null;
+      const payload = {
+        receiver_name: addrInputName?.value?.trim() || '',
+        receiver_phone: addrInputPhone?.value?.trim() || '',
+        province: addrSelectProvince?.value || '',
+        district: addrInputDistrict?.value?.trim() || '',
+        specific_address: addrInputSpecific?.value?.trim() || '',
+        is_default: addrInputDefault?.checked || false,
+      };
+
+      if (btnSaveAddr) {
+        btnSaveAddr.disabled = true;
+        btnSaveAddr.textContent = 'Đang lưu...';
+      }
+      if (addrError) addrError.classList.add('hidden');
+
+      try {
+        const url = id
+          ? `http://localhost:4000/api/user-addresses/${id}`
+          : 'http://localhost:4000/api/user-addresses';
+        const method = id ? 'PUT' : 'POST';
+
+        const res = await fetch(url, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        const json = await res.json();
+        if (json.success) {
+          closeAddressModal();
+          await loadAddresses();
+        } else {
+          if (addrError) {
+            addrError.textContent = json.message || 'Không thể lưu địa chỉ.';
+            addrError.classList.remove('hidden');
+          }
+        }
+      } catch (err: any) {
+        if (addrError) {
+          addrError.textContent = 'Lỗi kết nối máy chủ. Vui lòng thử lại sau.';
+          addrError.classList.remove('hidden');
+        }
+      } finally {
+        if (btnSaveAddr) {
+          btnSaveAddr.disabled = false;
+          btnSaveAddr.textContent = 'Lưu địa chỉ';
+        }
+      }
+    });
+
+    loadAddresses();
+
 
     // =========================================================
     // XỬ LÝ CHỈNH SỬA THÔNG TIN CÁ NHÂN & LƯU LÊN DATABASE

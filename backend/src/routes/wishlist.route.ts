@@ -168,3 +168,47 @@ wishlistRouter.delete('/:slugOrId', verifyToken, async (req: Request, res: Respo
     return res.status(500).json({ success: false, message: 'Lỗi khi xóa khỏi yêu thích.', error: error.message });
   }
 });
+
+// ================================================================
+// POST /api/wishlist/merge - Gộp danh sách yêu thích của khách vãng lai sau khi đăng nhập
+// Body: { slugs: string[] }
+// ================================================================
+wishlistRouter.post('/merge', verifyToken, async (req: Request, res: Response) => {
+  try {
+    const userId = BigInt(req.user!.id);
+    const { slugs = [] } = req.body;
+
+    if (!Array.isArray(slugs) || slugs.length === 0) {
+      return res.json({ success: true, message: 'Không có sản phẩm nào cần gộp.' });
+    }
+
+    const products = await prisma.products.findMany({
+      where: { slug: { in: slugs.map((s: any) => String(s)) } },
+      select: { id: true, slug: true },
+    });
+
+    for (const p of products) {
+      await prisma.wishlists.upsert({
+        where: {
+          user_id_product_id: {
+            user_id: userId,
+            product_id: p.id,
+          },
+        },
+        create: {
+          user_id: userId,
+          product_id: p.id,
+        },
+        update: {},
+      });
+    }
+
+    return res.json({
+      success: true,
+      message: `Đã gộp ${products.length} sản phẩm vào danh sách yêu thích của tài khoản.`,
+    });
+  } catch (error: any) {
+    console.error('Lỗi khi gộp wishlist:', error);
+    return res.status(500).json({ success: false, message: 'Lỗi máy chủ khi gộp danh sách yêu thích.', error: error.message });
+  }
+});

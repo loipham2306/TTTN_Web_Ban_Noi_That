@@ -9,7 +9,7 @@ export const ordersRouter = Router();
 // POST /api/orders - Tạo đơn hàng mới
 ordersRouter.post('/', async (req: Request, res: Response) => {
   try {
-    const { fullname, phone, email, province, district, address, note, payment_method, items, coupon_code } = req.body;
+    const { fullname, phone, email, province, district, address, note, payment_method, items, coupon_code, save_address } = req.body;
 
     if (!fullname || !phone || !Array.isArray(items) || items.length === 0) {
       return res.status(400).json({
@@ -220,6 +220,39 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
         customer_note: note || null,
       },
     });
+
+    // Tự động lưu địa chỉ vào sổ địa chỉ (user_addresses) nếu khách chưa có địa chỉ nào hoặc có tick chọn lưu địa chỉ
+    try {
+      if (province && district && address) {
+        const addressCount = await prisma.user_addresses.count({ where: { user_id: user.id } });
+        if (addressCount === 0 || save_address === true) {
+          const duplicate = await prisma.user_addresses.findFirst({
+            where: {
+              user_id: user.id,
+              province: String(province).trim(),
+              district: String(district).trim(),
+              specific_address: String(address).trim(),
+            },
+          });
+          if (!duplicate) {
+            await prisma.user_addresses.create({
+              data: {
+                user_id: user.id,
+                receiver_name: String(fullname || user.full_name).trim(),
+                receiver_phone: String(phone || user.phone || '').trim(),
+                province: String(province).trim(),
+                district: String(district).trim(),
+                ward: '',
+                specific_address: String(address).trim(),
+                is_default: addressCount === 0,
+              },
+            });
+          }
+        }
+      }
+    } catch (saveAddrErr) {
+      console.warn('Lỗi tự động lưu địa chỉ nhận hàng:', saveAddrErr);
+    }
 
     // 4. Tạo chi tiết đơn hàng trong bảng `order_items` và trừ tồn kho thực tế
     for (const item of validatedItems) {

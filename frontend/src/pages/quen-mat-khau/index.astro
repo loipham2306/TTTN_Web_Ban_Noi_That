@@ -113,33 +113,59 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
                 Nhập 6 chữ số OTP *
               </label>
               
-              <!-- 6 ô nhập mã OTP hỗ trợ tự động nhảy ô và paste -->
-              <!-- Vùng nhập OTP: 1 ô input thật ẩn phủ lên trên + 6 ô hiển thị giao diện bên dưới -->
-              <div class="relative mx-auto flex items-center justify-center max-w-[340px] sm:max-w-[380px]" id="otp-wrapper">
-                <!-- 1 Ô INPUT THẬT DUY NHẤT (PHỦ TOÀN BỘ VÙNG BẤM, TRONG SUỐT ĐÓN PHÍM GÕ/DÁN) -->
+              <!-- 6 ô nhập mã OTP hỗ trợ tự động nhảy ô, xóa lùi và dán (paste) -->
+              <div class="flex items-center justify-center gap-2 sm:gap-3" id="otp-inputs-wrapper">
                 <input
                   type="text"
-                  id="otp-real-input"
-                  name="otp"
                   inputmode="numeric"
-                  autocomplete="one-time-code"
-                  maxlength="6"
+                  maxlength="1"
                   pattern="[0-9]*"
-                  class="absolute inset-0 z-20 h-full w-full cursor-text"
-                  style="opacity: 0 !important; color: transparent !important; -webkit-text-fill-color: transparent !important; caret-color: transparent !important; background: transparent !important; border: none !important; outline: none !important; box-shadow: none !important; font-size: 0px !important; line-height: 0 !important;"
+                  data-index="0"
+                  autocomplete="one-time-code"
+                  class="otp-input h-12 w-11 sm:h-14 sm:w-12 text-center text-xl font-bold font-mono border-2 border-clay-600 ring-2 ring-clay-600/25 bg-white text-walnut-900 rounded outline-none transition-all shadow-xs"
                   autofocus
                 />
-
-                <!-- 6 Ô HIỂN THỊ GIAO DIỆN (ĐỒNG BỘ 100% THEO Ô THẬT) -->
-                <div class="flex items-center justify-center gap-2 sm:gap-3 pointer-events-none select-none" id="otp-cells-wrapper">
-                  <div class="otp-cell h-12 w-11 sm:h-14 sm:w-12 flex items-center justify-center text-center text-xl font-bold font-mono border-2 border-clay-600 ring-2 ring-clay-600/25 bg-white text-walnut-900 rounded transition-all shadow-xs" data-index="0"></div>
-                  <div class="otp-cell h-12 w-11 sm:h-14 sm:w-12 flex items-center justify-center text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900/40 rounded transition-all shadow-xs" data-index="1"></div>
-                  <div class="otp-cell h-12 w-11 sm:h-14 sm:w-12 flex items-center justify-center text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900/40 rounded transition-all shadow-xs" data-index="2"></div>
-                  <span class="text-walnut-900/30 font-bold select-none">-</span>
-                  <div class="otp-cell h-12 w-11 sm:h-14 sm:w-12 flex items-center justify-center text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900/40 rounded transition-all shadow-xs" data-index="3"></div>
-                  <div class="otp-cell h-12 w-11 sm:h-14 sm:w-12 flex items-center justify-center text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900/40 rounded transition-all shadow-xs" data-index="4"></div>
-                  <div class="otp-cell h-12 w-11 sm:h-14 sm:w-12 flex items-center justify-center text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900/40 rounded transition-all shadow-xs" data-index="5"></div>
-                </div>
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  maxlength="1"
+                  pattern="[0-9]*"
+                  data-index="1"
+                  class="otp-input h-12 w-11 sm:h-14 sm:w-12 text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900 rounded outline-none transition-all shadow-xs"
+                />
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  maxlength="1"
+                  pattern="[0-9]*"
+                  data-index="2"
+                  class="otp-input h-12 w-11 sm:h-14 sm:w-12 text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900 rounded outline-none transition-all shadow-xs"
+                />
+                <span class="text-walnut-900/30 font-bold select-none">-</span>
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  maxlength="1"
+                  pattern="[0-9]*"
+                  data-index="3"
+                  class="otp-input h-12 w-11 sm:h-14 sm:w-12 text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900 rounded outline-none transition-all shadow-xs"
+                />
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  maxlength="1"
+                  pattern="[0-9]*"
+                  data-index="4"
+                  class="otp-input h-12 w-11 sm:h-14 sm:w-12 text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900 rounded outline-none transition-all shadow-xs"
+                />
+                <input
+                  type="text"
+                  inputmode="numeric"
+                  maxlength="1"
+                  pattern="[0-9]*"
+                  data-index="5"
+                  class="otp-input h-12 w-11 sm:h-14 sm:w-12 text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900 rounded outline-none transition-all shadow-xs"
+                />
               </div>
               <p id="err-step2-otp" class="mt-2 hidden text-xs text-red-600 font-medium text-center"></p>
             </div>
@@ -305,8 +331,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     // Form 2
     const formStep2 = document.getElementById('form-step-2') as HTMLFormElement;
     const displayTargetEmail = document.getElementById('display-target-email') as HTMLElement;
-    const otpRealInput = document.getElementById('otp-real-input') as HTMLInputElement;
-    const otpCells = Array.from(document.querySelectorAll<HTMLElement>('.otp-cell'));
+    const otpInputs = Array.from(document.querySelectorAll<HTMLInputElement>('.otp-input'));
     const errStep2Otp = document.getElementById('err-step2-otp') as HTMLElement;
     const btnVerifyOtp = document.getElementById('btn-verify-otp') as HTMLButtonElement;
     const btnResendOtp = document.getElementById('btn-resend-otp') as HTMLButtonElement;
@@ -398,11 +423,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       } else if (step === 2) {
         step2Container.classList.remove('hidden');
         displayTargetEmail.textContent = currentEmail;
-        if (otpRealInput) {
-          otpRealInput.value = '';
-          renderOtpCells('');
-          otpRealInput.focus();
-        }
+        otpInputs.forEach((i) => (i.value = ''));
+        updateOtpStyles();
+        setTimeout(() => {
+          otpInputs[0]?.focus();
+        }, 50);
         startOtpCountdown();
         startResendCountdown();
       } else if (step === 3) {
@@ -456,59 +481,111 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     };
 
     // ============================================================
-    // LOGIC SEGMENTED OTP INPUT: 1 Ô THẬT ĐỒNG BỘ 6 Ô HIỂN THỊ
-    // (LOẠI BỎ TRIỆT ĐỂ LỖI NHẢY BỘ ĐỆM BÀN PHÍM / UNIKEY TIẾNG VIỆT)
+    // LOGIC 6 Ô NHẬP MÃ OTP: NHẢY TỰ ĐỘNG, BACKSPACE & DÁN (PASTE)
     // ============================================================
-    const renderOtpCells = (raw: string) => {
-      const digits = (raw || '').replace(/[^0-9]/g, '').slice(0, 6);
-      const activeIdx = Math.min(digits.length, 5);
+    const updateOtpStyles = () => {
+      otpInputs.forEach((input) => {
+        const isFocused = document.activeElement === input;
+        const hasVal = Boolean(input.value);
 
-      otpCells.forEach((cell, idx) => {
-        const digit = digits[idx] || '';
-        cell.textContent = digit;
-
-        if (digit) {
-          // Ô đã có số: viền đậm nổi bật, nền trắng rõ chữ
-          cell.className = 'otp-cell h-12 w-11 sm:h-14 sm:w-12 flex items-center justify-center text-center text-xl font-bold font-mono border border-walnut-900/50 bg-white text-walnut-900 rounded transition-all shadow-xs';
-        } else if (idx === activeIdx) {
-          // Ô đang đợi gõ: viền xanh ngọc, vòng focus ring sang trọng
-          cell.className = 'otp-cell h-12 w-11 sm:h-14 sm:w-12 flex items-center justify-center text-center text-xl font-bold font-mono border-2 border-clay-600 ring-2 ring-clay-600/25 bg-white text-walnut-900 rounded transition-all shadow-xs';
+        if (isFocused) {
+          input.className = 'otp-input h-12 w-11 sm:h-14 sm:w-12 text-center text-xl font-bold font-mono border-2 border-clay-600 ring-2 ring-clay-600/25 bg-white text-walnut-900 rounded outline-none transition-all shadow-xs';
+        } else if (hasVal) {
+          input.className = 'otp-input h-12 w-11 sm:h-14 sm:w-12 text-center text-xl font-bold font-mono border border-walnut-900/60 bg-white text-walnut-900 rounded outline-none transition-all shadow-xs';
         } else {
-          // Ô chưa nhập phía sau: viền mờ nhạt
-          cell.className = 'otp-cell h-12 w-11 sm:h-14 sm:w-12 flex items-center justify-center text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900/40 rounded transition-all shadow-xs';
+          input.className = 'otp-input h-12 w-11 sm:h-14 sm:w-12 text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900 rounded outline-none transition-all shadow-xs';
         }
       });
     };
 
-    // Khi người dùng gõ phím trên ô thật
-    otpRealInput?.addEventListener('input', () => {
-      errStep2Otp.classList.add('hidden');
-      const cleanVal = (otpRealInput.value || '').replace(/[^0-9]/g, '').slice(0, 6);
-      otpRealInput.value = cleanVal;
-      renderOtpCells(cleanVal);
+    const getOtpValue = () => otpInputs.map((i) => i.value.trim()).join('');
 
-      if (cleanVal.length === 6) {
-        btnVerifyOtp.focus();
-      }
-    });
+    otpInputs.forEach((input, idx) => {
+      // Khi gõ hoặc dán số vào ô
+      input.addEventListener('input', () => {
+        errStep2Otp.classList.add('hidden');
+        const raw = input.value || '';
+        const digits = raw.replace(/[^0-9]/g, '');
 
-    // Hỗ trợ dán (paste) mã 6 số
-    otpRealInput?.addEventListener('paste', (e: ClipboardEvent) => {
-      e.preventDefault();
-      const clipboard = e.clipboardData || (window as any).clipboardData;
-      const pasted = clipboard ? clipboard.getData('text') : '';
-      const digits = (pasted || '').replace(/[^0-9]/g, '').slice(0, 6);
-      otpRealInput.value = digits;
-      renderOtpCells(digits);
+        if (digits.length > 1) {
+          // Xử lý khi trình duyệt autofill hoặc dán nhiều số vào 1 ô
+          const chars = digits.slice(0, 6).split('');
+          chars.forEach((c, i) => {
+            if (otpInputs[i]) otpInputs[i].value = c;
+          });
+          const nextFocus = Math.min(chars.length, 5);
+          otpInputs[nextFocus]?.focus();
+          updateOtpStyles();
+          if (chars.length === 6) {
+            btnVerifyOtp.focus();
+          }
+          return;
+        }
 
-      if (digits.length === 6) {
-        btnVerifyOtp.focus();
-      }
-    });
+        input.value = digits;
+        updateOtpStyles();
 
-    // Khi bấm vào vùng OTP, tự động kích hoạt ô thật
-    document.getElementById('otp-wrapper')?.addEventListener('click', () => {
-      otpRealInput?.focus();
+        if (digits.length === 1) {
+          if (idx < 5) {
+            otpInputs[idx + 1].focus();
+            otpInputs[idx + 1].select();
+          } else {
+            btnVerifyOtp.focus();
+          }
+        }
+      });
+
+      // Phím Backspace / Di chuyển mũi tên trái phải
+      input.addEventListener('keydown', (e) => {
+        if (e.key === 'Backspace') {
+          if (!input.value && idx > 0) {
+            e.preventDefault();
+            otpInputs[idx - 1].value = '';
+            otpInputs[idx - 1].focus();
+            updateOtpStyles();
+          } else {
+            input.value = '';
+            updateOtpStyles();
+          }
+        } else if (e.key === 'ArrowLeft' && idx > 0) {
+          e.preventDefault();
+          otpInputs[idx - 1].focus();
+          otpInputs[idx - 1].select();
+        } else if (e.key === 'ArrowRight' && idx < 5) {
+          e.preventDefault();
+          otpInputs[idx + 1].focus();
+          otpInputs[idx + 1].select();
+        }
+      });
+
+      // Hỗ trợ sự kiện paste trực tiếp từ clipboard
+      input.addEventListener('paste', (e: ClipboardEvent) => {
+        e.preventDefault();
+        const clipboard = e.clipboardData || (window as any).clipboardData;
+        const pasted = clipboard ? clipboard.getData('text') : '';
+        const digits = (pasted || '').replace(/[^0-9]/g, '').slice(0, 6);
+        if (!digits) return;
+
+        digits.split('').forEach((d, i) => {
+          if (otpInputs[i]) otpInputs[i].value = d;
+        });
+        const nextFocus = Math.min(digits.length, 5);
+        otpInputs[nextFocus]?.focus();
+        updateOtpStyles();
+
+        if (digits.length === 6) {
+          btnVerifyOtp.focus();
+        }
+      });
+
+      input.addEventListener('focus', () => {
+        input.select();
+        updateOtpStyles();
+      });
+
+      input.addEventListener('blur', () => {
+        updateOtpStyles();
+      });
     });
 
     // ============================================================
@@ -605,11 +682,12 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       e.preventDefault();
       errStep2Otp.classList.add('hidden');
 
-      const otp = (otpRealInput ? otpRealInput.value : '').replace(/[^0-9]/g, '').trim();
+      const otp = getOtpValue();
       if (otp.length < 6) {
         errStep2Otp.textContent = 'Vui lòng nhập đủ 6 chữ số mã OTP.';
         errStep2Otp.classList.remove('hidden');
-        otpRealInput?.focus();
+        const firstEmpty = otpInputs.find((i) => !i.value) || otpInputs[0];
+        firstEmpty?.focus();
         return;
       }
 
@@ -732,28 +810,5 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   });
 </script>
 
-<style is:global>
-  #otp-real-input {
-    opacity: 0 !important;
-    color: transparent !important;
-    -webkit-text-fill-color: transparent !important;
-    caret-color: transparent !important;
-    background: transparent !important;
-    border: none !important;
-    outline: none !important;
-    box-shadow: none !important;
-    font-size: 0px !important;
-    line-height: 0 !important;
-  }
-  #otp-real-input:-webkit-autofill,
-  #otp-real-input:-webkit-autofill:hover,
-  #otp-real-input:-webkit-autofill:focus,
-  #otp-real-input:-webkit-autofill:active {
-    -webkit-text-fill-color: transparent !important;
-    color: transparent !important;
-    opacity: 0 !important;
-    font-size: 0px !important;
-    transition: background-color 5000000s ease-in-out 0s !important;
-  }
-</style>
+
 
