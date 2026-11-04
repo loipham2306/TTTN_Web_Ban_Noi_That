@@ -50,7 +50,7 @@ const menu: MenuItem[] = [
     label: 'Về chúng tôi',
     href: '/#cau-chuyen',
     children: [
-      { label: 'Câu chuyện thương hiệu', href: '/#cau-chuyen' },
+      { label: 'Câu chuyện thương hiệu', href: '/ve-chung-toi' },
       { label: 'Showroom & Liên hệ', href: '/#showroom' },
       { label: 'Hợp tác KTS & Dự án', href: '/#doi-tac' },
     ],
@@ -91,6 +91,7 @@ const secondary: MenuLink[] = [
 ];
 
 const isHome = Astro.url.pathname === '/';
+const isHeroPage = isHome || Astro.url.pathname === '/ve-chung-toi';
 const currentPath = Astro.url.pathname;
 const isProductsPage = currentPath === '/san-pham' || currentPath.startsWith('/san-pham');
 
@@ -123,7 +124,7 @@ const isItemActive = (item: MenuItem): boolean => {
 
 <header
   id="site-header"
-  data-overlay={isHome ? 'true' : 'false'}
+  data-overlay={isHeroPage ? 'true' : 'false'}
   class="fixed inset-x-0 top-0 z-50 transition-all duration-300"
 >
   {/* TOP ANNOUNCEMENT BAR */}

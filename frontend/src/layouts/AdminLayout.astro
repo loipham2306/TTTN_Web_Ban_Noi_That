@@ -173,6 +173,28 @@ for (const g of navGroups) {
             window.location.replace('/admin/so-quy');
           }
         }
+
+        // Tự động đính kèm Authorization: Bearer <token> cho mọi fetch API từ các trang Quản trị
+        var origFetch = window.fetch;
+        window.fetch = function(input, init) {
+          var t = localStorage.getItem('admin_token') || localStorage.getItem('auth_token');
+          if (t) {
+            init = init || {};
+            init.headers = init.headers || {};
+            if (init.headers instanceof Headers) {
+              if (!init.headers.has('Authorization')) init.headers.set('Authorization', 'Bearer ' + t);
+            } else if (Array.isArray(init.headers)) {
+              if (!init.headers.some(function(h) { return h[0].toLowerCase() === 'authorization'; })) {
+                init.headers.push(['Authorization', 'Bearer ' + t]);
+              }
+            } else {
+              if (!init.headers['Authorization'] && !init.headers['authorization']) {
+                init.headers['Authorization'] = 'Bearer ' + t;
+              }
+            }
+          }
+          return origFetch.call(this, input, init);
+        };
       } catch (e) {
         window.location.replace('/dang-nhap?error=admin_required');
       }

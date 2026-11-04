@@ -8,7 +8,31 @@ import { errorMiddleware } from './middlewares/error.middleware.js';
 
 export const app = express();
 
-app.use(cors({ origin: ENV.CORS_ORIGIN, credentials: true }));
+const allowedOrigins = [
+  ENV.CORS_ORIGIN,
+  'http://localhost:4321',
+  'http://127.0.0.1:4321',
+  'http://localhost:3000',
+  'http://localhost:5173',
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Cho phép requests không có origin (curl, postman, mobile)
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.includes(origin) ||
+        origin.startsWith('http://localhost:') ||
+        origin.startsWith('http://127.0.0.1:')
+      ) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
+    credentials: true,
+  })
+);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 

@@ -25,7 +25,7 @@ const comparePrice = (rawCompare && Number(rawCompare) > product.price)
 ---
 
 <article
-  class="product-card group relative flex flex-col rounded-none bg-white p-3.5 sm:p-4 md:p-5 border border-walnut-900/10 shadow-xs transition-all duration-300 hover:shadow-2xl hover:border-walnut-900/30 overflow-hidden"
+  class="product-card group relative flex flex-col rounded-none bg-white p-3 sm:p-3.5 md:p-4 border border-walnut-900/10 shadow-xs transition-all duration-300 hover:shadow-2xl hover:border-walnut-900/30 overflow-hidden"
   data-product={product.slug}
   data-name={product.name}
   data-category={product.category}
@@ -73,7 +73,7 @@ const comparePrice = (rawCompare && Number(rawCompare) > product.price)
       </div>
     )}
 
-    <!-- NÚT XEM NHANH (MẮT 👁️) NẰM CHÍNH GIỮA ẢNH KHI HOVER (VÀNG CHAMPAGNE NHƯ LOGO) -->
+    <!-- NÚT XEM NHANH (MẮT 👁️) NẰM CHÍNH GIỮA ẢNH KHI HOVER (TRONG SUỐT LUXURY GLASS) -->
     <div class="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
       <button
         type="button"
@@ -91,7 +91,7 @@ const comparePrice = (rawCompare && Number(rawCompare) > product.price)
         data-dimensions={detail.dimensions}
         data-warranty={detail.warranty}
         data-description={detail.description}
-        class="pointer-events-auto flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-[#E2C37E] to-[#C49E52] text-[#173524] shadow-xl opacity-0 scale-75 transition-all duration-300 group-hover:opacity-100 group-hover:scale-100 hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white hover:scale-110 active:scale-95 cursor-pointer ring-3 ring-white/90"
+        class="pointer-events-auto flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-black/35 backdrop-blur-sm border border-white/60 text-white shadow-xl opacity-0 scale-75 transition-all duration-300 group-hover:opacity-100 group-hover:scale-100 hover:bg-[#173524]/80 hover:border-[#D8B670] hover:text-[#D8B670] hover:scale-110 active:scale-95 cursor-pointer"
         title="Xem nhanh thông số"
         aria-label="Xem nhanh thông số"
       >
@@ -110,9 +110,9 @@ const comparePrice = (rawCompare && Number(rawCompare) > product.price)
       {product.categoryLabel}
     </p>
 
-    <!-- TÊN SẢN PHẨM -->
-    <h3 class="mt-1.5 text-base sm:text-lg font-bold text-walnut-900 transition-colors group-hover:text-[#B88E28] line-clamp-1">
-      <a href={`/san-pham/${product.slug}`} title={product.name}>
+    <!-- TÊN SẢN PHẨM: TỐI ƯU 2 DÒNG + CỐ ĐỊNH CHIỀU CAO ĐỂ CÁC CARD LUÔN THẲNG HÀNG NHAU -->
+    <h3 class="mt-1.5 flex h-10 sm:h-11 items-center justify-center text-[13.5px] sm:text-[15px] font-bold text-walnut-900 transition-colors group-hover:text-[#B88E28] leading-snug tracking-tight">
+      <a href={`/san-pham/${product.slug}`} title={product.name} class="line-clamp-2">
         {product.name}
       </a>
     </h3>

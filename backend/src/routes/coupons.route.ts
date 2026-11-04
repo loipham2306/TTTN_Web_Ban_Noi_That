@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
-import { optionalToken } from '../middlewares/auth.middleware.js';
+import { optionalToken, verifyToken, requireAdmin } from '../middlewares/auth.middleware.js';
 
 export const couponsRouter = Router();
 
@@ -37,7 +37,7 @@ couponsRouter.get('/', async (_req: Request, res: Response) => {
 // ================================================================
 // POST /api/coupons/validate - Kiểm tra và tính toán giảm giá
 // ================================================================
-couponsRouter.post('/validate', async (req: Request, res: Response) => {
+couponsRouter.post('/validate', optionalToken, async (req: Request, res: Response) => {
   try {
     const { code, subtotal } = req.body;
     if (!code) {
@@ -70,6 +70,23 @@ couponsRouter.post('/validate', async (req: Request, res: Response) => {
 
     if (coupon.usage_limit && (coupon.used_count || 0) >= coupon.usage_limit) {
       return res.status(400).json({ success: false, message: 'Mã giảm giá đã hết lượt sử dụng.' });
+    }
+
+    // Kiểm tra xem tài khoản khách hàng đã từng dùng mã này chưa
+    if (req.user?.id) {
+      const userUsed = await prisma.orders.findFirst({
+        where: {
+          user_id: BigInt(req.user.id),
+          coupon_id: coupon.id,
+          order_status: { not: 'cancelled' },
+        },
+      });
+      if (userUsed) {
+        return res.status(400).json({
+          success: false,
+          message: 'Bạn đã sử dụng mã giảm giá này cho một đơn hàng trước đó.',
+        });
+      }
     }
 
     const minOrderVal = Number(coupon.min_order_value || 0);
@@ -127,7 +144,7 @@ const resolveDiscountType = (type: any) => {
 // ================================================================
 // POST /api/coupons - Thêm mã giảm giá mới
 // ================================================================
-couponsRouter.post('/', optionalToken, async (req: Request, res: Response) => {
+couponsRouter.post('/', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { code, discountType, discountValue, minOrderValue, maxDiscountAmount, startDate, endDate, usageLimit, status } = req.body;
 
@@ -170,7 +187,7 @@ couponsRouter.post('/', optionalToken, async (req: Request, res: Response) => {
 // ================================================================
 // PUT /api/coupons/:id - Cập nhật mã giảm giá / Đổi trạng thái
 // ================================================================
-couponsRouter.put('/:id', optionalToken, async (req: Request, res: Response) => {
+couponsRouter.put('/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id);
     const { code, discountType, discountValue, minOrderValue, maxDiscountAmount, startDate, endDate, usageLimit, status } = req.body;
@@ -205,7 +222,7 @@ couponsRouter.put('/:id', optionalToken, async (req: Request, res: Response) => 
 // ================================================================
 // DELETE /api/coupons/:id - Xóa mã giảm giá (An toàn)
 // ================================================================
-couponsRouter.delete('/:id', optionalToken, async (req: Request, res: Response) => {
+couponsRouter.delete('/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id);
     const existing = await prisma.coupons.findUnique({ where: { id } });
