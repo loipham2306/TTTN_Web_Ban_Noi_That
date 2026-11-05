@@ -39,7 +39,7 @@ export function calculateTier(totalSpent: number) {
 // Định dạng dữ liệu khách hàng trả về cho frontend
 function formatCustomer(c: any) {
   const orders = c.orders || [];
-  const validOrders = orders.filter((o: any) => o.order_status !== 'cancelled');
+  const validOrders = orders.filter((o: any) => o.order_status === 'completed');
   const totalSpent = validOrders.reduce((sum: number, o: any) => sum + Number(o.total_amount || 0), 0);
   const tierInfo = calculateTier(totalSpent);
   const isActive = c.status !== false;

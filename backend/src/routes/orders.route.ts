@@ -483,9 +483,10 @@ ordersRouter.get('/my-orders', verifyToken, async (req: Request, res: Response) 
       orderBy: { created_at: 'desc' },
     });
 
-    const totalSpent = userOrders
-      .filter((o) => o.payment_status === 'paid' || o.order_status === 'completed')
-      .reduce((sum, o) => sum + Number(o.total_amount), 0);
+    // Chỉ tính các đơn hàng có trạng thái ĐÃ HOÀN THÀNH (Giao thành công) cho phần Đơn hoàn thành & Tổng chi tiêu tích lũy
+    const completedOrders = userOrders.filter((o) => o.order_status === 'completed');
+    const totalSpent = completedOrders.reduce((sum, o) => sum + Number(o.total_amount), 0);
+    const completedCount = completedOrders.length;
 
     const formatted = userOrders.map((o) => ({
       id: Number(o.id),
@@ -522,13 +523,138 @@ ordersRouter.get('/my-orders', verifyToken, async (req: Request, res: Response) 
       data: formatted,
       stats: {
         ordersCount: userOrders.length,
-        completedCount: userOrders.filter((o) => o.payment_status === 'paid' || o.order_status === 'completed').length,
+        completedCount,
         totalSpent,
       },
     });
   } catch (error: any) {
     console.error('Lỗi lấy danh sách đơn hàng của tôi:', error);
     return res.status(500).json({ success: false, message: 'Lỗi máy chủ.', error: error.message });
+  }
+});
+
+// ================================================================
+// POST /api/orders/:idOrCode/cancel - Khách hàng hủy đơn hàng của chính mình
+// ================================================================
+ordersRouter.post('/:idOrCode/cancel', verifyToken, async (req: Request, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ success: false, message: 'Vui lòng đăng nhập để thực hiện thao tác này.' });
+    }
+
+    const { idOrCode } = req.params;
+    const { reason, note } = req.body;
+
+    const cancelReason = (reason && String(reason).trim())
+      ? String(reason).trim()
+      : (note && String(note).trim())
+        ? String(note).trim()
+        : 'Khách hàng yêu cầu hủy đơn qua trang tài khoản.';
+
+    // Tìm đơn hàng theo ID số hoặc Order Code
+    const isNumericId = /^\d+$/.test(idOrCode);
+    const existingOrder = await prisma.orders.findFirst({
+      where: isNumericId
+        ? { id: BigInt(idOrCode) }
+        : { order_code: idOrCode },
+      include: {
+        order_items: true,
+        users: true,
+      },
+    });
+
+    if (!existingOrder) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng cần hủy.' });
+    }
+
+    // Kiểm tra quyền sở hữu đơn hàng
+    const currentUserId = BigInt(req.user.id);
+    const isOwner = existingOrder.user_id === currentUserId ||
+      Boolean(req.user.email && existingOrder.users?.email === req.user.email);
+    const isAdmin = req.user.role === 'admin' || req.user.role === 'superadmin' || (req.user as any).role_id === 1;
+
+    if (!isOwner && !isAdmin) {
+      return res.status(403).json({ success: false, message: 'Bạn không có quyền hủy đơn hàng của người khác.' });
+    }
+
+    // Kiểm tra trạng thái đơn hàng có được phép hủy không
+    if (existingOrder.order_status === 'cancelled') {
+      return res.status(400).json({ success: false, message: 'Đơn hàng này đã được hủy trước đó.' });
+    }
+
+    if (existingOrder.order_status === 'shipping') {
+      return res.status(400).json({
+        success: false,
+        message: 'Đơn hàng đang trên đường vận chuyển, không thể hủy. Vui lòng liên hệ Hotline CSKH 1900 636 884 để được hỗ trợ.',
+      });
+    }
+
+    if (existingOrder.order_status === 'completed') {
+      return res.status(400).json({
+        success: false,
+        message: 'Đơn hàng đã hoàn thành, không thể hủy.',
+      });
+    }
+
+    // 1. Hoàn lại tồn kho cho các sản phẩm trong đơn
+    for (const item of existingOrder.order_items) {
+      if (item.variant_id) {
+        try {
+          await prisma.product_variants.update({
+            where: { id: item.variant_id },
+            data: { stock_quantity: { increment: item.quantity } },
+          });
+        } catch (stockErr) {
+          console.warn(`[UserCancel] Lỗi hoàn tồn kho biến thể ID ${item.variant_id}:`, stockErr);
+        }
+      }
+    }
+
+    // 2. Hoàn lại lượt sử dụng coupon (nếu có)
+    if (existingOrder.coupon_id) {
+      try {
+        await prisma.coupons.update({
+          where: { id: existingOrder.coupon_id },
+          data: { used_count: { decrement: 1 } },
+        });
+      } catch (couponErr) {
+        console.warn(`[UserCancel] Lỗi hoàn coupon ID ${existingOrder.coupon_id}:`, couponErr);
+      }
+    }
+
+    // 3. Ghi nhận lý do hủy vào seller_note
+    let currentNote = existingOrder.seller_note || '';
+    const reasonTag = `[CANCEL_REASON: ${cancelReason}]`;
+    if (/\[CANCEL_REASON:\s*[^\]]+\]/i.test(currentNote)) {
+      currentNote = currentNote.replace(/\[CANCEL_REASON:\s*[^\]]+\]/i, reasonTag);
+    } else {
+      currentNote = (currentNote ? currentNote + '\n' : '') + reasonTag;
+    }
+
+    // 4. Cập nhật trạng thái đơn hàng thành 'cancelled'
+    const updatedOrder = await prisma.orders.update({
+      where: { id: existingOrder.id },
+      data: {
+        order_status: 'cancelled',
+        seller_note: currentNote,
+      },
+    });
+
+    console.log(`[UserCancel] Khách hàng ${req.user.email || req.user.id} đã hủy thành công đơn hàng #${existingOrder.order_code}. Lý do: ${cancelReason}`);
+
+    return res.json({
+      success: true,
+      message: `Đã hủy thành công đơn hàng #${existingOrder.order_code}.`,
+      data: {
+        orderId: Number(updatedOrder.id),
+        orderCode: updatedOrder.order_code,
+        orderStatus: updatedOrder.order_status,
+        cancelReason,
+      },
+    });
+  } catch (error: any) {
+    console.error('Lỗi khi hủy đơn hàng:', error);
+    return res.status(500).json({ success: false, message: 'Lỗi máy chủ khi hủy đơn hàng.', error: error.message });
   }
 });
 

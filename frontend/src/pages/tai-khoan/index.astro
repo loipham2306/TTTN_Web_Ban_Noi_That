@@ -643,201 +643,386 @@ import { provinces } from '../../data/provinces';
   </section>
 
   <!-- =====================================================
-       ORDER DETAIL CENTERED MODAL
+       ORDER DETAIL CENTERED MODAL (ĐỒNG BỘ STYLES VỚI POPUP 4 TRỤ CỘT & XEM NHANH)
        ===================================================== -->
   <div
     id="order-detail-overlay"
-    class="fixed inset-0 z-[9999] hidden bg-black/65 backdrop-blur-sm pt-20 sm:pt-24 pb-6 px-3 sm:px-6 flex items-start sm:items-center justify-center overflow-y-auto transition-all duration-300 opacity-0"
+    class="fixed inset-0 z-[9999] hidden bg-walnut-900/60 backdrop-blur-sm p-4 overflow-y-auto flex items-center justify-center transition-opacity duration-300 opacity-0"
     role="dialog"
     aria-modal="true"
   >
+    <!-- Khung Popup Dialog: Mở rộng ngang kèm dải nền xanh thanh lịch phía dưới -->
     <div
       id="order-detail-panel"
-      class="relative w-full max-w-4xl max-h-[calc(100vh-120px)] bg-[#FAF8F5] shadow-2xl border border-walnut-900/15 flex flex-col rounded-none transform transition-all duration-300 scale-95 opacity-0 overflow-hidden my-auto"
+      class="relative my-4 sm:my-8 w-full max-w-4xl lg:max-w-5xl overflow-hidden rounded-none bg-sand-50 p-4 sm:p-6 md:px-7 md:py-6 shadow-2xl border border-walnut-900/15 transition-all duration-300 scale-95 opacity-0 max-h-[92vh] flex flex-col luxury-scrollbar"
     >
-      <!-- Header -->
-      <div class="bg-[#173524] text-white px-5 sm:px-6 py-4 flex items-center justify-between shrink-0 border-b border-[#D8B670]/30 relative">
-        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#D8B670] via-[#F3E5AB] to-[#C49E52]"></div>
-        
-        <div class="flex items-center gap-3">
-          <div class="w-8 h-8 rounded-none bg-[#D8B670]/20 border border-[#D8B670]/40 flex items-center justify-center text-[#F3E5AB] shrink-0">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-            </svg>
+      <!-- Nút đóng (X) bo tròn với hiệu ứng xoay 90 độ khi hover -->
+      <button
+        type="button"
+        id="btn-close-panel-x"
+        class="absolute right-3 top-3 sm:right-4 sm:top-4 z-20 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-sand-200/90 text-walnut-800 border border-walnut-900/10 shadow-sm hover:bg-walnut-900 hover:text-amber-300 hover:rotate-90 transition-all duration-300 cursor-pointer"
+        aria-label="Đóng chi tiết đơn hàng"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="h-4 w-4 pointer-events-none">
+          <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+
+      <div class="relative z-10 flex flex-col h-full min-h-0">
+        <!-- HEADER CỐ ĐỊNH -->
+        <div class="shrink-0 pr-10">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="inline-block px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.25em] bg-[#173524]/90 text-amber-300 border border-amber-300/30 backdrop-blur-xs shadow-sm">
+              KTUFA CLIENT ARCHIVE
+            </span>
           </div>
-          <div class="flex items-center gap-2">
-            <h2 class="font-sans font-bold text-sm sm:text-base text-white tracking-normal uppercase">Chi tiết đơn hàng</h2>
-            <span id="panel-order-code" class="font-mono font-bold text-xs bg-[#D8B670]/25 text-[#F3E5AB] border border-[#D8B670]/40 px-2.5 py-0.5 rounded-none tracking-normal"></span>
+          <div class="flex flex-wrap items-baseline gap-2.5">
+            <h2 class="font-display text-lg sm:text-2xl font-bold tracking-tight text-walnut-900 leading-snug">
+              Chi tiết hồ sơ đơn hàng
+            </h2>
+            <span id="panel-order-code" class="font-mono font-bold text-xs sm:text-sm bg-[#173524] text-amber-300 border border-amber-300/40 px-2.5 py-0.5 rounded-none tracking-normal"></span>
           </div>
+          <p class="font-display italic text-xs sm:text-sm text-walnut-800/80 mt-0.5 leading-relaxed">
+            Hóa đơn giao dịch điện tử & tiến độ điều phối chế tác, đóng gói bàn giao trực tiếp từ xưởng.
+          </p>
         </div>
 
-        <button
-          id="btn-close-panel-x"
-          type="button"
-          class="w-8 h-8 rounded-full border border-white/20 bg-white/5 text-sand-200 hover:text-white hover:bg-red-600/90 hover:border-red-500 flex items-center justify-center transition-all duration-200 cursor-pointer hover:rotate-90 shrink-0"
-          aria-label="Đóng"
-        >
-          <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        </button>
-      </div>
+        <!-- BODY CUỘN NỘI DUNG -->
+        <div id="order-detail-body" class="flex-1 overflow-y-auto my-3 pr-1 luxury-scrollbar min-h-0">
+          <!-- Render động bởi Javascript -->
+        </div>
 
-      <!-- Body -->
-      <div id="order-detail-body" class="flex-1 overflow-y-auto p-4 sm:p-6 bg-[#FAF8F5]">
-        <!-- Filled by JS -->
-      </div>
+        <!-- ACTION BAR TRÊN NỀN XANH (CÓ ĐỆM THOÁNG TRÊN VÀ DƯỚI NÚT, KHÔNG DÍNH VIỀN) -->
+        <div class="shrink-0 -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 md:-mx-7 md:-mb-6 px-4 sm:px-6 md:px-7 py-3.5 sm:py-4 bg-[#173524] border-t border-[#D8B670]/40">
+          <div class="flex items-center justify-between gap-2.5">
+            <div class="flex items-center gap-2">
+              <button
+                type="button"
+                onclick="window.print()"
+              class="hidden sm:inline-flex items-center justify-center gap-1.5 rounded-none border border-white/20 bg-white/10 hover:bg-white/20 text-sand-100 hover:text-white py-2 sm:py-2.5 px-3.5 text-[11px] sm:text-xs uppercase tracking-normal font-semibold font-sans shadow-sm transition-all cursor-pointer"
+            >
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5">
+                <path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2m-12 0v4h12v-4" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <span>In đơn hàng</span>
+              </button>
 
-      <!-- Footer -->
-      <div class="bg-[#F0EBE3] px-5 py-3 border-t border-walnut-900/10 flex items-center justify-end shrink-0">
-        <button
-          id="btn-close-order-detail"
-          type="button"
-          class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 text-xs font-bold uppercase tracking-wider bg-[#173524] text-[#E6CA85] hover:bg-[#204932] hover:text-white transition-colors rounded-none cursor-pointer shadow-xs border border-[#D8B670]/30"
-        >
-          Đóng cửa sổ
-        </button>
+              <button
+                type="button"
+                id="btn-detail-cancel-order"
+                class="hidden items-center justify-center gap-1.5 rounded-none border border-red-400/40 bg-red-950/40 hover:bg-red-900/60 text-red-200 hover:text-white py-2 sm:py-2.5 px-3 text-[11px] sm:text-xs uppercase tracking-normal font-semibold font-sans shadow-sm transition-all cursor-pointer"
+              >
+                <span>✕ Hủy đơn</span>
+              </button>
+            </div>
+
+            <button
+              id="btn-close-order-detail"
+              type="button"
+              class="w-full sm:w-auto ml-auto inline-flex items-center justify-center gap-1.5 rounded-none border border-white/25 bg-white/10 hover:bg-white/20 text-sand-100 hover:text-white py-2 sm:py-2.5 px-6 text-[11px] sm:text-xs uppercase tracking-normal font-semibold font-sans shadow-sm transition-all cursor-pointer text-center"
+            >
+              <span>Đóng cửa sổ</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="h-3.5 w-3.5 pointer-events-none shrink-0">
+                <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
 
   <!-- =====================================================
-       ADDRESS ADD / EDIT MODAL
+       ADDRESS ADD / EDIT MODAL (ĐỒNG BỘ STYLES VỚI POPUP 4 TRỤ CỘT & XEM NHANH)
        ===================================================== -->
   <div
     id="address-modal-overlay"
-    class="fixed inset-0 z-[9999] hidden bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 transition-opacity duration-300 opacity-0"
+    class="fixed inset-0 z-[9999] hidden bg-walnut-900/60 backdrop-blur-sm p-4 overflow-y-auto flex items-center justify-center transition-opacity duration-300 opacity-0"
     role="dialog"
     aria-modal="true"
   >
     <div
       id="address-modal-panel"
-      class="relative w-full max-w-lg bg-[#FAF8F5] border border-walnut-900/20 shadow-2xl rounded-none transform transition-all duration-300 scale-95 opacity-0 overflow-hidden"
+      class="relative my-4 sm:my-8 w-full max-w-xl overflow-hidden rounded-none bg-sand-50 p-4 sm:p-6 md:px-7 md:py-6 shadow-2xl border border-walnut-900/15 transition-all duration-300 scale-95 opacity-0 max-h-[92vh] overflow-y-auto luxury-scrollbar"
     >
-      <!-- Modal Header -->
-      <div class="bg-[#173524] text-white px-5 py-4 flex items-center justify-between border-b border-[#D8B670]/30 relative">
-        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#D8B670] via-[#F3E5AB] to-[#C49E52]"></div>
-        <h3 id="address-modal-title" class="font-bold text-sm uppercase tracking-wider text-[#F3E5AB] flex items-center gap-2">
-          <span>📍 Thêm địa chỉ mới</span>
-        </h3>
-        <button
-          type="button"
-          id="btn-close-address-modal"
-          class="text-white/70 hover:text-white p-1 hover:bg-white/10 transition-colors cursor-pointer text-lg leading-none"
-        >
-          ✕
-        </button>
-      </div>
+      <!-- Nút đóng (X) bo tròn với hiệu ứng xoay 90 độ khi hover -->
+      <button
+        type="button"
+        id="btn-close-address-modal"
+        class="absolute right-3 top-3 sm:right-4 sm:top-4 z-20 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-sand-200/90 text-walnut-800 border border-walnut-900/10 shadow-sm hover:bg-walnut-900 hover:text-amber-300 hover:rotate-90 transition-all duration-300 cursor-pointer"
+        aria-label="Đóng thêm địa chỉ"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="h-4 w-4 pointer-events-none">
+          <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
 
-      <!-- Modal Form -->
-      <form id="address-form" class="p-6 space-y-4">
-        <input type="hidden" id="addr-id" value="" />
-        
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div class="relative z-10 flex flex-col">
+        <!-- Header -->
+        <div class="pr-10 mb-4">
+          <span class="inline-block px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.25em] bg-[#173524]/90 text-amber-300 border border-amber-300/30 backdrop-blur-xs shadow-sm mb-1.5">
+            KTUFA CLIENT PROFILE
+          </span>
+          <h3 id="address-modal-title" class="font-display text-lg sm:text-2xl font-bold tracking-tight text-walnut-900 leading-snug">
+            Thêm địa chỉ nhận hàng
+          </h3>
+          <p class="font-display italic text-xs text-walnut-800/80 mt-0.5 leading-relaxed">
+            Thông tin tư gia dùng để điều phối kỹ thuật viên giao hàng & lắp đặt tận nơi.
+          </p>
+        </div>
+
+        <!-- Form -->
+        <form id="address-form" class="space-y-3.5">
+          <input type="hidden" id="addr-id" value="" />
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div>
+              <label class="block text-[10.5px] font-bold uppercase tracking-wider text-walnut-800 mb-1">
+                Họ tên người nhận <span class="text-rose-600">*</span>
+              </label>
+              <input
+                type="text"
+                id="addr-receiver-name"
+                required
+                placeholder="Nguyễn Văn A"
+                class="w-full border border-walnut-900/20 bg-white/95 px-3 py-2 text-xs text-walnut-900 outline-none focus:border-[#173524] shadow-2xs rounded-none transition-colors"
+              />
+            </div>
+            <div>
+              <label class="block text-[10.5px] font-bold uppercase tracking-wider text-walnut-800 mb-1">
+                Số điện thoại <span class="text-rose-600">*</span>
+              </label>
+              <input
+                type="tel"
+                id="addr-receiver-phone"
+                required
+                placeholder="0912345678"
+                class="w-full border border-walnut-900/20 bg-white/95 px-3 py-2 text-xs text-walnut-900 outline-none focus:border-[#173524] shadow-2xs rounded-none transition-colors"
+              />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+            <div>
+              <label class="block text-[10.5px] font-bold uppercase tracking-wider text-walnut-800 mb-1">
+                Tỉnh / Thành phố <span class="text-rose-600">*</span>
+              </label>
+              <select
+                id="addr-province"
+                required
+                class="w-full border border-walnut-900/20 bg-white/95 px-3 py-2 text-xs text-walnut-900 outline-none focus:border-[#173524] shadow-2xs rounded-none transition-colors"
+              >
+                <option value="">-- Chọn tỉnh/thành --</option>
+                {provinces.map((p) => <option value={p}>{p}</option>)}
+              </select>
+            </div>
+            <div>
+              <label class="block text-[10.5px] font-bold uppercase tracking-wider text-walnut-800 mb-1">
+                Quận / Huyện <span class="text-rose-600">*</span>
+              </label>
+              <input
+                type="text"
+                id="addr-district"
+                required
+                placeholder="Quận / Huyện"
+                class="w-full border border-walnut-900/20 bg-white/95 px-3 py-2 text-xs text-walnut-900 outline-none focus:border-[#173524] shadow-2xs rounded-none transition-colors"
+              />
+            </div>
+          </div>
+
           <div>
-            <label class="block text-[11px] font-bold uppercase tracking-wider text-walnut-800 mb-1">
-              Họ và tên người nhận <span class="text-rose-600">*</span>
+            <label class="block text-[10.5px] font-bold uppercase tracking-wider text-walnut-800 mb-1">
+              Địa chỉ cụ thể <span class="text-rose-600">*</span>
             </label>
             <input
               type="text"
-              id="addr-receiver-name"
+              id="addr-specific"
               required
-              placeholder="Nguyễn Văn A"
-              class="w-full border border-walnut-900/20 bg-white px-3 py-2 text-xs text-walnut-900 outline-none focus:border-[#173524]"
+              placeholder="Số nhà, tên đường, phường/xã"
+              class="w-full border border-walnut-900/20 bg-white/95 px-3 py-2 text-xs text-walnut-900 outline-none focus:border-[#173524] shadow-2xs rounded-none transition-colors"
             />
           </div>
-          <div>
-            <label class="block text-[11px] font-bold uppercase tracking-wider text-walnut-800 mb-1">
-              Số điện thoại <span class="text-rose-600">*</span>
+
+          <div class="pt-0.5">
+            <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+              <input
+                type="checkbox"
+                id="addr-is-default"
+                class="h-4 w-4 rounded-none border-walnut-900/30 text-[#173524] focus:ring-0 cursor-pointer"
+              />
+              <span class="text-xs text-walnut-900 font-medium">Đặt làm địa chỉ nhận hàng mặc định</span>
             </label>
-            <input
-              type="tel"
-              id="addr-receiver-phone"
-              required
-              placeholder="0912345678"
-              class="w-full border border-walnut-900/20 bg-white px-3 py-2 text-xs text-walnut-900 outline-none focus:border-[#173524]"
-            />
           </div>
+
+          <div id="addr-error" class="hidden text-xs text-rose-600 font-medium"></div>
+
+          <!-- Action bar trên nền xanh (Thoáng đãng, gọn gàng, không vướng dòng bảo mật) -->
+          <div class="mt-5 -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 md:-mx-7 md:-mb-6 px-4 sm:px-6 md:px-7 py-3.5 sm:py-4 bg-[#173524] border-t border-[#D8B670]/40">
+            <div class="flex items-center gap-2.5 sm:gap-3">
+              <button
+                type="button"
+                id="btn-cancel-address"
+                class="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 rounded-none border border-white/25 bg-white/10 hover:bg-white/20 text-sand-100 hover:text-white py-2.5 px-3 text-[11px] sm:text-xs uppercase tracking-normal font-semibold font-sans shadow-sm transition-all cursor-pointer text-center"
+              >
+                <span>Hủy bỏ</span>
+              </button>
+
+              <button
+                type="submit"
+                id="btn-save-address"
+                class="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 rounded-none bg-gradient-to-r from-[#D8B670] via-[#E2C37E] to-[#C49E52] py-2.5 px-3 text-[11px] sm:text-xs uppercase tracking-normal text-[#173524] font-bold shadow-md hover:from-[#C49E52] hover:to-[#B58F43] hover:text-white transition-all cursor-pointer border border-[#E0C582]/50 text-center"
+              >
+                <span>Lưu địa chỉ</span>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- =====================================================
+       CANCEL ORDER MODAL (ĐỒNG BỘ STYLES VỚI POPUP 4 TRỤ CỘT & XEM NHANH)
+       ===================================================== -->
+  <div
+    id="cancel-order-modal-overlay"
+    class="fixed inset-0 z-[9999] hidden bg-walnut-900/60 backdrop-blur-sm p-4 overflow-y-auto flex items-center justify-center transition-opacity duration-300 opacity-0"
+    role="dialog"
+    aria-modal="true"
+  >
+    <div
+      id="cancel-order-modal-panel"
+      class="relative my-4 sm:my-8 w-full max-w-lg overflow-hidden rounded-none bg-sand-50 p-4 sm:p-6 md:px-7 md:py-6 shadow-2xl border border-walnut-900/15 transition-all duration-300 scale-95 opacity-0 max-h-[92vh] overflow-y-auto luxury-scrollbar"
+    >
+      <!-- Nút đóng (X) bo tròn với hiệu ứng xoay 90 độ khi hover -->
+      <button
+        type="button"
+        id="btn-close-cancel-modal-x"
+        class="absolute right-3 top-3 sm:right-4 sm:top-4 z-20 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-sand-200/90 text-walnut-800 border border-walnut-900/10 shadow-sm hover:bg-walnut-900 hover:text-amber-300 hover:rotate-90 transition-all duration-300 cursor-pointer"
+        aria-label="Đóng hủy đơn hàng"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="h-4 w-4 pointer-events-none">
+          <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+
+      <div class="relative z-10 flex flex-col">
+        <!-- Header -->
+        <div class="pr-10 mb-3.5">
+          <span class="inline-block px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.25em] bg-[#173524]/90 text-amber-300 border border-amber-300/30 backdrop-blur-xs shadow-sm mb-1.5">
+            KTUFA CLIENT CARE
+          </span>
+          <div class="flex flex-wrap items-baseline gap-2">
+            <h3 class="font-display text-lg sm:text-xl font-bold tracking-tight text-walnut-900 leading-snug">
+              Yêu cầu hủy đơn hàng
+            </h3>
+            <span id="cancel-modal-order-code" class="font-mono font-bold text-xs bg-[#173524] text-amber-300 border border-amber-300/40 px-2.5 py-0.5 rounded-none"></span>
+          </div>
+          <p class="font-display italic text-xs text-walnut-800/80 mt-0.5 leading-relaxed">
+            Vui lòng chia sẻ lý do để KTUFA cải thiện chất lượng phục vụ & sản phẩm tốt hơn.
+          </p>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <!-- Form Hủy Đơn -->
+        <form id="cancel-order-form" class="space-y-3.5">
+          <input type="hidden" id="cancel-modal-order-id" value="" />
+          <input type="hidden" id="cancel-modal-order-code-input" value="" />
+
+          <!-- Thông báo lưu ý nhẹ nhàng -->
+          <div class="bg-amber-50/80 border border-amber-300/60 p-3 rounded-none text-xs text-amber-900 flex items-start gap-2.5 shadow-2xs">
+            <span class="text-base shrink-0 leading-none">⚠️</span>
+            <div class="leading-relaxed text-[11.5px]">
+              <strong class="font-bold">Lưu ý quan trọng:</strong> Khi xác nhận hủy, đơn hàng sẽ không thể hoàn tác. Số lượng sản phẩm và mã khuyến mãi (nếu có) sẽ được hoàn trả lại hệ thống.
+            </div>
+          </div>
+
+          <!-- Dropdown lý do hủy -->
           <div>
-            <label class="block text-[11px] font-bold uppercase tracking-wider text-walnut-800 mb-1">
-              Tỉnh / Thành phố <span class="text-rose-600">*</span>
+            <label class="block text-[10.5px] font-bold uppercase tracking-wider text-walnut-800 mb-1.5">
+              Lý do hủy đơn hàng <span class="text-rose-600">*</span>
             </label>
             <select
-              id="addr-province"
+              id="cancel-reason-select"
               required
-              class="w-full border border-walnut-900/20 bg-white px-3 py-2 text-xs text-walnut-900 outline-none focus:border-[#173524]"
+              class="w-full border border-walnut-900/20 bg-white/95 px-3 py-2.5 text-xs text-walnut-900 outline-none focus:border-[#173524] shadow-2xs rounded-none transition-colors cursor-pointer"
             >
-              <option value="">-- Chọn tỉnh/thành --</option>
-              {provinces.map((p) => <option value={p}>{p}</option>)}
+              <option value="" disabled selected>-- Chọn lý do hủy đơn hàng --</option>
+              <option value="Tôi đổi ý, muốn chọn sản phẩm khác">Tôi đổi ý, muốn chọn sản phẩm khác</option>
+              <option value="Muốn thay đổi địa chỉ nhận hàng hoặc số điện thoại">Muốn thay đổi địa chỉ nhận hàng hoặc số điện thoại</option>
+              <option value="Muốn thay đổi phương thức thanh toán">Muốn thay đổi phương thức thanh toán</option>
+              <option value="Thời gian giao hàng dự kiến không phù hợp">Thời gian giao hàng dự kiến không phù hợp</option>
+              <option value="Đặt nhầm số lượng hoặc mẫu mã sản phẩm">Đặt nhầm số lượng hoặc mẫu mã sản phẩm</option>
+              <option value="Tìm thấy sản phẩm giá tốt hơn ở nơi khác">Tìm thấy sản phẩm giá tốt hơn ở nơi khác</option>
+              <option value="other">Lý do khác (Nhập chi tiết bên dưới)</option>
             </select>
           </div>
-          <div>
-            <label class="block text-[11px] font-bold uppercase tracking-wider text-walnut-800 mb-1">
-              Quận / Huyện <span class="text-rose-600">*</span>
+
+          <!-- Textarea khi chọn lý do khác -->
+          <div id="cancel-reason-other-wrapper" class="hidden space-y-1">
+            <label class="block text-[10.5px] font-bold uppercase tracking-wider text-walnut-800">
+              Chi tiết lý do khác <span class="text-rose-600">*</span>
             </label>
-            <input
-              type="text"
-              id="addr-district"
-              required
-              placeholder="Quận / Huyện"
-              class="w-full border border-walnut-900/20 bg-white px-3 py-2 text-xs text-walnut-900 outline-none focus:border-[#173524]"
-            />
+            <textarea
+              id="cancel-reason-other-text"
+              rows="3"
+              placeholder="Quý khách vui lòng chia sẻ lý do cụ thể..."
+              class="w-full border border-walnut-900/20 bg-white/95 px-3 py-2 text-xs text-walnut-900 outline-none focus:border-[#173524] shadow-2xs rounded-none transition-colors resize-none"
+            ></textarea>
           </div>
-        </div>
 
-        <div>
-          <label class="block text-[11px] font-bold uppercase tracking-wider text-walnut-800 mb-1">
-            Địa chỉ cụ thể <span class="text-rose-600">*</span>
-          </label>
-          <input
-            type="text"
-            id="addr-specific"
-            required
-            placeholder="Số nhà, tên đường, phường/xã"
-            class="w-full border border-walnut-900/20 bg-white px-3 py-2 text-xs text-walnut-900 outline-none focus:border-[#173524]"
-          />
-        </div>
+          <!-- Alert Lỗi -->
+          <div id="cancel-modal-error" class="hidden text-xs text-rose-600 font-medium bg-rose-50 border border-rose-200 p-2.5"></div>
 
-        <div class="pt-1">
-          <label class="inline-flex items-center gap-2 cursor-pointer select-none">
-            <input
-              type="checkbox"
-              id="addr-is-default"
-              class="h-4 w-4 rounded-none border-walnut-900/30 text-[#173524] focus:ring-0 cursor-pointer"
-            />
-            <span class="text-xs text-walnut-900 font-medium">Đặt làm địa chỉ nhận hàng mặc định</span>
-          </label>
-        </div>
+          <!-- Action bar trên nền xanh -->
+          <div class="mt-5 -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 md:-mx-7 md:-mb-6 px-4 sm:px-6 md:px-7 py-3.5 sm:py-4 bg-[#173524] border-t border-[#D8B670]/40">
+            <div class="flex items-center gap-2.5 sm:gap-3">
+              <button
+                type="button"
+                id="btn-dismiss-cancel-modal"
+                class="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 rounded-none border border-white/25 bg-white/10 hover:bg-white/20 text-sand-100 hover:text-white py-2.5 px-3 text-[11px] sm:text-xs uppercase tracking-normal font-semibold font-sans shadow-sm transition-all cursor-pointer text-center"
+              >
+                <span>Giữ lại đơn hàng</span>
+              </button>
 
-        <div id="addr-error" class="hidden text-xs text-rose-600 font-medium"></div>
-
-        <div class="flex items-center justify-end gap-3 pt-3 border-t border-walnut-900/10">
-          <button
-            type="button"
-            id="btn-cancel-address"
-            class="border border-walnut-900/20 bg-white px-4 py-2 text-xs font-bold uppercase tracking-wider text-walnut-800 hover:bg-sand-100 transition-colors cursor-pointer"
-          >
-            Hủy bỏ
-          </button>
-          <button
-            type="submit"
-            id="btn-save-address"
-            class="bg-[#173524] text-[#D8B670] border border-[#D8B670]/40 px-5 py-2 text-xs font-bold uppercase tracking-wider hover:bg-walnut-900 transition-colors shadow-xs cursor-pointer"
-          >
-            Lưu địa chỉ
-          </button>
-        </div>
-      </form>
+              <button
+                type="submit"
+                id="btn-confirm-cancel-order"
+                class="flex-1 flex items-center justify-center gap-1 sm:gap-1.5 rounded-none bg-red-700 hover:bg-red-800 text-white border border-red-500/50 py-2.5 px-3 text-[11px] sm:text-xs uppercase tracking-normal font-bold font-sans shadow-md hover:shadow-lg transition-all cursor-pointer text-center"
+              >
+                <span>Xác nhận hủy đơn</span>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
     </div>
   </div>
 
 </BaseLayout>
 
 <style>
+  /* Thanh cuộn mạ vàng kim thanh mảnh chuẩn Luxury */
+  .luxury-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: #D8B670 rgba(18, 43, 28, 0.6);
+  }
+  .luxury-scrollbar::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+  .luxury-scrollbar::-webkit-scrollbar-track {
+    background: rgba(18, 43, 28, 0.5);
+    border-radius: 9999px;
+  }
+  .luxury-scrollbar::-webkit-scrollbar-thumb {
+    background: #D8B670;
+    border-radius: 9999px;
+  }
+  .luxury-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #E6CA85;
+  }
   /* Entrance animations for dashboard */
   @keyframes accountFadeInUp {
     0% {
@@ -1093,6 +1278,7 @@ import { provinces } from '../../data/provinces';
     const panelCode = document.getElementById('panel-order-code')!;
     const btnClose = document.getElementById('btn-close-order-detail')!;
     const btnCloseX = document.getElementById('btn-close-panel-x')!;
+    const btnDetailCancelOrder = document.getElementById('btn-detail-cancel-order') as HTMLButtonElement | null;
 
     if (overlay && overlay.parentElement !== document.body) {
       document.body.appendChild(overlay);
@@ -1125,6 +1311,12 @@ import { provinces } from '../../data/provinces';
       panel.classList.add('scale-95', 'opacity-0');
       panel.classList.remove('scale-100', 'opacity-100');
       document.body.style.overflow = '';
+      if (btnDetailCancelOrder) {
+        btnDetailCancelOrder.style.display = 'none';
+        btnDetailCancelOrder.classList.add('hidden');
+        btnDetailCancelOrder.classList.remove('inline-flex');
+        btnDetailCancelOrder.onclick = null;
+      }
       setTimeout(() => {
         overlay.classList.add('hidden');
         document.body.classList.remove('order-modal-open');
@@ -1149,6 +1341,12 @@ import { provinces } from '../../data/provinces';
 
     const openOrderDetail = async (orderCode: string) => {
       panelCode.textContent = `#${orderCode}`;
+      if (btnDetailCancelOrder) {
+        btnDetailCancelOrder.style.display = 'none';
+        btnDetailCancelOrder.classList.add('hidden');
+        btnDetailCancelOrder.classList.remove('inline-flex');
+        btnDetailCancelOrder.onclick = null;
+      }
       panelBody.innerHTML = `
         <div class="flex items-center justify-center py-20 text-walnut-800/60 text-sm">
           <svg class="animate-spin w-7 h-7 mr-3 text-[#173524]" fill="none" viewBox="0 0 24 24">
@@ -1175,6 +1373,26 @@ import { provinces } from '../../data/provinces';
         const { text: statusText, cls: statusCls } = getStatusInfo(o.orderStatus, o.paymentStatus, o.paymentMethod);
         const payMethod = isBank ? 'Chuyển khoản VietQR (SePay)' : 'Thanh toán COD khi nhận hàng';
         const recipientPhone = o.phone || phone;
+
+        // Chỉ hiển thị nút hủy đơn nếu đơn hàng đang ở trạng thái chờ xác nhận / chuẩn bị và CHƯA BỊ HỦY
+        const isCancelled = (o.orderStatus === 'cancelled' || o.orderStatus === 'da-huy');
+        const canCancel = (o.orderStatus === 'pending' || o.orderStatus === 'confirmed' || o.orderStatus === 'cho-xac-nhan' || o.orderStatus === 'dang-chuan-bi') && !isCancelled;
+
+        if (btnDetailCancelOrder) {
+          if (canCancel) {
+            btnDetailCancelOrder.classList.remove('hidden');
+            btnDetailCancelOrder.classList.add('inline-flex');
+            btnDetailCancelOrder.style.display = 'inline-flex';
+            btnDetailCancelOrder.onclick = () => {
+              openCancelOrderModal(String(o.id || o.orderCode), o.orderCode);
+            };
+          } else {
+            btnDetailCancelOrder.classList.add('hidden');
+            btnDetailCancelOrder.classList.remove('inline-flex');
+            btnDetailCancelOrder.style.display = 'none';
+            btnDetailCancelOrder.onclick = null;
+          }
+        }
 
         const itemsRows = (o.items || []).map((it: any) => `
           <tr class="border-b border-walnut-900/5 hover:bg-sand-50/70 transition-colors">
@@ -1270,7 +1488,7 @@ import { provinces } from '../../data/provinces';
 
               <!-- Box: Thông tin đơn hàng -->
               <div class="bg-white rounded-none border border-walnut-900/15 overflow-hidden shadow-xs">
-                <div class="bg-[#F0EBE3] px-4 py-2.5 border-b border-walnut-900/10 flex items-center justify-between">
+                <div class="bg-sand-100/90 px-4 py-2.5 border-b border-walnut-900/10 flex items-center justify-between">
                   <h3 class="font-bold text-xs text-walnut-900 uppercase tracking-wide">Thông tin đơn hàng</h3>
                   <span class="inline-block border rounded-none px-2 py-0.5 text-[10px] font-bold ${statusCls}">${statusText}</span>
                 </div>
@@ -1299,7 +1517,7 @@ import { provinces } from '../../data/provinces';
 
               <!-- Box: Thông tin giao nhận -->
               <div class="bg-white rounded-none border border-walnut-900/15 overflow-hidden shadow-xs">
-                <div class="bg-[#F0EBE3] px-4 py-2.5 border-b border-walnut-900/10">
+                <div class="bg-sand-100/90 px-4 py-2.5 border-b border-walnut-900/10">
                   <h3 class="font-bold text-xs text-walnut-900 uppercase tracking-wide">Địa chỉ nhận hàng</h3>
                 </div>
                 <div class="p-4 space-y-2 text-xs text-walnut-900">
@@ -1498,38 +1716,13 @@ import { provinces } from '../../data/provinces';
         });
       });
 
-      // Bind Hủy đơn
+      // Bind Hủy đơn mở popup thương hiệu
       tableBody.querySelectorAll<HTMLButtonElement>('.btn-cancel-order').forEach((btn) => {
-        btn.addEventListener('click', async () => {
+        btn.addEventListener('click', () => {
           const orderId = btn.dataset.cancelOrder;
           const orderCode = btn.dataset.code;
-          if (!orderId) return;
-
-          const promptReason = prompt(`Bạn có chắc chắn muốn hủy đơn hàng #${orderCode}?\nVui lòng nhập lý do hủy đơn hàng:`, 'Tôi đổi ý, muốn đặt lại sản phẩm khác');
-          if (promptReason === null) return;
-          const cancelReason = promptReason.trim() || 'Khách hàng tự hủy đơn qua trang tài khoản.';
-
-          btn.disabled = true;
-          btn.textContent = 'Đang hủy...';
-
-          try {
-            const res = await fetch(`http://localhost:4000/api/orders/${orderId}/status`, {
-              method: 'PATCH',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ orderStatus: 'cancelled', cancelReason })
-            });
-            const data = await res.json();
-            if (res.ok && data.success) {
-              alert(`Đã hủy thành công đơn hàng #${orderCode}.`);
-              await loadOrdersData();
-            } else {
-              alert(data.message || 'Không thể hủy đơn hàng vào lúc này.');
-            }
-          } catch (e) {
-            alert('Lỗi kết nối máy chủ khi hủy đơn hàng.');
-          } finally {
-            btn.disabled = false;
-            btn.textContent = '✕ Hủy';
+          if (orderId && orderCode) {
+            openCancelOrderModal(orderId, orderCode);
           }
         });
       });
@@ -1587,6 +1780,15 @@ import { provinces } from '../../data/provinces';
       allUserOrders = userOrders;
       loadingEl.classList.add('hidden');
       renderOrdersTable();
+
+      // Cập nhật thống kê Tổng chi tiêu & Đơn hoàn thành dựa trên các đơn đã giao thành công (completed)
+      const completedOrders = allUserOrders.filter((o: any) => o.orderStatus === 'completed' || o.orderStatus === 'hoan-thanh');
+      const calculatedTotalSpent = completedOrders.reduce((sum: number, o: any) => sum + Number(o.total || o.totalAmount || 0), 0);
+      const calculatedCompletedCount = completedOrders.length;
+
+      if (infoSpent) infoSpent.textContent = fmtVnd(calculatedTotalSpent);
+      if (infoOrders) infoOrders.textContent = `${calculatedCompletedCount} đơn hàng`;
+      updateLoyaltyProgress(calculatedTotalSpent);
 
       if (highlightCode) {
         setTimeout(() => {
@@ -1762,6 +1964,149 @@ import { provinces } from '../../data/provinces';
     window.addEventListener('wishlist:changed', loadWishlist);
 
     // =========================================================
+    // CANCEL ORDER MODAL CONTROLLER
+    // =========================================================
+    const cancelModalOverlay = document.getElementById('cancel-order-modal-overlay');
+    const cancelModalPanel = document.getElementById('cancel-order-modal-panel');
+    const cancelModalCloseX = document.getElementById('btn-close-cancel-modal-x');
+    const cancelModalDismiss = document.getElementById('btn-dismiss-cancel-modal');
+    const cancelOrderForm = document.getElementById('cancel-order-form') as HTMLFormElement | null;
+    const cancelOrderIdInput = document.getElementById('cancel-modal-order-id') as HTMLInputElement | null;
+    const cancelOrderCodeInput = document.getElementById('cancel-modal-order-code-input') as HTMLInputElement | null;
+    const cancelModalOrderCodeText = document.getElementById('cancel-modal-order-code');
+    const cancelReasonSelect = document.getElementById('cancel-reason-select') as HTMLSelectElement | null;
+    const cancelReasonOtherWrapper = document.getElementById('cancel-reason-other-wrapper');
+    const cancelReasonOtherText = document.getElementById('cancel-reason-other-text') as HTMLTextAreaElement | null;
+    const cancelModalError = document.getElementById('cancel-modal-error');
+    const btnConfirmCancelOrder = document.getElementById('btn-confirm-cancel-order') as HTMLButtonElement | null;
+
+    if (cancelModalOverlay && cancelModalOverlay.parentElement !== document.body) {
+      document.body.appendChild(cancelModalOverlay);
+    }
+
+    function openCancelOrderModal(orderId: string, orderCode: string) {
+      if (!cancelModalOverlay || !cancelModalPanel) return;
+      if (cancelModalOverlay.parentElement !== document.body) {
+        document.body.appendChild(cancelModalOverlay);
+      }
+      if (cancelOrderIdInput) cancelOrderIdInput.value = orderId;
+      if (cancelOrderCodeInput) cancelOrderCodeInput.value = orderCode;
+      if (cancelModalOrderCodeText) cancelModalOrderCodeText.textContent = `#${orderCode}`;
+      if (cancelReasonSelect) cancelReasonSelect.value = '';
+      if (cancelReasonOtherText) cancelReasonOtherText.value = '';
+      if (cancelReasonOtherWrapper) cancelReasonOtherWrapper.classList.add('hidden');
+      if (cancelModalError) {
+        cancelModalError.classList.add('hidden');
+        cancelModalError.textContent = '';
+      }
+
+      cancelModalOverlay.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        cancelModalOverlay.classList.remove('opacity-0');
+        cancelModalOverlay.classList.add('opacity-100');
+        cancelModalPanel.classList.remove('opacity-0', 'scale-95');
+        cancelModalPanel.classList.add('opacity-100', 'scale-100');
+      });
+    }
+
+    function closeCancelOrderModal() {
+      if (!cancelModalOverlay || !cancelModalPanel) return;
+      cancelModalOverlay.classList.remove('opacity-100');
+      cancelModalOverlay.classList.add('opacity-0');
+      cancelModalPanel.classList.remove('opacity-100', 'scale-100');
+      cancelModalPanel.classList.add('opacity-0', 'scale-95');
+      setTimeout(() => {
+        cancelModalOverlay.classList.add('hidden');
+      }, 250);
+    }
+
+    cancelModalCloseX?.addEventListener('click', closeCancelOrderModal);
+    cancelModalDismiss?.addEventListener('click', closeCancelOrderModal);
+    cancelModalOverlay?.addEventListener('click', (e) => {
+      if (e.target === cancelModalOverlay) closeCancelOrderModal();
+    });
+
+    cancelReasonSelect?.addEventListener('change', () => {
+      if (cancelReasonSelect.value === 'other') {
+        cancelReasonOtherWrapper?.classList.remove('hidden');
+        cancelReasonOtherText?.focus();
+      } else {
+        cancelReasonOtherWrapper?.classList.add('hidden');
+      }
+    });
+
+    cancelOrderForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!cancelOrderIdInput || !btnConfirmCancelOrder) return;
+
+      const orderId = cancelOrderIdInput.value;
+      const orderCode = cancelOrderCodeInput?.value || orderId;
+      const selectedVal = cancelReasonSelect?.value || '';
+
+      if (!selectedVal) {
+        if (cancelModalError) {
+          cancelModalError.textContent = 'Vui lòng chọn lý do hủy đơn hàng.';
+          cancelModalError.classList.remove('hidden');
+        }
+        return;
+      }
+
+      let finalReason = '';
+      if (selectedVal === 'other') {
+        const otherText = cancelReasonOtherText?.value.trim() || '';
+        if (!otherText) {
+          if (cancelModalError) {
+            cancelModalError.textContent = 'Vui lòng nhập chi tiết lý do khác của quý khách.';
+            cancelModalError.classList.remove('hidden');
+          }
+          cancelReasonOtherText?.focus();
+          return;
+        }
+        finalReason = otherText;
+      } else {
+        finalReason = cancelReasonSelect?.options[cancelReasonSelect.selectedIndex]?.text || selectedVal;
+      }
+
+      btnConfirmCancelOrder.disabled = true;
+      btnConfirmCancelOrder.textContent = 'Đang xử lý hủy...';
+      if (cancelModalError) cancelModalError.classList.add('hidden');
+
+      try {
+        const token = localStorage.getItem('auth_token');
+        const res = await fetch(`http://localhost:4000/api/orders/${encodeURIComponent(orderId)}/cancel`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({ reason: finalReason }),
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          closeCancelOrderModal();
+          // Đóng modal chi tiết nếu đang mở
+          closePanel();
+          alert(`Đã hủy thành công đơn hàng #${orderCode}.`);
+          await loadOrdersData();
+        } else {
+          if (cancelModalError) {
+            cancelModalError.textContent = data.message || 'Không thể hủy đơn hàng vào lúc này. Vui lòng thử lại sau.';
+            cancelModalError.classList.remove('hidden');
+          }
+        }
+      } catch (err: any) {
+        if (cancelModalError) {
+          cancelModalError.textContent = 'Lỗi kết nối máy chủ khi gửi yêu cầu hủy đơn.';
+          cancelModalError.classList.remove('hidden');
+        }
+      } finally {
+        btnConfirmCancelOrder.disabled = false;
+        btnConfirmCancelOrder.textContent = 'Xác nhận hủy đơn';
+      }
+    });
+
+    // =========================================================
     // QUẢN LÝ SỔ ĐỊA CHỈ NHẬN HÀNG (CRUD USER ADDRESSES)
     // =========================================================
     const addrContainer = document.getElementById('address-list-container');
@@ -1790,7 +2135,7 @@ import { provinces } from '../../data/provinces';
       if (addrError) addrError.classList.add('hidden');
 
       if (mode === 'add') {
-        if (addrModalTitle) addrModalTitle.innerHTML = '<span>📍 Thêm địa chỉ nhận hàng mới</span>';
+        if (addrModalTitle) addrModalTitle.textContent = 'Thêm địa chỉ nhận hàng';
         if (addrInputId) addrInputId.value = '';
         if (addrInputName) addrInputName.value = fullUser.name || name || '';
         const rawPhone = (fullUser.phone && fullUser.phone !== 'Chưa cập nhật' && fullUser.phone !== 'Đăng nhập Google') ? fullUser.phone : '';
@@ -1800,7 +2145,7 @@ import { provinces } from '../../data/provinces';
         if (addrInputSpecific) addrInputSpecific.value = '';
         if (addrInputDefault) addrInputDefault.checked = userAddresses.length === 0;
       } else if (addrData) {
-        if (addrModalTitle) addrModalTitle.innerHTML = '<span>✏️ Chỉnh sửa địa chỉ nhận hàng</span>';
+        if (addrModalTitle) addrModalTitle.textContent = 'Chỉnh sửa địa chỉ nhận hàng';
         if (addrInputId) addrInputId.value = String(addrData.id);
         if (addrInputName) addrInputName.value = addrData.receiverName || '';
         if (addrInputPhone) addrInputPhone.value = addrData.receiverPhone || '';

@@ -272,8 +272,22 @@ export const removeItem = (slug: string): CartItem[] => {
 
 export const clearCart = (): void => {
   if (typeof window === 'undefined') return;
-  const key = getCartKey();
-  writeKey(key, []);
+  const currentKey = getCartKey();
+  writeKey(currentKey, []);
+  writeKey(GUEST_KEY, []);
+  try {
+    const toRemove: string[] = [];
+    for (let i = 0; i < window.localStorage.length; i++) {
+      const k = window.localStorage.key(i);
+      if (k && (k.startsWith('noithat_cart') || k === 'cart')) {
+        toRemove.push(k);
+      }
+    }
+    toRemove.forEach((k) => window.localStorage.removeItem(k));
+    window.localStorage.removeItem('cart_coupon');
+  } catch {}
+  writeKey(currentKey, []);
+  writeKey(GUEST_KEY, []);
   window.dispatchEvent(new CustomEvent(CART_EVENT, { detail: [] }));
 };
 

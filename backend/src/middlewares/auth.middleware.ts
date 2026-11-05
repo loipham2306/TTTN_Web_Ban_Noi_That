@@ -79,7 +79,7 @@ export const requireRole = (allowedRoles: string[]) => {
 /**
  * Middleware yêu cầu quyền Quản trị viên (Admin hoặc Seller)
  */
-export const requireAdmin = requireRole(['admin', 'seller']);
+export const requireAdmin = requireRole(['admin', 'seller', 'cashier']);
 
 /**
  * Middleware tùy chọn: Nếu có token thì giải mã, không có thì vẫn cho qua (cho các API công khai cần nhận diện user nếu đã login)

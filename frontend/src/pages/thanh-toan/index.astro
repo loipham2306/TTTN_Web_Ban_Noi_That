@@ -1545,6 +1545,10 @@ ${value('phone')}`,
             totalAmount,
           };
 
+          // ✅ XÓA SẠCH GIỎ HÀNG VÀ COUPON NGAY KHI ĐƠN HÀNG ĐÃ ĐƯỢC TẠO THÀNH CÔNG
+          clearCart();
+          localStorage.removeItem('cart_coupon');
+
           if (payment === 'sepay') {
             // Chuyển sang luồng quét mã VietQR SePay
             startSepayFlow(code, totalAmount);
