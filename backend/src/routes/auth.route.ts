@@ -124,15 +124,49 @@ authRouter.post('/register', authLimiter, async (req: Request, res: Response) =>
     }
 
     // 1. Kiểm tra email đã tồn tại hay chưa
-    const existingEmail = await prisma.users.findUnique({
+    let existingEmail = await prisma.users.findUnique({
       where: { email: cleanEmail },
       include: { roles: true },
     });
 
     if (existingEmail) {
-      // Nếu email này thuộc tài khoản khách vãng lai (guest chưa từng tạo mật khẩu)
-      // Cho phép nâng cấp trực tiếp thành viên chính thức
-      if (existingEmail.password_hash === 'guest_no_login' || existingEmail.password_hash === 'guest_review') {
+      // 1.1. Nếu tài khoản này đã bị Admin xóa (deleted_at != null):
+      // Theo Luật Bảo vệ Dữ liệu Cá nhân & quyền xóa dữ liệu, người dùng có quyền đăng ký lại email này.
+      if (existingEmail.deleted_at !== null) {
+        const [oldOrders, oldCash] = await Promise.all([
+          prisma.orders.count({ where: { user_id: existingEmail.id } }),
+          prisma.cash_transactions.count({ where: { performer_id: existingEmail.id } }),
+        ]);
+
+        if (oldOrders === 0 && oldCash === 0) {
+          // Xóa dứt điểm bản ghi cũ nếu chưa có đơn hàng
+          await Promise.all([
+            prisma.shopping_carts.deleteMany({ where: { user_id: existingEmail.id } }),
+            prisma.wishlists.deleteMany({ where: { user_id: existingEmail.id } }),
+            prisma.user_addresses.deleteMany({ where: { user_id: existingEmail.id } }),
+            prisma.password_otps.deleteMany({ where: { user_id: existingEmail.id } }),
+            prisma.reviews.deleteMany({ where: { user_id: existingEmail.id } }),
+            prisma.chat_messages.deleteMany({ where: { sender_id: existingEmail.id } }),
+            prisma.chat_sessions.deleteMany({ where: { user_id: existingEmail.id } }),
+            prisma.system_logs.deleteMany({ where: { user_id: existingEmail.id } }),
+          ]);
+          await prisma.users.delete({ where: { id: existingEmail.id } });
+        } else {
+          // Nếu có đơn hàng cũ (cần giữ chứng từ kế toán), ẩn danh hóa bản ghi cũ để giải phóng email gốc
+          await prisma.users.update({
+            where: { id: existingEmail.id },
+            data: {
+              full_name: 'Khách hàng đã hủy tài khoản',
+              email: `anonymized_${existingEmail.id}_${Date.now()}@deleted.local`,
+              phone: null,
+              password_hash: 'ACCOUNT_DELETED_ANONYMIZED',
+            },
+          });
+        }
+        existingEmail = null; // Đã giải phóng email hoàn toàn, tiếp tục tạo mới bên dưới
+      } else if (existingEmail.password_hash === 'guest_no_login' || existingEmail.password_hash === 'guest_review') {
+        // 1.2. Nếu email này thuộc tài khoản khách vãng lai (guest chưa từng tạo mật khẩu)
+        // Cho phép nâng cấp trực tiếp thành viên chính thức
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
@@ -173,27 +207,35 @@ authRouter.post('/register', authLimiter, async (req: Request, res: Response) =>
             role: userRole,
           },
         });
+      } else {
+        return res.status(409).json({
+          success: false,
+          field: 'email',
+          message: 'Email này đã được đăng ký. Vui lòng đăng nhập hoặc chọn Quên mật khẩu.'
+        });
       }
-
-      return res.status(409).json({
-        success: false,
-        field: 'email',
-        message: 'Email này đã được đăng ký. Vui lòng đăng nhập hoặc chọn Quên mật khẩu.'
-      });
     }
 
     // 2. Kiểm tra số điện thoại đã tồn tại hay chưa
     if (cleanPhone) {
-      const existingPhone = await prisma.users.findFirst({
+      let existingPhone = await prisma.users.findFirst({
         where: { phone: cleanPhone },
       });
 
-      if (existingPhone && existingPhone.password_hash !== 'guest_no_login' && existingPhone.password_hash !== 'guest_review') {
-        return res.status(409).json({
-          success: false,
-          field: 'phone',
-          message: 'Số điện thoại này đã được đăng ký cho một tài khoản khác. Vui lòng nhập số khác hoặc đăng nhập.'
-        });
+      if (existingPhone) {
+        if (existingPhone.deleted_at !== null) {
+          // Số điện thoại thuộc tài khoản đã xóa -> Giải phóng số điện thoại này
+          await prisma.users.update({
+            where: { id: existingPhone.id },
+            data: { phone: null },
+          });
+        } else if (existingPhone.password_hash !== 'guest_no_login' && existingPhone.password_hash !== 'guest_review') {
+          return res.status(409).json({
+            success: false,
+            field: 'phone',
+            message: 'Số điện thoại này đã được đăng ký cho một tài khoản khác. Vui lòng nhập số khác hoặc đăng nhập.'
+          });
+        }
       }
     }
 
@@ -286,7 +328,7 @@ authRouter.post('/login', authLimiter, async (req: Request, res: Response) => {
       include: { roles: true },
     });
 
-    if (!user) {
+    if (!user || user.deleted_at !== null) {
       return res.status(401).json({ success: false, message: 'Email hoặc mật khẩu không chính xác.' });
     }
 
@@ -376,6 +418,34 @@ authRouter.post('/google', async (req: Request, res: Response) => {
       where: { email: cleanEmail },
       include: { roles: true },
     });
+
+    // Nếu tài khoản cũ từng bị xóa, giải phóng bản ghi cũ để tạo tài khoản Google mới
+    if (user && user.deleted_at !== null) {
+      const [oldOrders, oldCash] = await Promise.all([
+        prisma.orders.count({ where: { user_id: user.id } }),
+        prisma.cash_transactions.count({ where: { performer_id: user.id } }),
+      ]);
+      if (oldOrders === 0 && oldCash === 0) {
+        await Promise.all([
+          prisma.shopping_carts.deleteMany({ where: { user_id: user.id } }),
+          prisma.wishlists.deleteMany({ where: { user_id: user.id } }),
+          prisma.user_addresses.deleteMany({ where: { user_id: user.id } }),
+          prisma.password_otps.deleteMany({ where: { user_id: user.id } }),
+          prisma.reviews.deleteMany({ where: { user_id: user.id } }),
+        ]);
+        await prisma.users.delete({ where: { id: user.id } });
+      } else {
+        await prisma.users.update({
+          where: { id: user.id },
+          data: {
+            full_name: 'Khách hàng đã hủy tài khoản',
+            email: `anonymized_${user.id}_${Date.now()}@deleted.local`,
+            phone: null,
+          },
+        });
+      }
+      user = null;
+    }
 
     if (!user) {
       let customerRole = await prisma.roles.findFirst({

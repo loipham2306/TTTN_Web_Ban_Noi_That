@@ -321,7 +321,7 @@ customersRouter.patch('/:id/status', verifyToken, requireAdmin, async (req: Requ
 });
 
 // ================================================================
-// DELETE /api/customers/:id - Xóa an toàn khách hàng (Soft delete)
+// DELETE /api/customers/:id - Xóa khách hàng đúng quy định pháp luật (Nghị định 13/2023/NĐ-CP & Luật Kế toán)
 // ================================================================
 customersRouter.delete('/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
@@ -334,24 +334,64 @@ customersRouter.delete('/:id', verifyToken, requireAdmin, async (req: Request, r
 
     const customer = await prisma.users.findUnique({
       where: { id: BigInt(customerId) },
+      include: { roles: true },
     });
 
-    if (!customer || customer.role_id !== 3) {
+    if (!customer || (customer.roles?.name !== 'customer' && customer.role_id !== 3)) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy khách hàng.' });
     }
 
-    await prisma.users.update({
-      where: { id: BigInt(customerId) },
-      data: {
-        deleted_at: new Date(),
-        status: false,
-      },
-    });
+    // Kiểm tra ràng buộc lưu trữ chứng từ kế toán theo luật:
+    const [orderCount, transactionCount] = await Promise.all([
+      prisma.orders.count({ where: { user_id: BigInt(customerId) } }),
+      prisma.cash_transactions.count({ where: { performer_id: BigInt(customerId) } }),
+    ]);
 
-    return res.json({
-      success: true,
-      message: `Đã xóa tài khoản khách hàng "${customer.full_name}" khỏi hệ thống.`,
-    });
+    // Xóa triệt để các dữ liệu cá nhân phụ trợ không cần giữ lại
+    await Promise.all([
+      prisma.shopping_carts.deleteMany({ where: { user_id: BigInt(customerId) } }),
+      prisma.wishlists.deleteMany({ where: { user_id: BigInt(customerId) } }),
+      prisma.user_addresses.deleteMany({ where: { user_id: BigInt(customerId) } }),
+      prisma.password_otps.deleteMany({ where: { user_id: BigInt(customerId) } }),
+      prisma.reviews.deleteMany({ where: { user_id: BigInt(customerId) } }),
+      prisma.chat_messages.deleteMany({ where: { sender_id: BigInt(customerId) } }),
+      prisma.chat_sessions.deleteMany({ where: { user_id: BigInt(customerId) } }),
+      prisma.system_logs.deleteMany({ where: { user_id: BigInt(customerId) } }),
+    ]);
+
+    if (orderCount === 0 && transactionCount === 0) {
+      // 1. Khách hàng CHƯA có đơn hàng / giao dịch tài chính:
+      // Xóa vĩnh viễn (Hard Delete) theo Điều 16 Nghị định 13/2023/NĐ-CP về Quyền xóa dữ liệu cá nhân.
+      await prisma.users.delete({
+        where: { id: BigInt(customerId) },
+      });
+
+      return res.json({
+        success: true,
+        message: `Đã xóa vĩnh viễn dữ liệu tài khoản khách hàng "${customer.full_name}". Email (${customer.email}) và SĐT đã được giải phóng hoàn toàn.`,
+      });
+    } else {
+      // 2. Khách hàng ĐÃ CÓ đơn hàng / chứng từ tài chính (Bắt buộc lưu vết kế toán 5-10 năm theo Luật Kế toán):
+      // Thực hiện Ẩn danh hóa dữ liệu định danh cá nhân (PII Anonymization) theo chuẩn pháp lý:
+      const timestamp = Date.now();
+      await prisma.users.update({
+        where: { id: BigInt(customerId) },
+        data: {
+          full_name: 'Khách hàng đã hủy tài khoản',
+          email: `anonymized_${customer.id}_${timestamp}@deleted.local`,
+          phone: null,
+          avatar_url: null,
+          password_hash: 'ACCOUNT_DELETED_ANONYMIZED',
+          status: false,
+          deleted_at: new Date(),
+        },
+      });
+
+      return res.json({
+        success: true,
+        message: `Đã xóa và ẩn danh hóa dữ liệu cá nhân khách hàng "${customer.full_name}" (bảo toàn hóa đơn kế toán). Email (${customer.email}) và SĐT đã được giải phóng để đăng ký mới.`,
+      });
+    }
   } catch (error: any) {
     console.error('Lỗi khi xóa khách hàng:', error);
     return res.status(500).json({

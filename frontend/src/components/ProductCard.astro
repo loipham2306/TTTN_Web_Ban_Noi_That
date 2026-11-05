@@ -234,7 +234,13 @@ const comparePrice = (rawCompare && Number(rawCompare) > product.price)
 
       const stock = Number(btn.dataset.stock ?? 20);
       if (stock <= 0) {
-        showCartToast(`Sản phẩm "${name}" hiện đã hết hàng!`);
+        showCartToast(`Sản phẩm "${name}" hiện đã hết hàng!`, 'warning');
+        return;
+      }
+
+      const res = addToCart({ slug, name, price, thumbnail, category, maxStock: stock }, 1);
+      if (!res.success) {
+        showCartToast(res.message, 'warning');
         return;
       }
 
@@ -242,8 +248,11 @@ const comparePrice = (rawCompare && Number(rawCompare) > product.price)
       const img = card ? card.querySelector<HTMLElement>('img') : btn;
 
       flyToCart(img, thumbnail);
-      addToCart({ slug, name, price, thumbnail, category, maxStock: stock }, 1);
-      showCartToast(`Đã thêm "${name}" vào giỏ hàng!`);
+      if (res.status === 'partially_added') {
+        showCartToast(res.message, 'warning');
+      } else {
+        showCartToast(`Đã thêm "${name}" vào giỏ hàng!`, 'success');
+      }
     });
   });
 
@@ -310,17 +319,66 @@ const comparePrice = (rawCompare && Number(rawCompare) > product.price)
       }
     });
   });
+  // 4. WISHLIST TRIGGER (ĐỒNG BỘ TÀI KHOẢN DATABASE & KHÁCH VÃNG LAI)
+  let cachedWishlistSlugs: string[] | null = null;
+  let isFetchingWishlist = false;
 
-  // 4. WISHLIST TRIGGER
-  const updateWishlistUI = () => {
-    let wishList: any[] = [];
+  const getActiveWishlistSlugs = async (): Promise<string[]> => {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+      if (cachedWishlistSlugs !== null) return cachedWishlistSlugs;
+      if (isFetchingWishlist) return cachedWishlistSlugs || [];
+      isFetchingWishlist = true;
+      try {
+        // Tự động gộp nếu trước đó có bấm tim khi chưa đăng nhập
+        try {
+          const guestList = JSON.parse(localStorage.getItem('user_wishlist_guest') || '[]');
+          if (Array.isArray(guestList) && guestList.length > 0) {
+            const guestSlugs = guestList.map((i: any) => i.slug).filter(Boolean);
+            if (guestSlugs.length > 0) {
+              await fetch('http://localhost:4000/api/wishlist/merge', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({ slugs: guestSlugs }),
+              }).catch(() => {});
+              localStorage.removeItem('user_wishlist_guest');
+            }
+          }
+        } catch {}
+
+        const res = await fetch('http://localhost:4000/api/wishlist', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const json = await res.json();
+        if (json.success && Array.isArray(json.data)) {
+          cachedWishlistSlugs = json.data.map((item: any) => item.slug);
+          return cachedWishlistSlugs;
+        }
+      } catch (e) {
+        console.warn('Lỗi lấy wishlist từ server:', e);
+      } finally {
+        isFetchingWishlist = false;
+      }
+    }
+
+    // Khách vãng lai
     try {
-      wishList = JSON.parse(localStorage.getItem('user_wishlist_guest') || '[]');
-    } catch {}
+      const guestList = JSON.parse(localStorage.getItem('user_wishlist_guest') || '[]');
+      return guestList.map((item: any) => item.slug);
+    } catch {
+      return [];
+    }
+  };
+
+  const updateWishlistUI = async () => {
+    const activeSlugs = await getActiveWishlistSlugs();
 
     document.querySelectorAll<HTMLButtonElement>('[data-btn-wishlist]').forEach((btn) => {
       const slug = btn.dataset.slug;
-      const isFav = wishList.some((item: any) => item.slug === slug);
+      const isFav = slug ? activeSlugs.includes(slug) : false;
       const icon = btn.querySelector('.wishlist-icon') as SVGElement | null;
       if (isFav) {
         btn.classList.add('bg-rose-50', 'text-rose-600', 'border-rose-300');
@@ -355,29 +413,14 @@ const comparePrice = (rawCompare && Number(rawCompare) > product.price)
       const price = Number(btn.dataset.price || 0);
       const thumbnail = btn.dataset.image || '';
       const category = btn.dataset.category || '';
+      if (!slug) return;
 
+      btn.disabled = true;
       const token = localStorage.getItem('auth_token');
-      let wishList: any[] = [];
-      try {
-        wishList = JSON.parse(localStorage.getItem('user_wishlist_guest') || '[]');
-      } catch {}
 
-      const idx = wishList.findIndex((item: any) => item.slug === slug);
-
-      if (idx > -1) {
-        wishList.splice(idx, 1);
-        showCartToast(`Đã xóa "${name}" khỏi danh sách yêu thích!`);
-      } else {
-        wishList.push({ slug, name, price, thumbnail, category });
-        showCartToast(`Đã thêm "${name}" vào danh sách yêu thích!`);
-      }
-
-      localStorage.setItem('user_wishlist_guest', JSON.stringify(wishList));
-
-      // Đồng bộ nếu đã đăng nhập
       if (token) {
         try {
-          await fetch('http://localhost:4000/api/wishlist/toggle', {
+          const res = await fetch('http://localhost:4000/api/wishlist/toggle', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -385,15 +428,48 @@ const comparePrice = (rawCompare && Number(rawCompare) > product.price)
             },
             body: JSON.stringify({ slug }),
           });
+          const json = await res.json();
+          if (json.success) {
+            cachedWishlistSlugs = null;
+            showCartToast(json.isFavorited ? `Đã thêm "${name}" vào danh sách yêu thích!` : `Đã xóa "${name}" khỏi danh sách yêu thích!`);
+          } else {
+            showCartToast(json.message || 'Lỗi khi cập nhật yêu thích', 'error');
+          }
+        } catch (err) {
+          console.error('Lỗi toggle wishlist:', err);
+          showCartToast('Không thể kết nối đến máy chủ.', 'error');
+        } finally {
+          btn.disabled = false;
+        }
+      } else {
+        try {
+          let wishList: any[] = JSON.parse(localStorage.getItem('user_wishlist_guest') || '[]');
+          const idx = wishList.findIndex((item: any) => item.slug === slug);
+          if (idx > -1) {
+            wishList.splice(idx, 1);
+            showCartToast(`Đã xóa "${name}" khỏi danh sách yêu thích!`);
+          } else {
+            wishList.push({ slug, name, price, thumbnail, category });
+            showCartToast(`Đã thêm "${name}" vào danh sách yêu thích!`);
+          }
+          localStorage.setItem('user_wishlist_guest', JSON.stringify(wishList));
         } catch {}
+        btn.disabled = false;
       }
 
       window.dispatchEvent(new Event('wishlist:changed'));
-      updateWishlistUI();
+      await updateWishlistUI();
     });
   });
 
   // Chạy cập nhật ban đầu & lắng nghe thay đổi
   updateWishlistUI();
-  window.addEventListener('wishlist:changed', updateWishlistUI);
+  window.addEventListener('wishlist:changed', () => {
+    cachedWishlistSlugs = null;
+    updateWishlistUI();
+  });
+  window.addEventListener('auth:changed', () => {
+    cachedWishlistSlugs = null;
+    updateWishlistUI();
+  });
 </script>

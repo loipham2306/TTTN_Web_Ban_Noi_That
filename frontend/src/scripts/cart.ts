@@ -42,7 +42,7 @@ export const getCartKey = (): string => {
         }
       }
     }
-  } catch {}
+  } catch { }
   return GUEST_KEY;
 };
 
@@ -154,33 +154,103 @@ export const mergeGuestCartIntoUser = (): void => {
 // Export alias để tương thích các nơi đang gọi
 export const mergeGuestCartOnLogin = mergeGuestCartIntoUser;
 
+export interface AddToCartResult {
+  success: boolean;
+  status: 'added' | 'partially_added' | 'already_max' | 'out_of_stock';
+  addedQty: number;
+  currentQty: number;
+  maxStock: number;
+  items: CartItem[];
+  message: string;
+}
+
+/**
+ * Lấy số lượng của sản phẩm theo slug đang có sẵn trong giỏ
+ */
+export const getCartItemQty = (slug: string): number => {
+  const items = readCart();
+  const existing = items.find((entry) => entry.slug === slug);
+  return existing ? existing.qty : 0;
+};
+
 export const addToCart = (
   item: { slug: string; name: string; price: number; thumbnail?: string; category?: string; maxStock?: number },
   qty = 1
-): CartItem[] => {
+): AddToCartResult => {
   const items = readCart();
   const existing = items.find((entry) => entry.slug === item.slug);
   const limit = typeof item.maxStock === 'number' && item.maxStock > 0 ? item.maxStock : MAX_QTY;
-  const validQty = clampQty(qty, limit);
+  const currentInCart = existing ? existing.qty : 0;
+  const parsedQty = parseInt(String(qty), 10);
+  const requestedQty = isNaN(parsedQty) || parsedQty < 1 ? 1 : parsedQty;
+
+  if (limit <= 0) {
+    return {
+      success: false,
+      status: 'out_of_stock',
+      addedQty: 0,
+      currentQty: currentInCart,
+      maxStock: limit,
+      items,
+      message: `Sản phẩm "${item.name}" hiện đang tạm hết hàng!`,
+    };
+  }
+
+  if (currentInCart >= limit) {
+    return {
+      success: false,
+      status: 'already_max',
+      addedQty: 0,
+      currentQty: currentInCart,
+      maxStock: limit,
+      items,
+      message: `Bạn đã có tối đa ${limit} sản phẩm "${item.name}" trong giỏ hàng!`,
+    };
+  }
+
+  const availableToAdd = limit - currentInCart;
+  const actualAdd = Math.min(requestedQty, availableToAdd);
 
   if (existing) {
-    existing.qty = clampQty(existing.qty + validQty, limit);
+    existing.qty += actualAdd;
     if (item.thumbnail && !existing.thumbnail) existing.thumbnail = item.thumbnail;
     if (item.price && !existing.price) existing.price = item.price;
+    existing.maxStock = limit;
   } else {
     items.push({
       slug: item.slug,
       name: item.name,
       price: item.price,
-      qty: validQty,
+      qty: actualAdd,
       thumbnail: item.thumbnail,
       category: item.category,
-      maxStock: item.maxStock,
+      maxStock: limit,
     });
   }
 
   writeCart(items);
-  return items;
+
+  if (actualAdd < requestedQty) {
+    return {
+      success: true,
+      status: 'partially_added',
+      addedQty: actualAdd,
+      currentQty: currentInCart + actualAdd,
+      maxStock: limit,
+      items,
+      message: `Đã thêm ${actualAdd} sản phẩm vào giỏ (đạt mức tồn kho tối đa ${limit} món)!`,
+    };
+  }
+
+  return {
+    success: true,
+    status: 'added',
+    addedQty: actualAdd,
+    currentQty: currentInCart + actualAdd,
+    maxStock: limit,
+    items,
+    message: `Đã thêm ${actualAdd} x "${item.name}" vào giỏ hàng!`,
+  };
 };
 
 export const updateQty = (slug: string, qty: any): CartItem[] => {
@@ -223,7 +293,7 @@ export const showCartToast = (message: string, type: 'success' | 'warning' | 'er
   toast.id = 'cart-toast-notification';
   // Vị trí ghim cố định ở GÓC DƯỚI BÊN TRÁI màn hình theo phong cách KTUFA Luxury
   toast.className = isWarn
-    ? 'fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-[99999] flex items-center gap-3 rounded-none bg-red-950/95 border border-red-500/60 px-4 sm:px-5 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold text-white shadow-2xl transition-all duration-300 translate-y-3 opacity-0 backdrop-blur-md max-w-[calc(100vw-2rem)] sm:max-w-md pointer-events-auto'
+? 'fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-[99999] flex items-center gap-3 rounded-none bg-red-950/95 border border-red-500/60 px-4 sm:px-5 py-3 sm:py-3.5 text-xs sm:text-sm font-semibold text-white shadow-2xl transition-all duration-300 translate-y-3 opacity-0 backdrop-blur-md max-w-[calc(100vw-2rem)] sm:max-w-md pointer-events-auto'
     : 'fixed bottom-4 left-4 sm:bottom-6 sm:left-6 z-[99999] flex items-center gap-3 rounded-none bg-[#173524]/95 border border-[#D8B670]/50 px-4 sm:px-5 py-3 sm:py-3.5 text-xs sm:text-sm font-medium text-sand-50 shadow-2xl transition-all duration-300 translate-y-3 opacity-0 backdrop-blur-md max-w-[calc(100vw-2rem)] sm:max-w-md pointer-events-auto';
 
   const iconSvg = isWarn

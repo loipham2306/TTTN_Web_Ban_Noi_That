@@ -397,7 +397,7 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
               disabled={stock === 0}
             >+</button>
           </div>
-          <span class="text-xs text-walnut-800/70">
+          <span id="stock-feedback-info" class="text-xs text-walnut-800/70">
             {stock > 0 ? `(Kho còn ${stock} sản phẩm)` : '(Tạm hết hàng)'}
           </span>
         </div>
@@ -770,8 +770,8 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
     </div>
   </div>
 
-  <!-- TOAST THÔNG BÁO CAO CẤP (GÓC TRÊN BÊN PHẢI - TRÁNH BỊ NÚT AI & CHAT CHE KHUẤT) -->
-  <div id="review-user-toast" class="fixed top-6 right-6 z-[9999] hidden -translate-y-4 rounded-xl bg-walnut-900 px-5 py-3.5 text-xs text-sand-50 shadow-2xl transition-all duration-300 border border-emerald-500/40 max-w-sm flex items-center gap-3">
+  <!-- TOAST THÔNG BÁO CAO CẤP (GÓC TRÊN BÊN PHẢI - NẰM DƯỚI HEADER) -->
+  <div id="review-user-toast" class="fixed top-24 sm:top-28 right-4 sm:right-6 z-[99999] hidden -translate-y-4 rounded-xl bg-walnut-900 px-5 py-3.5 text-xs text-sand-50 shadow-2xl transition-all duration-300 border border-emerald-500/40 max-w-sm flex items-center gap-3 backdrop-blur-md">
     <div id="review-user-toast-icon" class="shrink-0"></div>
     <span id="review-user-toast-msg" class="leading-relaxed">Đã gửi đánh giá thành công!</span>
   </div>
@@ -779,7 +779,7 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
 </BaseLayout>
 
 <script>
-  import { addToCart, showCartToast, flyToCart } from '../../scripts/cart';
+  import { addToCart, showCartToast, flyToCart, getCartItemQty, CART_EVENT } from '../../scripts/cart';
 
   // CART & QUANTITY
   const btnAdd = document.getElementById('btn-add-to-cart') as HTMLButtonElement | null;
@@ -787,8 +787,26 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
   const inputQty = document.getElementById('input-qty') as HTMLInputElement | null;
   const btnMinus = document.getElementById('btn-qty-minus') as HTMLButtonElement | null;
   const btnPlus = document.getElementById('btn-qty-plus') as HTMLButtonElement | null;
+  const stockFeedbackInfo = document.getElementById('stock-feedback-info');
 
   const maxStock = Number(inputQty?.max || 99);
+
+  const updateStockFeedback = () => {
+    if (!stockFeedbackInfo || maxStock <= 0) return;
+    const currentInCart = getCartItemQty(btnAdd?.dataset.slug || '');
+    if (currentInCart > 0) {
+      if (currentInCart >= maxStock) {
+        stockFeedbackInfo.innerHTML = `(Kho còn ${maxStock} • <span class="text-amber-700 font-semibold">Đã có ${currentInCart} trong giỏ - Đạt tối đa</span>)`;
+      } else {
+        stockFeedbackInfo.innerHTML = `(Kho còn ${maxStock} • <span class="text-walnut-800 font-medium">Đã có ${currentInCart} trong giỏ</span>)`;
+      }
+    } else {
+      stockFeedbackInfo.textContent = `(Kho còn ${maxStock} sản phẩm)`;
+    }
+  };
+
+  updateStockFeedback();
+  window.addEventListener(CART_EVENT, updateStockFeedback);
 
   const getQty = (): number => {
     if (maxStock <= 0) return 0;
@@ -802,6 +820,11 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
 
   btnPlus?.addEventListener('click', () => {
     if (inputQty && maxStock > 0) {
+      const currentInCart = getCartItemQty(btnAdd?.dataset.slug || '');
+      if (currentInCart + getQty() >= maxStock) {
+        showCartToast(`Số lượng trong giỏ (${currentInCart}) và đã chọn (${getQty()}) đã đạt giới hạn tồn kho (${maxStock} món)!`, 'warning');
+        return;
+      }
       if (getQty() < maxStock) {
         inputQty.value = String(getQty() + 1);
       } else {
@@ -836,10 +859,21 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
     btnAdd.addEventListener('click', () => {
       const payload = getItemPayload(btnAdd);
       const qty = getQty();
+      const res = addToCart(payload, qty);
+
+      if (!res.success) {
+        showCartToast(res.message, 'warning');
+        return;
+      }
+
       const mainImg = document.getElementById('main-product-image');
       flyToCart(mainImg, payload.thumbnail);
-      addToCart(payload, qty);
-      showCartToast(`Đã thêm ${qty} x "${payload.name}" vào giỏ hàng!`);
+
+      if (res.status === 'partially_added') {
+        showCartToast(res.message, 'warning');
+      } else {
+        showCartToast(res.message, 'success');
+      }
     });
   }
 
@@ -847,7 +881,20 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
     btnBuy.addEventListener('click', () => {
       const payload = getItemPayload(btnBuy);
       const qty = getQty();
-      addToCart(payload, qty);
+      const res = addToCart(payload, qty);
+
+      if (!res.success) {
+        showCartToast(res.message, 'warning');
+        setTimeout(() => {
+          window.location.href = '/thanh-toan';
+        }, 800);
+        return;
+      }
+
+      if (res.status === 'partially_added') {
+        showCartToast(res.message, 'warning');
+      }
+
       const token = localStorage.getItem('auth_token');
       if (!token) {
         showCartToast('Vui lòng đăng nhập để tiếp tục đặt hàng!');
@@ -990,8 +1037,8 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
         : `<svg class="h-5 w-5 text-emerald-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>`;
     }
     toast.className = isError
-      ? 'fixed top-6 right-6 z-[9999] rounded-xl bg-red-950/95 px-5 py-3.5 text-xs tracking-normal text-red-50 shadow-2xl transition-all duration-300 border border-red-500 max-w-sm flex items-center gap-3 font-medium backdrop-blur-sm'
-      : 'fixed top-6 right-6 z-[9999] rounded-xl bg-[#173524]/95 px-5 py-3.5 text-xs tracking-normal text-sand-50 shadow-2xl transition-all duration-300 border border-emerald-500/50 max-w-sm flex items-center gap-3 font-medium backdrop-blur-sm';
+      ? 'fixed top-24 sm:top-28 right-4 sm:right-6 z-[99999] rounded-xl bg-red-950/95 px-5 py-3.5 text-xs tracking-normal text-red-50 shadow-2xl transition-all duration-300 border border-red-500 max-w-sm flex items-center gap-3 font-medium backdrop-blur-md'
+      : 'fixed top-24 sm:top-28 right-4 sm:right-6 z-[99999] rounded-xl bg-[#173524]/95 px-5 py-3.5 text-xs tracking-normal text-sand-50 shadow-2xl transition-all duration-300 border border-emerald-500/50 max-w-sm flex items-center gap-3 font-medium backdrop-blur-md';
     toast.classList.remove('hidden');
     requestAnimationFrame(() => toast.classList.remove('-translate-y-4'));
     setTimeout(() => {

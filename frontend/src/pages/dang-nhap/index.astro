@@ -105,8 +105,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     </div>
   </section>
 
-  <!-- TOAST THÔNG BÁO NỔI Ở PHÍA TRÊN BÊN PHẢI (TRÁNH BỊ CÁC NÚT ZALO / AI Ở GÓC DƯỚI CHE) -->
-  <div id="auth-toast" class="fixed top-6 right-6 z-[9999] hidden -translate-y-4 rounded-lg bg-walnut-900 px-6 py-4 text-xs font-medium text-sand-50 shadow-2xl transition-all duration-300 border border-sand-50/20 max-w-sm">
+  <!-- TOAST THÔNG BÁO NỔI Ở PHÍA TRÊN BÊN PHẢI (NẰM DƯỚI HEADER, KHÔNG BỊ HEADER CHE KHUẤT) -->
+  <div id="auth-toast" class="fixed top-24 sm:top-28 right-4 sm:right-6 z-[99999] hidden -translate-y-4 rounded-xl bg-walnut-900 px-6 py-4 text-xs font-medium text-sand-50 shadow-2xl transition-all duration-300 border border-sand-50/20 max-w-sm backdrop-blur-md">
     <div class="flex items-start gap-3">
       <div id="toast-icon-wrap" class="shrink-0 mt-0.5">
         <svg class="h-4 w-4 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -193,8 +193,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       }
 
       if (toast) {
-        toast.className = `fixed top-6 right-6 z-[9999] rounded-lg px-6 py-4 text-xs font-medium shadow-2xl transition-all duration-300 border max-w-sm ${
-          isError ? 'bg-red-950 border-red-500 shadow-red-950/50 text-red-50' : 'bg-walnut-900 border-emerald-500/50 shadow-walnut-950/50 text-sand-50'
+        toast.className = `fixed top-24 sm:top-28 right-4 sm:right-6 z-[99999] rounded-xl px-6 py-4 text-xs font-medium shadow-2xl transition-all duration-300 border max-w-sm backdrop-blur-md ${
+          isError ? 'bg-red-950/95 border-red-500 shadow-red-950/50 text-red-50' : 'bg-walnut-900/95 border-emerald-500/50 shadow-walnut-950/50 text-sand-50'
         }`;
         toast.classList.remove('hidden');
         requestAnimationFrame(() => toast.classList.remove('-translate-y-4'));

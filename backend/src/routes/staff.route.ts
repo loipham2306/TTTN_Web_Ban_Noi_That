@@ -496,18 +496,51 @@ staffRouter.delete('/:id', verifyToken, requireAdmin, async (req: Request, res: 
       });
     }
 
-    await prisma.users.update({
-      where: { id: BigInt(staffId) },
-      data: {
-        deleted_at: new Date(),
-        status: false,
-      },
-    });
+    // Kiểm tra ràng buộc lưu trữ chứng từ kế toán và phiếu nhập kho:
+    const [importCount, cashCount] = await Promise.all([
+      prisma.import_slips.count({ where: { user_id: BigInt(staffId) } }),
+      prisma.cash_transactions.count({ where: { performer_id: BigInt(staffId) } }),
+    ]);
 
-    return res.json({
-      success: true,
-      message: `Đã xóa nhân sự "${targetUser.full_name}" khỏi danh sách vận hành.`,
-    });
+    // Dọn dẹp dữ liệu phiên làm việc, OTP và giỏ hàng của nhân sự
+    await Promise.all([
+      prisma.shopping_carts.deleteMany({ where: { user_id: BigInt(staffId) } }),
+      prisma.wishlists.deleteMany({ where: { user_id: BigInt(staffId) } }),
+      prisma.password_otps.deleteMany({ where: { user_id: BigInt(staffId) } }),
+      prisma.system_logs.deleteMany({ where: { user_id: BigInt(staffId) } }),
+    ]);
+
+    if (importCount === 0 && cashCount === 0) {
+      // 1. Nhân sự CHƯA tạo phiếu nhập hoặc giao dịch sổ quỹ: Xóa vĩnh viễn (Hard Delete)
+      await prisma.users.delete({
+        where: { id: BigInt(staffId) },
+      });
+
+      return res.json({
+        success: true,
+        message: `Đã xóa vĩnh viễn dữ liệu nhân sự "${targetUser.full_name}". Email (${targetUser.email}) đã được giải phóng hoàn toàn.`,
+      });
+    } else {
+      // 2. Nhân sự ĐÃ CÓ phiếu nhập kho / chứng từ thu chi: Ẩn danh hóa dữ liệu PII để giữ chứng từ kế toán
+      const timestamp = Date.now();
+      await prisma.users.update({
+        where: { id: BigInt(staffId) },
+        data: {
+          full_name: 'Nhân sự đã nghỉ việc (Ẩn danh)',
+          email: `anonymized_staff_${targetUser.id}_${timestamp}@deleted.local`,
+          phone: null,
+          avatar_url: null,
+          password_hash: 'STAFF_DELETED_ANONYMIZED',
+          status: false,
+          deleted_at: new Date(),
+        },
+      });
+
+      return res.json({
+        success: true,
+        message: `Đã xóa và ẩn danh hóa nhân sự "${targetUser.full_name}" (giữ lại chứng từ phiếu kho & sổ quỹ). Email (${targetUser.email}) đã được giải phóng.`,
+      });
+    }
   } catch (error: any) {
     console.error('Lỗi khi xóa nhân sự:', error);
     return res.status(500).json({

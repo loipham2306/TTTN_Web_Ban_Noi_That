@@ -344,8 +344,8 @@ try {
       if (keyword) {
         const name = String(card.dataset.name ?? '').toLowerCase();
         const mat = String(card.dataset.material ?? '').toLowerCase();
-        const desc = String(card.dataset.description ?? '').toLowerCase();
-        if (!name.includes(keyword) && !mat.includes(keyword) && !desc.includes(keyword)) {
+        const cat = String(card.dataset.categoryLabel ?? '').toLowerCase();
+        if (!name.includes(keyword) && !mat.includes(keyword) && !cat.includes(keyword)) {
           return false;
         }
       }

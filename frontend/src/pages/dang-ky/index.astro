@@ -157,8 +157,8 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     </div>
   </section>
 
-  <!-- TOAST THÔNG BÁO (GÓC TRÊN BÊN PHẢI) -->
-  <div id="auth-toast" class="fixed top-6 right-6 z-[9999] hidden -translate-y-4 rounded-xl bg-walnut-900 px-6 py-4 text-xs font-medium text-sand-50 shadow-2xl transition-all duration-300 border border-sand-50/20 max-w-sm">
+  <!-- TOAST THÔNG BÁO (GÓC TRÊN BÊN PHẢI - NẰM DƯỚI HEADER) -->
+  <div id="auth-toast" class="fixed top-24 sm:top-28 right-4 sm:right-6 z-[99999] hidden -translate-y-4 rounded-xl bg-walnut-900 px-6 py-4 text-xs font-medium text-sand-50 shadow-2xl transition-all duration-300 border border-sand-50/20 max-w-sm backdrop-blur-md">
     <p id="toast-title" class="font-bold uppercase tracking-wider text-sand-50 mb-0.5">Thông báo</p>
     <p id="toast-body" class="text-sand-200">Đăng ký thành công! Đang chuyển sang trang Đăng nhập...</p>
   </div>
@@ -311,7 +311,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
     const showToast = (msg: string, isError = false) => {
       toastBody.textContent = msg;
-      toast.className = `fixed top-6 right-6 z-[9999] rounded-xl px-6 py-4 text-xs font-medium text-sand-50 shadow-2xl transition-all duration-300 border max-w-sm backdrop-blur-sm ${
+      toast.className = `fixed top-24 sm:top-28 right-4 sm:right-6 z-[99999] rounded-xl px-6 py-4 text-xs font-medium text-sand-50 shadow-2xl transition-all duration-300 border max-w-sm backdrop-blur-md ${
         isError ? 'bg-red-950/95 border-red-500 text-red-50' : 'bg-walnut-900/95 border-emerald-500/50 text-sand-50'
       }`;
       toast.classList.remove('hidden');
