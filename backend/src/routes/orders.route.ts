@@ -3,8 +3,24 @@ import { prisma } from '../config/prisma.js';
 import { verifyToken, requireAdmin, requireAdminOrInternal, AuthUserPayload } from '../middlewares/auth.middleware.js';
 import jwt from 'jsonwebtoken';
 import { ENV } from '../config/env.js';
+import { MailerService } from '../services/mailer.service.js';
 
 export const ordersRouter = Router();
+
+/**
+ * Trích xuất lý do hủy đơn hàng từ seller_note để hiển thị minh bạch cho khách hàng
+ */
+export function extractCancelReason(order: { order_status?: string | null; seller_note?: string | null }): string | null {
+  if (order.order_status !== 'cancelled') return null;
+  if (order.seller_note) {
+    const match = order.seller_note.match(/\[CANCEL_REASON:\s*([^\]]+)\]/i);
+    if (match) return match[1].trim();
+    if (order.seller_note.includes('quá hạn') || order.seller_note.includes('tự động hủy')) {
+      return 'Đơn hàng tự động hủy do quá thời hạn thanh toán 24 giờ (chưa nhận được tiền chuyển khoản).';
+    }
+  }
+  return 'Đơn hàng đã được hủy theo yêu cầu.';
+}
 
 // POST /api/orders - Tạo đơn hàng mới
 ordersRouter.post('/', async (req: Request, res: Response) => {
@@ -77,6 +93,7 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
       productId: bigint | null;
       variantId: bigint | null;
       sku: string;
+      image?: string | null;
     }> = [];
 
     for (const item of items) {
@@ -88,16 +105,24 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
       let productId: bigint | null = null;
       let variantId: bigint | null = null;
       let sku = slug || `SKU-${Date.now()}`;
+      let itemImage: string | null = (item.image && String(item.image)) || null;
 
       if (slug) {
         const product = await prisma.products.findFirst({
           where: { slug },
-          include: { product_variants: true },
+          include: { product_variants: true, product_images: true },
         });
 
         if (product) {
           productId = product.id;
           realName = product.name;
+
+          if (product.product_images && product.product_images.length > 0) {
+            const thumb = product.product_images.find((img) => img.is_thumbnail) || product.product_images[0];
+            if (thumb && thumb.image_url) {
+              itemImage = thumb.image_url;
+            }
+          }
 
           if (product.product_variants && product.product_variants.length > 0) {
             const variant = product.product_variants[0];
@@ -139,6 +164,7 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
         productId,
         variantId,
         sku,
+        image: itemImage,
       });
     }
 
@@ -246,6 +272,7 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
           payment_status: 'pending',
           order_status: 'pending',
           customer_note: note || null,
+          seller_note: (email && String(email).trim()) ? `[NOTIFY_EMAIL:${String(email).trim()}]` : null,
         },
       });
 
@@ -277,6 +304,38 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
       return orderCreated;
     });
 
+    // 7. GỬI EMAIL XÁC NHẬN ĐƠN HÀNG TỰ ĐỘNG (Kèm Logo KTUFA & Hình ảnh sản phẩm)
+    // Thực thi nền không chặn (Fire-and-forget) để API phản hồi ngay lập tức cho khách hàng
+    const recipientEmail = (email && String(email).trim()) || user.email;
+    if (recipientEmail && recipientEmail.includes('@')) {
+      MailerService.sendOrderConfirmationMail({
+        orderCode: newOrder.order_code,
+        customerName: fullname,
+        customerEmail: recipientEmail,
+        customerPhone: phone,
+        shippingAddress: newOrder.shipping_address || 'Địa chỉ giao hàng',
+        customerNote: newOrder.customer_note,
+        paymentMethod: newOrder.payment_method,
+        paymentStatus: newOrder.payment_status || 'pending',
+        createdAt: newOrder.created_at || new Date(),
+        items: validatedItems.map((i) => ({
+          name: i.name,
+          qty: i.qty,
+          price: i.price,
+          total: i.price * i.qty,
+          sku: i.sku,
+          image: i.image,
+        })),
+        subtotalAmount: Number(newOrder.subtotal_amount),
+        shippingFee: Number(newOrder.shipping_fee ?? 0),
+        discountAmount: Number(newOrder.discount_amount ?? 0),
+        couponCode: coupon_code || null,
+        totalAmount: Number(newOrder.total_amount),
+      }).catch((mailErr) => {
+        console.warn(`[ORDERS ROUTE] Không thể gửi email xác nhận đơn hàng #${newOrder.order_code}:`, mailErr.message);
+      });
+    }
+
     return res.status(201).json({
       success: true,
       message: 'Đặt hàng thành công!',
@@ -295,9 +354,9 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
     });
   } catch (error: any) {
     console.error('Lỗi khi tạo đơn hàng:', error);
-    return res.status(500).json({
+    return res.status(400).json({
       success: false,
-      message: 'Lỗi máy chủ khi tạo đơn hàng.',
+      message: error.message || 'Lỗi khi tạo đơn hàng. Vui lòng kiểm tra lại thông tin.',
       error: error.message,
     });
   }
@@ -332,6 +391,7 @@ ordersRouter.get('/', requireAdminOrInternal, async (_req: Request, res: Respons
       paymentStatus: o.payment_status,
       orderStatus: o.order_status,
       customerNote: o.customer_note,
+      cancelReason: extractCancelReason(o),
       createdAt: o.created_at,
       items: o.order_items.map((it) => ({
         id: Number(it.id),
@@ -411,6 +471,7 @@ ordersRouter.get('/my-orders', verifyToken, async (req: Request, res: Response) 
       paymentMethod: o.payment_method,
       shippingAddress: o.shipping_address,
       customerNote: o.customer_note,
+      cancelReason: extractCancelReason(o),
       items: o.order_items.map((it) => ({
         id: Number(it.id),
         name: it.product_name,
@@ -918,6 +979,7 @@ ordersRouter.get('/:code', async (req: Request, res: Response) => {
         paymentStatus: order.payment_status,
         orderStatus: order.order_status,
         customerNote: order.customer_note,
+        cancelReason: extractCancelReason(order),
         createdAt: order.created_at,
         items: order.order_items.map((it) => ({
           name: it.product_name,
@@ -941,7 +1003,7 @@ ordersRouter.get('/:code', async (req: Request, res: Response) => {
 ordersRouter.patch('/:id/status', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const orderId = BigInt(req.params.id);
-    const { orderStatus, paymentStatus } = req.body;
+    const { orderStatus, paymentStatus, cancelReason } = req.body;
 
     const existingOrder = await prisma.orders.findUnique({
       where: { id: orderId },
@@ -976,6 +1038,18 @@ ordersRouter.patch('/:id/status', verifyToken, requireAdmin, async (req: Request
     // Tự động cập nhật payment_status = 'paid' khi hoàn thành
     if (targetOrderStatus === 'completed' && !paymentStatus) {
       updateData.payment_status = 'paid';
+    }
+
+    // Ghi nhận lý do hủy đơn vào seller_note nếu có
+    if (cancelReason && typeof cancelReason === 'string' && cancelReason.trim()) {
+      const cleanReason = cancelReason.trim();
+      let currentNote = existingOrder.seller_note || '';
+      if (/\[CANCEL_REASON:\s*[^\]]+\]/i.test(currentNote)) {
+        currentNote = currentNote.replace(/\[CANCEL_REASON:\s*[^\]]+\]/i, `[CANCEL_REASON: ${cleanReason}]`);
+      } else {
+        currentNote = (currentNote ? currentNote + '\n' : '') + `[CANCEL_REASON: ${cleanReason}]`;
+      }
+      updateData.seller_note = currentNote;
     }
 
     // Nếu đơn hàng chuyển sang huỷ (cancelled) mà trước đó chưa hủy -> Hoàn lại tồn kho và hoàn lượt sử dụng coupon
@@ -1039,6 +1113,68 @@ ordersRouter.patch('/:id/status', verifyToken, requireAdmin, async (req: Request
       data: updateData,
     });
 
+    // Tự động kích hoạt gửi email Xác nhận Thanh toán Thành công nếu đơn được chuyển sang "Đã thanh toán" (paid)
+    if (existingOrder.payment_status !== 'paid' && updateData.payment_status === 'paid') {
+      const fullOrder = await prisma.orders.findUnique({
+        where: { id: orderId },
+        include: {
+          users: true,
+          order_items: {
+            include: {
+              products: {
+                include: { product_images: true },
+              },
+            },
+          },
+        },
+      });
+
+      const recipientEmail = (() => {
+        if (fullOrder?.seller_note) {
+          const match = fullOrder.seller_note.match(/\[NOTIFY_EMAIL:\s*([^\]\s]+)\]/i);
+          if (match && match[1] && match[1].includes('@')) {
+            return match[1].trim();
+          }
+        }
+        return fullOrder?.users?.email || '';
+      })();
+
+      if (fullOrder && recipientEmail && recipientEmail.includes('@')) {
+        const items = fullOrder.order_items.map((item) => {
+          let imgUrl: string | null = null;
+          if (item.products?.product_images && item.products.product_images.length > 0) {
+            const thumb = item.products.product_images.find((i) => i.is_thumbnail) || item.products.product_images[0];
+            imgUrl = thumb.image_url;
+          }
+          return {
+            name: item.product_name,
+            qty: item.quantity,
+            price: Number(item.unit_price),
+            total: Number(item.total_price),
+            sku: item.sku || undefined,
+            image: imgUrl,
+          };
+        });
+
+        MailerService.sendPaymentSuccessMail({
+          orderCode: fullOrder.order_code,
+          customerName: fullOrder.users.full_name || 'Quý khách',
+          customerEmail: recipientEmail,
+          customerPhone: fullOrder.users.phone || 'Chưa cập nhật',
+          shippingAddress: fullOrder.shipping_address,
+          paidAmount: Number(fullOrder.total_amount),
+          paymentMethod: fullOrder.payment_method,
+          paymentGateway: fullOrder.payment_method === 'cod' ? 'Thanh toán tiền mặt khi nhận hàng (COD)' : 'Chuyển khoản / Quản trị viên duyệt',
+          referenceCode: fullOrder.order_code,
+          paidAt: new Date(),
+          items,
+          totalAmount: Number(fullOrder.total_amount),
+        }).catch((err) => {
+          console.warn('[ORDERS ROUTE] Không thể gửi email thông báo thanh toán thành công:', err.message);
+        });
+      }
+    }
+
     return res.json({
       success: true,
       message: 'Cập nhật trạng thái đơn hàng thành công!',
@@ -1052,5 +1188,193 @@ ordersRouter.patch('/:id/status', verifyToken, requireAdmin, async (req: Request
   } catch (error: any) {
     console.error('Lỗi khi cập nhật trạng thái đơn hàng:', error);
     return res.status(500).json({ success: false, message: 'Lỗi máy chủ.', error: error.message });
+  }
+});
+
+// ================================================================
+// POST /api/orders/:id/resend-email - Gửi lại email xác nhận đơn hàng (Dành cho Admin/Staff)
+// ================================================================
+ordersRouter.post('/:id/resend-email', verifyToken, requireAdmin, async (req: Request, res: Response) => {
+  try {
+    const orderId = BigInt(req.params.id);
+    const order = await prisma.orders.findUnique({
+      where: { id: orderId },
+      include: {
+        users: true,
+        coupons: true,
+        order_items: {
+          include: {
+            products: {
+              include: { product_images: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!order) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng.' });
+    }
+
+    const recipientEmail = (() => {
+      if (order.seller_note) {
+        const match = order.seller_note.match(/\[NOTIFY_EMAIL:\s*([^\]\s]+)\]/i);
+        if (match && match[1] && match[1].includes('@')) {
+          return match[1].trim();
+        }
+      }
+      return order.users?.email || '';
+    })();
+
+    if (!recipientEmail || !recipientEmail.includes('@')) {
+      return res.status(400).json({ success: false, message: 'Không tìm thấy email của khách hàng liên kết với đơn này.' });
+    }
+
+    const items = order.order_items.map((item) => {
+      let imgUrl: string | null = null;
+      if (item.products?.product_images && item.products.product_images.length > 0) {
+        const thumb = item.products.product_images.find((i) => i.is_thumbnail) || item.products.product_images[0];
+        imgUrl = thumb.image_url;
+      }
+
+      return {
+        name: item.product_name,
+        qty: item.quantity,
+        price: Number(item.unit_price),
+        total: Number(item.total_price),
+        sku: item.sku || undefined,
+        image: imgUrl,
+      };
+    });
+
+    const result = await MailerService.sendOrderConfirmationMail({
+      orderCode: order.order_code,
+      customerName: order.users?.full_name || 'Quý khách',
+      customerEmail: recipientEmail,
+      customerPhone: order.users?.phone || 'Chưa cập nhật',
+      shippingAddress: order.shipping_address || 'Địa chỉ giao hàng',
+      customerNote: order.customer_note,
+      paymentMethod: order.payment_method,
+      paymentStatus: order.payment_status || 'pending',
+      createdAt: order.created_at || new Date(),
+      items,
+      subtotalAmount: Number(order.subtotal_amount),
+      shippingFee: Number(order.shipping_fee ?? 0),
+      discountAmount: Number(order.discount_amount ?? 0),
+      couponCode: order.coupons?.code || null,
+      totalAmount: Number(order.total_amount),
+    });
+
+    return res.json({
+      success: true,
+      message: `Đã gửi lại email xác nhận đơn hàng tới ${recipientEmail}.`,
+      data: result,
+    });
+  } catch (error: any) {
+    console.error('Lỗi khi gửi lại email đơn hàng:', error);
+    return res.status(500).json({ success: false, message: 'Lỗi máy chủ khi gửi lại email.', error: error.message });
+  }
+});
+
+/**
+ * Tự động quét và hủy các đơn hàng chưa thanh toán quá số giờ quy định (mặc định 24h).
+ * Chỉ hủy các đơn hàng chưa thanh toán (payment_status: 'pending') và đang ở trạng thái 'pending' (Chờ xác nhận).
+ * Hoàn lại tồn kho biến thể và hoàn lại lượt dùng mã giảm giá coupon.
+ */
+export async function autoCancelExpiredOrders(hoursThreshold = 24): Promise<{ cancelledCount: number; orderCodes: string[] }> {
+  try {
+    const cutoffDate = new Date(Date.now() - hoursThreshold * 60 * 60 * 1000);
+
+    const expiredOrders = await prisma.orders.findMany({
+      where: {
+        payment_status: 'pending',
+        order_status: 'pending',
+        created_at: { lte: cutoffDate },
+      },
+      include: {
+        order_items: true,
+      },
+    });
+
+    if (expiredOrders.length === 0) {
+      return { cancelledCount: 0, orderCodes: [] };
+    }
+
+    const cancelledCodes: string[] = [];
+
+    for (const order of expiredOrders) {
+      try {
+        // 1. Hoàn lại tồn kho các biến thể
+        for (const item of order.order_items) {
+          if (item.variant_id) {
+            try {
+              await prisma.product_variants.update({
+                where: { id: item.variant_id },
+                data: { stock_quantity: { increment: item.quantity } },
+              });
+            } catch (err) {
+              console.warn(`[AutoCancel] Lỗi hoàn kho cho biến thể ${item.variant_id}:`, err);
+            }
+          }
+        }
+
+        // 2. Hoàn lại lượt dùng coupon nếu có
+        if (order.coupon_id) {
+          try {
+            await prisma.coupons.update({
+              where: { id: order.coupon_id },
+              data: { used_count: { decrement: 1 } },
+            });
+          } catch (err) {
+            console.warn(`[AutoCancel] Lỗi hoàn coupon ${order.coupon_id}:`, err);
+          }
+        }
+
+        // 3. Cập nhật seller_note kèm lý do hủy quá hạn
+        let currentNote = order.seller_note || '';
+        const reasonTag = `[CANCEL_REASON: Đơn hàng tự động hủy do quá thời hạn thanh toán ${hoursThreshold} giờ (chưa thanh toán).]`;
+        if (/\[CANCEL_REASON:\s*[^\]]+\]/i.test(currentNote)) {
+          currentNote = currentNote.replace(/\[CANCEL_REASON:\s*[^\]]+\]/i, reasonTag);
+        } else {
+          currentNote = (currentNote ? currentNote + '\n' : '') + reasonTag;
+        }
+
+        // 4. Cập nhật order_status = 'cancelled'
+        await prisma.orders.update({
+          where: { id: order.id },
+          data: {
+            order_status: 'cancelled',
+            seller_note: currentNote,
+          },
+        });
+
+        cancelledCodes.push(order.order_code);
+        console.log(`[AutoCancel] Đã tự động hủy đơn ${order.order_code} do quá hạn thanh toán ${hoursThreshold}h`);
+      } catch (itemErr: any) {
+        console.error(`[AutoCancel] Lỗi khi xử lý hủy đơn ${order.order_code}:`, itemErr.message);
+      }
+    }
+
+    return { cancelledCount: cancelledCodes.length, orderCodes: cancelledCodes };
+  } catch (error: any) {
+    console.error('[AutoCancel] Lỗi trong tiến trình quét đơn quá hạn:', error);
+    return { cancelledCount: 0, orderCodes: [] };
+  }
+}
+
+// ================================================================
+// POST /api/orders/auto-cancel-expired - API kích hoạt hủy đơn quá hạn thủ công hoặc webhook cron
+// ================================================================
+ordersRouter.post('/auto-cancel-expired', async (req: Request, res: Response) => {
+  try {
+    const hours = req.body?.hours ? Number(req.body.hours) : 24;
+    const result = await autoCancelExpiredOrders(hours);
+    return res.json({
+      success: true,
+      message: `Đã quét và tự động hủy ${result.cancelledCount} đơn hàng quá hạn thanh toán ${hours} giờ.`,
+      data: result,
+    });
+  } catch (error: any) {
+    return res.status(500).json({ success: false, message: 'Lỗi khi quét hủy đơn quá hạn.', error: error.message });
   }
 });

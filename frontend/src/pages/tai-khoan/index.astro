@@ -895,13 +895,17 @@ import PageBanner from '../../components/PageBanner.astro';
     // Helper VND
     const fmtVnd = (v: number) => new Intl.NumberFormat('vi-VN').format(v || 0) + ' ₫';
 
-    const getStatusInfo = (orderStatus: string, paymentStatus: string) => {
+    const getStatusInfo = (orderStatus: string, paymentStatus: string, paymentMethod?: string) => {
       if (orderStatus === 'cancelled') return { text: 'Đã hủy', cls: 'bg-red-100 text-red-700 border-red-300' };
       if (orderStatus === 'completed') return { text: 'Đã giao hàng', cls: 'bg-emerald-100 text-emerald-800 border-emerald-300' };
       if (orderStatus === 'shipping') return { text: 'Đang giao hàng', cls: 'bg-purple-100 text-purple-800 border-purple-300' };
-      if (orderStatus === 'confirmed') return { text: 'Đã xác nhận', cls: 'bg-blue-100 text-blue-800 border-blue-300' };
+      if (orderStatus === 'confirmed') return { text: 'Đang chuẩn bị', cls: 'bg-blue-100 text-blue-800 border-blue-300' };
+      const isBank = (paymentMethod === 'bank' || paymentMethod === 'sepay' || paymentMethod === 'bank_transfer');
+      if (isBank && paymentStatus !== 'paid') {
+        return { text: 'Chờ thanh toán', cls: 'bg-amber-100 text-amber-800 border-amber-300' };
+      }
       if (paymentStatus === 'paid') return { text: 'Đã thanh toán', cls: 'bg-emerald-50 text-emerald-700 border-emerald-300' };
-      return { text: 'Chờ xác nhận', cls: 'bg-amber-100 text-amber-800 border-amber-300' };
+      return { text: 'Chờ xác nhận', cls: 'bg-sand-200 text-walnut-900 border-walnut-900/20' };
     };
 
     // Loyalty Tier Progress calculation
@@ -1024,8 +1028,9 @@ import PageBanner from '../../components/PageBanner.astro';
         const timeStr = d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
         const dayStr = d.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
         const dateStr = `${timeStr} • ${dayStr}`;
-        const { text: statusText, cls: statusCls } = getStatusInfo(o.orderStatus, o.paymentStatus);
-        const payMethod = o.paymentMethod === 'bank' ? 'Chuyển khoản VietQR' : 'Thanh toán COD khi nhận hàng';
+        const isBank = (o.paymentMethod === 'bank' || o.paymentMethod === 'sepay' || o.paymentMethod === 'bank_transfer');
+        const { text: statusText, cls: statusCls } = getStatusInfo(o.orderStatus, o.paymentStatus, o.paymentMethod);
+        const payMethod = isBank ? 'Chuyển khoản VietQR (SePay)' : 'Thanh toán COD khi nhận hàng';
         const recipientPhone = o.phone || phone;
 
         const itemsRows = (o.items || []).map((it: any) => `
@@ -1053,6 +1058,68 @@ import PageBanner from '../../components/PageBanner.astro';
           </tr>`).join('');
 
         panelBody.innerHTML = `
+          ${o.orderStatus === 'cancelled' ? `
+            <div class="mb-5 bg-red-50 border-l-4 border-red-500 p-4 text-red-900 rounded-none shadow-xs">
+              <div class="flex items-start gap-3">
+                <span class="text-xl">⚠️</span>
+                <div>
+                  <p class="font-bold text-xs uppercase tracking-wider text-red-900">Đơn hàng này đã bị hủy</p>
+                  <p class="text-xs text-red-800 mt-1"><strong>Lý do:</strong> ${o.cancelReason || 'Đơn hàng đã được hủy theo quy định.'}</p>
+                  <p class="text-[11px] text-red-600/80 mt-1 italic">Số lượng tồn kho sản phẩm và khuyến mãi (nếu có) đã được hoàn trả lại hệ thống.</p>
+                </div>
+              </div>
+            </div>` : ''}
+
+          ${isBank && o.paymentStatus !== 'paid' && o.orderStatus !== 'cancelled' ? `
+            <div class="mb-5 bg-gradient-to-br from-amber-50 to-orange-50/40 border border-amber-300/80 p-4 sm:p-5 rounded-none shadow-xs">
+              <div class="flex items-center gap-2 border-b border-amber-200/80 pb-2.5 mb-3.5">
+                <span class="text-lg">💳</span>
+                <h4 class="font-bold text-xs uppercase tracking-wider text-amber-950">Quét mã VietQR để thanh toán đơn hàng này</h4>
+                <span class="ml-auto text-[10px] font-bold text-amber-900 bg-amber-200 px-2.5 py-0.5 rounded-full border border-amber-300">Chờ thanh toán</span>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+                <div class="md:col-span-4 flex flex-col items-center">
+                  <img
+                    src="https://qr.sepay.vn/img?acc=8890359180209&bank=MBBank&amount=${o.total}&des=${encodeURIComponent(o.orderCode)}&template=compact"
+                    alt="Mã VietQR thanh toán đơn #${o.orderCode}"
+                    class="w-40 h-40 object-contain bg-white p-1 border border-amber-300 shadow-sm"
+                  />
+                  <span class="text-[10px] text-amber-900/80 mt-1.5 font-medium">Mở App Ngân hàng quét mã QR</span>
+                </div>
+                <div class="md:col-span-8 space-y-2 text-xs text-walnut-900">
+                  <div class="flex justify-between items-center py-1 border-b border-amber-200/50">
+                    <span class="text-walnut-800/70">Ngân hàng thụ hưởng:</span>
+                    <strong class="font-bold text-walnut-900">MBBank (Ngân hàng Quân Đội)</strong>
+                  </div>
+                  <div class="flex justify-between items-center py-1 border-b border-amber-200/50">
+                    <span class="text-walnut-800/70">Số tài khoản:</span>
+                    <div class="flex items-center gap-1.5">
+                      <span class="font-mono font-bold text-sm text-walnut-900">8890359180209</span>
+                      <button type="button" onclick="navigator.clipboard.writeText('8890359180209'); alert('Đã sao chép số tài khoản!');" class="text-[10px] bg-amber-200 hover:bg-amber-300 text-amber-900 px-2 py-0.5 rounded font-bold cursor-pointer transition-colors">Copy</button>
+                    </div>
+                  </div>
+                  <div class="flex justify-between items-center py-1 border-b border-amber-200/50">
+                    <span class="text-walnut-800/70">Chủ tài khoản:</span>
+                    <span class="font-bold uppercase text-xs text-walnut-900">TRUONG CHI VY</span>
+                  </div>
+                  <div class="flex justify-between items-center py-1 border-b border-amber-200/50">
+                    <span class="text-walnut-800/70">Số tiền:</span>
+                    <strong class="font-mono font-bold text-base text-red-600">${fmtVnd(o.total)}</strong>
+                  </div>
+                  <div class="flex justify-between items-center py-1">
+                    <span class="text-walnut-800/70">Nội dung chuyển khoản:</span>
+                    <div class="flex items-center gap-1.5">
+                      <span class="font-mono font-bold text-sm text-orange-600">${o.orderCode}</span>
+                      <button type="button" onclick="navigator.clipboard.writeText('${o.orderCode}'); alert('Đã sao chép nội dung chuyển khoản!');" class="text-[10px] bg-orange-200 hover:bg-orange-300 text-orange-900 px-2 py-0.5 rounded font-bold cursor-pointer transition-colors">Copy</button>
+                    </div>
+                  </div>
+                  <p class="text-[10px] text-amber-900/80 italic pt-1 border-t border-amber-200/50">
+                    * Đơn hàng sẽ được tự động hủy sau 24 giờ nếu chưa nhận được thanh toán. Sau khi chuyển khoản, Quản trị viên sẽ xác nhận và gửi email cho bạn.
+                  </p>
+                </div>
+              </div>
+            </div>` : ''}
+
           <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
 
             <!-- CỘT TRÁI: Thông tin chung + Nhận hàng (5 cột) -->
@@ -1231,7 +1298,9 @@ import PageBanner from '../../components/PageBanner.astro';
           day: '2-digit', month: '2-digit', year: 'numeric',
           hour: '2-digit', minute: '2-digit',
         });
-        const { text: statusText, cls: statusCls } = getStatusInfo(order.orderStatus, order.paymentStatus);
+        const isBank = (order.paymentMethod === 'bank' || order.paymentMethod === 'sepay' || order.paymentMethod === 'bank_transfer');
+        const isPendingBankPay = isBank && order.paymentStatus !== 'paid' && order.orderStatus !== 'cancelled';
+        const { text: statusText, cls: statusCls } = getStatusInfo(order.orderStatus, order.paymentStatus, order.paymentMethod);
         const recipientName = order.customerName || name;
         const recipientPhone = order.phone || phone;
         const isHighlighted = highlightCode && order.orderCode === highlightCode;
@@ -1293,8 +1362,9 @@ import PageBanner from '../../components/PageBanner.astro';
           const orderCode = btn.dataset.code;
           if (!orderId) return;
 
-          const confirmed = confirm(`Bạn có chắc chắn muốn hủy đơn hàng #${orderCode} không? Số lượng sản phẩm sẽ được hoàn lại vào kho.`);
-          if (!confirmed) return;
+          const promptReason = prompt(`Bạn có chắc chắn muốn hủy đơn hàng #${orderCode}?\nVui lòng nhập lý do hủy đơn hàng:`, 'Tôi đổi ý, muốn đặt lại sản phẩm khác');
+          if (promptReason === null) return;
+          const cancelReason = promptReason.trim() || 'Khách hàng tự hủy đơn qua trang tài khoản.';
 
           btn.disabled = true;
           btn.textContent = 'Đang hủy...';
@@ -1303,7 +1373,7 @@ import PageBanner from '../../components/PageBanner.astro';
             const res = await fetch(`http://localhost:4000/api/orders/${orderId}/status`, {
               method: 'PATCH',
               headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ orderStatus: 'cancelled' })
+              body: JSON.stringify({ orderStatus: 'cancelled', cancelReason })
             });
             const data = await res.json();
             if (res.ok && data.success) {

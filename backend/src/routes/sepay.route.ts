@@ -1,7 +1,82 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
+import { MailerService } from '../services/mailer.service.js';
 
 export const sepayRouter = Router();
+
+/**
+ * Helper gửi email xác nhận thanh toán thành công (Bất đồng bộ không chặn)
+ */
+async function sendPaymentSuccessEmailAsync(
+  orderId: bigint,
+  paidAmt: number,
+  refCode?: string,
+  gatewayName?: string,
+  transDate?: any
+) {
+  try {
+    const fullOrder = await prisma.orders.findUnique({
+      where: { id: orderId },
+      include: {
+        users: true,
+        order_items: {
+          include: {
+            products: {
+              include: { product_images: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!fullOrder) return;
+
+    const recipientEmail = (() => {
+      if (fullOrder.seller_note) {
+        const match = fullOrder.seller_note.match(/\[NOTIFY_EMAIL:\s*([^\]\s]+)\]/i);
+        if (match && match[1] && match[1].includes('@')) {
+          return match[1].trim();
+        }
+      }
+      return fullOrder.users?.email || '';
+    })();
+
+    if (!recipientEmail || !recipientEmail.includes('@')) return;
+
+    const items = fullOrder.order_items.map((item) => {
+      let imgUrl: string | null = null;
+      if (item.products?.product_images && item.products.product_images.length > 0) {
+        const thumb = item.products.product_images.find((i) => i.is_thumbnail) || item.products.product_images[0];
+        imgUrl = thumb.image_url;
+      }
+      return {
+        name: item.product_name,
+        qty: item.quantity,
+        price: Number(item.unit_price),
+        total: Number(item.total_price),
+        sku: item.sku || undefined,
+        image: imgUrl,
+      };
+    });
+
+    await MailerService.sendPaymentSuccessMail({
+      orderCode: fullOrder.order_code,
+      customerName: fullOrder.users.full_name || 'Quý khách',
+      customerEmail: recipientEmail,
+      customerPhone: fullOrder.users.phone || 'Chưa cập nhật',
+      shippingAddress: fullOrder.shipping_address,
+      paidAmount: paidAmt,
+      paymentMethod: fullOrder.payment_method,
+      paymentGateway: gatewayName || 'Chuyển khoản VietQR (SePay)',
+      referenceCode: refCode || fullOrder.order_code,
+      paidAt: transDate || new Date(),
+      items,
+      totalAmount: Number(fullOrder.total_amount),
+    });
+  } catch (err: any) {
+    console.warn('[SePay Webhook] Không thể gửi email thông báo thanh toán thành công:', err.message);
+  }
+}
 
 // GET /api/sepay/config - Cung cấp thông tin cấu hình cổng SePay cho Frontend
 sepayRouter.get('/config', (_req: Request, res: Response) => {
@@ -145,6 +220,15 @@ sepayRouter.post('/webhook', async (req: Request, res: Response) => {
 
     console.log(`[SePay Webhook] ✅ Đơn hàng ${updatedOrder.order_code} đã thanh toán thành công!`);
 
+    // Kích hoạt gửi email xác nhận thanh toán thành công ngầm (Non-blocking)
+    sendPaymentSuccessEmailAsync(
+      updatedOrder.id,
+      paidAmount,
+      referenceCode || String(id),
+      gateway || 'Ngân hàng (VietQR SePay)',
+      transactionDate ? new Date(transactionDate) : new Date()
+    );
+
     return res.status(200).json({
       success: true,
       message: `Đơn hàng ${updatedOrder.order_code} đã được cập nhật thanh toán thành công.`,
@@ -196,6 +280,15 @@ sepayRouter.post('/simulate-payment', async (req: Request, res: Response) => {
           .join('\n'),
       },
     });
+
+    // Kích hoạt gửi email xác nhận thanh toán thành công ngầm (Non-blocking)
+    sendPaymentSuccessEmailAsync(
+      updated.id,
+      Number(updated.total_amount),
+      `SIM-${Date.now().toString().slice(-6)}`,
+      'Thanh toán Giả lập VietQR (SePay Demo)',
+      new Date()
+    );
 
     return res.json({
       success: true,

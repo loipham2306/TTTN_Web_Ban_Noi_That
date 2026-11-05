@@ -698,7 +698,7 @@ authRouter.post('/forgot-password', authLimiter, async (req: Request, res: Respo
 
     // 1. Kiểm tra Cooldown: Mỗi lần gửi phải cách nhau tối thiểu 60 giây
     const oneMinuteAgo = new Date(Date.now() - 60 * 1000);
-    const recentOtp = await prisma.password_otps.findFirst({
+    const recentOtp = await (prisma as any).password_otps.findFirst({
       where: {
         user_id: user.id,
         created_at: { gte: oneMinuteAgo },
@@ -717,7 +717,7 @@ authRouter.post('/forgot-password', authLimiter, async (req: Request, res: Respo
 
     // 2. Giới hạn tối đa 5 lần yêu cầu OTP trong vòng 1 giờ cho 1 tài khoản
     const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-    const hourlyRequests = await prisma.password_otps.count({
+    const hourlyRequests = await (prisma as any).password_otps.count({
       where: {
         user_id: user.id,
         created_at: { gte: oneHourAgo },
@@ -732,7 +732,7 @@ authRouter.post('/forgot-password', authLimiter, async (req: Request, res: Respo
     }
 
     // 3. Vô hiệu hóa các mã OTP chưa sử dụng trước đó của người dùng
-    await prisma.password_otps.updateMany({
+    await (prisma as any).password_otps.updateMany({
       where: {
         user_id: user.id,
         used_at: null,
@@ -750,7 +750,7 @@ authRouter.post('/forgot-password', authLimiter, async (req: Request, res: Respo
     const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // Có hiệu lực trong 5 phút
 
     // 6. Lưu vào bảng password_otps
-    await prisma.password_otps.create({
+    await (prisma as any).password_otps.create({
       data: {
         user_id: user.id,
         otp_hash: otpHash,
@@ -803,7 +803,7 @@ authRouter.post('/verify-otp', authLimiter, async (req: Request, res: Response) 
     }
 
     // Tìm mã OTP mới nhất chưa được sử dụng
-    const otpRecord = await prisma.password_otps.findFirst({
+    const otpRecord = await (prisma as any).password_otps.findFirst({
       where: {
         user_id: user.id,
         used_at: null,
@@ -830,7 +830,7 @@ authRouter.post('/verify-otp', authLimiter, async (req: Request, res: Response) 
 
     if (inputHash !== otpRecord.otp_hash) {
       const newAttempts = otpRecord.attempts + 1;
-      await prisma.password_otps.update({
+      await (prisma as any).password_otps.update({
         where: { id: otpRecord.id },
         data: { attempts: newAttempts },
       });
@@ -851,7 +851,7 @@ authRouter.post('/verify-otp', authLimiter, async (req: Request, res: Response) 
     }
 
     // Khớp mã thành công -> Đánh dấu used_at
-    await prisma.password_otps.update({
+    await (prisma as any).password_otps.update({
       where: { id: otpRecord.id },
       data: { used_at: new Date() },
     });
@@ -935,7 +935,7 @@ authRouter.post('/reset-password', authLimiter, async (req: Request, res: Respon
     });
 
     // Vô hiệu hóa toàn bộ OTP còn lại của tài khoản
-    await prisma.password_otps.updateMany({
+    await (prisma as any).password_otps.updateMany({
       where: {
         user_id: userId,
         used_at: null,
