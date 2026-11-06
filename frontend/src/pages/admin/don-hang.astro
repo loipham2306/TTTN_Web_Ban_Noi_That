@@ -453,17 +453,32 @@ const totalRevenue = displayOrders
 
       <!-- MODAL FOOTER (STICKY BOTTOM) -->
       <div class="px-6 py-4 sm:px-8 bg-white border-t border-walnut-900/15 flex flex-wrap items-center justify-between gap-3 shrink-0 shadow-[0_-4px_12px_rgba(0,0,0,0.04)]">
-        <button 
-          type="button" 
-          id="btn-print-order" 
-          class="inline-flex items-center gap-2 border border-walnut-900/30 bg-sand-50 px-4 py-2.5 text-xs uppercase tracking-[0.15em] font-semibold text-walnut-900 hover:bg-sand-200 transition-colors cursor-pointer"
-          title="In phiếu xuất kho và giao hàng"
-        >
-          <svg class="h-4 w-4 text-walnut-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-          </svg>
-          <span>In Phiếu Giao Hàng</span>
-        </button>
+        <div class="flex items-center gap-2.5">
+          <button 
+            type="button" 
+            id="btn-print-order" 
+            class="inline-flex items-center gap-2 border border-walnut-900/30 bg-sand-50 px-4 py-2.5 text-xs uppercase tracking-[0.15em] font-semibold text-walnut-900 hover:bg-sand-200 transition-colors cursor-pointer"
+            title="In phiếu xuất kho và giao hàng"
+          >
+            <svg class="h-4 w-4 text-walnut-800" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            <span>In Phiếu Giao Hàng</span>
+          </button>
+
+          <!-- NÚT HỦY ĐƠN HÀNG TRONG POPUP XEM & CẬP NHẬT -->
+          <button 
+            type="button" 
+            id="btn-admin-cancel-order" 
+            class="inline-flex items-center gap-1.5 border border-red-300 bg-red-50 text-red-700 hover:bg-red-700 hover:text-white px-4 py-2.5 text-xs uppercase tracking-[0.15em] font-bold transition-all cursor-pointer shadow-xs active:scale-95"
+            title="Hủy đơn hàng này kèm lý do cụ thể"
+          >
+            <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+            <span>Hủy đơn hàng</span>
+          </button>
+        </div>
 
         <div class="flex items-center gap-3">
           <button 
@@ -481,6 +496,118 @@ const totalRevenue = displayOrders
             Lưu cập nhật
           </button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL POPUP THƯƠNG HIỆU: ADMIN HỦY ĐƠN HÀNG KÈM LÝ DO -->
+  <!-- ============================================================== -->
+  <div
+    id="admin-cancel-modal"
+    class="fixed inset-0 z-[60] hidden bg-black/65 backdrop-blur-xs p-4 flex items-center justify-center transition-all duration-300"
+  >
+    <div
+      id="admin-cancel-modal-panel"
+      class="relative w-full max-w-lg overflow-hidden bg-sand-50 p-5 sm:p-7 shadow-2xl border border-walnut-900/20 transition-all duration-300 scale-95 opacity-0 max-h-[92vh] overflow-y-auto"
+    >
+      <!-- Nút đóng (X) bo tròn với hiệu ứng xoay 90 độ khi hover -->
+      <button
+        type="button"
+        id="btn-close-admin-cancel-x"
+        class="absolute right-4 top-4 z-20 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-sand-200/90 text-walnut-800 border border-walnut-900/10 shadow-sm hover:bg-walnut-900 hover:text-amber-300 hover:rotate-90 transition-all duration-300 cursor-pointer"
+        aria-label="Đóng popup hủy đơn"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="h-4 w-4 pointer-events-none">
+          <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
+
+      <div class="relative z-10 flex flex-col">
+        <!-- Header thương hiệu -->
+        <div class="pr-10 mb-3.5">
+          <span class="inline-block px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-[0.25em] bg-[#173524] text-amber-300 border border-amber-300/30 shadow-xs mb-2">
+            KTUFA ORDER MANAGEMENT
+          </span>
+          <div class="flex flex-wrap items-baseline gap-2">
+            <h3 class="font-display text-xl font-bold tracking-tight text-walnut-900 leading-snug">
+              Xác nhận hủy đơn hàng
+            </h3>
+            <span id="admin-cancel-order-code" class="font-mono font-bold text-xs bg-[#173524] text-amber-300 border border-amber-300/40 px-2.5 py-0.5"></span>
+          </div>
+          <p class="text-xs text-walnut-800/80 mt-1 leading-relaxed">
+            Thao tác này sẽ chuyển đơn sang trạng thái <strong class="text-red-700">Đã hủy</strong> và tự động hoàn trả tồn kho vào hệ thống.
+          </p>
+        </div>
+
+        <!-- Form Hủy Đơn -->
+        <form id="admin-cancel-order-form" class="space-y-3.5">
+          <input type="hidden" id="admin-cancel-order-id" value="" />
+
+          <!-- Thông báo lưu ý nghiệp vụ -->
+          <div class="bg-amber-50/90 border border-amber-300/70 p-3 text-xs text-amber-950 flex items-start gap-2.5 shadow-2xs">
+            <span class="text-base shrink-0 leading-none">⚠️</span>
+            <div class="leading-relaxed text-[11.5px]">
+              <strong class="font-bold">Lưu ý quản trị:</strong> Hệ thống sẽ tự động hoàn tồn kho cho các biến thể sản phẩm trong đơn và hoàn lượt mã giảm giá (nếu có). Lý do hủy sẽ hiển thị minh bạch cho khách hàng và lưu vào lịch sử đơn hàng.
+            </div>
+          </div>
+
+          <!-- Dropdown lý do hủy dành cho Admin -->
+          <div>
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-walnut-900 mb-1.5">
+              Lý do hủy đơn hàng <span class="text-red-600">*</span>
+            </label>
+            <select
+              id="admin-cancel-reason-select"
+              required
+              class="w-full border border-walnut-900/25 bg-white px-3 py-2.5 text-xs text-walnut-900 outline-none focus:border-[#173524] shadow-2xs transition-colors cursor-pointer font-medium"
+            >
+              <option value="" disabled selected>-- Chọn lý do hủy đơn hàng --</option>
+              <option value="Khách hàng liên hệ yêu cầu hủy đơn hàng">Khách hàng liên hệ yêu cầu hủy đơn hàng</option>
+              <option value="Không thể liên hệ được với người nhận để xác nhận giao hàng">Không thể liên hệ được với người nhận để xác nhận giao hàng</option>
+              <option value="Sản phẩm tạm thời hết hàng trong kho hoặc ngưng kinh doanh">Sản phẩm tạm thời hết hàng trong kho hoặc ngưng kinh doanh</option>
+              <option value="Phát hiện lỗi kiểm định chất lượng sản phẩm trước khi xuất kho">Phát hiện lỗi kiểm định chất lượng sản phẩm trước khi xuất kho</option>
+              <option value="Khách hàng nhập sai thông tin địa chỉ / SĐT không hợp lệ">Khách hàng nhập sai thông tin địa chỉ / SĐT không hợp lệ</option>
+              <option value="Đơn hàng quá thời hạn thanh toán quy định (chưa nhận được chuyển khoản)">Đơn hàng quá thời hạn thanh toán quy định (chưa nhận được chuyển khoản)</option>
+              <option value="Nghi vấn đơn hàng trùng lặp hoặc đặt thử nghiệm">Nghi vấn đơn hàng trùng lặp hoặc đặt thử nghiệm</option>
+              <option value="other">Lý do khác (Nhập chi tiết bên dưới)</option>
+            </select>
+          </div>
+
+          <!-- Textarea khi chọn lý do khác hoặc nhập chi tiết -->
+          <div id="admin-cancel-other-wrapper" class="hidden space-y-1">
+            <label class="block text-[11px] font-bold uppercase tracking-wider text-walnut-900">
+              Chi tiết lý do hủy <span class="text-red-600">*</span>
+            </label>
+            <textarea
+              id="admin-cancel-other-text"
+              rows="3"
+              placeholder="Nhập chi tiết lý do hủy đơn hàng..."
+              class="w-full border border-walnut-900/25 bg-white px-3 py-2 text-xs text-walnut-900 outline-none focus:border-[#173524] shadow-2xs transition-colors resize-none font-medium"
+            ></textarea>
+          </div>
+
+          <!-- Alert Lỗi -->
+          <div id="admin-cancel-error" class="hidden text-xs text-red-700 font-medium bg-red-50 border border-red-200 p-2.5"></div>
+
+          <!-- Action bar trên nền xanh thương hiệu -->
+          <div class="mt-5 -mx-5 -mb-5 sm:-mx-7 sm:-mb-7 p-4 sm:px-6 bg-[#173524] border-t border-[#D8B670]/40 flex items-center justify-end gap-3">
+            <button
+              type="button"
+              id="btn-dismiss-admin-cancel"
+              class="px-4 py-2.5 text-xs uppercase tracking-[0.15em] font-semibold text-sand-100 hover:text-white border border-white/20 bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
+            >
+              Giữ lại đơn
+            </button>
+            <button
+              type="submit"
+              id="btn-confirm-admin-cancel"
+              class="bg-red-700 hover:bg-red-800 text-white px-5 py-2.5 text-xs uppercase tracking-[0.15em] font-bold transition-all shadow-md active:scale-95 cursor-pointer border border-red-500/50 flex items-center gap-2"
+            >
+              <span>Xác nhận hủy đơn</span>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   </div>
@@ -678,6 +805,15 @@ const totalRevenue = displayOrders
         } else {
           cancelBox.classList.add('hidden');
           cancelText.textContent = '';
+        }
+      }
+
+      const btnAdminCancel = document.getElementById('btn-admin-cancel-order');
+      if (btnAdminCancel) {
+        if (orderStatus === 'da-huy' || orderStatus === 'hoan-thanh') {
+          btnAdminCancel.classList.add('hidden');
+        } else {
+          btnAdminCancel.classList.remove('hidden');
         }
       }
 
@@ -889,11 +1025,10 @@ const totalRevenue = displayOrders
       const orderId = currentActiveRow.dataset.id;
       if (!orderId) return;
 
-      let cancelReason = '';
+      // Nếu chọn chuyển trạng thái sang "Đã hủy", kích hoạt Popup hủy đơn thương hiệu
       if (newSt === 'da-huy') {
-        const promptVal = prompt('Nhập lý do hủy đơn hàng (sẽ hiển thị minh bạch cho khách hàng):', 'Đơn hàng bị hủy theo yêu cầu.');
-        if (promptVal === null) return;
-        cancelReason = promptVal.trim() || 'Đơn hàng bị hủy theo yêu cầu.';
+        openAdminCancelModal(orderId, currentActiveRow.dataset.code || '');
+        return;
       }
 
       btnSaveStatus.disabled = true;
@@ -910,16 +1045,12 @@ const totalRevenue = displayOrders
           body: JSON.stringify({
             orderStatus: newSt,
             paymentStatus: newPaySt,
-            cancelReason: cancelReason || undefined,
           }),
         });
         const json = await res.json();
 
         if (json.success) {
           currentActiveRow.dataset.status = newSt;
-          if (newSt === 'da-huy' && cancelReason) {
-            currentActiveRow.dataset.cancelReason = cancelReason;
-          }
           if (newPaySt) {
             currentActiveRow.dataset.payStatus = newPaySt;
             const payTd = currentActiveRow.children[3];
@@ -973,15 +1104,8 @@ const totalRevenue = displayOrders
             badge.className = `inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded ${clses[newSt]}`;
             const parentTd = badge.parentElement;
             if (parentTd) {
-              let reasonP = parentTd.querySelector('.cancel-reason-label');
-              if (newSt === 'da-huy' && cancelReason) {
-                if (!reasonP) {
-                  reasonP = document.createElement('p');
-                  reasonP.className = 'cancel-reason-label text-[11px] text-red-600 font-medium mt-1 leading-tight max-w-[170px]';
-                  parentTd.appendChild(reasonP);
-                }
-                reasonP.textContent = `Lý do: ${cancelReason}`;
-              } else if (reasonP) {
+              const reasonP = parentTd.querySelector('.cancel-reason-label');
+              if (reasonP && newSt !== 'da-huy') {
                 reasonP.remove();
               }
             }
@@ -998,6 +1122,194 @@ const totalRevenue = displayOrders
       } finally {
         btnSaveStatus.disabled = false;
         btnSaveStatus.textContent = 'Lưu cập nhật';
+      }
+    });
+
+    // 3. LOGIC XỬ LÝ POPUP HỦY ĐƠN THƯƠNG HIỆU CHO ADMIN
+    const adminCancelModal = document.getElementById('admin-cancel-modal') as HTMLElement;
+    const adminCancelPanel = document.getElementById('admin-cancel-modal-panel') as HTMLElement;
+    const adminCancelOrderCode = document.getElementById('admin-cancel-order-code') as HTMLElement;
+    const adminCancelOrderId = document.getElementById('admin-cancel-order-id') as HTMLInputElement;
+    const adminCancelReasonSelect = document.getElementById('admin-cancel-reason-select') as HTMLSelectElement;
+    const adminCancelOtherWrapper = document.getElementById('admin-cancel-other-wrapper') as HTMLElement;
+    const adminCancelOtherText = document.getElementById('admin-cancel-other-text') as HTMLTextAreaElement;
+    const adminCancelError = document.getElementById('admin-cancel-error') as HTMLElement;
+    const btnCloseAdminCancelX = document.getElementById('btn-close-admin-cancel-x') as HTMLButtonElement;
+    const btnDismissAdminCancel = document.getElementById('btn-dismiss-admin-cancel') as HTMLButtonElement;
+    const btnConfirmAdminCancel = document.getElementById('btn-confirm-admin-cancel') as HTMLButtonElement;
+    const adminCancelForm = document.getElementById('admin-cancel-order-form') as HTMLFormElement;
+    const btnAdminCancelOrder = document.getElementById('btn-admin-cancel-order') as HTMLButtonElement;
+
+    function openAdminCancelModal(orderId: string, orderCode: string) {
+      if (!adminCancelModal || !adminCancelPanel) return;
+      if (adminCancelOrderId) adminCancelOrderId.value = orderId;
+      if (adminCancelOrderCode) adminCancelOrderCode.textContent = `#${orderCode}`;
+      if (adminCancelReasonSelect) adminCancelReasonSelect.value = '';
+      if (adminCancelOtherWrapper) adminCancelOtherWrapper.classList.add('hidden');
+      if (adminCancelOtherText) adminCancelOtherText.value = '';
+      if (adminCancelError) {
+        adminCancelError.textContent = '';
+        adminCancelError.classList.add('hidden');
+      }
+
+      adminCancelModal.classList.remove('hidden');
+      requestAnimationFrame(() => {
+        adminCancelPanel.classList.remove('scale-95', 'opacity-0');
+        adminCancelPanel.classList.add('scale-100', 'opacity-100');
+      });
+    }
+
+    function closeAdminCancelModal() {
+      if (!adminCancelModal || !adminCancelPanel) return;
+      adminCancelPanel.classList.remove('scale-100', 'opacity-100');
+      adminCancelPanel.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => {
+        adminCancelModal.classList.add('hidden');
+        // Nếu select tiến độ trong modal đang là da-huy mà chưa hủy thật, trả lại trạng thái cũ
+        if (currentActiveRow && statusSelect && statusSelect.value === 'da-huy' && currentActiveRow.dataset.status !== 'da-huy') {
+          statusSelect.value = currentActiveRow.dataset.status || 'cho-xac-nhan';
+        }
+      }, 200);
+    }
+
+    // Sự kiện mở modal hủy đơn từ nút "Hủy đơn" trong popup chi tiết
+    btnAdminCancelOrder?.addEventListener('click', () => {
+      if (!currentActiveRow) return;
+      const id = currentActiveRow.dataset.id;
+      const code = currentActiveRow.dataset.code || '';
+      if (id) openAdminCancelModal(id, code);
+    });
+
+    // Sự kiện khi người dùng chọn trực tiếp option "Đã hủy đơn" từ select
+    statusSelect?.addEventListener('change', () => {
+      if (statusSelect.value === 'da-huy' && currentActiveRow) {
+        if (currentActiveRow.dataset.status !== 'da-huy') {
+          openAdminCancelModal(currentActiveRow.dataset.id || '', currentActiveRow.dataset.code || '');
+        }
+      }
+    });
+
+    btnCloseAdminCancelX?.addEventListener('click', closeAdminCancelModal);
+    btnDismissAdminCancel?.addEventListener('click', closeAdminCancelModal);
+    adminCancelModal?.addEventListener('click', (e) => {
+      if (e.target === adminCancelModal) closeAdminCancelModal();
+    });
+
+    adminCancelReasonSelect?.addEventListener('change', () => {
+      if (adminCancelReasonSelect.value === 'other') {
+        adminCancelOtherWrapper?.classList.remove('hidden');
+        adminCancelOtherText?.focus();
+      } else {
+        adminCancelOtherWrapper?.classList.add('hidden');
+      }
+      if (adminCancelError) adminCancelError.classList.add('hidden');
+    });
+
+    adminCancelForm?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const orderId = adminCancelOrderId?.value;
+      const orderCode = currentActiveRow?.dataset.code || '';
+      if (!orderId) return;
+
+      const selectedReason = adminCancelReasonSelect?.value;
+      if (!selectedReason) {
+        if (adminCancelError) {
+          adminCancelError.textContent = 'Vui lòng chọn lý do hủy đơn hàng.';
+          adminCancelError.classList.remove('hidden');
+        }
+        return;
+      }
+
+      let finalReason = selectedReason;
+      if (selectedReason === 'other') {
+        const customText = adminCancelOtherText?.value.trim();
+        if (!customText) {
+          if (adminCancelError) {
+            adminCancelError.textContent = 'Vui lòng nhập chi tiết lý do hủy đơn.';
+            adminCancelError.classList.remove('hidden');
+          }
+          return;
+        }
+        finalReason = customText;
+      }
+
+      btnConfirmAdminCancel.disabled = true;
+      btnConfirmAdminCancel.innerHTML = `
+        <svg class="animate-spin h-3.5 w-3.5 text-white inline-block mr-1.5" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+        </svg>
+        <span>Đang hủy...</span>
+      `;
+
+      try {
+        const token = localStorage.getItem('admin_token') || localStorage.getItem('auth_token');
+        const res = await fetch(`http://localhost:4000/api/orders/${orderId}/status`, {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          },
+          body: JSON.stringify({
+            orderStatus: 'da-huy',
+            cancelReason: finalReason,
+          }),
+        });
+        const json = await res.json();
+
+        if (json.success) {
+          if (currentActiveRow) {
+            currentActiveRow.dataset.status = 'da-huy';
+            currentActiveRow.dataset.cancelReason = finalReason;
+
+            const badge = currentActiveRow.querySelector('[data-status-badge]') as HTMLElement;
+            if (badge) {
+              badge.textContent = 'Đã hủy';
+              badge.className = 'inline-block px-2.5 py-1 text-[10px] uppercase tracking-[0.15em] rounded bg-red-100 text-red-900 border border-red-300';
+              const parentTd = badge.parentElement;
+              if (parentTd) {
+                let reasonP = parentTd.querySelector('.cancel-reason-label');
+                if (!reasonP) {
+                  reasonP = document.createElement('p');
+                  reasonP.className = 'cancel-reason-label text-[11px] text-red-600 font-medium mt-1 leading-tight max-w-[170px]';
+                  parentTd.appendChild(reasonP);
+                }
+                reasonP.innerHTML = `<span class="font-bold">Lý do:</span> ${finalReason}`;
+                reasonP.setAttribute('title', finalReason);
+              }
+            }
+          }
+
+          if (statusSelect) statusSelect.value = 'da-huy';
+          const cancelBox = document.getElementById('modal-cancel-reason-box');
+          const cancelText = document.getElementById('modal-cancel-reason-text');
+          if (cancelBox && cancelText) {
+            cancelBox.classList.remove('hidden');
+            cancelText.textContent = finalReason;
+          }
+
+          const payActionWrapper = document.getElementById('modal-pay-action-wrapper');
+          if (payActionWrapper) payActionWrapper.classList.add('hidden');
+
+          if (btnAdminCancelOrder) btnAdminCancelOrder.classList.add('hidden');
+
+          closeAdminCancelModal();
+          showToast(`Đã hủy thành công đơn hàng #${orderCode}!`);
+          render();
+        } else {
+          if (adminCancelError) {
+            adminCancelError.textContent = json.message || 'Lỗi khi hủy đơn hàng';
+            adminCancelError.classList.remove('hidden');
+          }
+        }
+      } catch (err) {
+        if (adminCancelError) {
+          adminCancelError.textContent = 'Không thể kết nối máy chủ backend!';
+          adminCancelError.classList.remove('hidden');
+        }
+      } finally {
+        btnConfirmAdminCancel.disabled = false;
+        btnConfirmAdminCancel.innerHTML = '<span>Xác nhận hủy đơn</span>';
       }
     });
 
