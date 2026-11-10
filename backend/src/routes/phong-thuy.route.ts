@@ -38,7 +38,7 @@ QUY TẮC GIỚI HẠN PHẠM VI (BẮT BUỘC TUÂN THỦ NGHIÊM NGẶT):
 // POST /api/phong-thuy/consult
 phongThuyRouter.post('/consult', async (req: Request, res: Response) => {
   try {
-    const { message, history = [] } = req.body;
+    const { message, history = [], productContext } = req.body;
     if (!message || typeof message !== 'string') {
       res.status(400).json({ success: false, message: 'Nội dung tin nhắn không hợp lệ' });
       return;
@@ -50,7 +50,11 @@ phongThuyRouter.post('/consult', async (req: Request, res: Response) => {
       return;
     }
 
-    // Build contents for Gemini API
+    const contextPrompt = productContext
+      ? `\n\n[NGỮ CẢNH HIỆN TẠI]: Khách hàng ĐANG MỞ XEM trang chi tiết sản phẩm: "${productContext}". Nếu khách hàng hỏi các đại từ như "món này", "sản phẩm này", "cái này có hợp mệnh tôi không", hãy luận giải trực tiếp sự tương hợp phong thủy của món "${productContext}" với bản mệnh của khách.`
+      : '';
+
+    // Chuẩn hóa lịch sử hội thoại cho Gemini API
     const formattedHistory = history.map((item: { role: string; text: string }) => ({
       role: item.role === 'assistant' || item.role === 'model' ? 'model' : 'user',
       parts: [{ text: item.text }],
@@ -61,32 +65,45 @@ phongThuyRouter.post('/consult', async (req: Request, res: Response) => {
       { role: 'user', parts: [{ text: message }] },
     ];
 
-    const model = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          systemInstruction: {
-            parts: [{ text: SYSTEM_PROMPT }],
-          },
-          contents,
-        }),
-      }
-    );
+    const modelsToTry = [process.env.GEMINI_MODEL || 'gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-flash-lite-latest', 'gemini-flash-latest', 'gemini-3.8-flash'];
 
-    if (!response.ok) {
-      const errText = await response.text();
-      console.error('Gemini API Error:', errText);
-      res.status(response.status).json({ success: false, message: 'Lỗi khi kết nối với AI Gemini' });
+    let replyText = '';
+    let lastErr = '';
+
+    for (const model of modelsToTry) {
+      try {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              systemInstruction: {
+                parts: [{ text: SYSTEM_PROMPT + contextPrompt }],
+              },
+              contents,
+            }),
+          }
+        );
+
+        if (response.ok) {
+          const data: any = await response.json();
+          replyText = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          if (replyText) break;
+        } else {
+          lastErr = await response.text();
+        }
+      } catch (err: any) {
+        lastErr = err.message;
+      }
+    }
+
+    if (!replyText) {
+      res.status(502).json({ success: false, message: 'Lỗi khi kết nối với AI Gemini', error: lastErr });
       return;
     }
 
-    const data: any = await response.json();
-    const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Xin lỗi, tôi chưa thể trả lời câu hỏi này vào lúc này.';
-
-    res.json({ success: true, reply });
+    res.json({ success: true, reply: replyText });
   } catch (error: any) {
     console.error('Lỗi tư vấn phong thủy:', error);
     res.status(500).json({ success: false, message: 'Đã có lỗi xảy ra trong quá trình tư vấn', error: error.message });
@@ -107,7 +124,7 @@ phongThuyRouter.post('/chat-log', async (req: Request, res: Response) => {
     if (userId) {
       try {
         finalUserId = BigInt(userId);
-      } catch {}
+      } catch { }
     }
 
     // Nếu chưa có ID nhưng có Email, tự động đối chiếu trong bảng users
@@ -130,7 +147,7 @@ phongThuyRouter.post('/chat-log', async (req: Request, res: Response) => {
         session = await prisma.chat_sessions.findUnique({
           where: { id: BigInt(sessionId) },
         });
-      } catch {}
+      } catch { }
     }
 
     // Đặt tên guest kèm thông tin nếu có

@@ -1,7 +1,11 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
+import { requireAdminOrInternal } from '../middlewares/auth.middleware.js';
 
 export const cashbookRouter = Router();
+
+// Bảo vệ toàn bộ route sổ quỹ kế toán
+cashbookRouter.use(requireAdminOrInternal);
 
 // ================================================================
 // GET /api/cashbook - Sổ quỹ thu chi, số dư két tiền mặt & ngân hàng
@@ -130,8 +134,11 @@ cashbookRouter.get('/', async (req: Request, res: Response) => {
       categoryLabel: formatCategoryLabel(t.category, t.type),
       amount: Number(t.amount),
       paymentMethod: t.payment_method,
+      payment_method: t.payment_method,
       referenceCode: t.reference_code,
+      reference_code: t.reference_code,
       recipientName: t.recipient_name,
+      recipient_name: t.recipient_name,
       note: t.note,
       status: t.status,
       performer: t.users ? {
@@ -140,6 +147,7 @@ cashbookRouter.get('/', async (req: Request, res: Response) => {
         email: t.users.email,
       } : null,
       createdAt: t.created_at,
+      created_at: t.created_at,
     }));
 
     return res.json({

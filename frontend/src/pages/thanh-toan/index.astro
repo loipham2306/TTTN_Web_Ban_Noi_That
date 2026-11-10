@@ -92,7 +92,7 @@ const provinces = [
 
               <div>
                 <label for="ck-phone" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Số điện thoại <span class="text-red-500">*</span></label>
-                <input id="ck-phone" name="phone" type="tel" autocomplete="tel" required placeholder="0912345678" class="mt-2 w-full border border-walnut-900/20 bg-white px-4 py-3 text-sm rounded outline-none transition-colors focus:border-clay-600" />
+                <input id="ck-phone" name="phone" type="tel" autocomplete="tel" required class="mt-2 w-full border border-walnut-900/20 bg-white px-4 py-3 text-sm rounded outline-none transition-colors focus:border-clay-600" />
                 <p data-error-for="phone" class="mt-1.5 hidden text-xs text-red-600"></p>
               </div>
 
@@ -113,7 +113,7 @@ const provinces = [
 
               <div>
                 <label for="ck-district" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Quận / Huyện <span class="text-red-500">*</span></label>
-                <input id="ck-district" name="district" type="text" required placeholder="Quận Ba Đình" class="mt-2 w-full border border-walnut-900/20 bg-white px-4 py-3 text-sm rounded outline-none transition-colors focus:border-clay-600" />
+                <input id="ck-district" name="district" type="text" required class="mt-2 w-full border border-walnut-900/20 bg-white px-4 py-3 text-sm rounded outline-none transition-colors focus:border-clay-600" />
                 <p data-error-for="district" class="mt-1.5 hidden text-xs text-red-600"></p>
               </div>
 
@@ -276,10 +276,21 @@ const provinces = [
               <!-- THÔNG BÁO LỖI / THÀNH CÔNG -->
               <p id="coupon-message" class="mt-1.5 hidden text-xs font-medium"></p>
 
-              <!-- DANH SÁCH MÃ GỢI Ý CÓ SẴN BẤM CHỌN NHANH -->
-              <div id="quick-coupons-container" class="mt-3 hidden flex-col gap-1.5">
-                <span class="text-[10px] text-walnut-800/70 uppercase tracking-wider font-medium">Mã ưu đãi dành cho bạn:</span>
-                <div id="quick-coupons-list" class="flex flex-wrap gap-1.5"></div>
+              <!-- NÚT MỞ KHO VOUCHER / ƯU ĐÃI -->
+              <div id="quick-coupons-container" class="mt-3 hidden">
+                <button
+                  type="button"
+                  id="btn-open-coupon-modal"
+                  class="w-full flex items-center justify-between p-2.5 rounded-lg border border-dashed border-clay-600/40 bg-clay-50/60 hover:bg-clay-100 hover:border-clay-600 transition-all text-left cursor-pointer group shadow-2xs"
+                >
+                  <span class="flex items-center gap-2 text-xs font-semibold text-clay-900">
+                    <img src="/images/icons/discount-voucher.png" alt="Voucher" class="w-4 h-4 object-contain inline-block shrink-0" />
+                    <span>Chọn từ kho ưu đãi</span>
+                  </span>
+                  <span class="inline-flex items-center gap-1 text-[11px] font-bold text-clay-700 bg-white px-2 py-0.5 rounded border border-clay-300 shadow-2xs group-hover:bg-clay-600 group-hover:text-white transition-colors">
+                    <span id="coupon-available-count">0</span> mã khả dụng →
+                  </span>
+                </button>
               </div>
             </div>
 
@@ -608,6 +619,72 @@ const provinces = [
           class="bg-[#173524] text-[#D8B670] border border-[#D8B670]/40 px-5 py-2 text-xs font-bold uppercase tracking-wider hover:bg-walnut-900 transition-colors shadow-xs cursor-pointer"
         >
           Áp dụng địa chỉ này
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       MODAL KHO VOUCHER & ƯU ĐÃI (CHECKOUT)
+       ===================================================== -->
+  <div
+    id="checkout-coupon-modal-overlay"
+    class="fixed inset-0 z-[9999] hidden bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 transition-opacity duration-300 opacity-0"
+    role="dialog"
+    aria-modal="true"
+  >
+    <div
+      id="checkout-coupon-modal-panel"
+      class="relative w-full max-w-lg bg-[#FAF8F5] border border-walnut-900/20 shadow-2xl rounded-none transform transition-all duration-300 scale-95 opacity-0 overflow-hidden flex flex-col max-h-[85vh]"
+    >
+      <div class="bg-[#173524] text-white px-5 py-4 flex items-center justify-between border-b border-[#D8B670]/30 shrink-0 relative">
+        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#D8B670] via-[#F3E5AB] to-[#C49E52]"></div>
+        <h3 class="font-bold text-sm uppercase tracking-wider text-[#F3E5AB] flex items-center gap-2">
+          <img src="/images/icons/discount-voucher.png" alt="Voucher" class="w-5 h-5 object-contain inline-block shrink-0" />
+          <span>Kho Voucher & Ưu Đãi Dành Cho Bạn</span>
+        </h3>
+        <button
+          type="button"
+          id="btn-close-coupon-modal"
+          class="text-white/70 hover:text-white p-1 hover:bg-white/10 transition-colors cursor-pointer text-lg leading-none"
+        >
+          ✕
+        </button>
+      </div>
+
+      <div class="p-4 bg-white border-b border-walnut-900/10">
+        <div class="flex gap-2">
+          <input
+            id="modal-coupon-input"
+            type="text"
+            placeholder="Nhập mã ưu đãi..."
+            class="flex-1 uppercase rounded-sm border border-walnut-900/20 bg-sand-50/50 px-3.5 py-2 text-xs font-semibold tracking-wider outline-none transition-colors focus:border-clay-600 focus:bg-white"
+          />
+          <button
+            type="button"
+            id="modal-apply-coupon-btn"
+            class="rounded-sm bg-walnut-900 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-sand-50 transition-colors hover:bg-clay-600 active:scale-95 cursor-pointer shrink-0"
+          >
+            Áp dụng
+          </button>
+        </div>
+        <p id="modal-coupon-msg" class="mt-1.5 hidden text-xs font-medium"></p>
+      </div>
+
+      <div id="checkout-coupon-modal-list" class="p-5 space-y-3 overflow-y-auto flex-1">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div class="p-4 bg-[#F0EBE3] border-t border-walnut-900/10 flex items-center justify-between shrink-0 flex-wrap gap-2 text-xs">
+        <a href="/tai-khoan" target="_blank" class="text-xs text-[#173524] hover:underline font-bold flex items-center gap-1">
+          <span>Xem ví voucher trong tài khoản ↗</span>
+        </a>
+        <button
+          type="button"
+          id="btn-footer-close-coupon"
+          class="bg-white text-walnut-900 border border-walnut-900/20 px-5 py-2 text-xs font-bold uppercase tracking-wider hover:bg-sand-100 transition-colors shadow-2xs cursor-pointer"
+        >
+          Đóng
         </button>
       </div>
     </div>
@@ -1545,10 +1622,6 @@ ${value('phone')}`,
             totalAmount,
           };
 
-          // ✅ XÓA SẠCH GIỎ HÀNG VÀ COUPON NGAY KHI ĐƠN HÀNG ĐÃ ĐƯỢC TẠO THÀNH CÔNG
-          clearCart();
-          localStorage.removeItem('cart_coupon');
-
           if (payment === 'sepay') {
             // Chuyển sang luồng quét mã VietQR SePay
             startSepayFlow(code, totalAmount);
@@ -1596,13 +1669,211 @@ ${value('phone')}`,
 
     removeCouponBtn?.addEventListener('click', removeCoupon);
 
-    // Tải danh sách mã giảm giá gợi ý
+        // =========================================================
+    // KHO VOUCHER & ƯU ĐÃI MODAL DRAWER
+    // =========================================================
+    let allAvailableCoupons: any[] = [];
+    const btnOpenCouponModal = document.querySelector<HTMLButtonElement>('#btn-open-coupon-modal');
+    const couponAvailableCount = document.querySelector<HTMLElement>('#coupon-available-count');
+    const couponModalOverlay = document.querySelector<HTMLElement>('#checkout-coupon-modal-overlay');
+    const couponModalPanel = document.querySelector<HTMLElement>('#checkout-coupon-modal-panel');
+    const couponModalList = document.querySelector<HTMLElement>('#checkout-coupon-modal-list');
+    const btnCloseCouponModal = document.querySelector<HTMLButtonElement>('#btn-close-coupon-modal');
+    const btnFooterCloseCoupon = document.querySelector<HTMLButtonElement>('#btn-footer-close-coupon');
+    const modalCouponInput = document.querySelector<HTMLInputElement>('#modal-coupon-input');
+    const modalApplyCouponBtn = document.querySelector<HTMLButtonElement>('#modal-apply-coupon-btn');
+    const modalCouponMsg = document.querySelector<HTMLElement>('#modal-coupon-msg');
+
+    const openCouponModal = () => {
+      if (!couponModalOverlay || !couponModalPanel) return;
+      renderCouponModalList();
+      couponModalOverlay.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(() => {
+        couponModalOverlay.classList.remove('opacity-0');
+        couponModalOverlay.classList.add('opacity-100');
+        couponModalPanel.classList.remove('scale-95', 'opacity-0');
+        couponModalPanel.classList.add('scale-100', 'opacity-100');
+      });
+    };
+
+    const closeCouponModal = () => {
+      if (!couponModalOverlay || !couponModalPanel) return;
+      couponModalOverlay.classList.remove('opacity-100');
+      couponModalOverlay.classList.add('opacity-0');
+      couponModalPanel.classList.remove('scale-100', 'opacity-100');
+      couponModalPanel.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => {
+        couponModalOverlay.classList.add('hidden');
+        document.body.style.overflow = '';
+      }, 300);
+    };
+
+    btnOpenCouponModal?.addEventListener('click', openCouponModal);
+    btnCloseCouponModal?.addEventListener('click', closeCouponModal);
+    btnFooterCloseCoupon?.addEventListener('click', closeCouponModal);
+
+    couponModalOverlay?.addEventListener('click', (e) => {
+      if (e.target === couponModalOverlay) closeCouponModal();
+    });
+
+    modalApplyCouponBtn?.addEventListener('click', () => {
+      const code = modalCouponInput?.value?.trim() || '';
+      if (!code) {
+        if (modalCouponMsg) {
+          modalCouponMsg.textContent = 'Vui lòng nhập mã ưu đãi.';
+          modalCouponMsg.className = 'mt-1.5 text-xs font-medium text-red-600 block';
+        }
+        return;
+      }
+      if (couponInput) couponInput.value = code;
+      applyCoupon(code).then(() => {
+        if (currentCoupon && currentCoupon.code === code.toUpperCase()) {
+          closeCouponModal();
+        } else if (modalCouponMsg) {
+          modalCouponMsg.textContent = couponMessage?.textContent || 'Mã không hợp lệ.';
+          modalCouponMsg.className = 'mt-1.5 text-xs font-medium text-red-600 block';
+        }
+      });
+    });
+
+    const renderCouponModalList = () => {
+      if (!couponModalList) return;
+      const items = readCart();
+      const subtotal = totalPrice(items);
+
+      if (allAvailableCoupons.length === 0) {
+        couponModalList.innerHTML = '<p class="text-xs text-center py-8 text-walnut-800/70">Hiện chưa có mã ưu đãi nào khả dụng.</p>';
+        return;
+      }
+
+      // Phân loại: Đủ điều kiện & Chưa đủ điều kiện
+      const eligible: any[] = [];
+      const ineligible: any[] = [];
+
+      allAvailableCoupons.forEach((cp) => {
+        const minReq = Number(cp.minOrderValue) || 0;
+        if (subtotal >= minReq) eligible.push(cp);
+        else ineligible.push(cp);
+      });
+
+      // Cập nhật số lượng khả dụng ở nút mở ngoài form
+      if (couponAvailableCount) couponAvailableCount.textContent = String(eligible.length);
+
+      let html = '';
+
+      if (eligible.length > 0) {
+        html += '<p class="text-[11px] font-bold uppercase tracking-wider text-[#173524] mb-2">Mã có thể sử dụng (' + eligible.length + ')</p>';
+        html += '<div class="space-y-2.5">';
+        eligible.forEach((cp) => {
+          const isFreeShip = cp.discountType === 'free_shipping';
+          let valText = '';
+          if (isFreeShip) {
+            valText = cp.discountValue > 0 ? 'Miễn phí vận chuyển đến ' + formatVnd(cp.discountValue) : 'Miễn phí vận chuyển 100%';
+          } else if (cp.discountType === 'percent' || cp.discountType === 'percentage') {
+            valText = 'Giảm ' + cp.discountValue + '% tổng đơn hàng';
+          } else {
+            valText = 'Giảm ' + formatVnd(cp.discountValue) + ' trực tiếp';
+          }
+          const isCurrent = currentCoupon && currentCoupon.code === cp.code;
+
+          html += `
+            <div class="p-3.5 rounded-lg border ${isCurrent ? 'border-emerald-600 bg-emerald-50/70 shadow-xs' : 'border-walnut-900/15 bg-white hover:border-[#173524]/40 hover:shadow-2xs'} flex items-center justify-between gap-3 transition-all">
+              <div class="flex items-center gap-3 min-w-0">
+                <img 
+                  src="${isFreeShip ? '/images/icons/free-shipping.png' : '/images/icons/discount-voucher.png'}" 
+                  alt="${isFreeShip ? 'Freeship' : 'Voucher'}" 
+                  class="w-10 h-10 object-contain shrink-0" 
+                  loading="lazy"
+                />
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-bold text-xs font-mono uppercase px-2 py-0.5 bg-[#FAF8F5] border border-walnut-900/15 text-walnut-900 rounded tracking-wider">${cp.code}</span>
+                    <span class="text-xs font-semibold text-[#173524] truncate">${valText}</span>
+                  </div>
+                  <p class="text-[11px] text-walnut-800/70 mt-1">Đơn tối thiểu ${formatVnd(cp.minOrderValue || 0)}${cp.endDate ? ' • HSD: ' + new Date(cp.endDate).toLocaleDateString('vi-VN') : ''}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                data-apply-code="${cp.code}"
+                class="shrink-0 px-3.5 py-1.5 rounded text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${isCurrent ? 'bg-emerald-700 text-white' : 'bg-[#173524] hover:bg-[#234e35] text-white'}"
+              >
+                ${isCurrent ? 'Đang dùng ✓' : 'Áp dụng'}
+              </button>
+            </div>
+          `;
+        });
+        html += '</div>';
+      }
+
+      if (ineligible.length > 0) {
+        html += '<p class="text-[11px] font-bold uppercase tracking-wider text-walnut-800/60 mt-5 mb-2">Chưa đủ điều kiện (' + ineligible.length + ')</p>';
+        html += '<div class="space-y-2.5 opacity-65">';
+        ineligible.forEach((cp) => {
+          const isFreeShip = cp.discountType === 'free_shipping';
+          const needed = (Number(cp.minOrderValue) || 0) - subtotal;
+          let valText = '';
+          if (isFreeShip) {
+            valText = cp.discountValue > 0 ? 'Freeship đến ' + formatVnd(cp.discountValue) : 'Freeship 100%';
+          } else if (cp.discountType === 'percent' || cp.discountType === 'percentage') {
+            valText = 'Giảm ' + cp.discountValue + '%';
+          } else {
+            valText = 'Giảm ' + formatVnd(cp.discountValue);
+          }
+
+          html += `
+            <div class="p-3.5 rounded-lg border border-dashed border-gray-300 bg-gray-50 flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <img 
+                  src="${isFreeShip ? '/images/icons/free-shipping.png' : '/images/icons/discount-voucher.png'}" 
+                  alt="${isFreeShip ? 'Freeship' : 'Voucher'}" 
+                  class="w-10 h-10 object-contain shrink-0 grayscale opacity-60" 
+                  loading="lazy"
+                />
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-bold text-xs font-mono uppercase px-2 py-0.5 bg-gray-200 text-gray-700 rounded tracking-wider">${cp.code}</span>
+                    <span class="text-xs font-medium text-gray-700 truncate">${valText}</span>
+                  </div>
+                  <p class="text-[11px] text-red-600/80 mt-1">Đơn tối thiểu ${formatVnd(cp.minOrderValue || 0)} (Mua thêm ${formatVnd(needed)} để dùng)</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                disabled
+                class="shrink-0 px-3 py-1.5 rounded text-[11px] font-semibold uppercase tracking-wider bg-gray-200 text-gray-400 cursor-not-allowed"
+              >
+                Chưa đủ
+              </button>
+            </div>
+          `;
+        });
+        html += '</div>';
+      }
+
+      couponModalList.innerHTML = html;
+
+      // Gắn sự kiện click áp dụng cho từng thẻ mã
+      couponModalList.querySelectorAll<HTMLButtonElement>('[data-apply-code]').forEach((btn) => {
+        btn.onclick = () => {
+          const code = btn.dataset.applyCode;
+          if (code) {
+            if (couponInput) couponInput.value = code;
+            applyCoupon(code);
+            closeCouponModal();
+          }
+        };
+      });
+    };
+
+    // Tải danh sách tất cả voucher từ máy chủ
     fetch('http://localhost:4000/api/coupons')
       .then((r) => r.json())
       .then((json) => {
         if (json.success && Array.isArray(json.data)) {
           const now = new Date();
-          const activeList = json.data.filter((c: any) => {
+          allAvailableCoupons = json.data.filter((c: any) => {
             if (!c.status) return false;
             if (c.startDate && new Date(c.startDate) > now) return false;
             if (c.endDate && new Date(c.endDate) < now) return false;
@@ -1610,32 +1881,12 @@ ${value('phone')}`,
             return true;
           });
 
-          if (activeList.length > 0 && quickCouponsContainer && quickCouponsList) {
+          if (allAvailableCoupons.length > 0 && quickCouponsContainer) {
             quickCouponsContainer.classList.remove('hidden');
-            quickCouponsContainer.classList.add('flex');
-            quickCouponsList.innerHTML = '';
-
-            activeList.slice(0, 3).forEach((cp: any) => {
-              const pill = document.createElement('button');
-              pill.type = 'button';
-              pill.className = 'inline-flex items-center gap-1.5 rounded-lg border border-dashed border-clay-600/50 bg-clay-50/70 hover:bg-clay-100 hover:border-clay-700/70 px-2.5 py-1 text-[11px] font-semibold text-clay-800 transition-all cursor-pointer shadow-2xs hover:scale-[1.02] active:scale-95';
-              const isFreeShip = cp.discountType === 'free_shipping';
-              let valText = '';
-              if (isFreeShip) {
-                valText = cp.discountValue > 0 ? `Freeship -${formatVnd(cp.discountValue)}` : 'Freeship 100%';
-              } else if (cp.discountType === 'percent' || cp.discountType === 'percentage') {
-                valText = `-${cp.discountValue}%`;
-              } else {
-                valText = `-${formatVnd(cp.discountValue)}`;
-              }
-              const icon = isFreeShip ? '🚚' : '🏷️';
-              pill.innerHTML = `<span>${icon} ${cp.code}</span> <span class="text-[10px] text-clay-600 font-normal">(${valText})</span>`;
-              pill.onclick = () => {
-                if (couponInput) couponInput.value = cp.code;
-                applyCoupon(cp.code);
-              };
-              quickCouponsList.appendChild(pill);
-            });
+            const items = readCart();
+            const subtotal = totalPrice(items);
+            const eligibleCount = allAvailableCoupons.filter((c) => subtotal >= (Number(c.minOrderValue) || 0)).length;
+            if (couponAvailableCount) couponAvailableCount.textContent = String(eligibleCount);
           }
         }
       })

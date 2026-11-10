@@ -319,12 +319,20 @@ try {
               ) : (
                 initialTransactions.map((tx) => {
                   const isIncome = tx.type === 'income';
-                  const isCash = tx.payment_method === 'cash';
+                  const method = tx.payment_method || tx.paymentMethod || 'bank';
+                  const isCash = method === 'cash';
+                  const recipient = tx.recipient_name || tx.recipientName || 'Khách hàng';
+                  const createdDate = tx.created_at || tx.createdAt;
+                  const dateDisplay = createdDate && !isNaN(new Date(createdDate).getTime())
+                    ? new Date(createdDate).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })
+                    : '---';
+                  const ref = tx.reference_code || tx.referenceCode;
+
                   return (
-                    <tr class="hover:bg-sand-50/60 transition-colors ledger-row" data-type={tx.type} data-method={tx.payment_method} data-text={`${tx.code} ${tx.recipient_name || ''} ${tx.category || ''}`}>
+                    <tr class="hover:bg-sand-50/60 transition-colors ledger-row" data-type={tx.type} data-method={method} data-text={`${tx.code} ${recipient} ${tx.category || ''}`}>
                       <td class="py-3 px-4 font-mono font-bold text-[#173524]">{tx.code}</td>
-                      <td class="py-3 px-4 text-walnut-800/80">
-                        {new Date(tx.created_at).toLocaleString('vi-VN', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })}
+                      <td class="py-3 px-4 text-walnut-800/80 font-mono text-xs">
+                        {dateDisplay}
                       </td>
                       <td class="py-3 px-4 text-center">
                         <span class={`inline-flex px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${
@@ -334,12 +342,12 @@ try {
                         </span>
                       </td>
                       <td class="py-3 px-4 font-medium text-walnut-900">
-                        {tx.category}
-                        {tx.reference_code && (
-                          <span class="block text-[10px] text-walnut-800/60 font-mono">Ref: {tx.reference_code}</span>
+                        {tx.categoryLabel || tx.category}
+                        {ref && (
+                          <span class="block text-[10px] text-walnut-800/60 font-mono">Ref: {ref}</span>
                         )}
                       </td>
-                      <td class="py-3 px-4 text-walnut-800">{tx.recipient_name || 'Khách vãng lai'}</td>
+                      <td class="py-3 px-4 text-walnut-800 font-medium">{recipient}</td>
                       <td class="py-3 px-4 text-center">
                         <span class={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold ${
                           isCash ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : 'bg-blue-50 text-blue-800 border border-blue-200'
@@ -358,10 +366,10 @@ try {
                           data-type={tx.type}
                           data-amount={tx.amount}
                           data-category={tx.category}
-                          data-recipient={tx.recipient_name || 'Khách hàng'}
-                          data-method={tx.payment_method}
+                          data-recipient={recipient}
+                          data-method={method}
                           data-note={tx.note || ''}
-                          data-date={tx.created_at}
+                          data-date={createdDate}
                         >
                           In Phiếu A5
                         </button>
