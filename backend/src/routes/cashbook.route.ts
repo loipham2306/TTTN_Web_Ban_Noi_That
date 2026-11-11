@@ -4,6 +4,9 @@ import { verifyToken, requireAdmin, requireAdminOrInternal } from '../middleware
 
 export const cashbookRouter = Router();
 
+// Bảo vệ toàn bộ route sổ quỹ kế toán
+cashbookRouter.use(requireAdminOrInternal);
+
 // ================================================================
 // GET /api/cashbook - Sổ quỹ thu chi, số dư két tiền mặt & ngân hàng
 // ================================================================
@@ -131,8 +134,11 @@ cashbookRouter.get('/', requireAdminOrInternal, async (req: Request, res: Respon
       categoryLabel: formatCategoryLabel(t.category, t.type),
       amount: Number(t.amount),
       paymentMethod: t.payment_method,
+      payment_method: t.payment_method,
       referenceCode: t.reference_code,
+      reference_code: t.reference_code,
       recipientName: t.recipient_name,
+      recipient_name: t.recipient_name,
       note: t.note,
       status: t.status,
       performer: t.users ? {
@@ -141,6 +147,7 @@ cashbookRouter.get('/', requireAdminOrInternal, async (req: Request, res: Respon
         email: t.users.email,
       } : null,
       createdAt: t.created_at,
+      created_at: t.created_at,
     }));
 
     return res.json({
@@ -333,7 +340,7 @@ cashbookRouter.post('/transaction', verifyToken, requireAdmin, async (req: Reque
         amount: parsedAmount,
         payment_method: payment_method === 'bank' ? 'bank' : 'cash',
         reference_code: reference_code?.trim() || null,
-        performer_id: 1,
+        performer_id: req.user?.id ? BigInt(req.user.id) : 1,
         recipient_name: recipient_name?.trim() || (type === 'income' ? 'Người nộp tiền' : 'Người nhận tiền'),
         note: note?.trim() || `${type === 'income' ? 'Phiếu thu' : 'Phiếu chi'} tạo thủ công tại quầy thu ngân`,
         status: 'completed',

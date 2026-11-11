@@ -1,8 +1,12 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
 import { MailerService } from '../services/mailer.service.js';
+import { requireAdminOrInternal } from '../middlewares/auth.middleware.js';
 
 export const campaignsRouter = Router();
+
+// Bảo vệ toàn bộ route chiến dịch email
+campaignsRouter.use(requireAdminOrInternal);
 
 // Khởi tạo bảng email_campaigns trong MySQL và nạp dữ liệu mẫu ban đầu
 const initCampaignsTable = async () => {

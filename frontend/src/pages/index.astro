@@ -209,16 +209,36 @@ const featured = liveProducts.slice(0, 8);
           <a href={`tel:${CONTACT.phone}`} class="border border-walnut-900/30 px-6 py-2.5 text-xs uppercase tracking-[0.2em] text-walnut-900 transition hover:border-clay-600 hover:bg-clay-600 hover:text-sand-50 rounded-sm">Hotline</a>
           <a href={CONTACT.zalo} target="_blank" rel="noopener noreferrer" class="border border-walnut-900/30 px-6 py-2.5 text-xs uppercase tracking-[0.2em] text-walnut-900 transition hover:border-clay-600 hover:bg-clay-600 hover:text-sand-50 rounded-sm">Zalo</a>
           <a href={CONTACT.messenger} target="_blank" rel="noopener noreferrer" class="border border-walnut-900/30 px-6 py-2.5 text-xs uppercase tracking-[0.2em] text-walnut-900 transition hover:border-clay-600 hover:bg-clay-600 hover:text-sand-50 rounded-sm">Messenger</a>
+          <a
+            href="https://www.google.com/maps?q=10.785194,106.641778"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="border border-[#173524] bg-[#173524] px-6 py-2.5 text-xs uppercase tracking-[0.2em] text-[#F3E5AB] transition hover:bg-[#234e35] hover:border-[#234e35] rounded-sm shadow-xs"
+            title="Mở chỉ đường trên Google Maps"
+          >Chỉ đường</a>
         </div>
       </div>
-      <div class="overflow-hidden rounded-lg border border-walnut-900/10">
+      <div class="relative group overflow-hidden rounded-lg border border-walnut-900/15 shadow-sm">
         <iframe
           title="Bản đồ showroom 615 Âu Cơ"
-          src="https://maps.google.com/maps?q=615%20%C3%82u%20C%C6%A1&z=16&output=embed"
-          class="h-72 w-full border-0 lg:h-80"
+          src="https://maps.google.com/maps?q=10.785194,106.641778&z=17&output=embed"
+          class="h-72 w-full border-0 lg:h-80 pointer-events-none"
           loading="lazy"
           referrerpolicy="no-referrer-when-downgrade"
         ></iframe>
+        <!-- Lớp phủ clickable bao trùm toàn bộ bản đồ -->
+        <a
+          href="https://www.google.com/maps?q=10.785194,106.641778"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="absolute inset-0 flex items-end justify-end p-3.5 bg-black/0 group-hover:bg-black/10 transition-colors cursor-pointer"
+          title="Nhấp vào bất kỳ đâu trên bản đồ để mở chỉ đường trên Google Maps"
+        >
+          <span class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-white/95 text-walnut-900 text-xs font-semibold shadow-md border border-walnut-900/15 group-hover:bg-[#173524] group-hover:text-[#F3E5AB] transition-all">
+            <span>Mở trong Google Maps</span>
+            <span class="text-xs">↗</span>
+          </span>
+        </a>
       </div>
     </div>
   </section>
