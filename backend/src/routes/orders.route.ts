@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
-import { verifyToken, requireAdmin, requireAdminOrInternal, AuthUserPayload } from '../middlewares/auth.middleware.js';
+import { verifyToken, requireAdmin, requireAdminOrInternal, optionalToken, AuthUserPayload } from '../middlewares/auth.middleware.js';
 import jwt from 'jsonwebtoken';
 import { ENV } from '../config/env.js';
 import { MailerService } from '../services/mailer.service.js';
@@ -405,7 +405,6 @@ ordersRouter.get('/', requireAdminOrInternal, async (_req: Request, res: Respons
         coupons: true,
       },
       orderBy: { created_at: 'desc' },
-      take: 50,
     });
 
     const formatted = orderList.map((o) => ({
@@ -575,6 +574,14 @@ ordersRouter.post('/:idOrCode/cancel', verifyToken, async (req: Request, res: Re
 
     if (!isOwner && !isAdmin) {
       return res.status(403).json({ success: false, message: 'Bạn không có quyền hủy đơn hàng của người khác.' });
+    }
+
+    // Khách hàng không được tự hủy đơn hàng đã thanh toán thành công (tránh thất thoát và cần đối soát hoàn tiền)
+    if (!isAdmin && existingOrder.payment_status === 'paid') {
+      return res.status(400).json({
+        success: false,
+        message: 'Đơn hàng đã được thanh toán thành công. Để yêu cầu hủy đơn và hoàn tiền, quý khách vui lòng liên hệ Hotline CSKH 1900 636 884.',
+      });
     }
 
     // Kiểm tra trạng thái đơn hàng có được phép hủy không
@@ -1092,8 +1099,8 @@ ordersRouter.get('/analytics', requireAdminOrInternal, async (_req: Request, res
   }
 });
 
-// GET /api/orders/:code - Xem chi tiết đơn hàng
-ordersRouter.get('/:code', async (req: Request, res: Response) => {
+// GET /api/orders/:code - Xem chi tiết đơn hàng (Có che giấu PII cho khách vãng lai)
+ordersRouter.get('/:code', optionalToken, async (req: Request, res: Response) => {
   try {
     const { code } = req.params;
     const order = await prisma.orders.findUnique({
@@ -1120,15 +1127,32 @@ ordersRouter.get('/:code', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng.' });
     }
 
+    // Kiểm tra quyền: Chủ đơn hàng hoặc Admin được xem toàn bộ, khách ngoài bị che giấu PII
+    const isOwner = req.user && (BigInt(req.user.id) === order.user_id || req.user.email === order.users?.email);
+    const isAdmin = req.user && ['admin', 'seller', 'cashier'].includes(req.user.role);
+    const isAuthorized = Boolean(isOwner || isAdmin);
+
+    const maskPhone = (p?: string | null) => (p && p.length >= 7 ? p.slice(0, 3) + '****' + p.slice(-3) : (p || ''));
+    const maskEmail = (e?: string | null) => {
+      if (!e || !e.includes('@')) return e || '';
+      const [local, domain] = e.split('@');
+      return local.slice(0, 2) + '***@' + domain;
+    };
+    const maskAddress = (a?: string | null) => {
+      if (!a) return '';
+      const parts = a.split(',');
+      return parts.length > 2 ? '***, ' + parts.slice(-2).join(',').trim() : '*** (Đã ẩn vì lý do bảo mật)';
+    };
+
     return res.json({
       success: true,
       data: {
         id: Number(order.id),
         orderCode: order.order_code,
-        customerName: order.users?.full_name,
-        phone: order.users?.phone,
-        email: order.users?.email,
-        shippingAddress: order.shipping_address,
+        customerName: isAuthorized ? order.users?.full_name : (order.users?.full_name ? order.users.full_name[0] + '***' : 'Khách hàng'),
+        phone: isAuthorized ? order.users?.phone : maskPhone(order.users?.phone),
+        email: isAuthorized ? order.users?.email : maskEmail(order.users?.email),
+        shippingAddress: isAuthorized ? order.shipping_address : maskAddress(order.shipping_address),
         subtotal: Number(order.subtotal_amount),
         shippingFee: Number(order.shipping_fee ?? 0),
         discountAmount: Number(order.discount_amount ?? 0),
@@ -1448,6 +1472,7 @@ export async function autoCancelExpiredOrders(hoursThreshold = 24): Promise<{ ca
       where: {
         payment_status: 'pending',
         order_status: 'pending',
+        payment_method: { notIn: ['cod', 'cash'] }, // KHÔNG tự hủy đơn COD/Tiền mặt, chỉ tự hủy đơn chuyển khoản/QR SePay chưa thanh toán
         created_at: { lte: cutoffDate },
       },
       include: {
@@ -1524,7 +1549,7 @@ export async function autoCancelExpiredOrders(hoursThreshold = 24): Promise<{ ca
 // ================================================================
 // POST /api/orders/auto-cancel-expired - API kích hoạt hủy đơn quá hạn thủ công hoặc webhook cron
 // ================================================================
-ordersRouter.post('/auto-cancel-expired', async (req: Request, res: Response) => {
+ordersRouter.post('/auto-cancel-expired', requireAdminOrInternal, async (req: Request, res: Response) => {
   try {
     const hours = req.body?.hours ? Number(req.body.hours) : 24;
     const result = await autoCancelExpiredOrders(hours);

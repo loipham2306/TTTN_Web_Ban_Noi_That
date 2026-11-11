@@ -1,12 +1,13 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
+import { verifyToken, requireAdmin, requireAdminOrInternal } from '../middlewares/auth.middleware.js';
 
 export const suppliersRouter = Router();
 
 // ================================================================
 // GET /api/suppliers - Lấy danh sách nhà cung cấp kèm thống kê công nợ
 // ================================================================
-suppliersRouter.get('/', async (_req: Request, res: Response) => {
+suppliersRouter.get('/', requireAdminOrInternal, async (_req: Request, res: Response) => {
   try {
     const suppliers = await prisma.suppliers.findMany({
       orderBy: { created_at: 'desc' },
@@ -60,7 +61,7 @@ suppliersRouter.get('/', async (_req: Request, res: Response) => {
 // ================================================================
 // POST /api/suppliers - Thêm nhà cung cấp mới
 // ================================================================
-suppliersRouter.post('/', async (req: Request, res: Response) => {
+suppliersRouter.post('/', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { name, contact_person, contactPerson, phone, email, address } = req.body;
     const finalContact = (contactPerson ?? contact_person)?.trim() || null;
@@ -112,7 +113,7 @@ suppliersRouter.post('/', async (req: Request, res: Response) => {
 // ================================================================
 // PUT /api/suppliers/:id - Cập nhật thông tin nhà cung cấp
 // ================================================================
-suppliersRouter.put('/:id', async (req: Request, res: Response) => {
+suppliersRouter.put('/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id, 10);
     const { name, contact_person, contactPerson, phone, email, address, status } = req.body;
@@ -153,7 +154,7 @@ suppliersRouter.put('/:id', async (req: Request, res: Response) => {
 // ================================================================
 // DELETE /api/suppliers/:id - Xóa hoặc ngừng hợp tác
 // ================================================================
-suppliersRouter.delete('/:id', async (req: Request, res: Response) => {
+suppliersRouter.delete('/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id)) {
