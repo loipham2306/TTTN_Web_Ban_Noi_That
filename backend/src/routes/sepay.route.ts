@@ -203,22 +203,66 @@ sepayRouter.post('/webhook', async (req: Request, res: Response) => {
       });
     }
 
-    // Cập nhật trạng thái đơn hàng thành đã thanh toán và đã xác nhận
-    const updatedOrder = await prisma.orders.update({
-      where: { id: matchedOrder.id },
-      data: {
-        payment_status: 'paid',
-        order_status: 'confirmed',
-        seller_note: [
-          matchedOrder.seller_note,
-          `[SePay Webhook] Thanh toán thành công ${paidAmount.toLocaleString('vi-VN')} đ qua ${gateway || 'Ngân hàng'} (Ref: ${referenceCode || id}) lúc ${transactionDate || new Date().toLocaleString('vi-VN')}`,
-        ]
-          .filter(Boolean)
-          .join('\n'),
-      },
+    // Kiểm tra xem đơn hàng đã được thanh toán trước đó chưa (tránh trùng lặp webhook)
+    if (matchedOrder.payment_status === 'paid') {
+      console.log(`[SePay Webhook] Đơn hàng ${matchedOrder.order_code} đã được thanh toán trước đó.`);
+      return res.status(200).json({
+        success: true,
+        message: `Đơn hàng ${matchedOrder.order_code} đã thanh toán từ trước.`,
+        data: {
+          orderCode: matchedOrder.order_code,
+          paymentStatus: matchedOrder.payment_status,
+        },
+      });
+    }
+
+    const now = new Date();
+    const ym = now.toISOString().slice(2, 7).replace('-', '');
+    const cashCode = `PT-${ym}-${String(Date.now()).slice(-4)}${Math.floor(Math.random() * 10)}`;
+
+    // Cập nhật trạng thái đơn hàng và tự động ghi Phiếu Thu ngân hàng vào Sổ Quỹ
+    const updatedOrder = await prisma.$transaction(async (tx) => {
+      // 1. Cập nhật trạng thái đơn hàng thành đã thanh toán và đã xác nhận
+      const order = await tx.orders.update({
+        where: { id: matchedOrder.id },
+        data: {
+          payment_status: 'paid',
+          order_status: 'confirmed',
+          seller_note: [
+            matchedOrder.seller_note,
+            `[SePay Webhook] Thanh toán thành công ${paidAmount.toLocaleString('vi-VN')} đ qua ${gateway || 'Ngân hàng MBBank'} (Ref: ${referenceCode || id}) lúc ${transactionDate || now.toLocaleString('vi-VN')}`,
+          ]
+            .filter(Boolean)
+            .join('\n'),
+        },
+      });
+
+      // 2. Tự động ghi nhận Phiếu Thu tiền gửi ngân hàng vào Sổ Quỹ (cash_transactions)
+      const existingTx = await tx.cash_transactions.findFirst({
+        where: { reference_code: matchedOrder.order_code },
+      });
+
+      if (!existingTx) {
+        await tx.cash_transactions.create({
+          data: {
+            code: cashCode,
+            type: 'income',
+            category: 'order_payment',
+            amount: paidAmount,
+            payment_method: 'bank',
+            reference_code: matchedOrder.order_code,
+            recipient_name: (matchedOrder as any).users?.full_name || 'Khách hàng thanh toán SePay VietQR',
+            note: `Thu tiền đơn hàng #${matchedOrder.order_code} qua SePay ${gateway || 'MBBank'} (Giao dịch: ${referenceCode || id})`,
+            status: 'completed',
+            created_at: now,
+          },
+        });
+      }
+
+      return order;
     });
 
-    console.log(`[SePay Webhook] ✅ Đơn hàng ${updatedOrder.order_code} đã thanh toán thành công!`);
+    console.log(`[SePay Webhook] ✅ Đơn hàng ${updatedOrder.order_code} đã thanh toán thành công và đã ghi sổ quỹ!`);
 
     // Kích hoạt gửi email xác nhận thanh toán thành công ngầm (Non-blocking)
     sendPaymentSuccessEmailAsync(
@@ -231,7 +275,7 @@ sepayRouter.post('/webhook', async (req: Request, res: Response) => {
 
     return res.status(200).json({
       success: true,
-      message: `Đơn hàng ${updatedOrder.order_code} đã được cập nhật thanh toán thành công.`,
+      message: `Đơn hàng ${updatedOrder.order_code} đã được cập nhật thanh toán thành công và ghi sổ quỹ.`,
       data: {
         orderCode: updatedOrder.order_code,
         paymentStatus: updatedOrder.payment_status,
@@ -244,63 +288,5 @@ sepayRouter.post('/webhook', async (req: Request, res: Response) => {
       message: 'Lỗi máy chủ khi xử lý SePay Webhook.',
       error: error.message,
     });
-  }
-});
-
-/**
- * POST /api/sepay/simulate-payment - Endpoint giả lập thanh toán dành cho môi trường phát triển / Demo Đồ án
- * Body: { orderCode: string }
- */
-sepayRouter.post('/simulate-payment', async (req: Request, res: Response) => {
-  try {
-    const { orderCode } = req.body;
-
-    if (!orderCode) {
-      return res.status(400).json({ success: false, message: 'Vui lòng cung cấp mã đơn hàng orderCode.' });
-    }
-
-    const order = await prisma.orders.findUnique({
-      where: { order_code: orderCode },
-    });
-
-    if (!order) {
-      return res.status(404).json({ success: false, message: 'Không tìm thấy đơn hàng cần thanh toán giả lập.' });
-    }
-
-    const updated = await prisma.orders.update({
-      where: { id: order.id },
-      data: {
-        payment_status: 'paid',
-        order_status: 'confirmed',
-        seller_note: [
-          order.seller_note,
-          `[DEMO TEST] Thanh toán giả lập thành công ${Number(order.total_amount).toLocaleString('vi-VN')} đ lúc ${new Date().toLocaleString('vi-VN')}`,
-        ]
-          .filter(Boolean)
-          .join('\n'),
-      },
-    });
-
-    // Kích hoạt gửi email xác nhận thanh toán thành công ngầm (Non-blocking)
-    sendPaymentSuccessEmailAsync(
-      updated.id,
-      Number(updated.total_amount),
-      `SIM-${Date.now().toString().slice(-6)}`,
-      'Thanh toán Giả lập VietQR (SePay Demo)',
-      new Date()
-    );
-
-    return res.json({
-      success: true,
-      message: `Đã giả lập thanh toán thành công cho đơn hàng ${updated.order_code}`,
-      data: {
-        orderCode: updated.order_code,
-        paymentStatus: updated.payment_status,
-        orderStatus: updated.order_status,
-      },
-    });
-  } catch (error: any) {
-    console.error('[SePay Simulator] Lỗi giả lập thanh toán:', error);
-    return res.status(500).json({ success: false, message: 'Lỗi máy chủ.', error: error.message });
   }
 });

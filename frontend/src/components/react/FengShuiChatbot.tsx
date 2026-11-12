@@ -138,66 +138,33 @@ export default function FengShuiChatbot() {
 
     try {
       let replyText = '';
-      const geminiApiKey = import.meta.env.PUBLIC_GEMINI_API_KEY;
-      if (!geminiApiKey) {
-        throw new Error('Chưa cấu hình API Key. Vui lòng thêm PUBLIC_GEMINI_API_KEY vào file .env');
-      }
-      const modelsToTry = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
-
-      // Lọc bỏ các tin nhắn thông báo lỗi trước đó khỏi ngữ cảnh gửi lên AI
+      const apiBase = import.meta.env.PUBLIC_API_URL || 'http://localhost:4000/api';
+      // Lọc bỏ tin nhắn lỗi và tin nhắn đầu tiên
       const validHistory = newMessages
         .filter((m) => !m.content.startsWith('⚠️'))
         .slice(1);
-
-      const geminiHistory = validHistory.map((m) => ({
-        role: m.role === 'assistant' ? 'model' : 'user',
-        parts: [{ text: m.content }],
+      const historyPayload = validHistory.map((m) => ({
+        role: m.role,
+        text: m.content,
       }));
-
-      let apiSuccess = false;
-      let lastErrorMessage = '';
-
-      const contextPrompt = productContext
-        ? `\n\n[NGỮ CẢNH HIỆN TẠI]: Khách hàng ĐANG MỞ XEM trang chi tiết sản phẩm: "${productContext}". Nếu khách hàng hỏi các đại từ như "món này", "sản phẩm này", "cái này có hợp mệnh tôi không", hãy luận giải trực tiếp sự tương hợp phong thủy của món "${productContext}" với bản mệnh của khách.`
-        : '';
-
-      for (const modelName of modelsToTry) {
-        try {
-          const geminiRes = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${modelName}:generateContent?key=${geminiApiKey}`,
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                systemInstruction: {
-                  parts: [{ text: SYSTEM_INSTRUCTION + contextPrompt }],
-                },
-                contents: geminiHistory,
-              }),
-            }
-          );
-
-          if (geminiRes.ok) {
-            const data = await geminiRes.json();
-            const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-            if (text) {
-              replyText = text;
-              apiSuccess = true;
-              break;
-            }
-          } else {
-            const errJson = await geminiRes.json().catch(() => ({}));
-            lastErrorMessage = errJson.error?.message || `HTTP ${geminiRes.status}`;
-          }
-        } catch (e: any) {
-          lastErrorMessage = e.message;
-        }
+      const res = await fetch(`${apiBase}/phong-thuy/consult`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: query,
+          history: historyPayload,
+          productContext: productContext || undefined,
+        }),
+      });
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({}));
+        throw new Error(errJson.message || `Lỗi kết nối máy chủ AI (${res.status})`);
       }
-
-      if (!apiSuccess && !replyText) {
-        throw new Error(lastErrorMessage || 'Không thể kết nối đến máy chủ AI');
+      const resData = await res.json();
+      if (!resData.success || !resData.reply) {
+        throw new Error(resData.message || 'Không thể nhận phản hồi từ chuyên gia phong thủy');
       }
-
+      replyText = resData.reply;
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
@@ -229,7 +196,7 @@ export default function FengShuiChatbot() {
               if (u.phone && u.phone !== 'Chưa cập nhật') userPhone = String(u.phone);
             }
           }
-        } catch {}
+        } catch { }
 
         const storedSessionId = sessionStorage.getItem('ktufa_chat_session_id');
 
@@ -253,7 +220,7 @@ export default function FengShuiChatbot() {
               sessionStorage.setItem('ktufa_chat_session_id', res.sessionId);
             }
           })
-          .catch(() => {});
+          .catch(() => { });
       } catch (logErr) {
         console.warn('Lỗi ghi log chat AI:', logErr);
       }
@@ -427,19 +394,17 @@ export default function FengShuiChatbot() {
                 )}
 
                 <div
-                  className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 shadow-sm text-sm ${
-                    msg.role === 'user'
+                  className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 shadow-sm text-sm ${msg.role === 'user'
                       ? 'bg-[#173524] text-white rounded-br-xs'
                       : 'bg-white text-neutral-800 border border-neutral-200/70 rounded-bl-xs'
-                  }`}
+                    }`}
                 >
                   <div className="break-words">
                     {msg.role === 'assistant' ? renderFormattedText(msg.content) : msg.content}
                   </div>
                   <div
-                    className={`mt-1 text-[10px] text-right ${
-                      msg.role === 'user' ? 'text-white/60' : 'text-neutral-400'
-                    }`}
+                    className={`mt-1 text-[10px] text-right ${msg.role === 'user' ? 'text-white/60' : 'text-neutral-400'
+                      }`}
                   >
                     {msg.timestamp}
                   </div>

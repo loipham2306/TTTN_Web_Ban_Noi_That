@@ -16,9 +16,27 @@ export const ADMIN_AUTH_KEY = 'admin_user';
 export const ADMIN_TOKEN_KEY = 'admin_token';
 export const AUTH_EVENT = 'auth:changed';
 
+export function isTokenExpired(token: string): boolean {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 3) return true;
+    const payload = JSON.parse(atob(parts[1]));
+    if (!payload.exp) return false;
+    return payload.exp * 1000 <= Date.now();
+  } catch {
+    return true;
+  }
+}
+
 export function getToken(): string | null {
   try {
-    return localStorage.getItem(TOKEN_KEY);
+    const token = localStorage.getItem(TOKEN_KEY);
+    if (!token) return null;
+    if (isTokenExpired(token)) {
+      clearUser();
+      return null;
+    }
+    return token;
   } catch {
     return null;
   }
@@ -26,12 +44,16 @@ export function getToken(): string | null {
 
 export function getAdminToken(): string | null {
   try {
-    return localStorage.getItem(ADMIN_TOKEN_KEY) || localStorage.getItem(TOKEN_KEY);
+    const adminToken = localStorage.getItem(ADMIN_TOKEN_KEY);
+    if (adminToken && !isTokenExpired(adminToken)) {
+      return adminToken;
+    }
+    const token = getToken();
+    return token;
   } catch {
     return null;
   }
 }
-
 export function sanitizeUserName(name?: string | null, role?: string): string {
   if (!name || !name.trim()) return role === 'admin' ? 'Quản Trị Viên' : 'Khách';
   let cleaned = name.trim();
@@ -69,7 +91,7 @@ export function readUser(): AuthUser | null {
         user.name = cleanName;
         try {
           localStorage.setItem(AUTH_KEY, JSON.stringify(user));
-        } catch {}
+        } catch { }
       }
       return user;
     }
@@ -87,7 +109,7 @@ export function isAdmin(): boolean {
       const au = JSON.parse(adminUserRaw);
       if (au.role === 'admin' || au.role === 'seller') return true;
     }
-  } catch {}
+  } catch { }
 
   const user = readUser();
   const token = getToken();

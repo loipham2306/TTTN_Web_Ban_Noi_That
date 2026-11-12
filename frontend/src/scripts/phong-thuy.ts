@@ -186,7 +186,7 @@ export const tuVanPhongThuy = (input: PhongThuyInput): PhongThuyResult => {
   };
 };
 
-// Gọi Gemini AI tư vấn chuyên sâu
+// Gọi Backend tư vấn phong thủy bảo mật (Không lộ API Key ở Client)
 export const goiAITuVanPhongThuy = async (
   namSinh: number,
   gioiTinh: string,
@@ -194,38 +194,27 @@ export const goiAITuVanPhongThuy = async (
   cung: string,
   nguHanh: string
 ): Promise<string> => {
-  const apiKey = (import.meta as any).env?.PUBLIC_GEMINI_API_KEY;
-  if (!apiKey) {
-    return 'Vui lòng thêm biến môi trường PUBLIC_GEMINI_API_KEY vào file .env để kích hoạt tư vấn AI.';
-  }
   const prompt = `Gia chủ sinh năm ${namSinh} (${gioiTinh === 'nam' ? 'Nam mạng' : 'Nữ mạng'}), thuộc cung ${cung}, mệnh ${nguHanh}. Đang hoàn thiện không gian: ${loaiPhongLabel}.
 Hãy đóng vai Chuyên gia Phong Thủy của thương hiệu KTUFA Luxury Furniture, đưa ra lời luận giải ngắn gọn (khoảng 3 đoạn văn):
 1. Nhận định phong thủy tổng quan cho căn phòng này của gia chủ.
 2. Cách kê đồ đạc chính (hướng, vị trí tựa lưng, ánh sáng) để chiêu tài đón lộc.
 3. Lời khuyên chọn chất liệu & màu sắc nội thất tương sinh.
 Trình bày sang trọng, ấm áp, dùng gạch đầu dòng rõ ràng.`;
-
-  const models = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro', 'gemini-3.5-flash-lite', 'gemini-3.5-flash', 'gemini-3.8-flash'];
-  for (const m of models) {
-    try {
-      const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{ parts: [{ text: prompt }] }],
-          }),
-        }
-      );
-      if (res.ok) {
-        const data = await res.json();
-        const text = data.candidates?.[0]?.content?.parts?.[0]?.text;
-        if (text) return text;
+  try {
+    const apiBase = (import.meta as any).env?.PUBLIC_API_URL || 'http://localhost:4000/api';
+    const res = await fetch(`${apiBase}/phong-thuy/consult`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: prompt }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data.success && data.reply) {
+        return data.reply;
       }
-    } catch (e) {
-      // thử model tiếp theo
     }
+  } catch (error) {
+    console.error('Lỗi khi gọi API tư vấn phong thủy:', error);
   }
   return 'Gia chủ có bản mệnh hài hòa. Khi bài trí nên ưu tiên sự thông thoáng, tựa lưng vững chãi và sử dụng các màu sắc tương sinh theo ngũ hành để tụ tài sinh khí.';
 };

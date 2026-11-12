@@ -555,7 +555,8 @@ import { provinces } from '../../data/provinces';
             <div class="flex items-center justify-between pb-3 border-b border-walnut-900/10">
               <div>
                 <h2 class="font-bold text-sm uppercase tracking-wide text-walnut-900 flex items-center gap-2">
-                  <span>🎟️ Mã giảm giá & Đặc quyền thành viên</span>
+                  <img src="/images/icons/discount-voucher.png" alt="Voucher" class="w-5 h-5 object-contain shrink-0" />
+                  <span>Mã giảm giá & Đặc quyền thành viên</span>
                 </h2>
                 <p class="text-[11px] text-walnut-800/70 mt-0.5">Áp dụng mã tại bước Thanh toán để nhận ưu đãi chiết khấu trực tiếp.</p>
               </div>
@@ -797,7 +798,6 @@ import { provinces } from '../../data/provinces';
                 type="tel"
                 id="addr-receiver-phone"
                 required
-                placeholder="0912345678"
                 class="w-full border border-walnut-900/20 bg-white/95 px-3 py-2 text-xs text-walnut-900 outline-none focus:border-[#173524] shadow-2xs rounded-none transition-colors"
               />
             </div>
@@ -825,7 +825,6 @@ import { provinces } from '../../data/provinces';
                 type="text"
                 id="addr-district"
                 required
-                placeholder="Quận / Huyện"
                 class="w-full border border-walnut-900/20 bg-white/95 px-3 py-2 text-xs text-walnut-900 outline-none focus:border-[#173524] shadow-2xs rounded-none transition-colors"
               />
             </div>
@@ -1828,17 +1827,24 @@ import { provinces } from '../../data/provinces';
           grid.classList.remove('hidden');
           grid.innerHTML = json.data.map((c: any) => {
             const isPercent = c.discountType === 'percent' || c.discountType === 'percentage';
-            const valueDisplay = isPercent ? `${c.discountValue}%` : fmtVnd(c.discountValue);
+            const isFreeShip = c.discountType === 'free_shipping';
+            const valueDisplay = isFreeShip 
+              ? (c.discountValue > 0 ? `Freeship ${fmtVnd(c.discountValue)}` : 'Freeship 100%')
+              : (isPercent ? `${c.discountValue}%` : fmtVnd(c.discountValue));
             const minDisplay = c.minOrderValue ? `Đơn tối thiểu ${fmtVnd(c.minOrderValue)}` : 'Áp dụng cho mọi đơn';
+            const iconSrc = isFreeShip ? '/images/icons/free-shipping.png' : '/images/icons/discount-voucher.png';
 
             return `
               <div class="rounded-none border border-walnut-900/15 bg-[#FAF8F5] p-4 flex items-center justify-between gap-3 shadow-xs hover:border-[#173524]/40 transition-colors">
-                <div class="space-y-1">
-                  <div class="flex items-center gap-2">
-                    <span class="font-mono font-bold text-sm bg-[#173524] text-[#E6CA85] px-2.5 py-0.5">${c.code}</span>
-                    <span class="text-xs font-bold text-clay-700">Giảm ${valueDisplay}</span>
+                <div class="flex items-center gap-3 min-w-0">
+                  <img src="${iconSrc}" alt="Icon" class="w-10 h-10 object-contain shrink-0" loading="lazy" />
+                  <div class="space-y-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <span class="font-mono font-bold text-sm bg-[#173524] text-[#E6CA85] px-2.5 py-0.5">${c.code}</span>
+                      <span class="text-xs font-bold text-clay-700">Giảm ${valueDisplay}</span>
+                    </div>
+                    <p class="text-[11px] text-walnut-800/80">${minDisplay}</p>
                   </div>
-                  <p class="text-[11px] text-walnut-800/80">${minDisplay}</p>
                 </div>
                 <button
                   type="button"
