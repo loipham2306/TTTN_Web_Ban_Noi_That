@@ -840,15 +840,17 @@ const isItemActive = (item: MenuItem): boolean => {
   }
 
   /* ===== Cố định vị trí toàn bộ dropdown luôn nằm 100% bên dưới Header, không đè lên header ===== */
-  .navbar-container > div {
-    align-items: stretch !important;
-  }
-  .navbar-container > div > nav,
-  .nav-item {
-    height: 100% !important;
-    display: flex;
-    align-items: center;
-    position: relative;
+  @media (min-width: 1024px) {
+    .navbar-container > div {
+      align-items: stretch !important;
+    }
+    .navbar-container > div > nav,
+    .nav-item {
+      height: 100% !important;
+      display: flex;
+      align-items: center;
+      position: relative;
+    }
   }
   .dropdown-menu {
     top: 100% !important;
