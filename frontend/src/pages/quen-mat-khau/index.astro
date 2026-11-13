@@ -751,8 +751,14 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       const newPass = passInput.value;
       const confirmPass = confirmInput.value;
 
-      if (!newPass) {
+      if (!newPass || !newPass.trim()) {
         errStep3Password.textContent = 'Vui lòng nhập mật khẩu mới.';
+        errStep3Password.classList.remove('hidden');
+        return;
+      }
+
+      if (/\s/.test(newPass)) {
+        errStep3Password.textContent = 'Mật khẩu mới không được chứa khoảng trắng (dấu cách).';
         errStep3Password.classList.remove('hidden');
         return;
       }

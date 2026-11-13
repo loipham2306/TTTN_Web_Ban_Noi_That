@@ -10,7 +10,11 @@ interface Props {
 const { product } = Astro.props;
 const detail = getProductDetail(product.slug);
 const imageSrc = (product as any).thumbnail || (product as any).image || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80';
+const productImages: string[] = Array.isArray((product as any).images) && (product as any).images.length > 0
+  ? (product as any).images
+  : (detail.gallery && detail.gallery.length > 0 ? [imageSrc, ...detail.gallery.filter((g: string) => g !== imageSrc)] : [imageSrc]);
 const stock = (product as any).stock !== undefined ? Number((product as any).stock) : 20;
+const warranty = (product as any).warranty || detail.warranty || '24 tháng';
 
 // Tính điểm đánh giá & giá tham khảo đồng nhất theo slug
 const hash = product.slug.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
@@ -39,7 +43,7 @@ const comparePrice = (rawCompare && Number(rawCompare) > product.price)
   data-color-label={product.colorLabel || ''}
   data-image={imageSrc}
   data-dimensions={detail.dimensions}
-  data-warranty={detail.warranty}
+  data-warranty={warranty}
   data-description={detail.description}
 >
   <!-- 1. KHỐI HÌNH ẢNH VUÔNG SẮC CẠNH (ASPECT-SQUARE), THU NHỎ KHI HOVER ĐỂ CHỪA CHỖ CHO NÚT -->
@@ -88,8 +92,9 @@ const comparePrice = (rawCompare && Number(rawCompare) > product.price)
         data-space={product.spaceLabel || ''}
         data-material={product.material}
         data-image={imageSrc}
+        data-images={JSON.stringify(productImages)}
         data-dimensions={detail.dimensions}
-        data-warranty={detail.warranty}
+        data-warranty={warranty}
         data-description={detail.description}
         class="pointer-events-auto flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-black/35 backdrop-blur-sm border border-white/60 text-white shadow-xl opacity-0 scale-75 transition-all duration-300 group-hover:opacity-100 group-hover:scale-100 hover:bg-[#173524]/80 hover:border-[#D8B670] hover:text-[#D8B670] hover:scale-110 active:scale-95 cursor-pointer"
         title="Xem nhanh thông số"
@@ -265,6 +270,16 @@ const comparePrice = (rawCompare && Number(rawCompare) > product.price)
       e.preventDefault();
       e.stopPropagation();
 
+      let imagesList: string[] = [btn.dataset.image || ''];
+      try {
+        if (btn.dataset.images) {
+          const parsed = JSON.parse(btn.dataset.images);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            imagesList = parsed;
+          }
+        }
+      } catch {}
+
       const eventData = {
         slug: btn.dataset.slug,
         name: btn.dataset.name,
@@ -275,6 +290,7 @@ const comparePrice = (rawCompare && Number(rawCompare) > product.price)
         space: btn.dataset.space,
         material: btn.dataset.material,
         image: btn.dataset.image,
+        images: imagesList,
         dimensions: btn.dataset.dimensions,
         warranty: btn.dataset.warranty,
         description: btn.dataset.description,

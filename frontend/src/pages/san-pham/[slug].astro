@@ -59,8 +59,8 @@ if (!product) {
 
 const detail = productDetails[slug as string] ?? {
   description: apiProduct?.shortDescription || apiProduct?.content || 'Sản phẩm nội thất thiết kế cao cấp.',
-  dimensions: apiProduct?.variants?.[0]?.dimensions || 'Kích thước tiêu chuẩn',
-  warranty: '24 tháng',
+  dimensions: apiProduct?.variants?.[0]?.dimensions || apiProduct?.dimensions || 'Kích thước tiêu chuẩn',
+  warranty: apiProduct?.warranty || apiProduct?.brand || '24 tháng',
   origin: 'Việt Nam',
   gallery: apiProduct?.images?.map((img: any) => img.url) || [],
 };
@@ -80,8 +80,15 @@ const rawThumbnail = apiProduct?.images?.find((i: any) => i.isThumbnail)?.url ||
 // Lọc bỏ base64 bị hỏng hoặc quá dài
 const thumbnail = rawThumbnail && !rawThumbnail.startsWith('data:') ? rawThumbnail : null;
 const description  = apiProduct?.shortDescription ?? detail.description;
-const dimensions   = apiProduct?.variants?.[0]?.dimensions ?? detail.dimensions;
-const warranty     = detail.warranty;
+const dimensions   = apiProduct?.variants?.[0]?.dimensions ?? (apiProduct?.dimensions ?? detail.dimensions);
+const rawWarranty  = apiProduct?.warranty || apiProduct?.brand || detail.warranty || '24 tháng';
+const isNoWarranty = (w?: string | null) => {
+  if (!w) return false;
+  const s = String(w).trim().toLowerCase();
+  return s === '0' || s === '0 tháng' || s === '0thang' || s === '0 thang' || s === 'không' || s === 'khong' || s.includes('không bảo hành') || s.includes('khong bao hanh');
+};
+const showWarranty = !isNoWarranty(rawWarranty);
+const warranty     = showWarranty ? rawWarranty : '';
 const brand        = apiProduct?.brand ?? null;
 const stock        = apiProduct?.stock !== undefined ? Number(apiProduct.stock) : (apiProduct?.variants?.[0]?.stock !== undefined ? Number(apiProduct.variants[0].stock) : ((staticProduct as any)?.stock ?? 20));
 
@@ -293,7 +300,7 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
       <!-- RIGHT: INFO -->
       <div class="flex flex-col">
 
-        <!-- Category & Brand -->
+        <!-- Category -->
         <div class="flex items-center gap-3">
           <a
             href={`/san-pham?danh-muc=${catSlug}`}
@@ -301,10 +308,6 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
           >
             {catLabel}
           </a>
-          {brand && (
-            <span class="text-walnut-800/40">|</span>
-            <span class="text-[11px] uppercase tracking-[0.2em] text-walnut-800/60">{brand}</span>
-          )}
         </div>
 
         <!-- Name -->
@@ -362,10 +365,12 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
             <dt class="text-walnut-800/70 uppercase tracking-wider text-[11px]">Kích thước</dt>
             <dd class="text-walnut-900 font-medium">{dimensions}</dd>
           </div>
-          <div class="flex justify-between text-sm">
-            <dt class="text-walnut-800/70 uppercase tracking-wider text-[11px]">Bảo hành</dt>
-            <dd class="text-walnut-900 font-medium">{warranty}</dd>
-          </div>
+          {showWarranty && (
+            <div class="flex justify-between text-sm">
+              <dt class="text-walnut-800/70 uppercase tracking-wider text-[11px]">Bảo hành</dt>
+              <dd class="text-walnut-900 font-medium">{warranty}</dd>
+            </div>
+          )}
         </dl>
 
         <!-- QUANTITY SELECTOR -->
@@ -397,9 +402,6 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
               disabled={stock === 0}
             >+</button>
           </div>
-          <span id="stock-feedback-info" class="text-xs text-walnut-800/70">
-            {stock > 0 ? `(Kho còn ${stock} sản phẩm)` : '(Tạm hết hàng)'}
-          </span>
         </div>
 
         <!-- CTA BUTTONS -->
@@ -787,26 +789,8 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
   const inputQty = document.getElementById('input-qty') as HTMLInputElement | null;
   const btnMinus = document.getElementById('btn-qty-minus') as HTMLButtonElement | null;
   const btnPlus = document.getElementById('btn-qty-plus') as HTMLButtonElement | null;
-  const stockFeedbackInfo = document.getElementById('stock-feedback-info');
 
   const maxStock = Number(inputQty?.max || 99);
-
-  const updateStockFeedback = () => {
-    if (!stockFeedbackInfo || maxStock <= 0) return;
-    const currentInCart = getCartItemQty(btnAdd?.dataset.slug || '');
-    if (currentInCart > 0) {
-      if (currentInCart >= maxStock) {
-        stockFeedbackInfo.innerHTML = `(Kho còn ${maxStock} • <span class="text-amber-700 font-semibold">Đã có ${currentInCart} trong giỏ - Đạt tối đa</span>)`;
-      } else {
-        stockFeedbackInfo.innerHTML = `(Kho còn ${maxStock} • <span class="text-walnut-800 font-medium">Đã có ${currentInCart} trong giỏ</span>)`;
-      }
-    } else {
-      stockFeedbackInfo.textContent = `(Kho còn ${maxStock} sản phẩm)`;
-    }
-  };
-
-  updateStockFeedback();
-  window.addEventListener(CART_EVENT, updateStockFeedback);
 
   const getQty = (): number => {
     if (maxStock <= 0) return 0;

@@ -71,9 +71,12 @@ try {
         spaceLabel: p.spaceLabel || 'Phòng khách',
         price: p.price,
         comparePrice: p.comparePrice ? Number(p.comparePrice) : null,
+        stock: p.stock !== undefined ? Number(p.stock) : 0,
+        warranty: p.warranty || '24 tháng',
         material: p.material || '',
         thumbnail: p.thumbnail,
         image: p.thumbnail,
+        images: Array.isArray(p.images) && p.images.length > 0 ? p.images : (p.thumbnail ? [p.thumbnail] : []),
         isNew: true,
       }));
     }

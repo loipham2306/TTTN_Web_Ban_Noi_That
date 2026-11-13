@@ -332,9 +332,16 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
       strengthContainer.classList.remove('hidden');
 
+      if (/\s/.test(val)) {
+        strengthText.textContent = 'Mật khẩu không được chứa khoảng trắng';
+        strengthText.className = 'font-bold text-red-600';
+        strengthBar.className = 'h-full w-1/4 bg-red-500 transition-all duration-300';
+        return;
+      }
+
       const hasLetters = /[a-zA-Z]/.test(val);
       const hasNumbers = /[0-9]/.test(val);
-      const hasSpecial = /[^a-zA-Z0-9]/.test(val);
+      const hasSpecial = /[^a-zA-Z0-9\s]/.test(val);
       const isLongEnough = val.length >= 8;
 
       if (val.length < 6) {
@@ -527,9 +534,15 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
         return;
       }
 
-      if (!password) {
+      if (!password || !password.trim()) {
         setFieldError('password', 'Vui lòng nhập mật khẩu.');
         showToast('Vui lòng nhập mật khẩu.', true);
+        return;
+      }
+
+      if (/\s/.test(password)) {
+        setFieldError('password', 'Mật khẩu không được chứa khoảng trắng (dấu cách).');
+        showToast('Mật khẩu không được chứa khoảng trắng.', true);
         return;
       }
 

@@ -29,7 +29,7 @@ export const productDetails: Record<string, ProductDetail> = {
 const FALLBACK: ProductDetail = {
   description: 'Sản phẩm được chế tác thủ công và kiểm định chất lượng trước khi giao đến khách hàng.',
   dimensions: 'Đang cập nhật',
-  warranty: '12 tháng',
+  warranty: '24 tháng',
 };
 
 export const getProductDetail = (slug: string): ProductDetail => productDetails[slug] ?? FALLBACK;

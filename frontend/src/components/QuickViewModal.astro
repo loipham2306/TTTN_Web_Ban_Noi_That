@@ -108,8 +108,8 @@
 
           <p id="qv-description" class="mt-1.5 text-xs leading-relaxed text-walnut-800/80 line-clamp-2"></p>
 
-          <!-- BẢNG 3 THÔNG SỐ CƠ BẢN: ĐỒNG BỘ STYLE CARD 2 CỘT CỦA TRỤ CỘT -->
-          <div class="mt-3 grid grid-cols-3 gap-2 text-xs">
+          <!-- BẢNG THÔNG SỐ CƠ BẢN: ĐỒNG BỘ STYLE CARD CỦA TRỤ CỘT -->
+          <div id="qv-specs-grid" class="mt-3 grid grid-cols-3 gap-2 text-xs">
             <div class="rounded-none border border-walnut-900/10 bg-white/90 p-2 sm:p-2.5 shadow-2xs">
               <span class="text-walnut-800/60 text-[10px] block font-medium uppercase tracking-wider">Kích thước</span>
               <span id="qv-dimensions" class="font-bold text-walnut-900 text-[11px] sm:text-xs block truncate mt-0.5">Tiêu chuẩn</span>
@@ -118,7 +118,7 @@
               <span class="text-walnut-800/60 text-[10px] block font-medium uppercase tracking-wider">Chất liệu</span>
               <span id="qv-material" class="font-bold text-walnut-900 text-[11px] sm:text-xs block truncate mt-0.5">Cao cấp</span>
             </div>
-            <div class="rounded-none border border-walnut-900/10 bg-white/90 p-2 sm:p-2.5 shadow-2xs">
+            <div id="qv-warranty-box" class="rounded-none border border-walnut-900/10 bg-white/90 p-2 sm:p-2.5 shadow-2xs">
               <span class="text-walnut-800/60 text-[10px] block font-medium uppercase tracking-wider">Bảo hành</span>
               <span id="qv-warranty" class="font-bold text-walnut-900 text-[11px] sm:text-xs block truncate mt-0.5">24 tháng</span>
             </div>
@@ -183,17 +183,11 @@
             </a>
           </div>
 
-          <!-- HÀNG 2: TỒN KHO & DÒNG CAM KẾT CHẤT LƯỢNG TRÊN NỀN XANH -->
-          <div class="flex items-center justify-between text-[11px] sm:text-xs text-[#E6CA85] font-sans pt-0.5 sm:pt-1 px-1 tracking-tight">
+          <!-- HÀNG 2: TỒN KHO TRÊN NỀN XANH -->
+          <div class="flex items-center text-[11px] sm:text-xs text-[#E6CA85] font-sans pt-0.5 sm:pt-1 px-1 tracking-tight">
             <!-- Tồn kho -->
             <div id="qv-stock-display" class="text-[11px] font-medium text-sand-200/90 whitespace-nowrap">
               Còn <span id="qv-stock-count" class="font-bold text-amber-300">--</span> trong kho
-            </div>
-
-            <!-- Cam kết -->
-            <div class="flex items-center gap-1 text-[11px] text-[#E6CA85] truncate">
-              <span class="text-amber-300 not-italic text-xs shrink-0">✦</span>
-              <span class="leading-relaxed font-normal truncate">Cam kết 100% chính hãng — Bảo hành 24 tháng tận nhà.</span>
             </div>
           </div>
         </div>
@@ -204,41 +198,6 @@
 
 <script>
   import { addToCart, showCartToast, formatVnd, flyToCart } from '../scripts/cart';
-
-  // Thư viện các góc chụp phối cảnh đa dạng theo từng loại sản phẩm
-  const CATEGORY_PREVIEWS: Record<string, string[]> = {
-    sofa: [
-      'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1540574163026-643ea20ade25?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=800&q=80',
-    ],
-    'ban-an': [
-      'https://images.unsplash.com/photo-1617806118233-18e1de247200?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1577140917170-285929fb55b7?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1530018607912-eff2daa1bac4?auto=format&fit=crop&w=800&q=80',
-    ],
-    ghe: [
-      'https://images.unsplash.com/photo-1580481077198-c847ad43616b?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=800&q=80',
-    ],
-    giuong: [
-      'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1540518614846-7ede433c4ef9?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1505691938895-1758d7feb511?auto=format&fit=crop&w=800&q=80',
-    ],
-    'tu-ke': [
-      'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1558997519-83ea9252def8?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1594671581654-278554dd3460?auto=format&fit=crop&w=800&q=80',
-    ],
-    den: [
-      'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=800&q=80',
-      'https://images.unsplash.com/photo-1534349762230-e0cadf78f5da?auto=format&fit=crop&w=800&q=80',
-    ],
-  };
 
   let currentProduct: any = null;
   let galleryList: string[] = [];
@@ -258,7 +217,31 @@
   const qvDimensions = document.getElementById('qv-dimensions');
   const qvMaterial = document.getElementById('qv-material');
   const qvWarranty = document.getElementById('qv-warranty');
+  const qvSpecsGrid = document.getElementById('qv-specs-grid');
+  const qvWarrantyBox = document.getElementById('qv-warranty-box');
   const qvDetailLink = document.getElementById('qv-detail-link') as HTMLAnchorElement;
+
+  const isNoWarranty = (w?: string | null) => {
+    if (!w) return false;
+    const s = String(w).trim().toLowerCase();
+    return s === '0' || s === '0 tháng' || s === '0thang' || s === '0 thang' || s === 'không' || s === 'khong' || s.includes('không bảo hành') || s.includes('khong bao hanh');
+  };
+
+  const updateWarrantyUI = (rawWarranty?: string | null) => {
+    if (!qvSpecsGrid || !qvWarrantyBox) return;
+    if (isNoWarranty(rawWarranty)) {
+      qvWarrantyBox.classList.add('hidden');
+      qvSpecsGrid.classList.remove('grid-cols-3');
+      qvSpecsGrid.classList.add('grid-cols-2');
+    } else {
+      qvWarrantyBox.classList.remove('hidden');
+      qvSpecsGrid.classList.remove('grid-cols-2');
+      qvSpecsGrid.classList.add('grid-cols-3');
+      if (qvWarranty) {
+        qvWarranty.textContent = (rawWarranty && rawWarranty.trim()) ? rawWarranty : '24 tháng';
+      }
+    }
+  };
 
   const btnPrev = document.getElementById('qv-btn-prev');
   const btnNext = document.getElementById('qv-btn-next');
@@ -287,7 +270,12 @@
     }
 
     if (imageCounter) {
-      imageCounter.textContent = `${currentImageIndex + 1} / ${galleryList.length}`;
+      if (galleryList.length <= 1) {
+        imageCounter.classList.add('hidden');
+      } else {
+        imageCounter.classList.remove('hidden');
+        imageCounter.textContent = `${currentImageIndex + 1} / ${galleryList.length}`;
+      }
     }
 
     // Highlight thumbnail đang xem (viền vàng kim sang trọng trên nền xanh độc quyền)
@@ -310,6 +298,29 @@
   const renderThumbnails = () => {
     if (!thumbnailsContainer) return;
     thumbnailsContainer.innerHTML = '';
+
+    // Nếu chỉ có 1 ảnh: ẩn hàng thumbnail và các nút điều hướng chuyển ảnh
+    if (galleryList.length <= 1) {
+      thumbnailsContainer.classList.add('hidden');
+      btnPrev?.classList.add('hidden');
+      btnNext?.classList.add('hidden');
+      imageCounter?.classList.add('hidden');
+      return;
+    }
+
+    // Nếu có từ 2 ảnh trở lên: hiển thị đúng các góc chụp của sản phẩm
+    thumbnailsContainer.classList.remove('hidden', 'grid-cols-2', 'grid-cols-3', 'grid-cols-4');
+    btnPrev?.classList.remove('hidden');
+    btnNext?.classList.remove('hidden');
+    imageCounter?.classList.remove('hidden');
+
+    if (galleryList.length === 2) {
+      thumbnailsContainer.classList.add('grid-cols-2');
+    } else if (galleryList.length === 3) {
+      thumbnailsContainer.classList.add('grid-cols-3');
+    } else {
+      thumbnailsContainer.classList.add('grid-cols-4');
+    }
 
     galleryList.forEach((url, i) => {
       const btn = document.createElement('button');
@@ -342,18 +353,55 @@
     if (!modal) return;
     currentProduct = data;
 
-    // Chuẩn bị danh sách ảnh phối cảnh
-    const mainImg = data.image || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80';
-    const list = [mainImg];
-    const catKey = data.categorySlug || 'sofa';
-    const previews = CATEGORY_PREVIEWS[catKey] || CATEGORY_PREVIEWS['sofa'];
-    if (previews) {
-      previews.forEach((url) => {
-        if (!list.includes(url)) list.push(url);
-      });
+    // Chuẩn bị danh sách ảnh thực tế của sản phẩm (loại bỏ ảnh giả hardcoded)
+    let list: string[] = [];
+    if (Array.isArray(data.images) && data.images.length > 0) {
+      list = data.images.filter((url: string) => url && !url.startsWith('data:'));
     }
-    galleryList = list.slice(0, 4);
+    const mainImg = data.image || (list[0] || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80');
+    if (!list.includes(mainImg)) {
+      list.unshift(mainImg);
+    }
+    galleryList = Array.from(new Set(list));
     currentImageIndex = 0;
+
+    // Tự động tải danh sách ảnh chi tiết và số lượng tồn kho mới nhất từ database nếu có slug
+    if (data.slug) {
+      const apiBase = (import.meta as any).env?.PUBLIC_API_URL || 'http://localhost:4000/api';
+      fetch(`${apiBase}/products/${data.slug}`)
+        .then((res) => res.json())
+        .then((json) => {
+          if (json.success && json.data) {
+            // Cập nhật số lượng tồn kho thực tế từ DB
+            const realStock = json.data.stock !== undefined
+              ? Number(json.data.stock)
+              : (json.data.variants?.[0]?.stock !== undefined ? Number(json.data.variants[0].stock) : undefined);
+            if (realStock !== undefined) {
+              updateStockUI(realStock);
+            }
+
+            if (json.data.warranty !== undefined || json.data.brand !== undefined) {
+              updateWarrantyUI(json.data.warranty || json.data.brand);
+            }
+
+            if (json.data.dimensions && qvDimensions) {
+              qvDimensions.textContent = json.data.dimensions;
+            }
+
+            if (Array.isArray(json.data.images) && json.data.images.length > 0) {
+              const apiImgs = json.data.images
+                .map((i: any) => i.url)
+                .filter((url: string) => url && !url.startsWith('data:'));
+              if (apiImgs.length > 0) {
+                galleryList = Array.from(new Set(apiImgs));
+                renderThumbnails();
+                updateActiveImage(Math.min(currentImageIndex, galleryList.length - 1));
+              }
+            }
+          }
+        })
+        .catch(() => {});
+    }
 
     if (qvCategoryBadge) qvCategoryBadge.textContent = data.category || 'Nội Thất';
     if (qvCategory) qvCategory.textContent = data.category || '';
@@ -379,46 +427,52 @@
     if (qvDescription) qvDescription.textContent = data.description || 'Sản phẩm nội thất cao cấp chế tác thủ công tỉ mỉ.';
     if (qvDimensions) qvDimensions.textContent = data.dimensions || 'Kích thước tiêu chuẩn';
     if (qvMaterial) qvMaterial.textContent = data.material || 'Gỗ / Da cao cấp';
-    if (qvWarranty) qvWarranty.textContent = data.warranty || '24 tháng chính hãng';
+    updateWarrantyUI(data.warranty);
     if (qvDetailLink) qvDetailLink.href = `/san-pham/${data.slug}`;
 
-    // Ràng buộc số lượng tồn kho
-    const stock = data.stock !== undefined ? Number(data.stock) : 20;
-    currentProduct.stock = stock;
+    // Hàm cập nhật trạng thái tồn kho & nút thêm vào giỏ
+    const updateStockUI = (stock: number) => {
+      currentProduct.stock = stock;
 
-    if (stock <= 0) {
-      if (qtyInput) {
-        qtyInput.value = '0';
-        qtyInput.max = '0';
+      if (stock <= 0) {
+        if (qtyInput) {
+          qtyInput.value = '0';
+          qtyInput.max = '0';
+        }
+        if (qvStockDisplay) {
+          qvStockDisplay.innerHTML = '<span class="text-danger-600 font-bold">Hết hàng</span>';
+        }
+        if (btnAddCart) {
+          btnAddCart.disabled = true;
+        }
+        if (qvBtnAddCartText) {
+          qvBtnAddCartText.textContent = 'Hết hàng';
+        }
+        if (btnMinus) btnMinus.disabled = true;
+        if (btnPlus) btnPlus.disabled = true;
+      } else {
+        if (qtyInput) {
+          const curVal = Number(qtyInput.value) || 1;
+          qtyInput.value = String(Math.min(Math.max(1, curVal), stock));
+          qtyInput.max = String(stock);
+        }
+        if (qvStockDisplay) {
+          qvStockDisplay.innerHTML = `Còn <strong class="font-bold text-[#B88E28]">${stock}</strong> trong kho`;
+        }
+        if (btnAddCart) {
+          btnAddCart.disabled = false;
+        }
+        if (qvBtnAddCartText) {
+          qvBtnAddCartText.textContent = 'Thêm vào giỏ';
+        }
+        if (btnMinus) btnMinus.disabled = false;
+        if (btnPlus) btnPlus.disabled = false;
       }
-      if (qvStockDisplay) {
-        qvStockDisplay.innerHTML = '<span class="text-danger-600 font-bold">Hết hàng</span>';
-      }
-      if (btnAddCart) {
-        btnAddCart.disabled = true;
-      }
-      if (qvBtnAddCartText) {
-        qvBtnAddCartText.textContent = 'Hết hàng';
-      }
-      if (btnMinus) btnMinus.disabled = true;
-      if (btnPlus) btnPlus.disabled = true;
-    } else {
-      if (qtyInput) {
-        qtyInput.value = '1';
-        qtyInput.max = String(stock);
-      }
-      if (qvStockDisplay) {
-        qvStockDisplay.innerHTML = `Còn <strong class="font-bold text-[#B88E28]">${stock}</strong> trong kho`;
-      }
-      if (btnAddCart) {
-        btnAddCart.disabled = false;
-      }
-      if (qvBtnAddCartText) {
-        qvBtnAddCartText.textContent = 'Thêm vào giỏ';
-      }
-      if (btnMinus) btnMinus.disabled = false;
-      if (btnPlus) btnPlus.disabled = false;
-    }
+    };
+
+    // Ràng buộc số lượng tồn kho ban đầu
+    const initialStock = data.stock !== undefined ? Number(data.stock) : 0;
+    updateStockUI(initialStock);
 
     updateActiveImage(0);
     renderThumbnails();

@@ -64,34 +64,41 @@ productsRouter.get('/', async (req: Request, res: Response) => {
         include: {
           categories: { select: { id: true, name: true, slug: true } },
           product_variants: {
-            select: { id: true, price: true, compare_at_price: true, stock_quantity: true, color: true, material: true },
+            select: { id: true, price: true, compare_at_price: true, stock_quantity: true, color: true, material: true, dimensions: true },
             take: 1,
           },
           product_images: {
             orderBy: [{ is_thumbnail: 'desc' }, { sort_order: 'asc' }],
-            select: { image_url: true },
-            take: 1,
+            select: { image_url: true, is_thumbnail: true },
           },
         },
       }),
       prisma.products.count({ where }),
     ]);
 
-    const data = products.map((p) => ({
-      id:          Number(p.id),
-      name:        p.name,
-      slug:        p.slug,
-      brand:       p.brand,
-      category:    p.categories.slug,
-      categoryLabel: p.categories.name,
-      price:       p.product_variants[0] ? Number(p.product_variants[0].price) : 0,
-      comparePrice: p.product_variants[0]?.compare_at_price ? Number(p.product_variants[0].compare_at_price) : null,
-      stock:       p.product_variants[0]?.stock_quantity ?? 0,
-      material:    p.product_variants[0]?.material ?? '',
-      color:       p.product_variants[0]?.color ?? '',
-      thumbnail:   p.product_images[0]?.image_url ?? null,
-      shortDescription: p.short_description,
-    }));
+    const data = products.map((p) => {
+      const thumbnailImg = p.product_images.find((img) => img.is_thumbnail)?.image_url ?? p.product_images[0]?.image_url ?? null;
+      const allImages = p.product_images.map((img) => img.image_url);
+
+      return {
+        id:          Number(p.id),
+        name:        p.name,
+        slug:        p.slug,
+        brand:       p.brand,
+        category:    p.categories.slug,
+        categoryLabel: p.categories.name,
+        price:       p.product_variants[0] ? Number(p.product_variants[0].price) : 0,
+        comparePrice: p.product_variants[0]?.compare_at_price ? Number(p.product_variants[0].compare_at_price) : null,
+        stock:       p.product_variants[0]?.stock_quantity ?? 0,
+        material:    p.product_variants[0]?.material ?? '',
+        color:       p.product_variants[0]?.color ?? '',
+        thumbnail:   thumbnailImg,
+        images:      allImages,
+        warranty:    p.brand || '24 tháng',
+        dimensions:  p.product_variants[0]?.dimensions || 'Kích thước tiêu chuẩn',
+        shortDescription: p.short_description,
+      };
+    });
 
     return res.json({
       success: true,
@@ -137,6 +144,8 @@ productsRouter.get('/:slug', async (req: Request, res: Response) => {
         name:             product.name,
         slug:             product.slug,
         brand:            product.brand,
+        warranty:         product.brand || '24 tháng',
+        dimensions:       product.product_variants[0]?.dimensions || 'Kích thước tiêu chuẩn',
         content:          product.content,
         shortDescription: product.short_description,
         stock:            product.product_variants[0]?.stock_quantity ?? 0,
@@ -169,7 +178,7 @@ productsRouter.get('/:slug', async (req: Request, res: Response) => {
 // ================================================================
 productsRouter.post('/', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
-    const { name, slug, categoryId, shortDescription, content, brand, price, comparePrice, stock, color, material, imageUrl, detailImages } = req.body;
+    const { name, slug, categoryId, shortDescription, content, brand, warranty, price, comparePrice, stock, color, material, dimensions, imageUrl, detailImages } = req.body;
 
     if (!name || !slug || !categoryId || !price) {
       return res.status(400).json({ success: false, message: 'Vui long dien day du ten, slug, danh muc va gia.' });
@@ -200,7 +209,7 @@ productsRouter.post('/', verifyToken, requireAdmin, async (req: Request, res: Re
         category_id: parseInt(categoryId),
         short_description: shortDescription || null,
         content: content || null,
-        brand: brand || null,
+        brand: (warranty !== undefined && warranty.trim() !== '') ? warranty : (brand || '24 tháng'),
         status: true,
         product_variants: {
           create: {
@@ -210,6 +219,7 @@ productsRouter.post('/', verifyToken, requireAdmin, async (req: Request, res: Re
             stock_quantity:  parseInt(stock) || 0,
             color:           color || null,
             material:        material || null,
+            dimensions:      dimensions || null,
           },
         },
         product_images: allImagesToCreate.length > 0 ? { create: allImagesToCreate } : undefined,
@@ -234,7 +244,7 @@ productsRouter.post('/', verifyToken, requireAdmin, async (req: Request, res: Re
 productsRouter.put('/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const id = BigInt(req.params.id);
-    const { name, slug, categoryId, shortDescription, content, brand, status, price, comparePrice, stock, imageUrl, detailImages } = req.body;
+    const { name, slug, categoryId, shortDescription, content, brand, warranty, status, price, comparePrice, stock, material, dimensions, imageUrl, detailImages } = req.body;
 
     const product = await prisma.products.findFirst({ where: { id } });
     if (!product) return res.status(404).json({ success: false, message: 'Khong tim thay san pham.' });
@@ -247,14 +257,14 @@ productsRouter.put('/:id', verifyToken, requireAdmin, async (req: Request, res: 
         ...(categoryId  ? { category_id: parseInt(categoryId) }        : {}),
         ...(shortDescription !== undefined ? { short_description: shortDescription } : {}),
         ...(content     !== undefined ? { content }                    : {}),
-        ...(brand       !== undefined ? { brand }                      : {}),
+        ...(warranty    !== undefined ? { brand: (typeof warranty === 'string' && warranty.trim() !== '' ? warranty.trim() : '24 tháng') } : (brand !== undefined ? { brand } : {})),
         ...(status      !== undefined ? { status: Boolean(status) }    : {}),
         updated_at: new Date(),
       },
     });
 
-    // Update variant price / comparePrice / stock if provided
-    if (price !== undefined || comparePrice !== undefined || stock !== undefined) {
+    // Update variant price / comparePrice / stock / dimensions / material if provided
+    if (price !== undefined || comparePrice !== undefined || stock !== undefined || dimensions !== undefined || material !== undefined) {
       const variant = await prisma.product_variants.findFirst({ where: { product_id: id } });
       if (variant) {
         const variantUpdateData: any = {};
@@ -266,6 +276,12 @@ productsRouter.put('/:id', verifyToken, requireAdmin, async (req: Request, res: 
         }
         if (stock !== undefined && stock !== '' && !isNaN(parseInt(stock))) {
           variantUpdateData.stock_quantity = Math.max(0, parseInt(stock));
+        }
+        if (dimensions !== undefined) {
+          variantUpdateData.dimensions = dimensions || null;
+        }
+        if (material !== undefined) {
+          variantUpdateData.material = material || null;
         }
 
         if (Object.keys(variantUpdateData).length > 0) {
@@ -282,6 +298,8 @@ productsRouter.put('/:id', verifyToken, requireAdmin, async (req: Request, res: 
             price: (price && parseFloat(price) > 0) ? parseFloat(price) : 0,
             compare_at_price: (comparePrice && parseFloat(comparePrice) > 0) ? parseFloat(comparePrice) : null,
             stock_quantity: stock !== undefined ? Math.max(0, parseInt(stock)) : 0,
+            dimensions: dimensions || null,
+            material: material || null,
           },
         });
       }

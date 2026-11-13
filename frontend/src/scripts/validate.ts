@@ -12,6 +12,9 @@ export const phone = (message: string): Rule => (value) =>
 export const minLength = (length: number, message: string): Rule => (value) =>
   value.length >= length ? null : message;
 
+export const noWhitespace = (message = 'Mật khẩu không được chứa khoảng trắng'): Rule => (value) =>
+  /\s/.test(value) ? message : null;
+
 export const matches = (fieldName: string, message: string): Rule => (value, form) => {
   const other = form.querySelector('[name="' + fieldName + '"]') as HTMLInputElement | null;
   return other && other.value === value ? null : message;
@@ -100,7 +103,27 @@ export interface PasswordStrengthResult {
 }
 
 export function checkPasswordStrength(val: string): PasswordStrengthResult {
-  if (!val || val.length < 6) {
+  if (!val) {
+    return {
+      score: 'weak',
+      label: 'Mật khẩu yếu (Cần ít nhất 6 ký tự)',
+      colorClass: 'text-red-600',
+      barWidthClass: 'w-1/4',
+      barColorClass: 'bg-red-500',
+    };
+  }
+
+  if (/\s/.test(val)) {
+    return {
+      score: 'weak',
+      label: 'Không được chứa khoảng trắng',
+      colorClass: 'text-red-600',
+      barWidthClass: 'w-1/4',
+      barColorClass: 'bg-red-500',
+    };
+  }
+
+  if (val.length < 6) {
     return {
       score: 'weak',
       label: 'Mật khẩu yếu (Cần ít nhất 6 ký tự)',
@@ -112,7 +135,7 @@ export function checkPasswordStrength(val: string): PasswordStrengthResult {
 
   const hasLetters = /[a-zA-Z]/.test(val);
   const hasNumbers = /[0-9]/.test(val);
-  const hasSpecial = /[^a-zA-Z0-9]/.test(val);
+  const hasSpecial = /[^a-zA-Z0-9\s]/.test(val);
   const isLongEnough = val.length >= 8;
 
   if (isLongEnough && hasLetters && hasNumbers && hasSpecial) {

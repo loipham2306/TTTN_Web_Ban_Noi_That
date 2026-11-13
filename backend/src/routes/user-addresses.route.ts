@@ -82,6 +82,38 @@ userAddressesRouter.post('/', verifyToken, async (req: Request, res: Response) =
     const count = await prisma.user_addresses.count({ where: { user_id: userId } });
     const shouldBeDefault = count === 0 || Boolean(is_default);
 
+    // Kiểm tra nếu địa chỉ đã tồn tại thì cập nhật thông tin và đặt mặc định
+    const duplicate = await prisma.user_addresses.findFirst({
+      where: {
+        user_id: userId,
+        province: String(province).trim(),
+        district: String(district).trim(),
+        specific_address: String(specific_address).trim(),
+      },
+    });
+
+    if (duplicate) {
+      if (shouldBeDefault) {
+        await prisma.user_addresses.updateMany({
+          where: { user_id: userId },
+          data: { is_default: false },
+        });
+      }
+      const updated = await prisma.user_addresses.update({
+        where: { id: duplicate.id },
+        data: {
+          receiver_name: String(receiver_name).trim(),
+          receiver_phone: String(receiver_phone).trim(),
+          is_default: shouldBeDefault || duplicate.is_default,
+        },
+      });
+      return res.json({
+        success: true,
+        message: 'Đã cập nhật địa chỉ nhận hàng thành công.',
+        data: formatAddress(updated),
+      });
+    }
+
     if (shouldBeDefault) {
       await prisma.user_addresses.updateMany({
         where: { user_id: userId },

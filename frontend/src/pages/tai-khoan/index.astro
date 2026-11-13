@@ -1095,7 +1095,19 @@ import { provinces } from '../../data/provinces';
 
   const urlParams = new URLSearchParams(window.location.search);
   const requestedTab = urlParams.get('tab');
-  const highlightCode = urlParams.get('highlight');
+  let highlightCode = urlParams.get('highlight');
+
+  // Hàm loại bỏ tham số highlight khỏi URL mà không làm tải lại trang
+  const clearHighlightFromUrl = () => {
+    highlightCode = null;
+    try {
+      const currentUrl = new URL(window.location.href);
+      if (currentUrl.searchParams.has('highlight')) {
+        currentUrl.searchParams.delete('highlight');
+        window.history.replaceState({}, '', currentUrl.toString());
+      }
+    } catch {}
+  };
   const user = readUser();
 
   // Dọn dẹp khóa chung cũ bị ô nhiễm bởi các tài khoản test khác trên máy
@@ -1306,6 +1318,7 @@ import { provinces } from '../../data/provinces';
     };
 
     const closePanel = () => {
+      clearHighlightFromUrl();
       overlay.classList.add('opacity-0');
       panel.classList.add('scale-95', 'opacity-0');
       panel.classList.remove('scale-100', 'opacity-100');
@@ -1790,10 +1803,14 @@ import { provinces } from '../../data/provinces';
       updateLoyaltyProgress(calculatedTotalSpent);
 
       if (highlightCode) {
+        const codeToOpen = highlightCode;
+        // Xóa ngay lập tức để không bao giờ bị kích hoạt lại trong các lần refresh sau
+        clearHighlightFromUrl();
+
         setTimeout(() => {
-          const rowEl = document.getElementById(`order-row-${highlightCode}`);
+          const rowEl = document.getElementById(`order-row-${codeToOpen}`);
           if (rowEl) rowEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          openOrderDetail(highlightCode);
+          openOrderDetail(codeToOpen);
         }, 500);
       }
     };
@@ -2091,6 +2108,7 @@ import { provinces } from '../../data/provinces';
         const data = await res.json();
         if (res.ok && data.success) {
           closeCancelOrderModal();
+          clearHighlightFromUrl();
           // Đóng modal chi tiết nếu đang mở
           closePanel();
           alert(`Đã hủy thành công đơn hàng #${orderCode}.`);

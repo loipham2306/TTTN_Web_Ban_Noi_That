@@ -422,7 +422,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           id: data.user.id,
           name: data.user.full_name || email.split('@')[0],
           email: data.user.email,
-          phone: data.user.phone || 'Chưa cập nhật',
+          phone: data.user.phone || '',
           role: data.user.role || 'customer',
           avatar: data.user.avatar || null,
         };

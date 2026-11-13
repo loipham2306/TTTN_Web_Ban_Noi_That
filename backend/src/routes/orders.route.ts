@@ -308,7 +308,14 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
     try {
       if (province && district && address) {
         const addressCount = await prisma.user_addresses.count({ where: { user_id: user.id } });
-        if (addressCount === 0 || save_address === true) {
+        const shouldSave = addressCount === 0 || save_address === true || save_address === 'true' || save_address === 'on';
+        if (shouldSave) {
+          if (addressCount > 0) {
+            await prisma.user_addresses.updateMany({
+              where: { user_id: user.id },
+              data: { is_default: false },
+            });
+          }
           const duplicate = await prisma.user_addresses.findFirst({
             where: {
               user_id: user.id,
@@ -317,7 +324,16 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
               specific_address: String(address).trim(),
             },
           });
-          if (!duplicate) {
+          if (duplicate) {
+            await prisma.user_addresses.update({
+              where: { id: duplicate.id },
+              data: {
+                receiver_name: String(fullname || user.full_name).trim(),
+                receiver_phone: String(phone || user.phone || '').trim(),
+                is_default: true,
+              },
+            });
+          } else {
             await prisma.user_addresses.create({
               data: {
                 user_id: user.id,
@@ -327,7 +343,7 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
                 district: String(district).trim(),
                 ward: '',
                 specific_address: String(address).trim(),
-                is_default: addressCount === 0,
+                is_default: true,
               },
             });
           }

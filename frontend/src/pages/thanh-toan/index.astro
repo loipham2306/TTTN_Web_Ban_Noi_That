@@ -92,7 +92,7 @@ const provinces = [
 
               <div>
                 <label for="ck-phone" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Số điện thoại <span class="text-red-500">*</span></label>
-                <input id="ck-phone" name="phone" type="tel" autocomplete="tel" required class="mt-2 w-full border border-walnut-900/20 bg-white px-4 py-3 text-sm rounded outline-none transition-colors focus:border-clay-600" />
+                <input id="ck-phone" name="phone" type="tel" autocomplete="tel" required placeholder="Ví dụ: 0912 345 678" class="mt-2 w-full border border-walnut-900/20 bg-white px-4 py-3 text-sm rounded outline-none transition-colors focus:border-clay-600 placeholder:text-walnut-800/40" />
                 <p data-error-for="phone" class="mt-1.5 hidden text-xs text-red-600"></p>
               </div>
 
@@ -725,12 +725,33 @@ const provinces = [
       if (raw) currentAuthUser = JSON.parse(raw);
     } catch {}
 
+    const isRealPhoneNumber = (p?: string | null): boolean => {
+      if (!p) return false;
+      const s = String(p).trim().toLowerCase();
+      if (s === '' || s.includes('chưa cập nhật') || s.includes('chua cap nhat') || s.includes('google') || s.includes('đăng')) {
+        return false;
+      }
+      const digits = s.replace(/\D/g, '');
+      return digits.length >= 8;
+    };
+
     if (currentAuthUser && form) {
       const nameInput = form.querySelector<HTMLInputElement>('#ck-name');
       const phoneInput = form.querySelector<HTMLInputElement>('#ck-phone');
       const emailInput = form.querySelector<HTMLInputElement>('#ck-email');
       if (nameInput && !nameInput.value && currentAuthUser.name) nameInput.value = currentAuthUser.name;
-      if (phoneInput && !phoneInput.value && currentAuthUser.phone && currentAuthUser.phone !== 'Đăng nhập Google') phoneInput.value = currentAuthUser.phone;
+      if (phoneInput) {
+        if (!phoneInput.value && isRealPhoneNumber(currentAuthUser.phone)) {
+          phoneInput.value = currentAuthUser.phone.trim();
+        } else if (!isRealPhoneNumber(phoneInput.value)) {
+          phoneInput.value = '';
+        }
+        phoneInput.addEventListener('focus', () => {
+          if (!isRealPhoneNumber(phoneInput.value)) {
+            phoneInput.value = '';
+          }
+        });
+      }
       if (emailInput && !emailInput.value && currentAuthUser.email) emailInput.value = currentAuthUser.email;
     }
 
@@ -756,7 +777,13 @@ const provinces = [
       const addrInput = form.querySelector<HTMLInputElement>('#ck-address');
 
       if (nameInput && addr.receiverName) nameInput.value = addr.receiverName;
-      if (phoneInput && addr.receiverPhone) phoneInput.value = addr.receiverPhone;
+      if (phoneInput) {
+        if (isRealPhoneNumber(addr.receiverPhone)) {
+          phoneInput.value = addr.receiverPhone.trim();
+        } else {
+          phoneInput.value = '';
+        }
+      }
       if (provSelect && addr.province) {
         provSelect.value = addr.province;
         if (!provSelect.value) {
@@ -1570,6 +1597,7 @@ ${value('phone')}`,
           note: value('note') || undefined,
           payment_method: payment,
           coupon_code: currentCoupon?.code || undefined,
+          save_address: Boolean((form.querySelector('#ck-save-address') as HTMLInputElement)?.checked ?? true),
           items: items.map((i) => ({
             slug: i.slug,
             name: i.name,
@@ -1909,7 +1937,50 @@ ${value('phone')}`,
           district: [required('Vui lòng nhập quận/huyện.')],
           address: [required('Vui lòng nhập địa chỉ chi tiết.')],
         },
-        () => goTo(1)
+        async () => {
+          const saveCheckbox = form.querySelector<HTMLInputElement>('#ck-save-address');
+          const token = localStorage.getItem('auth_token');
+
+          // Tự động lưu địa chỉ vào CSDL ngay khi bấm Tiếp tục chọn thanh toán
+          if (saveCheckbox?.checked && token) {
+            const data = new FormData(form);
+            const receiver_name = String(data.get('fullname') || '').trim();
+            const receiver_phone = String(data.get('phone') || '').trim();
+            const province = String(data.get('province') || '').trim();
+            const district = String(data.get('district') || '').trim();
+            const specific_address = String(data.get('address') || '').trim();
+
+            if (receiver_name && receiver_phone && province && district && specific_address) {
+              try {
+                const res = await fetch('http://localhost:4000/api/user-addresses', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                  },
+                  body: JSON.stringify({
+                    receiver_name,
+                    receiver_phone,
+                    province,
+                    district,
+                    ward: '',
+                    specific_address,
+                    is_default: true,
+                  }),
+                });
+                const json = await res.json();
+                if (json.success && json.data) {
+                  // Cập nhật lại danh sách địa chỉ và số đếm trên nút Chọn địa chỉ (N)
+                  await loadUserAddressesForCheckout();
+                }
+              } catch (err) {
+                console.warn('Lỗi lưu địa chỉ nhận hàng tại Bước 1:', err);
+              }
+            }
+          }
+
+          goTo(1);
+        }
       );
     }
 

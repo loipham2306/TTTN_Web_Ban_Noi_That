@@ -94,13 +94,17 @@ authRouter.post('/register', authLimiter, async (req: Request, res: Response) =>
   try {
     const { fullname, email, phone, password } = req.body;
 
-    if (!fullname || !email || !password) {
+    if (!fullname || !email || !password || typeof password !== 'string' || !password.trim()) {
       return res.status(400).json({ success: false, message: 'Vui lòng điền đầy đủ họ tên, email và mật khẩu.' });
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
       return res.status(400).json({ success: false, field: 'email', message: 'Địa chỉ email không đúng định dạng.' });
+    }
+
+    if (/\s/.test(password)) {
+      return res.status(400).json({ success: false, field: 'password', message: 'Mật khẩu không được chứa khoảng trắng (dấu cách).' });
     }
 
     if (password.length < 6) {
@@ -659,12 +663,20 @@ authRouter.post('/change-password', verifyToken, async (req: Request, res: Respo
     }
 
     const { oldPassword, newPassword } = req.body;
-    const cleanOld = String(oldPassword || '').trim();
-    const cleanNew = String(newPassword || '').trim();
+    if (!newPassword || typeof newPassword !== 'string' || !newPassword.trim()) {
+      return res.status(400).json({ success: false, message: 'Vui lòng nhập mật khẩu mới.' });
+    }
 
-    if (!cleanNew || cleanNew.length < 6) {
+    if (/\s/.test(newPassword)) {
+      return res.status(400).json({ success: false, message: 'Mật khẩu mới không được chứa khoảng trắng (dấu cách).' });
+    }
+
+    if (newPassword.length < 6) {
       return res.status(400).json({ success: false, message: 'Mật khẩu mới phải có tối thiểu 6 ký tự.' });
     }
+
+    const cleanOld = String(oldPassword || '').trim();
+    const cleanNew = newPassword;
 
     const userId = BigInt(req.user.id);
     const user = await prisma.users.findUnique({
@@ -703,7 +715,7 @@ authRouter.post('/change-password', verifyToken, async (req: Request, res: Respo
 
     await prisma.users.update({
       where: { id: userId },
-      data: { 
+      data: {
         password_hash: newPasswordHash,
         updated_at: new Date(),
       },
@@ -954,15 +966,19 @@ authRouter.post('/verify-otp', authLimiter, async (req: Request, res: Response) 
 authRouter.post('/reset-password', authLimiter, async (req: Request, res: Response) => {
   try {
     const { resetToken, newPassword } = req.body;
-    const cleanPassword = String(newPassword || '').trim();
-
-    if (!resetToken || !cleanPassword) {
+    if (!resetToken || !newPassword || typeof newPassword !== 'string' || !newPassword.trim()) {
       return res.status(400).json({ success: false, message: 'Vui lòng cung cấp mã xác thực đặt lại và mật khẩu mới.' });
     }
 
-    if (cleanPassword.length < 6) {
+    if (/\s/.test(newPassword)) {
+      return res.status(400).json({ success: false, message: 'Mật khẩu mới không được chứa khoảng trắng (dấu cách).' });
+    }
+
+    if (newPassword.length < 6) {
       return res.status(400).json({ success: false, message: 'Mật khẩu mới phải có tối thiểu 6 ký tự để bảo mật.' });
     }
+
+    const cleanPassword = newPassword;
 
     // Xác thực resetToken bằng khóa bí mật riêng
     let decoded: any;

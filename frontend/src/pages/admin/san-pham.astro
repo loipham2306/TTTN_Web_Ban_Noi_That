@@ -49,7 +49,7 @@ try {
         detail: {
           description: p.shortDescription || 'Sản phẩm nội thất thiết kế cao cấp.',
           dimensions: p.dimensions || 'Kích thước tiêu chuẩn',
-          warranty: p.warranty || '12 tháng',
+          warranty: p.warranty || productDetails[p.slug]?.warranty || '24 tháng',
         },
       }));
     }
@@ -67,7 +67,7 @@ if (rows.length === 0) {
     detail: productDetails[product.slug] ?? {
       description: 'Sản phẩm thủ công cao cấp.',
       dimensions: 'Kích thước tiêu chuẩn',
-      warranty: '12 tháng',
+      warranty: '24 tháng',
     },
   }));
 }
@@ -408,7 +408,8 @@ const stats = [
 
           <div>
             <label for="prod-warranty" class="block text-xs uppercase tracking-[0.15em] text-walnut-800 font-semibold">Thời gian bảo hành</label>
-            <input type="text" id="prod-warranty" placeholder="24 tháng" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-[#173524] focus:ring-1 focus:ring-[#173524] transition-colors" />
+            <input type="text" id="prod-warranty" placeholder="Mặc định: 24 tháng (nhập 0 để ẩn)" class="mt-1.5 w-full border border-walnut-900/20 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-[#173524] focus:ring-1 focus:ring-[#173524] transition-colors" />
+            <p class="mt-1 text-[11px] text-walnut-800/60">Để trống = 24 tháng. Nhập 0 = Không bảo hành (ẩn khỏi giao diện).</p>
           </div>
 
           <div class="sm:col-span-2">
@@ -916,6 +917,7 @@ const stats = [
       (document.getElementById('prod-stock') as HTMLInputElement).value = '20';
       (document.getElementById('prod-price') as HTMLInputElement).value = '';
       (document.getElementById('prod-compare-price') as HTMLInputElement).value = '';
+      (document.getElementById('prod-warranty') as HTMLInputElement).value = '24 tháng';
       
       // Reset image preview
       currentUploadedMainUrl = '';
@@ -992,7 +994,13 @@ const stats = [
         status = 'con-hang';
       }
       const dimensions = (document.getElementById('prod-dimensions') as HTMLInputElement).value.trim();
-      const warranty = (document.getElementById('prod-warranty') as HTMLInputElement).value.trim();
+      const rawWarranty = (document.getElementById('prod-warranty') as HTMLInputElement).value.trim();
+      let warranty = '24 tháng';
+      if (rawWarranty === '0' || rawWarranty.toLowerCase() === 'không' || rawWarranty.toLowerCase() === 'khong' || rawWarranty.toLowerCase() === '0 tháng' || rawWarranty.toLowerCase() === '0thang') {
+        warranty = '0';
+      } else if (rawWarranty) {
+        warranty = rawWarranty;
+      }
       const desc = (document.getElementById('prod-desc') as HTMLTextAreaElement).value.trim();
       const mainImgSrc = currentUploadedMainUrl || '';
       const CAT_MAP: Record<string, number> = { 'sofa': 1, 'ban-an': 2, 'ghe': 3, 'giuong': 4, 'tu-ke': 5, 'den': 6, 'trang-tri': 7 };
@@ -1017,6 +1025,8 @@ const stats = [
                 comparePrice: comparePrice !== null ? comparePrice : null,
                 stock,
                 material,
+                warranty: warranty || '24 tháng',
+                dimensions: dimensions || 'Kích thước tiêu chuẩn',
                 imageUrl: currentUploadedMainUrl || undefined,
                 detailImages: currentDetailImages,
               }),
@@ -1040,6 +1050,8 @@ const stats = [
               comparePrice: comparePrice || undefined,
               stock,
               material,
+              warranty: warranty || '24 tháng',
+              dimensions: dimensions || 'Kích thước tiêu chuẩn',
               imageUrl: mainImgSrc || null,
               detailImages: currentDetailImages.length > 0 ? currentDetailImages : undefined,
             }),
@@ -1258,7 +1270,7 @@ const stats = [
         (document.getElementById('prod-material') as HTMLInputElement).value = rowEl.dataset.material ?? '';
         (document.getElementById('prod-status') as HTMLSelectElement).value = rowEl.dataset.status ?? 'con-hang';
         (document.getElementById('prod-dimensions') as HTMLInputElement).value = rowEl.dataset.dimensions ?? '';
-        (document.getElementById('prod-warranty') as HTMLInputElement).value = rowEl.dataset.warranty ?? '';
+        (document.getElementById('prod-warranty') as HTMLInputElement).value = (rowEl.dataset.warranty === '0') ? '0' : (rowEl.dataset.warranty || '24 tháng');
         (document.getElementById('prod-desc') as HTMLTextAreaElement).value = rowEl.dataset.desc ?? '';
 
         // Pre-fill image preview
