@@ -118,7 +118,7 @@ const todayFormatted = new Intl.DateTimeFormat('vi-VN', {
         <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-emerald-50 rounded-full group-hover:scale-110 transition-transform -z-0"></div>
         <div class="relative z-10">
           <p class="text-[11px] font-bold uppercase tracking-wider text-walnut-800/60">Lợi Nhuận Gộp Thực Tế</p>
-          <p class="text-xl font-bold font-display text-emerald-700 mt-2">{formatVnd(totalGrossProfit)}</p>
+          <p class={`text-xl font-bold font-display mt-2 ${totalGrossProfit < 0 ? 'text-rose-600' : 'text-emerald-700'}`}>{formatVnd(totalGrossProfit)}</p>
           <p class="text-[11px] text-emerald-800/80 mt-1">Doanh thu trừ Giá vốn COGS</p>
         </div>
       </div>
@@ -128,7 +128,7 @@ const todayFormatted = new Intl.DateTimeFormat('vi-VN', {
         <div class="absolute -right-4 -bottom-4 w-20 h-20 bg-sand-100 rounded-full group-hover:scale-110 transition-transform -z-0"></div>
         <div class="relative z-10">
           <p class="text-[11px] font-bold uppercase tracking-wider text-walnut-800/60">Biên Lợi Nhuận Gộp</p>
-          <p class="text-xl font-bold font-display text-[#D8B670] mt-2">{overallMargin}</p>
+          <p class={`text-xl font-bold font-display mt-2 ${overallMargin.startsWith('-') ? 'text-rose-600' : 'text-[#D8B670]'}`}>{overallMargin}</p>
           <p class="text-[11px] text-walnut-800/70 mt-1">Tỷ lệ sinh lời trên doanh thu</p>
         </div>
       </div>
@@ -148,7 +148,7 @@ const todayFormatted = new Intl.DateTimeFormat('vi-VN', {
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
       
       <!-- Cột Biểu đồ đa cột (Multi-Bar) -->
-      <div class="lg:col-span-2 bg-white rounded-2xl border border-walnut-900/10 p-6 shadow-sm">
+      <div class="lg:col-span-2 bg-white rounded-2xl border border-walnut-900/10 p-6 shadow-sm overflow-hidden">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-walnut-900/10 gap-2">
           <div>
             <h2 class="text-base font-bold text-[#173524]">Biểu Đồ Doanh Thu & Giá Vốn 6 Tháng Gần Nhất</h2>
@@ -171,45 +171,64 @@ const todayFormatted = new Intl.DateTimeFormat('vi-VN', {
           <div class="py-16 text-center text-xs text-walnut-800/60">Chưa có phát sinh dữ liệu kỳ kế toán.</div>
         ) : (
           <div class="grid grid-cols-6 gap-2 sm:gap-4 items-end h-56 border-b border-walnut-900/10 pb-2 mt-6">
-            {monthlyStats.map((item: any) => {
-              const maxVal = Math.max(...monthlyStats.map((m: any) => m.revenue || 1));
-              const revPercent = maxVal > 0 ? Math.round((item.revenue / maxVal) * 100) : 0;
-              const costPercent = maxVal > 0 ? Math.round((item.cost / maxVal) * 100) : 0;
-              const profitPercent = maxVal > 0 ? Math.round((item.profit / maxVal) * 100) : 0;
-
-              return (
-                <div class="flex flex-col items-center gap-1 h-full justify-end group">
-                  <div class="text-center opacity-0 group-hover:opacity-100 transition-opacity text-[10px]">
-                    <span class="font-bold text-[#173524] block">{formatVnd(item.revenue)}</span>
-                    <span class="text-emerald-700 block font-semibold">LN: {formatVnd(item.profit)}</span>
-                  </div>
-
-                  <div class="flex items-end gap-1 w-full justify-center h-40">
-                    <!-- Cột Doanh thu -->
-                    <div 
-                      class="w-3 sm:w-4 rounded-t bg-[#173524] transition-all group-hover:opacity-90"
-                      style={`height: ${revPercent}%; min-height: 4px;`}
-                      title={`Doanh thu ${item.month}: ${formatVnd(item.revenue)}`}
-                    ></div>
-                    <!-- Cột Giá vốn -->
-                    <div 
-                      class="w-3 sm:w-4 rounded-t bg-amber-500 transition-all group-hover:opacity-90"
-                      style={`height: ${costPercent}%; min-height: 4px;`}
-                      title={`Giá vốn ${item.month}: ${formatVnd(item.cost)}`}
-                    ></div>
-                    <!-- Cột Lợi nhuận -->
-                    <div 
-                      class="w-3 sm:w-4 rounded-t bg-emerald-500 transition-all group-hover:opacity-90"
-                      style={`height: ${profitPercent}%; min-height: 4px;`}
-                      title={`Lợi nhuận ${item.month}: ${formatVnd(item.profit)}`}
-                    ></div>
-                  </div>
-
-                  <span class="text-[11px] font-bold text-walnut-800 mt-2">{item.month}</span>
-                  <span class="text-[9px] text-walnut-800/60 font-semibold">{item.margin}</span>
-                </div>
+            {(() => {
+              // Tìm giá trị lớn nhất trong toàn bộ Doanh thu, Giá vốn và Lợi nhuận để làm mốc 100% chuẩn của biểu đồ
+              const maxChartVal = Math.max(
+                ...monthlyStats.flatMap((m: any) => [
+                  Number(m.revenue) || 0,
+                  Number(m.cost) || 0,
+                  Number(m.profit) || 0,
+                ]),
+                1
               );
-            })}
+
+              return monthlyStats.map((item: any) => {
+                const rev = Number(item.revenue) || 0;
+                const cost = Number(item.cost) || 0;
+                const profit = Number(item.profit) || 0;
+                const isLoss = profit < 0;
+
+                // Tỷ lệ phần trăm luôn được giới hạn an toàn từ 0% đến 100%, tuyệt đối không tràn biểu đồ
+                const revPercent = Math.min(100, Math.max(0, Math.round((rev / maxChartVal) * 100)));
+                const costPercent = Math.min(100, Math.max(0, Math.round((cost / maxChartVal) * 100)));
+                const profitPercent = Math.min(100, Math.max(0, Math.round((Math.max(0, profit) / maxChartVal) * 100)));
+
+                return (
+                  <div class="flex flex-col items-center gap-1 h-full justify-end group">
+                    <div class="text-center opacity-0 group-hover:opacity-100 transition-opacity text-[10px] pointer-events-none whitespace-nowrap">
+                      <span class="font-bold text-[#173524] block">{formatVnd(rev)}</span>
+                      <span class={`block font-semibold ${isLoss ? 'text-rose-600' : 'text-emerald-700'}`}>
+                        {isLoss ? 'Lỗ: ' : 'LN: '}{formatVnd(profit)}
+                      </span>
+                    </div>
+
+                    <div class="flex items-end gap-1 w-full justify-center h-40 max-h-40 overflow-hidden">
+                      <!-- Cột Doanh thu -->
+                      <div 
+                        class="w-3 sm:w-4 rounded-t bg-[#173524] transition-all group-hover:opacity-90 max-h-full"
+                        style={`height: ${revPercent}%; min-height: ${rev > 0 ? '4px' : '0px'};`}
+                        title={`Doanh thu ${item.month}: ${formatVnd(rev)}`}
+                      ></div>
+                      <!-- Cột Giá vốn -->
+                      <div 
+                        class="w-3 sm:w-4 rounded-t bg-amber-500 transition-all group-hover:opacity-90 max-h-full"
+                        style={`height: ${costPercent}%; min-height: ${cost > 0 ? '4px' : '0px'};`}
+                        title={`Giá vốn ${item.month}: ${formatVnd(cost)}`}
+                      ></div>
+                      <!-- Cột Lợi nhuận (Nếu lỗ thì hiển thị chỉ báo âm đỏ, không đội cột dương) -->
+                      <div 
+                        class={`w-3 sm:w-4 rounded-t transition-all group-hover:opacity-90 max-h-full ${isLoss ? 'bg-rose-400' : 'bg-emerald-500'}`}
+                        style={`height: ${isLoss ? '0%' : `${profitPercent}%`}; min-height: ${isLoss ? '3px' : (profit > 0 ? '4px' : '0px')};`}
+                        title={`${isLoss ? 'Lỗ thuần' : 'Lợi nhuận'} ${item.month}: ${formatVnd(profit)}`}
+                      ></div>
+                    </div>
+
+                    <span class="text-[11px] font-bold text-walnut-800 mt-2">{item.month}</span>
+                    <span class={`text-[9px] font-semibold ${isLoss ? 'text-rose-600' : 'text-walnut-800/60'}`}>{item.margin}</span>
+                  </div>
+                );
+              });
+            })()}
           </div>
         )}
 
@@ -237,7 +256,7 @@ const todayFormatted = new Intl.DateTimeFormat('vi-VN', {
               <div class="h-2 bg-sand-200 rounded-full overflow-hidden">
                 <div 
                   class="h-full bg-amber-500 rounded-full" 
-                  style={`width: ${totalRevenue > 0 ? (totalCogs / totalRevenue) * 100 : 0}%;`}
+                  style={`width: ${totalRevenue > 0 ? Math.min(100, Math.max(0, (totalCogs / totalRevenue) * 100)) : 0}%;`}
                 ></div>
               </div>
               <p class="text-[10px] text-walnut-800/60 mt-0.5">{formatVnd(totalCogs)}</p>
@@ -247,15 +266,15 @@ const todayFormatted = new Intl.DateTimeFormat('vi-VN', {
             <div>
               <div class="flex justify-between mb-1">
                 <span class="font-medium text-walnut-900">Lợi nhuận gộp ròng</span>
-                <span class="font-bold text-emerald-700">{overallMargin}</span>
+                <span class={`font-bold ${totalGrossProfit < 0 ? 'text-rose-600' : 'text-emerald-700'}`}>{overallMargin}</span>
               </div>
               <div class="h-2 bg-sand-200 rounded-full overflow-hidden">
                 <div 
-                  class="h-full bg-emerald-600 rounded-full" 
-                  style={`width: ${totalRevenue > 0 ? (totalGrossProfit / totalRevenue) * 100 : 0}%;`}
+                  class={`h-full rounded-full ${totalGrossProfit < 0 ? 'bg-rose-500' : 'bg-emerald-600'}`} 
+                  style={`width: ${totalRevenue > 0 ? Math.min(100, Math.max(0, (totalGrossProfit / totalRevenue) * 100)) : 0}%;`}
                 ></div>
               </div>
-              <p class="text-[10px] text-emerald-700/80 mt-0.5">{formatVnd(totalGrossProfit)}</p>
+              <p class={`text-[10px] mt-0.5 ${totalGrossProfit < 0 ? 'text-rose-600' : 'text-emerald-700/80'}`}>{formatVnd(totalGrossProfit)}</p>
             </div>
 
             <!-- Phân bổ phương thức thanh toán -->
