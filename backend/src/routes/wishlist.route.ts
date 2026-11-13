@@ -45,6 +45,7 @@ wishlistRouter.get('/', verifyToken, async (req: Request, res: Response) => {
         categorySlug: p.categories?.slug || '',
         price: variant ? Number(variant.price) : 0,
         comparePrice: variant?.compare_at_price ? Number(variant.compare_at_price) : null,
+        stockQuantity: variant ? Number(variant.stock_quantity ?? 10) : 10,
         thumbnail: image?.image_url || null,
         createdAt: w.created_at,
       };
@@ -129,6 +130,25 @@ wishlistRouter.post('/toggle', verifyToken, async (req: Request, res: Response) 
   } catch (error: any) {
     console.error('Lỗi toggle yêu thích:', error);
     return res.status(500).json({ success: false, message: 'Lỗi máy chủ khi cập nhật yêu thích.', error: error.message });
+  }
+});
+
+// ================================================================
+// DELETE /api/wishlist - Xóa tất cả sản phẩm khỏi danh sách yêu thích
+// ================================================================
+wishlistRouter.delete('/', verifyToken, async (req: Request, res: Response) => {
+  try {
+    const userId = BigInt(req.user!.id);
+    await prisma.wishlists.deleteMany({
+      where: { user_id: userId },
+    });
+    return res.json({
+      success: true,
+      message: 'Đã xóa toàn bộ sản phẩm khỏi danh sách yêu thích.',
+    });
+  } catch (error: any) {
+    console.error('Lỗi khi xóa toàn bộ yêu thích:', error);
+    return res.status(500).json({ success: false, message: 'Lỗi khi xóa toàn bộ danh sách yêu thích.', error: error.message });
   }
 });
 

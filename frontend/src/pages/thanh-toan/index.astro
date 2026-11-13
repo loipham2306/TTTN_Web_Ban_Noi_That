@@ -50,12 +50,64 @@ const provinces = [
       <!-- CHECKOUT CONTENT -->
       <div data-checkout-content class="hidden">
 
-        <!-- STEPS NAV -->
-        <ol data-checkout-steps class="flex flex-wrap gap-x-8 gap-y-2 border-b border-walnut-900/10 pb-5 text-[11px] uppercase tracking-[0.2em]">
-          <li data-step-label="0" class="text-walnut-900 font-semibold">1 — Địa chỉ nhận hàng</li>
-          <li data-step-label="1" class="text-walnut-800">2 — Phương thức thanh toán</li>
-          <li data-step-label="2" class="text-walnut-800">3 — Xác nhận & Đặt hàng</li>
-        </ol>
+        <!-- STEPS NAV: LUXURY TIMELINE STEPPER (GỢI Ý 1 - NẰM NGANG ĐỒNG TRỤC) -->
+        <div data-checkout-steps class="mb-6 sm:mb-8 rounded-2xl border border-walnut-900/10 bg-[#FAF8F5] p-3 sm:p-5 shadow-xs">
+          <ol class="flex items-center justify-between w-full max-w-4xl mx-auto">
+            
+            <!-- BƯỚC 1: ĐỊA CHỈ NHẬN HÀNG -->
+            <li data-step-item="0" class="group flex items-center gap-2 sm:gap-3 cursor-pointer select-none shrink-0">
+              <div data-step-circle="0" class="relative z-10 flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full font-bold text-xs sm:text-sm transition-all duration-300 shadow-xs border-2 bg-[#173524] text-[#D8B670] border-[#D8B670] ring-4 ring-[#D8B670]/25 scale-105">
+                <span data-step-num="0">1</span>
+                <svg data-step-check="0" class="hidden w-4 h-4 text-[#D8B670]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <span data-step-title="0" class="text-xs sm:text-sm font-bold text-[#173524] transition-colors whitespace-nowrap">
+                <span class="sm:hidden">Địa chỉ</span>
+                <span class="hidden sm:inline">Địa chỉ nhận hàng</span>
+              </span>
+            </li>
+
+            <!-- ĐƯỜNG RAY NỐI 1 -> 2 -->
+            <li class="flex-1 mx-2 sm:mx-6 h-[2px] bg-walnut-900/15 rounded-full relative overflow-hidden pointer-events-none self-center">
+              <div data-step-line="0" class="h-full bg-[#173524] transition-all duration-500 w-0"></div>
+            </li>
+
+            <!-- BƯỚC 2: PHƯƠNG THỨC THANH TOÁN -->
+            <li data-step-item="1" class="group flex items-center gap-2 sm:gap-3 cursor-pointer select-none shrink-0">
+              <div data-step-circle="1" class="relative z-10 flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full font-bold text-xs sm:text-sm transition-all duration-300 shadow-xs border bg-white text-walnut-400 border-walnut-900/15">
+                <span data-step-num="1">2</span>
+                <svg data-step-check="1" class="hidden w-4 h-4 text-[#D8B670]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <span data-step-title="1" class="text-xs sm:text-sm font-medium text-walnut-500 transition-colors whitespace-nowrap">
+                <span class="sm:hidden">Thanh toán</span>
+                <span class="hidden sm:inline">Phương thức thanh toán</span>
+              </span>
+            </li>
+
+            <!-- ĐƯỜNG RAY NỐI 2 -> 3 -->
+            <li class="flex-1 mx-2 sm:mx-6 h-[2px] bg-walnut-900/15 rounded-full relative overflow-hidden pointer-events-none self-center">
+              <div data-step-line="1" class="h-full bg-[#173524] transition-all duration-500 w-0"></div>
+            </li>
+
+            <!-- BƯỚC 3: XÁC NHẬN & ĐẶT HÀNG -->
+            <li data-step-item="2" class="group flex items-center gap-2 sm:gap-3 cursor-pointer select-none shrink-0">
+              <div data-step-circle="2" class="relative z-10 flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full font-bold text-xs sm:text-sm transition-all duration-300 shadow-xs border bg-white text-walnut-400 border-walnut-900/15">
+                <span data-step-num="2">3</span>
+                <svg data-step-check="2" class="hidden w-4 h-4 text-[#D8B670]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <span data-step-title="2" class="text-xs sm:text-sm font-medium text-walnut-500 transition-colors whitespace-nowrap">
+                <span class="sm:hidden">Xác nhận</span>
+                <span class="hidden sm:inline">Xác nhận & Đặt hàng</span>
+              </span>
+            </li>
+
+          </ol>
+        </div>
 
         <!-- ĐÃ TỐI ƯU: GRID 12 CỘT CÂN ĐỐI (7-5), THOÁNG ĐÃNG VÀ CHẶT CHẼ -->
         <div data-checkout-grid class="mt-8 grid gap-8 lg:grid-cols-12 lg:gap-10 items-start">
@@ -578,114 +630,147 @@ const provinces = [
 
 
   <!-- =====================================================
-       MODAL CHỌN ĐỊA CHỈ TỪ SỔ ĐỊA CHỈ (CHECKOUT)
+       MODAL CHỌN ĐỊA CHỈ TỪ SỔ ĐỊA CHỈ (ĐỒNG BỘ STYLES VỚI POPUP THƯƠNG HIỆU KTUFA)
        ===================================================== -->
   <div
     id="checkout-address-modal-overlay"
-    class="fixed inset-0 z-[9999] hidden bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 transition-opacity duration-300 opacity-0"
+    class="fixed inset-0 z-[99999] hidden bg-walnut-900/60 backdrop-blur-sm p-4 overflow-y-auto flex items-center justify-center transition-opacity duration-300 opacity-0"
     role="dialog"
     aria-modal="true"
   >
     <div
       id="checkout-address-modal-panel"
-      class="relative w-full max-w-lg bg-[#FAF8F5] border border-walnut-900/20 shadow-2xl rounded-none transform transition-all duration-300 scale-95 opacity-0 overflow-hidden flex flex-col max-h-[85vh]"
+      class="relative my-auto w-full max-w-xl overflow-hidden rounded-none bg-sand-50 p-4 sm:p-6 md:px-7 md:py-6 shadow-2xl border border-walnut-900/15 transition-all duration-300 scale-95 opacity-0 max-h-[88vh] flex flex-col luxury-scrollbar"
     >
-      <div class="bg-[#173524] text-white px-5 py-4 flex items-center justify-between border-b border-[#D8B670]/30 shrink-0 relative">
-        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#D8B670] via-[#F3E5AB] to-[#C49E52]"></div>
-        <h3 class="font-bold text-sm uppercase tracking-wider text-[#F3E5AB] flex items-center gap-2">
-          <span>Địa chỉ nhận hàng của bạn</span>
-        </h3>
-        <button
-          type="button"
-          id="btn-close-choose-address"
-          class="text-white/70 hover:text-white p-1 hover:bg-white/10 transition-colors cursor-pointer text-lg leading-none"
-        >
-          ✕
-        </button>
-      </div>
+      <!-- Nút đóng (X) bo tròn với hiệu ứng xoay 90 độ khi hover (Đồng bộ thương hiệu) -->
+      <button
+        type="button"
+        id="btn-close-choose-address"
+        class="absolute right-3 top-3 sm:right-4 sm:top-4 z-20 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-sand-200/90 text-walnut-800 border border-walnut-900/10 shadow-sm hover:bg-walnut-900 hover:text-amber-300 hover:rotate-90 transition-all duration-300 cursor-pointer"
+        aria-label="Đóng sổ địa chỉ"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="h-4 w-4 pointer-events-none">
+          <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
 
-      <div id="checkout-address-list" class="p-5 space-y-3 overflow-y-auto flex-1">
-        <!-- Rendered by JS -->
-      </div>
+      <div class="relative z-10 flex flex-col h-full min-h-0">
+        <!-- HEADER CỐ ĐỊNH PHONG CÁCH THƯƠNG HIỆU -->
+        <div class="shrink-0 pr-10 mb-4 sm:mb-5">
+          <h3 class="font-display text-lg sm:text-2xl font-bold tracking-tight text-walnut-900 leading-snug">
+            Sổ địa chỉ nhận hàng
+          </h3>
+          <p class="font-display italic text-xs text-walnut-800/80 mt-0.5 leading-relaxed">
+            Chọn địa chỉ đã lưu để hệ thống tự động hoàn tất thông tin giao nhận tư gia.
+          </p>
+        </div>
 
-      <div class="p-4 bg-[#F0EBE3] border-t border-walnut-900/10 flex items-center justify-between shrink-0 flex-wrap gap-2">
-        <a href="/tai-khoan" target="_blank" class="text-xs text-[#173524] hover:underline font-bold flex items-center gap-1">
-          <span>+ Quản lý địa chỉ</span>
-          <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-        </a>
-        <button
-          type="button"
-          id="btn-confirm-choose-address"
-          class="bg-[#173524] text-[#D8B670] border border-[#D8B670]/40 px-5 py-2 text-xs font-bold uppercase tracking-wider hover:bg-walnut-900 transition-colors shadow-xs cursor-pointer"
-        >
-          Áp dụng địa chỉ này
-        </button>
+        <!-- DANH SÁCH ĐỊA CHỈ CUỘN NỘI DUNG -->
+        <div id="checkout-address-list" class="space-y-3 overflow-y-auto flex-1 my-1 pr-1 luxury-scrollbar min-h-0">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- ACTION BAR TRÊN NỀN XANH THƯƠNG HIỆU -->
+        <div class="shrink-0 -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 md:-mx-7 md:-mb-6 px-4 sm:px-6 md:px-7 py-3.5 sm:py-4 bg-[#173524] border-t border-[#D8B670]/40 mt-5">
+          <div class="flex items-center justify-between flex-wrap gap-2.5">
+            <a
+              href="/tai-khoan?tab=addresses"
+              class="inline-flex items-center justify-center bg-[#D8B670] text-[#173524] hover:bg-[#F3E5AB] font-bold uppercase tracking-[0.15em] text-xs px-5 py-2.5 shadow-md transition-all active:scale-95 cursor-pointer"
+            >
+              Quản lý & Thêm địa chỉ mới
+            </a>
+            <button
+              type="button"
+              id="btn-confirm-choose-address"
+              class="inline-flex items-center justify-center bg-[#D8B670] text-[#173524] hover:bg-[#F3E5AB] font-bold uppercase tracking-[0.15em] text-xs px-5 py-2.5 shadow-md transition-all active:scale-95 cursor-pointer"
+            >
+              Áp dụng địa chỉ này
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <!-- =====================================================
-       MODAL KHO VOUCHER & ƯU ĐÃI (CHECKOUT)
+       MODAL KHO VOUCHER & ƯU ĐÃI (ĐỒNG BỘ STYLES VỚI POPUP THƯƠNG HIỆU KTUFA)
        ===================================================== -->
   <div
     id="checkout-coupon-modal-overlay"
-    class="fixed inset-0 z-[9999] hidden bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 transition-opacity duration-300 opacity-0"
+    class="fixed inset-0 z-[99999] hidden bg-walnut-900/60 backdrop-blur-sm p-4 overflow-y-auto flex items-center justify-center transition-opacity duration-300 opacity-0"
     role="dialog"
     aria-modal="true"
   >
     <div
       id="checkout-coupon-modal-panel"
-      class="relative w-full max-w-lg bg-[#FAF8F5] border border-walnut-900/20 shadow-2xl rounded-none transform transition-all duration-300 scale-95 opacity-0 overflow-hidden flex flex-col max-h-[85vh]"
+      class="relative my-auto w-full max-w-xl overflow-hidden rounded-none bg-sand-50 p-4 sm:p-6 md:px-7 md:py-6 shadow-2xl border border-walnut-900/15 transition-all duration-300 scale-95 opacity-0 max-h-[88vh] flex flex-col luxury-scrollbar"
     >
-      <div class="bg-[#173524] text-white px-5 py-4 flex items-center justify-between border-b border-[#D8B670]/30 shrink-0 relative">
-        <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#D8B670] via-[#F3E5AB] to-[#C49E52]"></div>
-        <h3 class="font-bold text-sm uppercase tracking-wider text-[#F3E5AB] flex items-center gap-2">
-          <img src="/images/icons/discount-voucher.png" alt="Voucher" class="w-5 h-5 object-contain inline-block shrink-0" />
-          <span>Kho Voucher & Ưu Đãi Dành Cho Bạn</span>
-        </h3>
-        <button
-          type="button"
-          id="btn-close-coupon-modal"
-          class="text-white/70 hover:text-white p-1 hover:bg-white/10 transition-colors cursor-pointer text-lg leading-none"
-        >
-          ✕
-        </button>
-      </div>
+      <!-- Nút đóng (X) bo tròn với hiệu ứng xoay 90 độ khi hover (Đồng bộ thương hiệu) -->
+      <button
+        type="button"
+        id="btn-close-coupon-modal"
+        class="absolute right-3 top-3 sm:right-4 sm:top-4 z-20 flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-full bg-sand-200/90 text-walnut-800 border border-walnut-900/10 shadow-sm hover:bg-walnut-900 hover:text-amber-300 hover:rotate-90 transition-all duration-300 cursor-pointer"
+        aria-label="Đóng kho ưu đãi"
+      >
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="h-4 w-4 pointer-events-none">
+          <path d="M6 18L18 6M6 6l12 12" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </button>
 
-      <div class="p-4 bg-white border-b border-walnut-900/10">
-        <div class="flex gap-2">
-          <input
-            id="modal-coupon-input"
-            type="text"
-            placeholder="Nhập mã ưu đãi..."
-            class="flex-1 uppercase rounded-sm border border-walnut-900/20 bg-sand-50/50 px-3.5 py-2 text-xs font-semibold tracking-wider outline-none transition-colors focus:border-clay-600 focus:bg-white"
-          />
-          <button
-            type="button"
-            id="modal-apply-coupon-btn"
-            class="rounded-sm bg-walnut-900 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-sand-50 transition-colors hover:bg-clay-600 active:scale-95 cursor-pointer shrink-0"
-          >
-            Áp dụng
-          </button>
+      <div class="relative z-10 flex flex-col h-full min-h-0">
+        <!-- HEADER CỐ ĐỊNH PHONG CÁCH THƯƠNG HIỆU -->
+        <div class="shrink-0 pr-10 mb-4 sm:mb-5">
+          <h3 class="font-display text-lg sm:text-2xl font-bold tracking-tight text-walnut-900 leading-snug">
+            Kho voucher & Ưu đãi
+          </h3>
+          <p class="font-display italic text-xs text-walnut-800/80 mt-0.5 leading-relaxed">
+            Chọn mã ưu đãi khả dụng hoặc nhập mã riêng để áp dụng vào đơn hàng.
+          </p>
         </div>
-        <p id="modal-coupon-msg" class="mt-1.5 hidden text-xs font-medium"></p>
-      </div>
 
-      <div id="checkout-coupon-modal-list" class="p-5 space-y-3 overflow-y-auto flex-1">
-        <!-- Rendered by JS -->
-      </div>
+        <!-- INPUT NHẬP VOUCHER -->
+        <div class="shrink-0 p-3 sm:p-3.5 bg-white border border-walnut-900/15 mb-3.5 shadow-2xs">
+          <div class="flex gap-2">
+            <input
+              id="modal-coupon-input"
+              type="text"
+              placeholder="Nhập mã ưu đãi..."
+              class="flex-1 uppercase rounded-none border border-walnut-900/20 bg-sand-50/50 px-3.5 py-2.5 text-xs font-semibold tracking-wider outline-none transition-colors focus:border-[#173524] focus:bg-white"
+            />
+            <button
+              type="button"
+              id="modal-apply-coupon-btn"
+              class="bg-[#173524] hover:bg-[#234e35] text-[#D8B670] border border-[#D8B670]/40 px-5 py-2.5 text-xs font-bold uppercase tracking-[0.15em] transition-all active:scale-95 cursor-pointer shrink-0 shadow-xs"
+            >
+              Áp dụng
+            </button>
+          </div>
+          <p id="modal-coupon-msg" class="mt-1.5 hidden text-xs font-medium"></p>
+        </div>
 
-      <div class="p-4 bg-[#F0EBE3] border-t border-walnut-900/10 flex items-center justify-between shrink-0 flex-wrap gap-2 text-xs">
-        <a href="/tai-khoan" target="_blank" class="text-xs text-[#173524] hover:underline font-bold flex items-center gap-1">
-          <span>Xem ví voucher trong tài khoản ↗</span>
-        </a>
-        <button
-          type="button"
-          id="btn-footer-close-coupon"
-          class="bg-white text-walnut-900 border border-walnut-900/20 px-5 py-2 text-xs font-bold uppercase tracking-wider hover:bg-sand-100 transition-colors shadow-2xs cursor-pointer"
-        >
-          Đóng
-        </button>
+        <!-- DANH SÁCH VOUCHER CUỘN NỘI DUNG -->
+        <div id="checkout-coupon-modal-list" class="space-y-3 overflow-y-auto flex-1 my-1 pr-1 luxury-scrollbar min-h-0">
+          <!-- Rendered by JS -->
+        </div>
+
+        <!-- ACTION BAR TRÊN NỀN XANH THƯƠNG HIỆU -->
+        <div class="shrink-0 -mx-4 -mb-4 sm:-mx-6 sm:-mb-6 md:-mx-7 md:-mb-6 px-4 sm:px-6 md:px-7 py-3.5 sm:py-4 bg-[#173524] border-t border-[#D8B670]/40 mt-4">
+          <div class="flex items-center justify-between flex-wrap gap-2.5">
+            <a
+              href="/tai-khoan?tab=vouchers"
+              class="inline-flex items-center justify-center bg-[#D8B670] text-[#173524] hover:bg-[#F3E5AB] font-bold uppercase tracking-[0.15em] text-xs px-5 py-2.5 shadow-md transition-all active:scale-95 cursor-pointer"
+            >
+              Ví voucher của tôi
+            </a>
+            <button
+              type="button"
+              id="btn-footer-close-coupon"
+              class="inline-flex items-center justify-center bg-[#D8B670] text-[#173524] hover:bg-[#F3E5AB] font-bold uppercase tracking-[0.15em] text-xs px-5 py-2.5 shadow-md transition-all active:scale-95 cursor-pointer"
+            >
+              Đóng
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -747,6 +832,11 @@ const provinces = [
     const btnConfirmChooseAddr = document.querySelector<HTMLButtonElement>('#btn-confirm-choose-address');
     let selectedAddressId: number | null = null;
 
+    // Di chuyển modal sổ địa chỉ ra document.body để đè lên Header (thoát stacking context)
+    if (chooseModalOverlay && chooseModalOverlay.parentElement !== document.body) {
+      document.body.appendChild(chooseModalOverlay);
+    }
+
     const fillAddressForm = (addr: any) => {
       if (!form || !addr) return;
       const nameInput = form.querySelector<HTMLInputElement>('#ck-name');
@@ -780,34 +870,48 @@ const provinces = [
     const renderChooseAddressModal = () => {
       if (!chooseAddressList) return;
       if (savedAddresses.length === 0) {
-        chooseAddressList.innerHTML = `<p class="text-xs text-center py-6 text-walnut-800/70">Bạn chưa lưu địa chỉ nhận hàng nào.</p>`;
+        chooseAddressList.innerHTML = `
+          <div class="text-center py-8 px-4 bg-white/80 border border-dashed border-walnut-900/20">
+            <span class="text-3xl block mb-2">📍</span>
+            <p class="text-xs font-bold text-walnut-900 uppercase tracking-wider">Chưa có địa chỉ nhận hàng nào</p>
+            <p class="text-[11px] text-walnut-800/70 mt-1 max-w-sm mx-auto">Vui lòng bấm "+ Quản lý & Thêm địa chỉ mới" bên dưới để thiết lập địa chỉ nhận hàng tư gia.</p>
+          </div>
+        `;
         return;
       }
 
-      chooseAddressList.innerHTML = savedAddresses.map((addr) => `
-        <label class="block p-4 border ${selectedAddressId === addr.id ? 'border-2 border-[#173524] bg-sand-100/60' : 'border-walnut-900/15 bg-white hover:bg-sand-50'} rounded-none cursor-pointer transition-all">
-          <div class="flex items-start gap-3">
-            <input
-              type="radio"
-              name="chosen_address"
-              value="${addr.id}"
-              ${selectedAddressId === addr.id ? 'checked' : ''}
-              class="mt-1 h-4 w-4 accent-[#173524] cursor-pointer"
-            />
-            <div class="flex-1 space-y-1">
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="font-bold text-xs uppercase tracking-wider text-walnut-900">${addr.receiverName}</span>
-                <span class="text-xs text-walnut-800/40 font-mono">|</span>
-                <span class="text-xs font-mono font-semibold text-walnut-800">${addr.receiverPhone}</span>
-                ${addr.isDefault ? '<span class="bg-emerald-100 text-emerald-800 px-2 py-0.2 text-[10px] font-bold uppercase tracking-wider">Mặc định</span>' : ''}
+      chooseAddressList.innerHTML = savedAddresses.map((addr) => {
+        const isSelected = selectedAddressId === addr.id;
+        return `
+          <label class="block p-4 border transition-all duration-200 cursor-pointer ${
+            isSelected
+              ? 'border-2 border-[#173524] bg-white shadow-md ring-2 ring-[#D8B670]/30'
+              : 'border-walnut-900/15 bg-white/90 hover:bg-white hover:border-walnut-900/35 hover:shadow-xs'
+          }">
+            <div class="flex items-start gap-3">
+              <input
+                type="radio"
+                name="chosen_address"
+                value="${addr.id}"
+                ${isSelected ? 'checked' : ''}
+                class="mt-1 h-4 w-4 accent-[#173524] cursor-pointer"
+              />
+              <div class="flex-1 space-y-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-bold text-xs uppercase tracking-wider text-walnut-900">${addr.receiverName}</span>
+                  <span class="text-xs text-walnut-800/40 font-mono">|</span>
+                  <span class="text-xs font-mono font-semibold text-walnut-800">${addr.receiverPhone}</span>
+                  ${addr.isDefault ? '<span class="bg-[#173524] text-[#D8B670] border border-[#D8B670]/40 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider">Mặc định</span>' : ''}
+                  ${isSelected ? '<span class="text-[9.5px] font-bold text-[#173524] bg-sand-200 px-2 py-0.5 uppercase tracking-wider">Đang chọn</span>' : ''}
+                </div>
+                <p class="text-xs text-walnut-800/90 leading-relaxed font-medium mt-0.5">
+                  ${addr.fullAddress}
+                </p>
               </div>
-              <p class="text-xs text-walnut-800/90 leading-relaxed font-medium">
-                ${addr.fullAddress}
-              </p>
             </div>
-          </div>
-        </label>
-      `).join('');
+          </label>
+        `;
+      }).join('');
 
       chooseAddressList.querySelectorAll<HTMLInputElement>('input[name="chosen_address"]').forEach((radio) => {
         radio.addEventListener('change', () => {
@@ -838,8 +942,12 @@ const provinces = [
 
     const openChooseAddressModal = () => {
       if (!chooseModalOverlay || !chooseModalPanel) return;
+      if (chooseModalOverlay.parentElement !== document.body) {
+        document.body.appendChild(chooseModalOverlay);
+      }
       renderChooseAddressModal();
       chooseModalOverlay.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
       requestAnimationFrame(() => {
         chooseModalOverlay.classList.remove('opacity-0');
         chooseModalOverlay.classList.add('opacity-100');
@@ -856,6 +964,7 @@ const provinces = [
       chooseModalPanel.classList.add('opacity-0', 'scale-95');
       setTimeout(() => {
         chooseModalOverlay.classList.add('hidden');
+        document.body.style.overflow = '';
       }, 250);
     };
 
@@ -918,7 +1027,8 @@ const provinces = [
     const errorBox = root.querySelector<HTMLElement>('#checkout-error-msg');
     const placeOrderBtn = root.querySelector<HTMLButtonElement>('[data-place-order]');
     const panels = Array.from(root.querySelectorAll<HTMLElement>('[data-step-panel]'));
-    const labels = Array.from(root.querySelectorAll<HTMLElement>('[data-step-label]'));
+    const stepItems = Array.from(root.querySelectorAll<HTMLElement>('[data-step-item]'));
+    const stepLines = Array.from(root.querySelectorAll<HTMLElement>('[data-step-line]'));
 
     // Coupon DOM Elements
     const couponInput = root.querySelector<HTMLInputElement>('#coupon-code-input');
@@ -1215,15 +1325,72 @@ ${value('phone')}`,
 
     const goTo = (index: number) => {
       panels.forEach((panel, i) => panel.classList.toggle('hidden', i !== index));
-      labels.forEach((label, i) => {
-        label.classList.toggle('text-walnut-900', i === index);
-        label.classList.toggle('font-bold', i === index);
-        label.classList.toggle('font-semibold', i === index);
-        label.classList.toggle('text-walnut-800', i !== index);
+
+      // Cập nhật trạng thái từng bước trên Stepper
+      stepItems.forEach((item, i) => {
+        const circle = item.querySelector<HTMLElement>(`[data-step-circle="${i}"]`);
+        const num = item.querySelector<HTMLElement>(`[data-step-num="${i}"]`);
+        const check = item.querySelector<HTMLElement>(`[data-step-check="${i}"]`);
+        const title = item.querySelector<HTMLElement>(`[data-step-title="${i}"]`);
+
+        if (i < index) {
+          // BƯỚC ĐÃ HOÀN THÀNH (Completed)
+          if (circle) {
+            circle.className = 'relative z-10 flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full font-bold text-xs sm:text-sm transition-all duration-300 shadow-xs border-2 bg-[#173524] text-[#D8B670] border-[#173524] cursor-pointer hover:scale-105 hover:border-[#D8B670]';
+          }
+          if (num) num.classList.add('hidden');
+          if (check) check.classList.remove('hidden');
+          if (title) {
+            title.className = 'text-xs sm:text-sm font-semibold text-walnut-900 group-hover:text-[#173524] transition-colors whitespace-nowrap';
+          }
+          item.style.cursor = 'pointer';
+        } else if (i === index) {
+          // BƯỚC ĐANG THỰC HIỆN (Active)
+          if (circle) {
+            circle.className = 'relative z-10 flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full font-bold text-xs sm:text-sm transition-all duration-300 shadow-sm border-2 bg-[#173524] text-[#D8B670] border-[#D8B670] ring-4 ring-[#D8B670]/25 scale-105 cursor-default';
+          }
+          if (num) num.classList.remove('hidden');
+          if (check) check.classList.add('hidden');
+          if (title) {
+            title.className = 'text-xs sm:text-sm font-bold text-[#173524] transition-colors whitespace-nowrap';
+          }
+          item.style.cursor = 'default';
+        } else {
+          // BƯỚC TIẾP THEO (Upcoming)
+          if (circle) {
+            circle.className = 'relative z-10 flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center rounded-full font-bold text-xs sm:text-sm transition-all duration-300 shadow-xs border bg-white text-walnut-400 border-walnut-900/15 cursor-not-allowed';
+          }
+          if (num) num.classList.remove('hidden');
+          if (check) check.classList.add('hidden');
+          if (title) {
+            title.className = 'text-xs sm:text-sm font-medium text-walnut-500 transition-colors whitespace-nowrap';
+          }
+          item.style.cursor = 'not-allowed';
+        }
       });
+
+      // Cập nhật thanh tiến trình kết nối giữa các bước
+      stepLines.forEach((line, i) => {
+        if (i < index) {
+          line.style.width = '100%';
+        } else {
+          line.style.width = '0%';
+        }
+      });
+
       if (index === 2) renderReview();
       root.scrollIntoView({ behavior: 'smooth', block: 'start' });
     };
+
+    // Cho phép click vào các bước đã hoàn tất để quay lại nhanh
+    stepItems.forEach((item, i) => {
+      item.addEventListener('click', () => {
+        const currentActivePanel = panels.findIndex((p) => !p.classList.contains('hidden'));
+        if (i < currentActivePanel) {
+          goTo(i);
+        }
+      });
+    });
 
     const copyText = (text: string, btn: HTMLButtonElement) => {
       navigator.clipboard.writeText(text).then(() => {
@@ -1684,8 +1851,16 @@ ${value('phone')}`,
     const modalApplyCouponBtn = document.querySelector<HTMLButtonElement>('#modal-apply-coupon-btn');
     const modalCouponMsg = document.querySelector<HTMLElement>('#modal-coupon-msg');
 
+    // Di chuyển modal kho voucher ra document.body để đè lên Header (thoát stacking context)
+    if (couponModalOverlay && couponModalOverlay.parentElement !== document.body) {
+      document.body.appendChild(couponModalOverlay);
+    }
+
     const openCouponModal = () => {
       if (!couponModalOverlay || !couponModalPanel) return;
+      if (couponModalOverlay.parentElement !== document.body) {
+        document.body.appendChild(couponModalOverlay);
+      }
       renderCouponModalList();
       couponModalOverlay.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
@@ -1743,7 +1918,13 @@ ${value('phone')}`,
       const subtotal = totalPrice(items);
 
       if (allAvailableCoupons.length === 0) {
-        couponModalList.innerHTML = '<p class="text-xs text-center py-8 text-walnut-800/70">Hiện chưa có mã ưu đãi nào khả dụng.</p>';
+        couponModalList.innerHTML = `
+          <div class="text-center py-8 px-4 bg-white/80 border border-dashed border-walnut-900/20">
+            <span class="text-3xl block mb-2">🏷️</span>
+            <p class="text-xs font-bold text-walnut-900 uppercase tracking-wider">Hiện chưa có mã ưu đãi nào khả dụng</p>
+            <p class="text-[11px] text-walnut-800/70 mt-1">Các chương trình ưu đãi đặc quyền sẽ được cập nhật sớm nhất.</p>
+          </div>
+        `;
         return;
       }
 
@@ -1763,7 +1944,7 @@ ${value('phone')}`,
       let html = '';
 
       if (eligible.length > 0) {
-        html += '<p class="text-[11px] font-bold uppercase tracking-wider text-[#173524] mb-2">Mã có thể sử dụng (' + eligible.length + ')</p>';
+        html += '<p class="text-[11px] font-bold uppercase tracking-wider text-[#173524] mb-2.5">Mã có thể sử dụng (' + eligible.length + ')</p>';
         html += '<div class="space-y-2.5">';
         eligible.forEach((cp) => {
           const isFreeShip = cp.discountType === 'free_shipping';
@@ -1778,7 +1959,11 @@ ${value('phone')}`,
           const isCurrent = currentCoupon && currentCoupon.code === cp.code;
 
           html += `
-            <div class="p-3.5 rounded-lg border ${isCurrent ? 'border-emerald-600 bg-emerald-50/70 shadow-xs' : 'border-walnut-900/15 bg-white hover:border-[#173524]/40 hover:shadow-2xs'} flex items-center justify-between gap-3 transition-all">
+            <div class="p-3.5 rounded-none border transition-all duration-200 ${
+              isCurrent
+                ? 'border-2 border-[#173524] bg-white shadow-md ring-2 ring-[#D8B670]/30'
+                : 'border-walnut-900/15 bg-white hover:border-[#173524]/40 hover:shadow-xs'
+            } flex items-center justify-between gap-3">
               <div class="flex items-center gap-3 min-w-0">
                 <img 
                   src="${isFreeShip ? '/images/icons/free-shipping.png' : '/images/icons/discount-voucher.png'}" 
@@ -1786,18 +1971,23 @@ ${value('phone')}`,
                   class="w-10 h-10 object-contain shrink-0" 
                   loading="lazy"
                 />
-                <div class="min-w-0">
+                <div class="min-w-0 space-y-0.5">
                   <div class="flex items-center gap-2 flex-wrap">
-                    <span class="font-bold text-xs font-mono uppercase px-2 py-0.5 bg-[#FAF8F5] border border-walnut-900/15 text-walnut-900 rounded tracking-wider">${cp.code}</span>
-                    <span class="text-xs font-semibold text-[#173524] truncate">${valText}</span>
+                    <span class="font-bold text-xs font-mono uppercase px-2 py-0.5 bg-[#173524] text-[#D8B670] border border-[#D8B670]/40 tracking-wider">${cp.code}</span>
+                    <span class="text-xs font-bold text-walnut-900 truncate">${valText}</span>
+                    ${isCurrent ? '<span class="text-[9.5px] font-bold text-[#173524] bg-sand-200 px-2 py-0.5 uppercase tracking-wider">Đang áp dụng</span>' : ''}
                   </div>
-                  <p class="text-[11px] text-walnut-800/70 mt-1">Đơn tối thiểu ${formatVnd(cp.minOrderValue || 0)}${cp.endDate ? ' • HSD: ' + new Date(cp.endDate).toLocaleDateString('vi-VN') : ''}</p>
+                  <p class="text-[11px] text-walnut-800/80 font-medium">Đơn tối thiểu ${formatVnd(cp.minOrderValue || 0)}${cp.endDate ? ' • HSD: ' + new Date(cp.endDate).toLocaleDateString('vi-VN') : ''}</p>
                 </div>
               </div>
               <button
                 type="button"
                 data-apply-code="${cp.code}"
-                class="shrink-0 px-3.5 py-1.5 rounded text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${isCurrent ? 'bg-emerald-700 text-white' : 'bg-[#173524] hover:bg-[#234e35] text-white'}"
+                class="shrink-0 px-4 py-2 font-bold uppercase tracking-[0.12em] text-xs transition-all active:scale-95 cursor-pointer shadow-xs ${
+                  isCurrent
+                    ? 'bg-[#173524] text-[#D8B670] border border-[#D8B670]/40'
+                    : 'bg-[#D8B670] text-[#173524] hover:bg-[#F3E5AB]'
+                }"
               >
                 ${isCurrent ? 'Đang dùng ✓' : 'Áp dụng'}
               </button>
@@ -1808,7 +1998,7 @@ ${value('phone')}`,
       }
 
       if (ineligible.length > 0) {
-        html += '<p class="text-[11px] font-bold uppercase tracking-wider text-walnut-800/60 mt-5 mb-2">Chưa đủ điều kiện (' + ineligible.length + ')</p>';
+        html += '<p class="text-[11px] font-bold uppercase tracking-wider text-walnut-800/60 mt-5 mb-2.5">Chưa đủ điều kiện (' + ineligible.length + ')</p>';
         html += '<div class="space-y-2.5 opacity-65">';
         ineligible.forEach((cp) => {
           const isFreeShip = cp.discountType === 'free_shipping';
@@ -1823,7 +2013,7 @@ ${value('phone')}`,
           }
 
           html += `
-            <div class="p-3.5 rounded-lg border border-dashed border-gray-300 bg-gray-50 flex items-center justify-between gap-3">
+            <div class="p-3.5 rounded-none border border-dashed border-walnut-900/20 bg-white/60 flex items-center justify-between gap-3">
               <div class="flex items-center gap-3 min-w-0">
                 <img 
                   src="${isFreeShip ? '/images/icons/free-shipping.png' : '/images/icons/discount-voucher.png'}" 
@@ -1831,18 +2021,18 @@ ${value('phone')}`,
                   class="w-10 h-10 object-contain shrink-0 grayscale opacity-60" 
                   loading="lazy"
                 />
-                <div class="min-w-0">
+                <div class="min-w-0 space-y-0.5">
                   <div class="flex items-center gap-2 flex-wrap">
-                    <span class="font-bold text-xs font-mono uppercase px-2 py-0.5 bg-gray-200 text-gray-700 rounded tracking-wider">${cp.code}</span>
-                    <span class="text-xs font-medium text-gray-700 truncate">${valText}</span>
+                    <span class="font-bold text-xs font-mono uppercase px-2 py-0.5 bg-sand-200 text-walnut-700 tracking-wider">${cp.code}</span>
+                    <span class="text-xs font-semibold text-walnut-700 truncate">${valText}</span>
                   </div>
-                  <p class="text-[11px] text-red-600/80 mt-1">Đơn tối thiểu ${formatVnd(cp.minOrderValue || 0)} (Mua thêm ${formatVnd(needed)} để dùng)</p>
+                  <p class="text-[11px] text-amber-800/90 font-medium">Đơn tối thiểu ${formatVnd(cp.minOrderValue || 0)} (Mua thêm ${formatVnd(needed)} để dùng)</p>
                 </div>
               </div>
               <button
                 type="button"
                 disabled
-                class="shrink-0 px-3 py-1.5 rounded text-[11px] font-semibold uppercase tracking-wider bg-gray-200 text-gray-400 cursor-not-allowed"
+                class="shrink-0 px-3.5 py-1.5 rounded-none text-[11px] font-bold uppercase tracking-wider bg-sand-200/80 text-walnut-400 border border-walnut-900/10 cursor-not-allowed"
               >
                 Chưa đủ
               </button>

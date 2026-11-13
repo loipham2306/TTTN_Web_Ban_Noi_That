@@ -31,6 +31,22 @@ try {
   banners = [];
 }
 
+// Nếu danh sách chưa có banner trang Về chúng tôi (do SSR/offline), tự động thêm fallback chuẩn bị sẵn
+if (!banners.some((b) => b.position === 've-chung-toi')) {
+  banners.unshift({
+    id: 9999,
+    title: 'VỀ CHÚNG TÔI — KTUFA',
+    subtitle: 'Hành Trình Kiến Tạo Không Gian Sống Đẳng Cấp',
+    description: 'Tuyển chọn vật liệu tự nhiên thượng hạng, chế tác thủ công tinh xảo và triết lý phong thủy Á Đông kiến tạo kiệt tác không gian sống.',
+    imageUrl: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1920&q=80',
+    linkUrl: '/ve-chung-toi#cau-chuyen',
+    buttonText: 'Khám phá ngay',
+    position: 've-chung-toi',
+    displayOrder: 1,
+    isActive: true,
+  });
+}
+
 const totalBanners = banners.length;
 const activeBanners = banners.filter((b) => b.isActive).length;
 const heroBanners = banners.filter((b) => b.position === 'hero').length;
@@ -38,6 +54,7 @@ const spaceBanners = banners.filter((b) => b.position === 'space').length;
 const showcaseBanners = banners.filter((b) => b.position === 'showcase').length;
 const sanPhamBanners = banners.filter((b) => b.position === 'san-pham').length;
 const phongThuyBanners = banners.filter((b) => b.position === 'phong-thuy').length;
+const veChungToiBanners = banners.filter((b) => b.position === 've-chung-toi').length;
 ---
 
 <AdminLayout title="Quản Lý Banner & Hình Ảnh Quảng Cáo - Nội Thất">
@@ -64,6 +81,16 @@ const phongThuyBanners = banners.filter((b) => b.position === 'phong-thuy').leng
 
         <button 
           type="button" 
+          id="btn-create-ve-chung-toi"
+          class="inline-flex items-center gap-1.5 bg-[#FAF8F5] px-3.5 py-2 text-xs uppercase tracking-[0.12em] text-[#173524] transition-all hover:bg-sand-200 shadow-xs font-bold border border-[#173524]/30 cursor-pointer"
+          title="Tạo nhanh hoặc cập nhật banner cho trang Về Chúng Tôi"
+        >
+          <span class="text-amber-600 font-bold">✦</span>
+          <span>Banner Về Chúng Tôi</span>
+        </button>
+
+        <button 
+          type="button" 
           id="btn-open-create-banner"
           class="inline-flex items-center gap-1.5 bg-[#173524] px-4 py-2 text-xs uppercase tracking-[0.15em] text-[#D8B670] transition-colors hover:bg-walnut-900 shadow-sm cursor-pointer font-bold border border-[#D8B670]/40"
         >
@@ -76,7 +103,7 @@ const phongThuyBanners = banners.filter((b) => b.position === 'phong-thuy').leng
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3.5">
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3.5">
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-3.5 shadow-2xs">
         <p class="text-[11px] uppercase text-walnut-800/70 font-semibold">Tổng số lượng</p>
         <p id="stat-total" class="text-xl font-bold text-walnut-900 mt-1">{totalBanners} mục</p>
@@ -85,22 +112,83 @@ const phongThuyBanners = banners.filter((b) => b.position === 'phong-thuy').leng
         <p class="text-[11px] uppercase text-emerald-800/80 font-semibold">Đang hiển thị</p>
         <p id="stat-active" class="text-xl font-bold text-emerald-700 mt-1">{activeBanners} đang bật</p>
       </div>
-      <div class="rounded border border-amber-900/15 bg-amber-50/40 p-3.5 shadow-2xs">
+      <div class="rounded border border-[#173524]/30 bg-[#173524]/5 p-3.5 shadow-2xs cursor-pointer hover:bg-[#173524]/10 transition-all border-l-4 border-l-[#173524]" data-stat-pill="ve-chung-toi" title="Nhấp để lọc nhanh Banner Về Chúng Tôi">
+        <div class="flex items-center justify-between">
+          <p class="text-[11px] uppercase text-[#173524] font-bold">Về Chúng Tôi</p>
+          <span class="text-[10px] text-amber-700 font-bold">✦</span>
+        </div>
+        <p id="stat-ve-chung-toi" class="text-xl font-bold text-[#173524] mt-1">{veChungToiBanners} banner</p>
+      </div>
+      <div class="rounded border border-amber-900/15 bg-amber-50/40 p-3.5 shadow-2xs cursor-pointer hover:bg-amber-100/50 transition-all" data-stat-pill="hero" title="Nhấp để lọc Hero Trang Chủ">
         <p class="text-[11px] uppercase text-amber-900/80 font-semibold">Hero Trang Chủ</p>
         <p id="stat-hero" class="text-xl font-bold text-[#B88E28] mt-1">{heroBanners} vị trí</p>
       </div>
-      <div class="rounded border border-indigo-900/15 bg-indigo-50/40 p-3.5 shadow-2xs">
+      <div class="rounded border border-purple-900/15 bg-purple-50/30 p-3.5 shadow-2xs cursor-pointer hover:bg-purple-100/50 transition-all" data-stat-pill="san-pham" title="Nhấp để lọc Banner Sản Phẩm">
+        <p class="text-[11px] uppercase text-purple-900/80 font-semibold">Menu Sản Phẩm</p>
+        <p id="stat-san-pham" class="text-xl font-bold text-purple-900 mt-1">{sanPhamBanners} banner</p>
+      </div>
+      <div class="rounded border border-purple-900/15 bg-purple-50/30 p-3.5 shadow-2xs cursor-pointer hover:bg-purple-100/50 transition-all" data-stat-pill="phong-thuy" title="Nhấp để lọc Banner Phong Thủy">
+        <p class="text-[11px] uppercase text-purple-900/80 font-semibold">Menu Phong Thủy</p>
+        <p id="stat-phong-thuy" class="text-xl font-bold text-purple-900 mt-1">{phongThuyBanners} banner</p>
+      </div>
+      <div class="rounded border border-indigo-900/15 bg-indigo-50/40 p-3.5 shadow-2xs cursor-pointer hover:bg-indigo-100/50 transition-all" data-stat-pill="space" title="Nhấp để lọc Không Gian">
         <p class="text-[11px] uppercase text-indigo-900/80 font-semibold">Không Gian</p>
-        <p id="stat-space" class="text-xl font-bold text-indigo-900 mt-1">{spaceBanners} mục</p>
+        <p id="stat-space" class="text-xl font-bold text-indigo-900 mt-1">{spaceBanners + showcaseBanners} mục</p>
       </div>
-      <div class="rounded border border-teal-900/15 bg-teal-50/40 p-3.5 shadow-2xs">
-        <p class="text-[11px] uppercase text-teal-900/80 font-semibold">Không Gian Thực Tế</p>
-        <p id="stat-showcase" class="text-xl font-bold text-teal-900 mt-1">{showcaseBanners} mục</p>
-      </div>
-      <div class="rounded border border-purple-900/15 bg-purple-50/30 p-3.5 shadow-2xs">
-        <p class="text-[11px] uppercase text-purple-900/80 font-semibold">Menu Khác</p>
-        <p id="stat-other" class="text-xl font-bold text-purple-900 mt-1">{sanPhamBanners + phongThuyBanners} vị trí</p>
-      </div>
+    </div>
+
+    <!-- Quick Position Filter Tabs -->
+    <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar border-b border-walnut-900/10">
+      <button 
+        type="button" 
+        data-position-pill=""
+        class="tab-pill active shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer bg-[#173524] text-[#D8B670] shadow-xs"
+      >
+        Tất cả ({totalBanners})
+      </button>
+      <button 
+        type="button" 
+        data-position-pill="ve-chung-toi"
+        class="tab-pill shrink-0 px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all cursor-pointer bg-sand-50 text-[#173524] border border-[#173524]/40 hover:bg-[#173524] hover:text-[#D8B670] flex items-center gap-1.5 shadow-2xs"
+      >
+        <span class="inline-block w-2 h-2 rounded-full bg-emerald-600"></span>
+        <span>✦ Banner Về Chúng Tôi ({veChungToiBanners})</span>
+      </button>
+      <button 
+        type="button" 
+        data-position-pill="hero"
+        class="tab-pill shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer bg-sand-50 text-walnut-900 border border-walnut-900/15 hover:bg-walnut-900 hover:text-sand-50 shadow-2xs"
+      >
+        Hero Trang Chủ ({heroBanners})
+      </button>
+      <button 
+        type="button" 
+        data-position-pill="san-pham"
+        class="tab-pill shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer bg-sand-50 text-walnut-900 border border-walnut-900/15 hover:bg-walnut-900 hover:text-sand-50 shadow-2xs"
+      >
+        Banner Sản Phẩm ({sanPhamBanners})
+      </button>
+      <button 
+        type="button" 
+        data-position-pill="phong-thuy"
+        class="tab-pill shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer bg-sand-50 text-walnut-900 border border-walnut-900/15 hover:bg-walnut-900 hover:text-sand-50 shadow-2xs"
+      >
+        Banner Phong Thủy ({phongThuyBanners})
+      </button>
+      <button 
+        type="button" 
+        data-position-pill="space"
+        class="tab-pill shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer bg-sand-50 text-walnut-900 border border-walnut-900/15 hover:bg-walnut-900 hover:text-sand-50 shadow-2xs"
+      >
+        Không Gian ({spaceBanners})
+      </button>
+      <button 
+        type="button" 
+        data-position-pill="showcase"
+        class="tab-pill shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer bg-sand-50 text-walnut-900 border border-walnut-900/15 hover:bg-walnut-900 hover:text-sand-50 shadow-2xs"
+      >
+        Không Gian Thực Tế ({showcaseBanners})
+      </button>
     </div>
 
     <!-- Filter & Controls -->
@@ -127,6 +215,7 @@ const phongThuyBanners = banners.filter((b) => b.position === 'phong-thuy').leng
         <option value="showcase">Không gian thực tế (Bài trí)</option>
         <option value="san-pham">Banner Menu Sản Phẩm</option>
         <option value="phong-thuy">Banner Menu Phong Thủy</option>
+        <option value="ve-chung-toi">Banner Về Chúng Tôi</option>
         <option value="promo">Khuyến mãi</option>
       </select>
 
@@ -207,7 +296,12 @@ const phongThuyBanners = banners.filter((b) => b.position === 'phong-thuy').leng
                   Menu Phong Thủy
                 </span>
               )}
-              {b.position !== 'hero' && b.position !== 'space' && b.position !== 'showcase' && b.position !== 'san-pham' && b.position !== 'phong-thuy' && (
+              {b.position === 've-chung-toi' && (
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#173524] text-[#D8B670] border border-[#D8B670]/40 shadow-xs">
+                  Về Chúng Tôi
+                </span>
+              )}
+              {b.position !== 'hero' && b.position !== 'space' && b.position !== 'showcase' && b.position !== 'san-pham' && b.position !== 'phong-thuy' && b.position !== 've-chung-toi' && (
                 <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-walnut-900 text-sand-50 shadow-xs">
                   {b.position === 'promo' ? 'Khuyến Mãi' : b.position}
                 </span>
@@ -387,6 +481,7 @@ const phongThuyBanners = banners.filter((b) => b.position === 'phong-thuy').leng
                 <option value="showcase">Không gian thực tế (Căn hộ, Biệt thự,...)</option>
                 <option value="san-pham">Banner Menu Sản Phẩm (/san-pham)</option>
                 <option value="phong-thuy">Banner Menu Phong Thủy (/phong-thuy)</option>
+                <option value="ve-chung-toi">Banner Về Chúng Tôi (/ve-chung-toi)</option>
                 <option value="promo">Quảng cáo / Khuyến mãi giữa trang</option>
               </select>
             </div>
@@ -573,6 +668,33 @@ const phongThuyBanners = banners.filter((b) => b.position === 'phong-thuy').leng
   btnEmptyCreate?.addEventListener('click', openCreateModal);
   btnCloseModal?.addEventListener('click', closeModal);
   btnCancelModal?.addEventListener('click', closeModal);
+
+  const btnCreateVeChungToi = document.getElementById('btn-create-ve-chung-toi');
+  btnCreateVeChungToi?.addEventListener('click', () => {
+    openCreateModal();
+    if (modalHeading) modalHeading.textContent = 'Banner Trang Về Chúng Tôi (/ve-chung-toi)';
+    if (modalEyebrow) modalEyebrow.textContent = 'Trang Hệ Thống';
+    formPosition.value = 've-chung-toi';
+    formTitle.value = 'VỀ CHÚNG TÔI — KTUFA';
+    formSubtitle.value = 'Hành Trình Kiến Tạo Không Gian Sống Đẳng Cấp';
+    formDesc.value = 'Tuyển chọn vật liệu tự nhiên thượng hạng, chế tác thủ công tinh xảo và triết lý phong thủy Á Đông kiến tạo kiệt tác không gian sống.';
+    formLink.value = '/ve-chung-toi#cau-chuyen';
+    formBtnText.value = 'Khám phá ngay';
+    formImageUrl.value = 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1920&q=80';
+    if (previewImg) previewImg.src = formImageUrl.value;
+  });
+
+  formPosition?.addEventListener('change', () => {
+    if (formPosition.value === 've-chung-toi') {
+      if (!formLink.value || formLink.value === '/san-pham') formLink.value = '/ve-chung-toi#cau-chuyen';
+      if (!formTitle.value) formTitle.value = 'VỀ CHÚNG TÔI — KTUFA';
+      if (!formSubtitle.value) formSubtitle.value = 'Hành Trình Kiến Tạo Không Gian Sống Đẳng Cấp';
+    } else if (formPosition.value === 'san-pham') {
+      if (!formLink.value || formLink.value.startsWith('/ve-chung-toi')) formLink.value = '/san-pham';
+    } else if (formPosition.value === 'phong-thuy') {
+      if (!formLink.value || formLink.value.startsWith('/ve-chung-toi')) formLink.value = '/phong-thuy';
+    }
+  });
 
   formImageUrl?.addEventListener('input', () => {
     const url = formImageUrl.value.trim();
@@ -761,13 +883,81 @@ const phongThuyBanners = banners.filter((b) => b.position === 'phong-thuy').leng
     if (countBadge) countBadge.textContent = `Hiển thị ${visibleCount} mục`;
   };
 
+  const tabPills = document.querySelectorAll<HTMLElement>('[data-position-pill]');
+  const statPills = document.querySelectorAll<HTMLElement>('[data-stat-pill]');
+
+  const activateTab = (pos: string) => {
+    tabPills.forEach((p) => {
+      const pPos = p.dataset.positionPill ?? '';
+      if (pPos === pos) {
+        p.classList.add('bg-[#173524]', 'text-[#D8B670]');
+        p.classList.remove('bg-sand-50', 'text-walnut-900', 'text-[#173524]');
+      } else {
+        p.classList.remove('bg-[#173524]', 'text-[#D8B670]');
+        p.classList.add('bg-sand-50');
+        if (pPos === 've-chung-toi') {
+          p.classList.add('text-[#173524]');
+        } else {
+          p.classList.add('text-walnut-900');
+        }
+      }
+    });
+
+    if (positionFilter) {
+      positionFilter.value = pos;
+    }
+    filterCards();
+  };
+
+  tabPills.forEach((pill) => {
+    pill.addEventListener('click', () => {
+      const pos = pill.dataset.positionPill ?? '';
+      activateTab(pos);
+    });
+  });
+
+  statPills.forEach((stat) => {
+    stat.addEventListener('click', () => {
+      const pos = stat.dataset.statPill ?? '';
+      activateTab(pos);
+    });
+  });
+
   searchInput?.addEventListener('input', filterCards);
-  positionFilter?.addEventListener('change', filterCards);
+  positionFilter?.addEventListener('change', () => {
+    const pos = positionFilter.value;
+    tabPills.forEach((p) => {
+      const pPos = p.dataset.positionPill ?? '';
+      if (pPos === pos) {
+        p.classList.add('bg-[#173524]', 'text-[#D8B670]');
+        p.classList.remove('bg-sand-50', 'text-walnut-900', 'text-[#173524]');
+      } else {
+        p.classList.remove('bg-[#173524]', 'text-[#D8B670]');
+        p.classList.add('bg-sand-50');
+        if (pPos === 've-chung-toi') {
+          p.classList.add('text-[#173524]');
+        } else {
+          p.classList.add('text-walnut-900');
+        }
+      }
+    });
+    filterCards();
+  });
   statusFilter?.addEventListener('change', filterCards);
   btnReset?.addEventListener('click', () => {
     if (searchInput) searchInput.value = '';
     if (positionFilter) positionFilter.value = '';
     if (statusFilter) statusFilter.value = '';
+    tabPills.forEach((p) => {
+      const pPos = p.dataset.positionPill ?? '';
+      if (pPos === '') {
+        p.classList.add('bg-[#173524]', 'text-[#D8B670]');
+        p.classList.remove('bg-sand-50', 'text-walnut-900');
+      } else {
+        p.classList.remove('bg-[#173524]', 'text-[#D8B670]');
+        p.classList.add('bg-sand-50');
+      }
+    });
     filterCards();
   });
 </script>

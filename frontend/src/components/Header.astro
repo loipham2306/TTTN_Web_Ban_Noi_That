@@ -48,11 +48,11 @@ const menu: MenuItem[] = [
   { label: 'Phong thủy', href: '/phong-thuy' },
   {
     label: 'Về chúng tôi',
-    href: '/#cau-chuyen',
+    href: '/ve-chung-toi',
     children: [
-      { label: 'Câu chuyện thương hiệu', href: '/ve-chung-toi' },
-      { label: 'Showroom & Liên hệ', href: '/#showroom' },
-      { label: 'Hợp tác KTS & Dự án', href: '/#doi-tac' },
+      { label: 'Câu chuyện thương hiệu', href: '/ve-chung-toi#cau-chuyen' },
+      { label: 'Showroom & Liên hệ', href: '/ve-chung-toi#showroom' },
+      { label: 'Hợp tác KTS & Dự án', href: '/ve-chung-toi#doi-tac' },
     ],
   },
 ];
@@ -68,6 +68,8 @@ const ICON = {
   star: 'M12 3l2.6 5.6 6.1.7-4.5 4.2 1.2 6.0L12 16.5 6.6 19.5l1.2-6L3.3 9.3l6.1-.7L12 3Z',
   logout: 'M10 17l-5-5 5-5M5 12h11m-3-8h5a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-5',
   shield: 'M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3Z',
+  phone: 'M3 5a2 2 0 0 1 2-2h3.28a1 1 0 0 1 .948.684l1.498 4.493a1 1 0 0 1-.502 1.21l-2.257 1.13a11.042 11.042 0 0 0 5.516 5.516l1.13-2.257a1 1 0 0 1 1.21-.502l4.493 1.498a1 1 0 0 1 .684.949V19a2 2 0 0 1-2 2h-1C9.716 21 3 14.284 3 6V5Z',
+  crown: 'M5 16L3 5l5.5 5L12 4l3.5 6L21 5l-2 11H5m14 3c0 .6-.4 1-1 1H6c-.6 0-1-.4-1-1v-1h14v1Z',
 };
 
 // Menu khi CHƯA đăng nhập
@@ -91,7 +93,7 @@ const secondary: MenuLink[] = [
 ];
 
 const isHome = Astro.url.pathname === '/';
-const isHeroPage = isHome || Astro.url.pathname === '/ve-chung-toi';
+const isHeroPage = isHome || Astro.url.pathname === '/ve-chung-toi/cau-chuyen-thuong-hieu' || Astro.url.pathname === '/ve-chung-toi/cau-chuyen';
 const currentPath = Astro.url.pathname;
 const isProductsPage = currentPath === '/san-pham' || currentPath.startsWith('/san-pham');
 
@@ -107,7 +109,8 @@ const isItemActive = (item: MenuItem): boolean => {
     return currentPath.startsWith('/san-pham') && !hasKhongGianParam;
   }
   if (item.href && item.href !== '#' && !item.href.startsWith('/#')) {
-    if (currentPath === item.href || currentPath.startsWith(item.href + '/')) {
+    const [baseItemPath] = item.href.split('#');
+    if (currentPath === baseItemPath || currentPath.startsWith(baseItemPath + '/')) {
       return true;
     }
   }
@@ -115,7 +118,8 @@ const isItemActive = (item: MenuItem): boolean => {
     return item.children.some((child) => {
       if (child.href.startsWith('/#')) return false;
       const [path] = child.href.split('?');
-      return currentPath === path || currentPath.startsWith(path + '/');
+      const [baseChildPath] = path.split('#');
+      return currentPath === baseChildPath || currentPath.startsWith(baseChildPath + '/');
     });
   }
   return false;
@@ -183,11 +187,11 @@ const isItemActive = (item: MenuItem): boolean => {
       </div>
 
       {/* KHỐI GIỮA: nằm giữa khoảng trống của logo và cụm bên phải, tự nhường chỗ khi tên người dùng dài */}
-      <nav class="hidden min-w-0 flex-1 items-center justify-center gap-3 whitespace-nowrap px-4 lg:flex xl:gap-5 2xl:gap-7" aria-label="Menu chính máy tính">
+      <nav class="hidden min-w-0 flex-1 items-center justify-center gap-3 whitespace-nowrap px-4 lg:flex xl:gap-5 2xl:gap-7 self-stretch h-full" aria-label="Menu chính máy tính">
         {menu.map((item) => {
           const active = isItemActive(item);
           return (
-            <div class:list={['nav-item group relative', active && 'is-active']}>
+            <div class:list={['nav-item group relative self-stretch h-full flex items-center', active && 'is-active']}>
               <a
                 href={item.href || '#'}
                 class:list={[
@@ -215,8 +219,8 @@ const isItemActive = (item: MenuItem): boolean => {
               </a>
 
               {item.children && (
-                <div class="dropdown-menu invisible absolute left-1/2 top-full -translate-x-1/2 pt-2 transition-all duration-200">
-                  <div class="panel-card w-max min-w-[240px] rounded-xl p-2 shadow-2xl backdrop-blur-xl">
+                <div class="dropdown-menu invisible absolute left-1/2 top-full -translate-x-1/2 pt-0 transition-all duration-200 z-50">
+                  <div class="panel-card w-max min-w-[280px] sm:min-w-[310px] rounded-none shadow-2xl border border-[#D8B670]/30 overflow-hidden text-left bg-gradient-to-b from-[#163624] via-[#122b1d] to-[#0d2015] py-2">
                     <ul>
                       {item.children.map((child) => {
                         const childActive = currentPath === child.href;
@@ -225,11 +229,16 @@ const isItemActive = (item: MenuItem): boolean => {
                             <a
                               href={child.href}
                               class:list={[
-                                'panel-link whitespace-nowrap',
-                                childActive && 'panel-link--accent font-semibold bg-white/10 text-amber-400',
+                                'group/item flex items-center justify-between px-5 py-3 sm:py-3.5 text-[13.5px] sm:text-sm text-neutral-200 transition-all rounded-none hover:bg-white/[0.08] hover:text-[#D8B670]',
+                                childActive && 'text-[#D8B670] font-semibold bg-white/[0.08] border-l-2 border-[#D8B670]',
                               ]}
                             >
-                              <span>{child.label}</span>
+                              <span class="whitespace-nowrap transition-transform duration-200 group-hover/item:translate-x-1.5 font-medium">
+                                {child.label}
+                              </span>
+                              <svg class="h-3.5 w-3.5 opacity-0 -translate-x-1.5 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 text-[#D8B670] shrink-0 ml-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                              </svg>
                             </a>
                           </li>
                         );
@@ -244,12 +253,12 @@ const isItemActive = (item: MenuItem): boolean => {
       </nav>
 
       {/* KHỐI PHẢI: TÌM KIẾM, TÀI KHOẢN, GIỎ HÀNG */}
-      <div class="flex shrink-0 items-center gap-2 sm:gap-3">
+      <div class="flex shrink-0 items-center gap-2 sm:gap-3 self-stretch h-full">
         {!isProductsPage && (
           <button
             id="search-toggle-btn"
             type="button"
-            class="icon-btn inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/10 shrink-0"
+            class="icon-btn inline-flex h-10 w-10 items-center justify-center rounded-full transition-colors hover:bg-white/10 shrink-0 self-center"
             aria-label="Tìm kiếm sản phẩm"
             aria-expanded="false"
             aria-controls="quick-search-bar"
@@ -262,7 +271,7 @@ const isItemActive = (item: MenuItem): boolean => {
         )}
 
         {/* TÀI KHOẢN (desktop): icon + tên khách + mũi tên, hover mở dropdown */}
-        <div class="nav-item group relative hidden lg:block shrink-0">
+        <div class="nav-item group relative hidden lg:flex items-center self-stretch h-full shrink-0">
           <a
             href="/dang-nhap"
             data-account-link
@@ -283,64 +292,274 @@ const isItemActive = (item: MenuItem): boolean => {
 
           <div
             id="account-menu-panel"
-            class="dropdown-menu dropdown-menu--right invisible absolute right-0 top-full pt-2 transition-all duration-200"
+            class="dropdown-menu dropdown-menu--right invisible absolute right-0 top-full pt-0 transition-all duration-200 z-50"
           >
-            <div class="panel-card w-max min-w-[260px] rounded-xl p-2 shadow-2xl backdrop-blur-xl">
-              {/* Khách */}
-              <div class="auth-guest">
-                <p class="panel-muted px-3.5 pb-2 pt-2 text-xs">Xin chào, Khách</p>
-                <ul>
-                  {guestMenu.map((item) => (
-                    <li>
-                      <a href={item.href} class="panel-link">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-4 w-4 shrink-0" aria-hidden="true">
-                          <path d={item.icon} stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        <span>{item.label}</span>
-                      </a>
-                    </li>
-                  ))}
-                </ul>
+            <div class="panel-card w-[310px] sm:w-[335px] rounded-none shadow-2xl border border-[#D8B670]/35 overflow-hidden text-left bg-gradient-to-b from-[#163624] via-[#122b1d] to-[#0d2015]">
+              {/* 1. KHÁCH CHƯA ĐĂNG NHẬP */}
+              <div class="auth-guest p-4 sm:p-5">
+                <!-- Header Chào mừng thượng lưu -->
+                <div class="flex items-center gap-3 pb-3 border-b border-[#D8B670]/20">
+                  <div class="w-10 h-10 rounded-full p-[2px] bg-gradient-to-tr from-[#D8B670] via-[#F3E5AB] to-[#997734] shadow-md shrink-0">
+                    <div class="w-full h-full rounded-full bg-[#173524] flex items-center justify-center text-[#D8B670]">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5">
+                        <path d={ICON.crown} stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </div>
+                  </div>
+                  <div class="min-w-0">
+                    <span class="text-[9.5px] font-bold uppercase tracking-[0.2em] text-[#D8B670] block">KTUFA PRIVILEGE</span>
+                    <h4 class="text-sm sm:text-[15px] font-bold text-white tracking-wide truncate">Chào mừng quý khách</h4>
+                  </div>
+                </div>
+
+                <p class="text-xs text-neutral-300/80 mt-2.5 mb-3.5 leading-relaxed">
+                  Đăng nhập để nhận đặc quyền hội viên VIP và trải nghiệm mua sắm thượng lưu.
+                </p>
+
+                <!-- Cụm nút hành động kép -->
+                <div class="space-y-2 mb-3.5">
+                  <a
+                    href="/dang-nhap"
+                    class="w-full py-2.5 px-4 bg-[#D8B670] hover:bg-[#F3E5AB] text-[#173524] text-xs font-bold uppercase tracking-[0.14em] flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.98] group"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 group-hover:translate-x-0.5 transition-transform">
+                      <path d={ICON.login} stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span>Đăng nhập</span>
+                  </a>
+                  <a
+                    href="/dang-ky"
+                    class="w-full py-2 px-4 border border-[#D8B670]/40 hover:border-[#D8B670] bg-white/[0.04] hover:bg-white/[0.08] text-white text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all active:scale-[0.98]"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-3.5 h-3.5 text-[#D8B670]">
+                      <path d={ICON.add} stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span>Đăng ký thành viên</span>
+                  </a>
+                </div>
+
+                <!-- Tiện ích Concierge dành cho Khách -->
+                <div class="pt-3 border-t border-[#D8B670]/15 space-y-1">
+                  <span class="text-[9px] uppercase tracking-[0.2em] text-[#D8B670]/80 font-bold block px-1.5 mb-1">
+                    Dịch vụ & Tiện ích
+                  </span>
+                  <a
+                    href="/phong-thuy"
+                    class="group flex items-center gap-3 p-2 rounded-none hover:bg-white/[0.08] transition-colors"
+                  >
+                    <div class="w-7 h-7 rounded-none bg-[#D8B670]/15 text-[#D8B670] flex items-center justify-center shrink-0 border border-[#D8B670]/30">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-4 h-4">
+                        <path d={ICON.star} stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </div>
+                    <div class="text-left min-w-0">
+                      <span class="text-[13px] font-medium text-white group-hover:text-[#D8B670] group-hover:translate-x-0.5 transition-all block truncate">Tư vấn Phong thủy AI</span>
+                      <span class="text-[10.5px] text-neutral-400 block truncate">Định hướng tài lộc tư gia</span>
+                    </div>
+                  </a>
+
+                  <a
+                    href="tel:1900636884"
+                    class="group flex items-center gap-3 p-2 rounded-none hover:bg-white/[0.08] transition-colors"
+                  >
+                    <div class="w-7 h-7 rounded-none bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-4 h-4">
+                        <path d={ICON.phone} stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                    </div>
+                    <div class="text-left min-w-0">
+                      <span class="text-[13px] font-medium text-white group-hover:text-[#D8B670] group-hover:translate-x-0.5 transition-all block truncate">Hotline Concierge 24/7</span>
+                      <span class="text-[10.5px] text-neutral-400 block font-mono">1900 636 884</span>
+                    </div>
+                  </a>
+                </div>
               </div>
 
-              {/* Đã đăng nhập */}
+              {/* 2. KHÁCH ĐÃ ĐĂNG NHẬP */}
               <div class="auth-user">
-                <div class="px-3.5 pb-2 pt-2">
-                  <span class="panel-muted block text-[11px]">Xin chào</span>
-                  <a href="/tai-khoan" class="panel-title block truncate text-sm font-semibold hover:text-[#D8B670] transition-colors" data-user-name>Khách</a>
-                </div>
+                <!-- Thẻ Thành viên VIP Header -->
+                <div class="p-4 bg-gradient-to-b from-[#1d432d] to-[#142e20] border-b border-[#D8B670]/25">
+                  <div class="flex items-center gap-3">
+                    <!-- Avatar Monogram Initials with Gold Ring -->
+                    <div class="relative shrink-0">
+                      <div class="w-12 h-12 rounded-full p-[2px] bg-gradient-to-tr from-[#D8B670] via-[#F3E5AB] to-[#997734] shadow-md flex items-center justify-center overflow-hidden" data-user-avatar-wrap>
+                        <div class="w-full h-full rounded-full bg-[#173524] flex items-center justify-center font-display font-bold text-sm tracking-wider text-[#D8B670]" data-user-initials>
+                          PL
+                        </div>
+                      </div>
+                      <div class="absolute -bottom-0.5 -right-0.5 w-4.5 h-4.5 rounded-full bg-[#D8B670] text-[#173524] flex items-center justify-center text-[9px] font-black shadow-xs" title="Thành viên VIP">
+                        ✓
+                      </div>
+                    </div>
 
-                <div class="admin-only">
-                  <a href="/admin" class="panel-link panel-link--accent">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-4 w-4 shrink-0" aria-hidden="true">
-                      <path d={ICON.shield} stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    <span>Trang quản trị</span>
-                  </a>
-                  <div class="panel-divider" role="separator"></div>
-                </div>
-
-                <ul>
-                  {userMenu.map((item) => (
-                    <li>
-                      <a href={`/tai-khoan?tab=${item.tab}`} data-open-profile={item.tab} class="panel-link w-full text-left cursor-pointer">
-                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-4 w-4 shrink-0" aria-hidden="true">
-                          <path d={item.icon} stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                        <span>{item.label}</span>
+                    <!-- User Info & Tier -->
+                    <div class="min-w-0 flex-1">
+                      <div class="flex items-center gap-1.5 flex-wrap">
+                        <span class="text-[8.5px] font-bold uppercase tracking-[0.16em] px-2 py-0.5 bg-[#D8B670]/20 text-[#D8B670] border border-[#D8B670]/40">
+                          HỘI VIÊN THÂN THIẾT
+                        </span>
+                      </div>
+                      <a
+                        href="/tai-khoan"
+                        class="font-display text-[15px] sm:text-base font-bold text-white hover:text-[#D8B670] transition-colors block truncate mt-0.5 tracking-wide"
+                        data-user-name
+                      >
+                        Khách hàng
                       </a>
-                    </li>
-                  ))}
-                </ul>
+                      <span class="text-xs text-neutral-300 block truncate" data-user-email>
+                        huuloi2005@gmail.com
+                      </span>
+                    </div>
+                  </div>
 
-                <div class="panel-divider" role="separator"></div>
+                  <!-- Link Không gian thành viên canh giữa có hiệu ứng hover -->
+                  <div class="mt-3 pt-2.5 border-t border-white/10">
+                    <a
+                      href="/tai-khoan"
+                      class="group flex items-center justify-center gap-2 py-2 px-3 rounded-none bg-white/[0.04] hover:bg-[#D8B670]/15 border border-white/10 hover:border-[#D8B670]/50 text-neutral-200 hover:text-[#D8B670] text-[13px] sm:text-sm font-semibold tracking-wider transition-all duration-200"
+                    >
+                      <span class="text-[9.5px] text-[#D8B670]">✦</span>
+                      <span>Không gian thành viên</span>
+                      <span class="text-xs text-[#D8B670] group-hover:translate-x-1.5 transition-transform">→</span>
+                    </a>
+                  </div>
+                </div>
 
-                <button type="button" data-logout class="panel-link panel-link--danger w-full text-left">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="h-4 w-4 shrink-0" aria-hidden="true">
-                    <path d={ICON.logout} stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                  <span>Đăng xuất</span>
-                </button>
+                <!-- Admin Link (Nếu tài khoản là Admin) -->
+                <div class="admin-only px-3.5 pt-2.5 pb-1">
+                  <a
+                    href="/admin"
+                    class="flex items-center justify-between p-2.5 rounded-none bg-gradient-to-r from-[#D8B670]/20 to-[#D8B670]/5 border border-[#D8B670]/40 hover:border-[#D8B670] transition-all group"
+                  >
+                    <div class="flex items-center gap-2.5 text-[#D8B670]">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 shrink-0">
+                        <path d={ICON.shield} stroke-linecap="round" stroke-linejoin="round" />
+                      </svg>
+                      <span class="text-xs font-bold uppercase tracking-wider">Trang quản trị (Admin)</span>
+                    </div>
+                    <span class="text-[#D8B670] text-sm group-hover:translate-x-1 transition-transform">→</span>
+                  </a>
+                </div>
+
+                <!-- Navigation Sections -->
+                <div class="p-2.5 space-y-3">
+                  <!-- Nhóm 1: Mua sắm & Đơn hàng -->
+                  <div>
+                    <span class="text-[9.5px] sm:text-[10px] uppercase tracking-[0.2em] text-[#D8B670]/80 font-bold block px-3 pb-1.5">
+                      Mua sắm & Đơn hàng
+                    </span>
+                    <ul class="space-y-1">
+                      <li>
+                        <a
+                          href="/tai-khoan?tab=orders"
+                          data-open-profile="orders"
+                          class="group/item flex items-center justify-between px-3.5 py-2.5 sm:py-3 text-[13.5px] sm:text-sm text-neutral-200 transition-all rounded-none hover:bg-white/[0.08] hover:text-[#D8B670]"
+                        >
+                          <div class="flex items-center gap-3 min-w-0 transition-transform duration-200 group-hover/item:translate-x-1.5">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="w-4.5 h-4.5 text-[#D8B670]/70 group-hover/item:text-[#D8B670] transition-colors shrink-0">
+                              <path d={ICON.box} stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span class="font-medium truncate">Đơn hàng của tôi</span>
+                          </div>
+                          <svg class="h-3.5 w-3.5 opacity-0 -translate-x-1.5 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 text-[#D8B670] shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                          </svg>
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="/tai-khoan?tab=vouchers"
+                          data-open-profile="vouchers"
+                          class="group/item flex items-center justify-between px-3.5 py-2.5 sm:py-3 text-[13.5px] sm:text-sm text-neutral-200 transition-all rounded-none hover:bg-white/[0.08] hover:text-[#D8B670]"
+                        >
+                          <div class="flex items-center gap-3 min-w-0 transition-transform duration-200 group-hover/item:translate-x-1.5">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="w-4.5 h-4.5 text-[#D8B670]/70 group-hover/item:text-[#D8B670] transition-colors shrink-0">
+                              <path d={ICON.star} stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span class="font-medium truncate">Ví Voucher & Ưu đãi</span>
+                          </div>
+                          <svg class="h-3.5 w-3.5 opacity-0 -translate-x-1.5 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 text-[#D8B670] shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                          </svg>
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="/tai-khoan?tab=wishlist"
+                          data-open-profile="wishlist"
+                          class="group/item flex items-center justify-between px-3.5 py-2.5 sm:py-3 text-[13.5px] sm:text-sm text-neutral-200 transition-all rounded-none hover:bg-white/[0.08] hover:text-[#D8B670]"
+                        >
+                          <div class="flex items-center gap-3 min-w-0 transition-transform duration-200 group-hover/item:translate-x-1.5">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="w-4.5 h-4.5 text-rose-400/80 group-hover/item:text-rose-400 transition-colors shrink-0">
+                              <path d={ICON.heart} stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span class="font-medium truncate">Bộ sưu tập Yêu thích</span>
+                          </div>
+                          <svg class="h-3.5 w-3.5 opacity-0 -translate-x-1.5 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 text-[#D8B670] shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                          </svg>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+
+                  <!-- Nhóm 2: Thông tin cá nhân -->
+                  <div class="pt-2 border-t border-white/10">
+                    <span class="text-[9.5px] sm:text-[10px] uppercase tracking-[0.2em] text-[#D8B670]/80 font-bold block px-3 pb-1.5 pt-0.5">
+                      Tài khoản & Thiết lập
+                    </span>
+                    <ul class="space-y-1">
+                      <li>
+                        <a
+                          href="/tai-khoan?tab=profile"
+                          data-open-profile="profile"
+                          class="group/item flex items-center justify-between px-3.5 py-2.5 sm:py-3 text-[13.5px] sm:text-sm text-neutral-200 transition-all rounded-none hover:bg-white/[0.08] hover:text-[#D8B670]"
+                        >
+                          <div class="flex items-center gap-3 min-w-0 transition-transform duration-200 group-hover/item:translate-x-1.5">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="w-4.5 h-4.5 text-[#D8B670]/70 group-hover/item:text-[#D8B670] transition-colors shrink-0">
+                              <path d={ICON.user} stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span class="font-medium truncate">Hồ sơ & Đổi mật khẩu</span>
+                          </div>
+                          <svg class="h-3.5 w-3.5 opacity-0 -translate-x-1.5 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 text-[#D8B670] shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                          </svg>
+                        </a>
+                      </li>
+                      <li>
+                        <a
+                          href="/tai-khoan?tab=addresses"
+                          data-open-profile="addresses"
+                          class="group/item flex items-center justify-between px-3.5 py-2.5 sm:py-3 text-[13.5px] sm:text-sm text-neutral-200 transition-all rounded-none hover:bg-white/[0.08] hover:text-[#D8B670]"
+                        >
+                          <div class="flex items-center gap-3 min-w-0 transition-transform duration-200 group-hover/item:translate-x-1.5">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="w-4.5 h-4.5 text-[#D8B670]/70 group-hover/item:text-[#D8B670] transition-colors shrink-0">
+                              <path d={ICON.pin} stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span class="font-medium truncate">Sổ địa chỉ nhận hàng</span>
+                          </div>
+                          <svg class="h-3.5 w-3.5 opacity-0 -translate-x-1.5 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 text-[#D8B670] shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                          </svg>
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <!-- Đăng xuất Footer (Nổi bật & Hiệu ứng hover ấn tượng) -->
+                <div class="p-2.5 border-t border-white/10 bg-black/25">
+                  <button
+                    type="button"
+                    data-logout
+                    class="group w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-rose-500/40 hover:border-rose-500 bg-rose-500/10 hover:bg-rose-600 text-rose-300 hover:text-white text-xs font-bold uppercase tracking-wider transition-all duration-200 shadow-sm hover:shadow-rose-900/40 active:scale-[0.98] cursor-pointer"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 text-rose-400 group-hover:text-white group-hover:-translate-x-1 transition-all">
+                      <path d={ICON.logout} stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span>Đăng xuất tài khoản</span>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
@@ -620,6 +839,21 @@ const isItemActive = (item: MenuItem): boolean => {
     color: var(--line-color, #fbbf24);
   }
 
+  /* ===== Cố định vị trí toàn bộ dropdown luôn nằm 100% bên dưới Header, không đè lên header ===== */
+  .navbar-container > div {
+    align-items: stretch !important;
+  }
+  .navbar-container > div > nav,
+  .nav-item {
+    height: 100% !important;
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+  .dropdown-menu {
+    top: 100% !important;
+  }
+
   /* ===== Dropdown: mở bằng hover (chuột) và focus-within (bàn phím) ===== */
   .nav-item .dropdown-menu > div {
     transform: translateY(6px);
@@ -643,10 +877,12 @@ const isItemActive = (item: MenuItem): boolean => {
     transform: none;
   }
 
-  /* ===== Giao diện panel (đọc màu từ biến ở trên) ===== */
+  /* ===== Giao diện panel: Khung vuông sắc sảo đồng bộ với menu tài khoản ===== */
   .panel-card {
-    background-color: var(--panel-bg);
-    border: 1px solid var(--panel-border);
+    background: linear-gradient(180deg, #163624 0%, #102419 100%);
+    border: 1px solid rgba(216, 182, 112, 0.35);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 25px rgba(216, 182, 112, 0.1);
+    border-radius: 0 !important;
   }
   .panel-title {
     color: var(--panel-text-hover);
@@ -987,6 +1223,33 @@ const isItemActive = (item: MenuItem): boolean => {
     const cleanName = sanitizeUserName(user?.name, user?.role);
     document.querySelectorAll<HTMLElement>('[data-user-name]').forEach((el) => {
       el.textContent = cleanName;
+    });
+
+    // Cập nhật thông tin email hoặc số điện thoại
+    const userContact = user?.email || user?.phone || 'Thành viên KTUFA';
+    document.querySelectorAll<HTMLElement>('[data-user-email]').forEach((el) => {
+      el.textContent = userContact;
+    });
+
+    // Cập nhật Monogram Initials (ví dụ Phạm Lợi -> PL)
+    const nameParts = cleanName.trim().split(/\s+/).filter(Boolean);
+    let initials = 'KT';
+    if (nameParts.length >= 2) {
+      initials = (nameParts[0][0] + nameParts[nameParts.length - 1][0]).toUpperCase();
+    } else if (nameParts.length === 1 && nameParts[0].length > 0) {
+      initials = nameParts[0].slice(0, 2).toUpperCase();
+    }
+
+    document.querySelectorAll<HTMLElement>('[data-user-initials]').forEach((el) => {
+      el.textContent = initials;
+    });
+
+    document.querySelectorAll<HTMLElement>('[data-user-avatar-wrap]').forEach((el) => {
+      if (user?.avatar) {
+        el.innerHTML = `<img src="${user.avatar}" alt="${cleanName}" class="w-full h-full object-cover rounded-full" />`;
+      } else {
+        el.innerHTML = `<div class="w-full h-full rounded-full bg-[#173524] flex items-center justify-center font-display font-bold text-sm tracking-wider text-[#D8B670]" data-user-initials>${initials}</div>`;
+      }
     });
 
     document.querySelectorAll<HTMLAnchorElement>('[data-account-link]').forEach((a) => {
