@@ -1,6 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
-import { requireAdminOrInternal } from '../middlewares/auth.middleware.js';
+import { verifyToken, requireAdmin, requireAdminOrInternal } from '../middlewares/auth.middleware.js';
 
 export const cashbookRouter = Router();
 
@@ -10,7 +10,7 @@ cashbookRouter.use(requireAdminOrInternal);
 // ================================================================
 // GET /api/cashbook - Sổ quỹ thu chi, số dư két tiền mặt & ngân hàng
 // ================================================================
-cashbookRouter.get('/', async (req: Request, res: Response) => {
+cashbookRouter.get('/', requireAdminOrInternal, async (req: Request, res: Response) => {
   try {
     const { type, method, category, from, to, search, page = '1', limit = '30' } = req.query;
 
@@ -187,7 +187,7 @@ function formatCategoryLabel(category: string, type: string): string {
 // ================================================================
 // GET /api/cashbook/cod-reconciliation - Danh sách đơn hàng COD chờ đối soát
 // ================================================================
-cashbookRouter.get('/cod-reconciliation', async (_req: Request, res: Response) => {
+cashbookRouter.get('/cod-reconciliation', requireAdminOrInternal, async (_req: Request, res: Response) => {
   try {
     const orders = await prisma.orders.findMany({
       where: {
@@ -234,7 +234,7 @@ cashbookRouter.get('/cod-reconciliation', async (_req: Request, res: Response) =
 // ================================================================
 // POST /api/cashbook/reconcile-cod - Thu ngân xác nhận thu tiền mặt COD từ shipper
 // ================================================================
-cashbookRouter.post('/reconcile-cod', async (req: Request, res: Response) => {
+cashbookRouter.post('/reconcile-cod', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { orderCodes, note, shipperName } = req.body;
 
@@ -286,7 +286,7 @@ cashbookRouter.post('/reconcile-cod', async (req: Request, res: Response) => {
             amount,
             payment_method: 'cash',
             reference_code: order.order_code,
-            performer_id: 1, // Thu ngân
+            performer_id: req.user?.id ? BigInt(req.user.id) : 1, // Thu ngân đang đăng nhập
             recipient_name: shipperName?.trim() || order.users?.full_name || 'Shipper thu hộ COD',
             note: note?.trim() || `Thu ngân nhận tiền mặt COD đơn hàng #${order.order_code}`,
             status: 'completed',
@@ -314,7 +314,7 @@ cashbookRouter.post('/reconcile-cod', async (req: Request, res: Response) => {
 // ================================================================
 // POST /api/cashbook/transaction - Thu ngân tạo phiếu thu / chi thủ công
 // ================================================================
-cashbookRouter.post('/transaction', async (req: Request, res: Response) => {
+cashbookRouter.post('/transaction', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { type, category, amount, payment_method = 'cash', reference_code, recipient_name, note } = req.body;
 
@@ -340,7 +340,7 @@ cashbookRouter.post('/transaction', async (req: Request, res: Response) => {
         amount: parsedAmount,
         payment_method: payment_method === 'bank' ? 'bank' : 'cash',
         reference_code: reference_code?.trim() || null,
-        performer_id: 1,
+        performer_id: req.user?.id ? BigInt(req.user.id) : 1,
         recipient_name: recipient_name?.trim() || (type === 'income' ? 'Người nộp tiền' : 'Người nhận tiền'),
         note: note?.trim() || `${type === 'income' ? 'Phiếu thu' : 'Phiếu chi'} tạo thủ công tại quầy thu ngân`,
         status: 'completed',

@@ -1138,9 +1138,13 @@ const provinces = [
       clearCouponMessage();
 
       try {
+        const token = localStorage.getItem('auth_token');
         const res = await fetch('http://localhost:4000/api/coupons/validate', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
+          },
           body: JSON.stringify({ code, subtotal }),
         });
 
@@ -1465,7 +1469,8 @@ ${value('phone')}`,
       customerName: string;
       customerPhone: string;
       customerAddress: string;
-      paymentMethod: string;
+      method?: string;
+      paymentMethod?: string;
       items: CartItem[];
       totalAmount: number;
     } | null = null;
@@ -1473,7 +1478,8 @@ ${value('phone')}`,
     let redirectTimer: any = null;
 
     const showPaymentSuccess = (orderCode: string, extra: {
-      method: string;
+      method?: string;
+      paymentMethod?: string;
       isPaid: boolean;
       totalAmount: number;
       customerName: string;
@@ -1529,8 +1535,10 @@ ${value('phone')}`,
         });
       }
 
+      const methodKey = extra.method || extra.paymentMethod || 'cod';
+
       if (successMethodEl) {
-        successMethodEl.textContent = PAYMENTS[extra.method] || extra.method;
+        successMethodEl.textContent = PAYMENTS[methodKey] || methodKey;
       }
 
       if (successStatusEl) {
@@ -1538,7 +1546,7 @@ ${value('phone')}`,
           successStatusEl.innerHTML = '✓ ĐÃ THANH TOÁN (PAID)';
           successStatusEl.className = 'inline-flex items-center gap-1 font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded text-[11px]';
         } else {
-          successStatusEl.innerHTML = extra.method === 'cod' ? '⏱ THANH TOÁN KHI NHẬN HÀNG (COD)' : '⏱ CHỜ XÁC NHẬN CHUYỂN KHOẢN';
+          successStatusEl.innerHTML = methodKey === 'cod' ? '⏱ THANH TOÁN KHI NHẬN HÀNG (COD)' : '⏱ CHỜ XÁC NHẬN CHUYỂN KHOẢN';
           successStatusEl.className = 'inline-flex items-center gap-1 font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded text-[11px]';
         }
       }
@@ -1812,6 +1820,7 @@ ${value('phone')}`,
             customerName: value('fullname'),
             customerPhone: value('phone'),
             customerAddress: [value('address'), value('district'), value('province')].filter(Boolean).join(', '),
+            method: payment,
             paymentMethod: payment,
             items: [...items],
             totalAmount,

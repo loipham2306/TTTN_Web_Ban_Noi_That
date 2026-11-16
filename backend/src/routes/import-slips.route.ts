@@ -1,12 +1,13 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
+import { verifyToken, requireAdmin, requireAdminOrInternal } from '../middlewares/auth.middleware.js';
 
 export const importSlipsRouter = Router();
 
 // ================================================================
 // GET /api/import-slips - Danh sách phiếu nhập hàng kèm KPI và bộ lọc
 // ================================================================
-importSlipsRouter.get('/', async (req: Request, res: Response) => {
+importSlipsRouter.get('/', requireAdminOrInternal, async (req: Request, res: Response) => {
   try {
     const { supplierId, paymentStatus, status, search, from, to, page = '1', limit = '20' } = req.query;
 
@@ -151,7 +152,7 @@ importSlipsRouter.get('/', async (req: Request, res: Response) => {
 // ================================================================
 // GET /api/import-slips/:idOrCode - Xem chi tiết 1 phiếu nhập hàng
 // ================================================================
-importSlipsRouter.get('/:idOrCode', async (req: Request, res: Response) => {
+importSlipsRouter.get('/:idOrCode', requireAdminOrInternal, async (req: Request, res: Response) => {
   try {
     const { idOrCode } = req.params;
     const isId = /^\d+$/.test(idOrCode);
@@ -235,7 +236,7 @@ importSlipsRouter.get('/:idOrCode', async (req: Request, res: Response) => {
 // ================================================================
 // POST /api/import-slips - Tạo phiếu nhập kho mới
 // ================================================================
-importSlipsRouter.post('/', async (req: Request, res: Response) => {
+importSlipsRouter.post('/', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const supplier_id = req.body.supplier_id || req.body.supplierId;
     const payment_method = req.body.payment_method || req.body.paymentMethod || 'bank';
@@ -452,7 +453,7 @@ importSlipsRouter.post('/', async (req: Request, res: Response) => {
 // ================================================================
 // PATCH /api/import-slips/:id/payment - Thu ngân thanh toán tiếp tiền hàng / xóa nợ
 // ================================================================
-importSlipsRouter.patch('/:id/payment', async (req: Request, res: Response) => {
+importSlipsRouter.patch('/:id/payment', verifyToken, requireAdmin, async (req: Request, res: Response) => {
   try {
     const id = BigInt(req.params.id);
     const { amount, payment_method = 'bank', note } = req.body;
