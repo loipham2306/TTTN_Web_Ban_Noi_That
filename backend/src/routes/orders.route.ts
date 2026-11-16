@@ -109,7 +109,7 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
 
       if (slug) {
         const product = await prisma.products.findFirst({
-          where: { slug },
+          where: { slug, deleted_at: null },
           include: { product_variants: true, product_images: true },
         });
 
