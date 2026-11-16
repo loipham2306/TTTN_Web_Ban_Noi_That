@@ -49,6 +49,29 @@ async function seedBanners() {
     console.log('Banner for phong-thuy already exists');
   }
 
+  const existingVechungtoi = await prisma.banners.findFirst({
+    where: { position: 've-chung-toi' }
+  });
+
+  if (!existingVechungtoi) {
+    await prisma.banners.create({
+      data: {
+        title: 'VỀ CHÚNG TÔI — KTUFA',
+        subtitle: 'Hành Trình Kiến Tạo Không Gian Sống Đẳng Cấp',
+        description: 'Tuyển chọn vật liệu tự nhiên thượng hạng, chế tác thủ công tinh xảo và triết lý phong thủy Á Đông kiến tạo kiệt tác không gian sống.',
+        image_url: 'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1920&q=80',
+        link_url: '/ve-chung-toi#cau-chuyen',
+        button_text: 'Khám phá ngay',
+        position: 've-chung-toi',
+        display_order: 1,
+        is_active: true,
+      }
+    });
+    console.log('Created banner for ve-chung-toi');
+  } else {
+    console.log('Banner for ve-chung-toi already exists');
+  }
+
   process.exit(0);
 }
 

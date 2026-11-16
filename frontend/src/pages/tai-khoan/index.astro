@@ -573,37 +573,175 @@ import { provinces } from '../../data/provinces';
         </div>
 
         <!-- =================================================
-             TAB 4: SẢN PHẨM YÊU THÍCH (WISHLIST)
+             TAB 4: SẢN PHẨM YÊU THÍCH (LUXURY WISHLIST)
              ================================================= -->
         <div id="page-pane-wishlist" class="page-tab-pane hidden space-y-4">
-          <div class="bg-white border border-walnut-900/15 p-5 shadow-sm">
-            <div class="flex items-center justify-between pb-3 border-b border-walnut-900/10 mb-4">
-              <h2 class="font-bold text-sm uppercase tracking-wide text-walnut-900 flex items-center gap-2">
-                <span>♡ Danh mục sản phẩm yêu thích</span>
-                <span id="wishlist-count-badge" class="px-2 py-0.5 text-[11px] font-bold bg-[#173524]/10 text-[#173524]">0 sản phẩm</span>
-              </h2>
-            </div>
-
-            <div id="wishlist-loading" class="py-12 text-center text-xs text-walnut-800/60">
-              Đang tải danh sách yêu thích...
-            </div>
-            
-            <div id="wishlist-content" class="hidden grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <!-- Filled by JS -->
-            </div>
-
-            <div id="wishlist-empty" class="hidden text-center py-16 text-xs text-walnut-800/70">
-              <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-sand-100 flex items-center justify-center text-3xl text-walnut-900/40">
-                ♡
+          <div class="bg-white border border-walnut-900/15 p-5 sm:p-6 shadow-sm space-y-5">
+            <!-- 1. HEADER & BULK ACTION BAR -->
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-walnut-900/10 gap-3">
+              <div>
+                <h2 class="font-display text-base sm:text-lg font-bold uppercase tracking-wide text-walnut-900 flex items-center gap-2">
+                  <span class="text-rose-600">♥</span>
+                  <span>Bộ sưu tập Yêu thích</span>
+                  <span id="wishlist-count-badge" class="px-2.5 py-0.5 text-xs font-bold bg-[#173524] text-[#D8B670] border border-[#D8B670]/40">
+                    0 sản phẩm
+                  </span>
+                </h2>
+                <p class="text-xs text-walnut-800/70 mt-1 italic">
+                  Các tác phẩm nội thất bạn đã lưu lại để cân nhắc và hoàn thiện không gian sống.
+                </p>
               </div>
-              <h3 class="font-bold text-base text-walnut-900">Danh sách yêu thích đang trống</h3>
-              <p class="mt-1 text-xs text-walnut-800/70">
-                Bấm vào biểu tượng trái tim khi xem sản phẩm để lưu lại vào đây và xem lại bất cứ lúc nào.
-              </p>
-              <a href="/san-pham" class="mt-5 inline-block bg-[#173524] text-[#E6CA85] hover:bg-[#204932] hover:text-white px-6 py-2.5 rounded-none text-xs font-bold uppercase tracking-wider transition-colors border border-[#D8B670]/40 shadow-xs">
-                Khám phá sản phẩm ngay →
-              </a>
+
+              <!-- Cụm nút Thao tác (Nút "Chọn" mặc định, căn phải) -->
+              <div id="wishlist-header-actions" class="hidden flex items-center justify-end gap-2 flex-wrap self-end sm:self-center ml-auto">
+                <!-- Nút "Chọn" ban đầu -->
+                <button
+                  type="button"
+                  id="btn-wishlist-start-select"
+                  class="inline-flex items-center justify-center gap-1.5 border border-[#173524] bg-white hover:bg-[#173524] text-[#173524] hover:text-[#D8B670] px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all shadow-xs cursor-pointer active:scale-95"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                  <span>Chọn</span>
+                </button>
+
+                <!-- Cụm nút khi ở Chế độ Chọn (Căn phải: Thêm vào giỏ -> Chọn tất cả -> Xóa -> Hủy) -->
+                <div id="wishlist-selecting-actions" class="hidden flex items-center justify-end gap-2 flex-wrap">
+                  <!-- 1. Thêm tất cả vào giỏ -->
+                  <button
+                    type="button"
+                    id="btn-wishlist-add-all"
+                    class="inline-flex items-center justify-center gap-1.5 bg-[#D8B670] text-[#173524] hover:bg-[#F3E5AB] font-bold uppercase tracking-[0.12em] text-xs px-3.5 py-2 shadow-xs transition-all active:scale-95 cursor-pointer"
+                    title="Thêm vào giỏ"
+                  >
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                      <line x1="3" y1="6" x2="21" y2="6"></line>
+                      <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                    <span id="btn-add-all-text">Thêm tất cả vào giỏ</span>
+                  </button>
+
+                  <!-- 2. Nút Chọn tất cả nằm giữa -->
+                  <button
+                    type="button"
+                    id="btn-wishlist-select-all"
+                    class="inline-flex items-center justify-center gap-1 border border-walnut-900/20 bg-white hover:bg-sand-100 text-walnut-800 px-3 py-2 text-xs font-semibold transition-colors cursor-pointer"
+                    title="Chọn tất cả"
+                  >
+                    <span id="btn-select-all-text">Chọn tất cả</span>
+                  </button>
+
+                  <!-- 3. Xóa tất cả -->
+                  <button
+                    type="button"
+                    id="btn-wishlist-clear-all"
+                    class="inline-flex items-center justify-center gap-1.5 border border-rose-300 bg-white hover:bg-rose-50 text-rose-700 px-3.5 py-2 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer active:scale-95"
+                    title="Xóa"
+                  >
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    <span id="btn-clear-all-text">Xóa tất cả</span>
+                  </button>
+
+                  <!-- 4. Hủy -->
+                  <button
+                    type="button"
+                    id="btn-wishlist-cancel-select"
+                    class="inline-flex items-center justify-center border border-walnut-900/20 bg-white hover:bg-sand-100 text-walnut-800 px-3 py-2 text-xs font-semibold transition-colors cursor-pointer"
+                    title="Hủy chọn"
+                  >
+                    <span>Hủy</span>
+                  </button>
+                </div>
+              </div>
             </div>
+
+            <!-- 2. TOOLBAR: LỌC DANH MỤC & SẮP XẾP (ĐÃ BỎ NÚT CHUYỂN DẠNG LƯỚI) -->
+            <div id="wishlist-toolbar" class="hidden flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 bg-[#FAF8F5] border border-walnut-900/10">
+              <!-- Pills Danh mục -->
+              <div id="wishlist-category-pills" class="flex items-center gap-1.5 overflow-x-auto luxury-scrollbar py-0.5 min-w-0">
+                <!-- Render động bởi JS: Tất cả, Sofa, Bàn ăn... -->
+              </div>
+
+              <!-- Sắp xếp -->
+              <div class="flex items-center gap-1.5 text-xs text-walnut-800 shrink-0 self-end sm:self-auto">
+                <span class="text-walnut-800/70 whitespace-nowrap">Sắp xếp:</span>
+                <select
+                  id="wishlist-sort-select"
+                  class="bg-white border border-walnut-900/20 text-xs font-semibold px-2.5 py-1.5 outline-none rounded-none focus:border-[#173524] cursor-pointer"
+                >
+                  <option value="newest">Mới lưu gần đây</option>
+                  <option value="price-asc">Giá: Thấp đến cao</option>
+                  <option value="price-desc">Giá: Cao đến thấp</option>
+                  <option value="name-asc">Tên: A - Z</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 3. LOADING STATE -->
+            <div id="wishlist-loading" class="py-16 text-center text-xs text-walnut-800/60">
+              <svg class="animate-spin w-7 h-7 mx-auto mb-2 text-[#173524]" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              <span>Đang tải bộ sưu tập yêu thích...</span>
+            </div>
+
+            <!-- 4. CONTENT LISTING (HÀNG NGANG) -->
+            <div id="wishlist-content" class="hidden space-y-3">
+              <!-- Rendered by JS -->
+            </div>
+
+            <!-- 5. PHÂN TRANG (TỐI ĐA 4 SẢN PHẨM / TRANG) -->
+            <div id="wishlist-pagination-container" class="hidden">
+              <!-- Rendered by JS -->
+            </div>
+
+            <!-- 5. LUXURY EMPTY STATE -->
+            <div id="wishlist-empty" class="hidden text-center py-12 sm:py-16 px-4">
+              <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-sand-100 border border-walnut-900/10 flex items-center justify-center text-4xl text-rose-500/70 shadow-xs">
+                ♥
+              </div>
+              <h3 class="font-display text-lg sm:text-xl font-bold text-walnut-900 tracking-tight">
+                Không gian yêu thích đang chờ đón những tuyệt tác
+              </h3>
+              <p class="mt-2 text-xs sm:text-sm text-walnut-800/70 max-w-md mx-auto leading-relaxed">
+                Khám phá các bộ sưu tập nội thất cao cấp của KTUFA và lưu lại những thiết kế mà bạn ưng ý nhất để sẵn sàng hoàn thiện tư gia.
+              </p>
+              <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <a
+                  href="/san-pham"
+                  class="inline-flex items-center justify-center gap-2 bg-[#173524] text-[#E6CA85] hover:bg-[#204932] hover:text-white px-7 py-3 rounded-none text-xs font-bold uppercase tracking-[0.18em] transition-all border border-[#D8B670]/40 shadow-sm active:scale-95"
+                >
+                  <span>Khám phá bộ sưu tập ngay →</span>
+                </a>
+              </div>
+
+              <!-- Gợi ý danh mục nhanh -->
+              <div class="mt-10 pt-8 border-t border-walnut-900/10">
+                <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-[#B88E28] mb-4">
+                  GỢI Ý DANH MỤC THỊNH HÀNH
+                </p>
+                <div class="flex items-center justify-center gap-2 sm:gap-3 flex-wrap text-xs">
+                  <a href="/san-pham?category=sofa" class="px-3.5 py-2 bg-[#FAF8F5] border border-walnut-900/15 hover:border-[#173524] text-walnut-900 font-semibold transition-colors">
+                    Sofa phòng khách
+                  </a>
+                  <a href="/san-pham?category=ban-an" class="px-3.5 py-2 bg-[#FAF8F5] border border-walnut-900/15 hover:border-[#173524] text-walnut-900 font-semibold transition-colors">
+                    Bàn ăn cao cấp
+                  </a>
+                  <a href="/san-pham?category=giuong-ngu" class="px-3.5 py-2 bg-[#FAF8F5] border border-walnut-900/15 hover:border-[#173524] text-walnut-900 font-semibold transition-colors">
+                    Giường ngủ Master
+                  </a>
+                  <a href="/san-pham?category=tu-ke" class="px-3.5 py-2 bg-[#FAF8F5] border border-walnut-900/15 hover:border-[#173524] text-walnut-900 font-semibold transition-colors">
+                    Tủ kệ trang trí
+                  </a>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -999,6 +1137,47 @@ import { provinces } from '../../data/provinces';
     </div>
   </div>
 
+  <!-- =====================================================
+       CLEAR WISHLIST CONFIRMATION MODAL
+       ===================================================== -->
+  <div
+    id="wishlist-clear-modal-overlay"
+    class="fixed inset-0 z-[99999] hidden bg-walnut-900/60 backdrop-blur-sm p-4 overflow-y-auto flex items-center justify-center transition-opacity duration-300 opacity-0"
+    role="dialog"
+    aria-modal="true"
+  >
+    <div
+      id="wishlist-clear-modal-panel"
+      class="relative my-auto w-full max-w-md overflow-hidden rounded-none bg-sand-50 p-6 shadow-2xl border border-walnut-900/15 transition-all duration-300 scale-95 opacity-0 text-center"
+    >
+      <div class="w-12 h-12 mx-auto mb-3 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center text-xl font-bold">
+        ♥
+      </div>
+      <h3 id="wishlist-clear-modal-title" class="font-display text-lg font-bold text-walnut-900">
+        Dọn sạch bộ sưu tập yêu thích?
+      </h3>
+      <p id="wishlist-clear-modal-desc" class="text-xs text-walnut-800/80 mt-1.5 leading-relaxed">
+        Toàn bộ tác phẩm đang được lưu trong danh sách yêu thích của bạn sẽ bị gỡ bỏ. Bạn có chắc chắn muốn tiếp tục?
+      </p>
+      <div class="mt-6 flex items-center justify-center gap-3">
+        <button
+          type="button"
+          id="btn-cancel-clear-wishlist"
+          class="px-5 py-2.5 text-xs font-semibold uppercase tracking-wider border border-walnut-900/20 bg-white hover:bg-sand-100 text-walnut-800 cursor-pointer transition-colors"
+        >
+          Hủy bỏ
+        </button>
+        <button
+          type="button"
+          id="btn-confirm-clear-wishlist"
+          class="px-5 py-2.5 text-xs font-bold uppercase tracking-wider bg-rose-700 hover:bg-rose-800 text-white shadow-sm cursor-pointer transition-colors active:scale-95"
+        >
+          <span id="wishlist-clear-modal-confirm-text">Xác nhận xóa</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
 </BaseLayout>
 
 <style>
@@ -1092,6 +1271,7 @@ import { provinces } from '../../data/provinces';
 
 <script>
   import { readUser } from '../../scripts/auth';
+  import { addToCart, showCartToast } from '../../scripts/cart';
 
   const urlParams = new URLSearchParams(window.location.search);
   const requestedTab = urlParams.get('tab');
@@ -1883,16 +2063,696 @@ import { provinces } from '../../data/provinces';
     loadVouchers();
 
     // =========================================================
-    // WISHLIST TAB
+    // WISHLIST TAB: LUXURY FURNITURE WISHLIST (HORIZONTAL LIST ONLY)
     // =========================================================
-    const loadWishlist = async () => {
-      const loadingEl = document.getElementById('wishlist-loading')!;
-      const contentEl = document.getElementById('wishlist-content')!;
-      const emptyEl = document.getElementById('wishlist-empty')!;
-      const countBadge = document.getElementById('wishlist-count-badge')!;
-      const sidebarBadge = document.getElementById('sidebar-wishlist-badge');
+    let allWishlistItems: any[] = [];
+    let selectedWishlistCategory: string = 'all';
+    let selectedWishlistSort: string = 'newest';
+    let currentWishlistPage: number = 1;
+    const WISHLIST_ITEMS_PER_PAGE = 4;
+    let isWishlistSelectMode: boolean = false;
+    const selectedWishlistSlugs = new Set<string>();
 
-      let wishItems: any[] = [];
+    const loadingEl = document.getElementById('wishlist-loading')!;
+    const contentEl = document.getElementById('wishlist-content')!;
+    const emptyEl = document.getElementById('wishlist-empty')!;
+    const countBadge = document.getElementById('wishlist-count-badge')!;
+    const sidebarBadge = document.getElementById('sidebar-wishlist-badge');
+    const headerActionsEl = document.getElementById('wishlist-header-actions');
+    const btnStartSelect = document.getElementById('btn-wishlist-start-select');
+    const selectingActionsEl = document.getElementById('wishlist-selecting-actions');
+    const btnSelectAll = document.getElementById('btn-wishlist-select-all');
+    const btnSelectAllText = document.getElementById('btn-select-all-text');
+    const btnAddAll = document.getElementById('btn-wishlist-add-all');
+    const btnAddAllText = document.getElementById('btn-add-all-text');
+    const btnClearAll = document.getElementById('btn-wishlist-clear-all');
+    const btnClearAllText = document.getElementById('btn-clear-all-text');
+    const btnCancelSelect = document.getElementById('btn-wishlist-cancel-select');
+    const paginationContainer = document.getElementById('wishlist-pagination-container');
+    const toolbarEl = document.getElementById('wishlist-toolbar');
+    const pillsContainer = document.getElementById('wishlist-category-pills');
+    const sortSelect = document.getElementById('wishlist-sort-select') as HTMLSelectElement | null;
+    const clearModalOverlay = document.getElementById('wishlist-clear-modal-overlay');
+    const clearModalPanel = document.getElementById('wishlist-clear-modal-panel');
+    const clearModalTitle = document.getElementById('wishlist-clear-modal-title');
+    const clearModalDesc = document.getElementById('wishlist-clear-modal-desc');
+    const clearModalConfirmText = document.getElementById('wishlist-clear-modal-confirm-text');
+    const btnCancelClear = document.getElementById('btn-cancel-clear-wishlist');
+    const btnConfirmClear = document.getElementById('btn-confirm-clear-wishlist') as HTMLButtonElement | null;
+
+    let itemsToDelete: string[] = []; // Empty means delete all
+
+    // Move modal to body to break stacking context
+    if (clearModalOverlay && clearModalOverlay.parentElement !== document.body) {
+      document.body.appendChild(clearModalOverlay);
+    }
+
+    const openClearWishlistModal = () => {
+      if (!clearModalOverlay || !clearModalPanel) return;
+      clearModalOverlay.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+      requestAnimationFrame(() => {
+        clearModalOverlay.classList.remove('opacity-0');
+        clearModalOverlay.classList.add('opacity-100');
+        clearModalPanel.classList.remove('scale-95', 'opacity-0');
+        clearModalPanel.classList.add('scale-100', 'opacity-100');
+      });
+    };
+
+    const closeClearWishlistModal = () => {
+      if (!clearModalOverlay || !clearModalPanel) return;
+      clearModalOverlay.classList.remove('opacity-100');
+      clearModalOverlay.classList.add('opacity-0');
+      clearModalPanel.classList.remove('scale-100', 'opacity-100');
+      clearModalPanel.classList.add('scale-95', 'opacity-0');
+      setTimeout(() => {
+        clearModalOverlay.classList.add('hidden');
+        document.body.style.overflow = '';
+      }, 250);
+    };
+
+    btnCancelClear?.addEventListener('click', closeClearWishlistModal);
+    clearModalOverlay?.addEventListener('click', (e) => {
+      if (e.target === clearModalOverlay) closeClearWishlistModal();
+    });
+
+    // Sort select listener
+    sortSelect?.addEventListener('change', () => {
+      selectedWishlistSort = sortSelect?.value || 'newest';
+      currentWishlistPage = 1;
+      renderWishlistContent();
+    });
+
+    const getProcessedWishlistItems = () => {
+      let items = [...allWishlistItems];
+      if (selectedWishlistCategory !== 'all') {
+        items = items.filter(
+          (i) => (i.category || '').trim().toLowerCase() === selectedWishlistCategory.trim().toLowerCase()
+        );
+      }
+      if (selectedWishlistSort === 'price-asc') {
+        items.sort((a, b) => (Number(a.price) || 0) - (Number(b.price) || 0));
+      } else if (selectedWishlistSort === 'price-desc') {
+        items.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
+      } else if (selectedWishlistSort === 'name-asc') {
+        items.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'vi'));
+      }
+      return items;
+    };
+
+    const updateActionButtonsText = () => {
+      const count = selectedWishlistSlugs.size;
+      if (count === 0) {
+        if (btnSelectAllText) btnSelectAllText.textContent = 'Chọn tất cả';
+        if (btnAddAllText) btnAddAllText.textContent = 'Thêm tất cả vào giỏ';
+        if (btnClearAllText) btnClearAllText.textContent = 'Xóa tất cả';
+      } else {
+        const filtered = getProcessedWishlistItems();
+        const startIndex = (currentWishlistPage - 1) * WISHLIST_ITEMS_PER_PAGE;
+        const pageItems = filtered.slice(startIndex, startIndex + WISHLIST_ITEMS_PER_PAGE);
+        const allPageSelected = pageItems.length > 0 && pageItems.every((i) => selectedWishlistSlugs.has(i.slug));
+        if (btnSelectAllText) btnSelectAllText.textContent = allPageSelected ? 'Bỏ chọn' : 'Chọn tất cả';
+        if (btnAddAllText) btnAddAllText.textContent = `Thêm vào giỏ (${count})`;
+        if (btnClearAllText) btnClearAllText.textContent = `Xóa đã chọn (${count})`;
+      }
+    };
+
+    // Mode: Bắt đầu chọn
+    btnStartSelect?.addEventListener('click', () => {
+      isWishlistSelectMode = true;
+      selectedWishlistSlugs.clear();
+      btnStartSelect.classList.add('hidden');
+      btnStartSelect.style.display = 'none';
+      if (selectingActionsEl) {
+        selectingActionsEl.classList.remove('hidden');
+        selectingActionsEl.style.display = 'flex';
+      }
+      updateActionButtonsText();
+      renderWishlistContent();
+    });
+
+    // Mode: Hủy chọn
+    btnCancelSelect?.addEventListener('click', () => {
+      isWishlistSelectMode = false;
+      selectedWishlistSlugs.clear();
+      if (selectingActionsEl) {
+        selectingActionsEl.classList.add('hidden');
+        selectingActionsEl.style.display = 'none';
+      }
+      if (btnStartSelect) {
+        btnStartSelect.classList.remove('hidden');
+        btnStartSelect.style.display = '';
+      }
+      renderWishlistContent();
+    });
+
+    // Nút Chọn tất cả / Bỏ chọn
+    btnSelectAll?.addEventListener('click', () => {
+      const filtered = getProcessedWishlistItems();
+      const totalPages = Math.ceil(filtered.length / WISHLIST_ITEMS_PER_PAGE) || 1;
+      if (currentWishlistPage > totalPages) currentWishlistPage = totalPages;
+      const startIndex = (currentWishlistPage - 1) * WISHLIST_ITEMS_PER_PAGE;
+      const pageItems = filtered.slice(startIndex, startIndex + WISHLIST_ITEMS_PER_PAGE);
+      const pageSlugs = pageItems.map((i) => i.slug);
+      const isAllPageSelected = pageSlugs.length > 0 && pageSlugs.every((s) => selectedWishlistSlugs.has(s));
+
+      if (isAllPageSelected) {
+        pageSlugs.forEach((s) => selectedWishlistSlugs.delete(s));
+      } else {
+        pageSlugs.forEach((s) => selectedWishlistSlugs.add(s));
+      }
+      updateActionButtonsText();
+      renderWishlistContent();
+    });
+
+    const renderCategoryPills = () => {
+      if (!pillsContainer) return;
+      const categoriesMap: Record<string, number> = {};
+      allWishlistItems.forEach((item) => {
+        const cat = (item.category || '').trim();
+        if (cat) {
+          categoriesMap[cat] = (categoriesMap[cat] || 0) + 1;
+        }
+      });
+      const uniqueCats = Object.keys(categoriesMap);
+
+      let pillsHtml = `
+        <button
+          type="button"
+          data-wishlist-filter-cat="all"
+          class="shrink-0 px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+            selectedWishlistCategory === 'all'
+              ? 'bg-[#173524] text-[#D8B670] border border-[#173524] shadow-xs'
+              : 'bg-white text-walnut-800 border border-walnut-900/15 hover:border-walnut-900/40'
+          }"
+        >
+          Tất cả (${allWishlistItems.length})
+        </button>
+      `;
+
+      uniqueCats.forEach((cat) => {
+        const isActive = selectedWishlistCategory.toLowerCase() === cat.toLowerCase();
+        pillsHtml += `
+          <button
+            type="button"
+            data-wishlist-filter-cat="${cat}"
+            class="shrink-0 px-3 py-1.5 text-xs font-bold uppercase tracking-wider transition-all cursor-pointer ${
+              isActive
+                ? 'bg-[#173524] text-[#D8B670] border border-[#173524] shadow-xs'
+                : 'bg-white text-walnut-800 border border-walnut-900/15 hover:border-walnut-900/40'
+            }"
+          >
+            ${cat} (${categoriesMap[cat]})
+          </button>
+        `;
+      });
+
+      pillsContainer.innerHTML = pillsHtml;
+
+      pillsContainer.querySelectorAll<HTMLButtonElement>('[data-wishlist-filter-cat]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          selectedWishlistCategory = btn.dataset.wishlistFilterCat || 'all';
+          currentWishlistPage = 1;
+          renderCategoryPills();
+          renderWishlistContent();
+        });
+      });
+    };
+
+    const renderWishlistContent = () => {
+      if (!contentEl) return;
+      const filtered = getProcessedWishlistItems();
+
+      if (filtered.length === 0) {
+        contentEl.className = 'py-12 text-center text-xs text-walnut-800/70 border border-dashed border-walnut-900/20 bg-[#FAF8F5] p-6';
+        contentEl.innerHTML = `
+          <p class="font-bold text-sm text-walnut-900">Không có sản phẩm nào thuộc danh mục này</p>
+          <button type="button" id="btn-reset-wishlist-filter" class="mt-3 text-xs text-[#173524] font-bold underline cursor-pointer">
+            Xem tất cả (${allWishlistItems.length})
+          </button>
+        `;
+        if (paginationContainer) {
+          paginationContainer.classList.add('hidden');
+          paginationContainer.innerHTML = '';
+        }
+        document.getElementById('btn-reset-wishlist-filter')?.addEventListener('click', () => {
+          selectedWishlistCategory = 'all';
+          currentWishlistPage = 1;
+          renderCategoryPills();
+          renderWishlistContent();
+        });
+        return;
+      }
+
+      // Phân trang: 4 sản phẩm / trang
+      const totalPages = Math.ceil(filtered.length / WISHLIST_ITEMS_PER_PAGE) || 1;
+      if (currentWishlistPage > totalPages) currentWishlistPage = totalPages;
+      if (currentWishlistPage < 1) currentWishlistPage = 1;
+      const startIndex = (currentWishlistPage - 1) * WISHLIST_ITEMS_PER_PAGE;
+      const pageItems = filtered.slice(startIndex, startIndex + WISHLIST_ITEMS_PER_PAGE);
+
+      contentEl.className = 'space-y-3';
+      contentEl.innerHTML = pageItems.map((item) => {
+        const isOutOfStock = typeof item.stockQuantity === 'number' && item.stockQuantity <= 0;
+        const isChecked = selectedWishlistSlugs.has(item.slug);
+
+        return `
+          <div
+            data-wishlist-card="${item.slug}"
+            class="rounded-none border ${isChecked ? 'border-[#173524] bg-[#F7F5F0]' : 'border-walnut-900/15 bg-white hover:border-[#173524]/50'} p-3.5 sm:p-4 shadow-xs transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4"
+          >
+            <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+              ${isWishlistSelectMode ? `
+                <div class="shrink-0 flex items-center pr-1">
+                  <input
+                    type="checkbox"
+                    data-wishlist-checkbox="${item.slug}"
+                    ${isChecked ? 'checked' : ''}
+                    class="w-4 h-4 text-[#173524] border-walnut-900/30 rounded-none focus:ring-0 focus:outline-none cursor-pointer accent-[#173524]"
+                  />
+                </div>
+              ` : ''}
+
+              <!-- Thumbnail -->
+              <a href="/san-pham/${item.slug}" class="relative shrink-0 w-20 h-20 sm:w-24 sm:h-24 bg-[#FAF8F5] border border-walnut-900/10 overflow-hidden group">
+                <img
+                  src="${item.thumbnail || '/images/products/placeholder.jpg'}"
+                  alt="${item.name}"
+                  class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  loading="lazy"
+                />
+              </a>
+
+              <!-- Info -->
+              <div class="min-w-0 space-y-1">
+                ${item.category ? `
+                  <span class="text-[9.5px] font-bold uppercase tracking-wider text-[#B88E28]">
+                    ${item.category}
+                  </span>
+                ` : ''}
+                <h3 class="font-bold text-xs sm:text-sm text-walnut-900 line-clamp-1 hover:text-[#173524]">
+                  <a href="/san-pham/${item.slug}">${item.name}</a>
+                </h3>
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-bold text-xs sm:text-sm text-[#B88E28]">${fmtVnd(item.price)}</span>
+                  ${item.comparePrice && item.comparePrice > item.price ? `
+                    <span class="text-[11px] text-neutral-400 line-through">${fmtVnd(item.comparePrice)}</span>
+                  ` : ''}
+                  <span class="text-[10px] font-semibold px-2 py-0.5 ${isOutOfStock ? 'bg-neutral-100 text-neutral-500' : 'bg-emerald-50 text-emerald-800 border border-emerald-200'}">
+                    ${isOutOfStock ? 'Hết hàng' : 'Còn hàng'}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="flex items-center gap-2 self-end sm:self-center shrink-0">
+              <button
+                type="button"
+                data-add-cart="${item.slug}"
+                ${isOutOfStock ? 'disabled' : ''}
+                class="inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all shadow-xs active:scale-95 cursor-pointer ${
+                  isOutOfStock
+                    ? 'bg-neutral-200 text-neutral-400 cursor-not-allowed border border-neutral-300'
+                    : 'bg-[#D8B670] text-[#173524] hover:bg-[#F3E5AB]'
+                }"
+              >
+                <span>${isOutOfStock ? 'Hết hàng' : 'Thêm giỏ'}</span>
+              </button>
+              <a
+                href="/san-pham/${item.slug}"
+                class="border border-walnut-900/15 bg-white hover:bg-sand-100 text-walnut-800 px-3 py-2 text-xs font-medium transition-colors"
+                title="Xem chi tiết"
+              >
+                Xem →
+              </a>
+              <button
+                type="button"
+                data-remove-wishlist="${item.slug}"
+                data-name="${item.name}"
+                class="h-8 w-8 flex items-center justify-center text-neutral-400 hover:text-rose-600 hover:bg-rose-50 border border-walnut-900/10 transition-colors cursor-pointer"
+                title="Xóa khỏi yêu thích"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      renderPagination(filtered.length, totalPages, startIndex);
+      attachWishlistCardEvents();
+    };
+
+    const renderPagination = (totalFiltered: number, totalPages: number, startIndex: number) => {
+      if (!paginationContainer) return;
+
+      if (totalFiltered <= WISHLIST_ITEMS_PER_PAGE || totalPages <= 1) {
+        paginationContainer.classList.add('hidden');
+        paginationContainer.innerHTML = '';
+        return;
+      }
+
+      paginationContainer.classList.remove('hidden');
+      const endIndex = Math.min(startIndex + WISHLIST_ITEMS_PER_PAGE, totalFiltered);
+
+      paginationContainer.innerHTML = `
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-4 border-t border-walnut-900/10 text-xs">
+          <div class="text-walnut-800/70">
+            Hiển thị <span class="font-bold text-walnut-900">${startIndex + 1}</span> - <span class="font-bold text-walnut-900">${endIndex}</span> trong số <span class="font-bold text-walnut-900">${totalFiltered}</span> sản phẩm
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button
+              type="button"
+              id="btn-wishlist-prev-page"
+              ${currentWishlistPage === 1 ? 'disabled' : ''}
+              class="px-3 py-1.5 border border-walnut-900/15 bg-white text-walnut-800 hover:bg-sand-100 disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed font-medium transition-colors cursor-pointer"
+            >
+              ‹ Trước
+            </button>
+
+            ${Array.from({ length: totalPages }, (_, idx) => idx + 1).map((p) => `
+              <button
+                type="button"
+                data-wishlist-page="${p}"
+                class="w-8 h-8 flex items-center justify-center font-bold text-xs border transition-colors cursor-pointer ${
+                  p === currentWishlistPage
+                    ? 'bg-[#173524] text-[#D8B670] border-[#173524] shadow-xs'
+                    : 'bg-white hover:bg-sand-100 text-walnut-800 border-walnut-900/15'
+                }"
+              >
+                ${p}
+              </button>
+            `).join('')}
+
+            <button
+              type="button"
+              id="btn-wishlist-next-page"
+              ${currentWishlistPage === totalPages ? 'disabled' : ''}
+              class="px-3 py-1.5 border border-walnut-900/15 bg-white text-walnut-800 hover:bg-sand-100 disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed font-medium transition-colors cursor-pointer"
+            >
+              Sau ›
+            </button>
+          </div>
+        </div>
+      `;
+
+      document.getElementById('btn-wishlist-prev-page')?.addEventListener('click', () => {
+        if (currentWishlistPage > 1) {
+          currentWishlistPage--;
+          renderWishlistContent();
+        }
+      });
+
+      document.getElementById('btn-wishlist-next-page')?.addEventListener('click', () => {
+        if (currentWishlistPage < totalPages) {
+          currentWishlistPage++;
+          renderWishlistContent();
+        }
+      });
+
+      paginationContainer.querySelectorAll<HTMLButtonElement>('[data-wishlist-page]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const p = Number(btn.dataset.wishlistPage);
+          if (p && p !== currentWishlistPage) {
+            currentWishlistPage = p;
+            renderWishlistContent();
+          }
+        });
+      });
+    };
+
+    const attachWishlistCardEvents = () => {
+      // 0. Checkboxes trong chế độ chọn
+      contentEl.querySelectorAll<HTMLInputElement>('[data-wishlist-checkbox]').forEach((chk) => {
+        chk.addEventListener('change', () => {
+          const slug = chk.dataset.wishlistCheckbox;
+          if (!slug) return;
+          if (chk.checked) {
+            selectedWishlistSlugs.add(slug);
+          } else {
+            selectedWishlistSlugs.delete(slug);
+          }
+          updateActionButtonsText();
+          const card = chk.closest('[data-wishlist-card]');
+          if (card) {
+            if (chk.checked) {
+              card.classList.add('border-[#173524]', 'bg-[#F7F5F0]');
+              card.classList.remove('border-walnut-900/15', 'bg-white');
+            } else {
+              card.classList.remove('border-[#173524]', 'bg-[#F7F5F0]');
+              card.classList.add('border-walnut-900/15', 'bg-white');
+            }
+          }
+        });
+      });
+
+      // Click vào card để toggle chọn (nếu đang ở Select Mode)
+      if (isWishlistSelectMode) {
+        contentEl.querySelectorAll<HTMLDivElement>('[data-wishlist-card]').forEach((card) => {
+          card.addEventListener('click', (e) => {
+            const target = e.target as HTMLElement;
+            if (target.closest('button') || target.closest('a') || target.closest('input')) return;
+            const chk = card.querySelector<HTMLInputElement>('[data-wishlist-checkbox]');
+            if (chk) {
+              chk.checked = !chk.checked;
+              chk.dispatchEvent(new Event('change'));
+            }
+          });
+        });
+      }
+
+      // 1. Thêm vào giỏ trên từng thẻ
+      contentEl.querySelectorAll<HTMLButtonElement>('[data-add-cart]').forEach((btn) => {
+        btn.onclick = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const slug = btn.dataset.addCart;
+          const found = allWishlistItems.find((i) => i.slug === slug);
+          if (!found) return;
+
+          const res = addToCart({
+            slug: found.slug,
+            name: found.name,
+            price: Number(found.price) || 0,
+            thumbnail: found.thumbnail,
+            category: found.category,
+            maxStock: found.stockQuantity || 99,
+          }, 1);
+
+          if (res.success) {
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<span>Đã thêm ✓</span>';
+            btn.classList.add('bg-emerald-700', 'text-white');
+            btn.classList.remove('bg-[#D8B670]', 'text-[#173524]');
+            setTimeout(() => {
+              btn.innerHTML = originalContent;
+              btn.classList.remove('bg-emerald-700', 'text-white');
+              btn.classList.add('bg-[#D8B670]', 'text-[#173524]');
+            }, 2000);
+            showCartToast(`Đã thêm "${found.name}" vào giỏ hàng!`, 'success');
+          } else {
+            showCartToast(res.message, 'warning');
+          }
+        };
+      });
+
+      // 2. Xóa khỏi yêu thích
+      contentEl.querySelectorAll<HTMLButtonElement>('[data-remove-wishlist]').forEach((btn) => {
+        btn.onclick = async (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const slug = btn.dataset.removeWishlist;
+          const name = btn.dataset.name || 'sản phẩm';
+          if (!slug) return;
+          btn.disabled = true;
+
+          const card = btn.closest('[data-wishlist-card]');
+          if (card) {
+            card.classList.add('opacity-0', 'scale-95', 'pointer-events-none');
+          }
+
+          const token = localStorage.getItem('auth_token');
+          if (token) {
+            try {
+              await fetch(`http://localhost:4000/api/wishlist/${slug}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` },
+              });
+            } catch (err) {}
+          } else {
+            let guestList: any[] = [];
+            try { guestList = JSON.parse(localStorage.getItem('user_wishlist_guest') || '[]'); } catch {}
+            guestList = guestList.filter((i: any) => i.slug !== slug);
+            localStorage.setItem('user_wishlist_guest', JSON.stringify(guestList));
+          }
+
+          allWishlistItems = allWishlistItems.filter((i) => i.slug !== slug);
+          selectedWishlistSlugs.delete(slug);
+          window.dispatchEvent(new Event('wishlist:changed'));
+          showCartToast(`Đã gỡ "${name}" khỏi yêu thích!`, 'success');
+
+          // Cập nhật badges & UI
+          if (sidebarBadge) sidebarBadge.textContent = String(allWishlistItems.length);
+          countBadge.textContent = `${allWishlistItems.length} sản phẩm`;
+
+          if (allWishlistItems.length === 0) {
+            contentEl.classList.add('hidden');
+            toolbarEl?.classList.add('hidden');
+            headerActionsEl?.classList.add('hidden');
+            paginationContainer?.classList.add('hidden');
+            emptyEl.classList.remove('hidden');
+          } else {
+            updateActionButtonsText();
+            renderCategoryPills();
+            renderWishlistContent();
+          }
+        };
+      });
+    };
+
+    // Bulk Action: Thêm vào giỏ hàng (Toàn bộ hoặc Các mục đã chọn)
+    btnAddAll?.addEventListener('click', () => {
+      let targetItems = allWishlistItems;
+      if (selectedWishlistSlugs.size > 0) {
+        targetItems = allWishlistItems.filter((i) => selectedWishlistSlugs.has(i.slug));
+      }
+
+      const inStockItems = targetItems.filter((i) => (Number(i.stockQuantity) || 10) > 0);
+      if (inStockItems.length === 0) {
+        showCartToast('Không có sản phẩm nào còn hàng để thêm vào giỏ.', 'warning');
+        return;
+      }
+
+      let addedCount = 0;
+      inStockItems.forEach((item) => {
+        const res = addToCart({
+          slug: item.slug,
+          name: item.name,
+          price: Number(item.price) || 0,
+          thumbnail: item.thumbnail,
+          category: item.category,
+          maxStock: item.stockQuantity || 99,
+        }, 1);
+        if (res.success) addedCount++;
+      });
+
+      if (addedCount > 0) {
+        showCartToast(`Đã thêm thành công ${addedCount} sản phẩm vào giỏ hàng!`, 'success');
+        // Thoát chế độ chọn sau khi thêm
+        if (isWishlistSelectMode) {
+          isWishlistSelectMode = false;
+          selectedWishlistSlugs.clear();
+          if (selectingActionsEl) {
+            selectingActionsEl.classList.add('hidden');
+            selectingActionsEl.style.display = 'none';
+          }
+          if (btnStartSelect) {
+            btnStartSelect.classList.remove('hidden');
+            btnStartSelect.style.display = '';
+          }
+          renderWishlistContent();
+        }
+      } else {
+        showCartToast('Tất cả sản phẩm đã đạt số lượng tối đa trong giỏ hàng.', 'warning');
+      }
+    });
+
+    // Bulk Action: Xóa (Dọn sạch toàn bộ HOẶC Xóa các mục đã chọn)
+    btnClearAll?.addEventListener('click', () => {
+      if (selectedWishlistSlugs.size > 0) {
+        itemsToDelete = Array.from(selectedWishlistSlugs);
+        if (clearModalTitle) clearModalTitle.textContent = `Xóa ${itemsToDelete.length} sản phẩm đã chọn?`;
+        if (clearModalDesc) clearModalDesc.textContent = 'Các sản phẩm đã chọn sẽ được gỡ khỏi bộ sưu tập yêu thích của bạn. Bạn có chắc chắn muốn tiếp tục?';
+        if (clearModalConfirmText) clearModalConfirmText.textContent = `Xác nhận xóa (${itemsToDelete.length})`;
+      } else {
+        itemsToDelete = [];
+        if (clearModalTitle) clearModalTitle.textContent = 'Dọn sạch bộ sưu tập yêu thích?';
+        if (clearModalDesc) clearModalDesc.textContent = 'Toàn bộ tác phẩm đang được lưu trong danh sách yêu thích của bạn sẽ bị gỡ bỏ. Bạn có chắc chắn muốn tiếp tục?';
+        if (clearModalConfirmText) clearModalConfirmText.textContent = 'Dọn sạch tất cả';
+      }
+      openClearWishlistModal();
+    });
+
+    btnConfirmClear?.addEventListener('click', async () => {
+      if (btnConfirmClear) btnConfirmClear.disabled = true;
+      const token = localStorage.getItem('auth_token');
+
+      if (itemsToDelete.length === 0) {
+        // Xóa toàn bộ
+        if (token) {
+          try {
+            await fetch('http://localhost:4000/api/wishlist', {
+              method: 'DELETE',
+              headers: { Authorization: `Bearer ${token}` },
+            });
+          } catch (err) {}
+        } else {
+          localStorage.removeItem('user_wishlist_guest');
+        }
+        allWishlistItems = [];
+        selectedWishlistSlugs.clear();
+        isWishlistSelectMode = false;
+        showCartToast('Đã dọn sạch bộ sưu tập yêu thích.', 'success');
+      } else {
+        // Xóa các mục đã chọn
+        if (token) {
+          try {
+            await Promise.all(
+              itemsToDelete.map((slug) =>
+                fetch(`http://localhost:4000/api/wishlist/${slug}`, {
+                  method: 'DELETE',
+                  headers: { Authorization: `Bearer ${token}` },
+                })
+              )
+            );
+          } catch (err) {}
+        } else {
+          let guestList: any[] = [];
+          try { guestList = JSON.parse(localStorage.getItem('user_wishlist_guest') || '[]'); } catch {}
+          guestList = guestList.filter((i: any) => !itemsToDelete.includes(i.slug));
+          localStorage.setItem('user_wishlist_guest', JSON.stringify(guestList));
+        }
+
+        allWishlistItems = allWishlistItems.filter((i) => !itemsToDelete.includes(i.slug));
+        selectedWishlistSlugs.clear();
+        showCartToast(`Đã gỡ ${itemsToDelete.length} sản phẩm khỏi yêu thích!`, 'success');
+      }
+
+      closeClearWishlistModal();
+      if (btnConfirmClear) btnConfirmClear.disabled = false;
+
+      window.dispatchEvent(new Event('wishlist:changed'));
+
+      if (sidebarBadge) sidebarBadge.textContent = String(allWishlistItems.length);
+      countBadge.textContent = `${allWishlistItems.length} sản phẩm`;
+
+      if (allWishlistItems.length === 0) {
+        isWishlistSelectMode = false;
+        selectedWishlistSlugs.clear();
+        if (btnStartSelect) {
+          btnStartSelect.classList.remove('hidden');
+          btnStartSelect.style.display = '';
+        }
+        if (selectingActionsEl) {
+          selectingActionsEl.classList.add('hidden');
+          selectingActionsEl.style.display = 'none';
+        }
+        contentEl.classList.add('hidden');
+        toolbarEl?.classList.add('hidden');
+        headerActionsEl?.classList.add('hidden');
+        paginationContainer?.classList.add('hidden');
+        emptyEl.classList.remove('hidden');
+      } else {
+        updateActionButtonsText();
+        renderCategoryPills();
+        renderWishlistContent();
+      }
+    });
+
+    const loadWishlist = async () => {
       const token = localStorage.getItem('auth_token');
 
       if (token) {
@@ -1902,68 +2762,49 @@ import { provinces } from '../../data/provinces';
           });
           const json = await res.json();
           if (json.success && Array.isArray(json.data)) {
-            wishItems = json.data;
+            allWishlistItems = json.data;
           }
-        } catch (err) {}
+        } catch (err) {
+          console.warn('Lỗi tải wishlist từ server:', err);
+        }
       } else {
         try {
-          wishItems = JSON.parse(localStorage.getItem('user_wishlist_guest') || '[]');
+          allWishlistItems = JSON.parse(localStorage.getItem('user_wishlist_guest') || '[]');
         } catch {}
       }
 
       loadingEl.classList.add('hidden');
-      if (sidebarBadge) sidebarBadge.textContent = String(wishItems.length);
-      countBadge.textContent = `${wishItems.length} sản phẩm`;
+      if (sidebarBadge) sidebarBadge.textContent = String(allWishlistItems.length);
+      countBadge.textContent = `${allWishlistItems.length} sản phẩm`;
 
-      if (wishItems.length === 0) {
+      if (allWishlistItems.length === 0) {
         contentEl.classList.add('hidden');
+        toolbarEl?.classList.add('hidden');
+        headerActionsEl?.classList.add('hidden');
+        paginationContainer?.classList.add('hidden');
         emptyEl.classList.remove('hidden');
         return;
       }
 
       emptyEl.classList.add('hidden');
+      toolbarEl?.classList.remove('hidden');
+      headerActionsEl?.classList.remove('hidden');
       contentEl.classList.remove('hidden');
 
-      contentEl.innerHTML = wishItems.map((item: any) => `
-        <div class="rounded-none border border-walnut-900/15 bg-[#FAF8F5] p-3.5 flex items-center justify-between gap-4 shadow-xs hover:border-[#173524]/40 transition-colors">
-          <div class="min-w-0">
-            <h4 class="font-bold text-xs text-walnut-900 truncate">${item.name}</h4>
-            <p class="font-bold text-clay-700 text-xs mt-0.5">${fmtVnd(item.price)}</p>
-          </div>
-          <div class="flex items-center gap-3 shrink-0">
-            <a href="/san-pham/${item.slug}" class="text-xs font-bold text-[#173524] hover:text-[#D8B670] uppercase tracking-wider underline">
-              Xem chi tiết →
-            </a>
-            <button type="button" data-remove-wishlist="${item.slug}" class="text-xs text-red-500 hover:text-red-700 p-1 cursor-pointer font-bold" title="Xóa khỏi yêu thích">
-              ✕
-            </button>
-          </div>
-        </div>`).join('');
+      // Reset selection mode on reload
+      isWishlistSelectMode = false;
+      selectedWishlistSlugs.clear();
+      if (btnStartSelect) {
+        btnStartSelect.classList.remove('hidden');
+        btnStartSelect.style.display = '';
+      }
+      if (selectingActionsEl) {
+        selectingActionsEl.classList.add('hidden');
+        selectingActionsEl.style.display = 'none';
+      }
 
-      contentEl.querySelectorAll<HTMLButtonElement>('[data-remove-wishlist]').forEach((btn) => {
-        btn.addEventListener('click', async () => {
-          const slugToRemove = btn.dataset.removeWishlist;
-          if (!slugToRemove) return;
-          btn.disabled = true;
-
-          if (token) {
-            try {
-              await fetch(`http://localhost:4000/api/wishlist/${slugToRemove}`, {
-                method: 'DELETE',
-                headers: { Authorization: `Bearer ${token}` },
-              });
-            } catch (e) {}
-          } else {
-            let guestList: any[] = [];
-            try { guestList = JSON.parse(localStorage.getItem('user_wishlist_guest') || '[]'); } catch {}
-            guestList = guestList.filter((i: any) => i.slug !== slugToRemove);
-            localStorage.setItem('user_wishlist_guest', JSON.stringify(guestList));
-          }
-
-          window.dispatchEvent(new Event('wishlist:changed'));
-          await loadWishlist();
-        });
-      });
+      renderCategoryPills();
+      renderWishlistContent();
     };
 
     loadWishlist();
@@ -2668,7 +3509,23 @@ import { provinces } from '../../data/provinces';
       }
     });
 
-    const activeTabTarget = requestedTab || (!user ? 'orders' : 'profile');
+    let activeTabTarget = requestedTab || (!user ? 'orders' : 'profile');
+    if (activeTabTarget === 'address' || activeTabTarget === 'addresses' || activeTabTarget === 'dia-chi') {
+      activeTabTarget = 'addresses';
+    }
+    if (activeTabTarget === 'voucher' || activeTabTarget === 'vouchers' || activeTabTarget === 'kho-voucher') {
+      activeTabTarget = 'vouchers';
+    }
+    if (activeTabTarget === 'order' || activeTabTarget === 'orders' || activeTabTarget === 'don-hang') {
+      activeTabTarget = 'orders';
+    }
     switchTab(activeTabTarget);
+
+    if (requestedTab) {
+      const targetPane = document.getElementById(`page-pane-${activeTabTarget}`);
+      if (targetPane && window.innerWidth < 1024) {
+        targetPane.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
   }
 </script>
