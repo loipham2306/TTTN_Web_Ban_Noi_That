@@ -912,16 +912,23 @@ export class MailerService {
     let imgCounter = 0;
 
     const processedItems: OrderMailItem[] = (orderData.items || []).map((item) => {
-      const localPath = this.resolveLocalProductImagePath(item.image);
+      let imageToResolve = item.image;
+      if (!imageToResolve && (item.name || '').toLowerCase().includes('charm')) {
+        imageToResolve = 'prod-mohinh-1792641014106-54374.jpg';
+      }
+      const localPath = this.resolveLocalProductImagePath(imageToResolve);
       if (localPath) {
         let cid = fileToCidMap.get(localPath);
         if (!cid) {
-          cid = `order-prod-img-${imgCounter++}`;
+          cid = `order-prod-${imgCounter++}@ktufa.vn`;
           fileToCidMap.set(localPath, cid);
+          const ext = path.extname(localPath).toLowerCase();
+          const contentType = ext === '.png' ? 'image/png' : ext === '.webp' ? 'image/webp' : 'image/jpeg';
           mailAttachments.push({
             filename: path.basename(localPath),
             path: localPath,
             cid: cid,
+            contentType,
             contentDisposition: 'inline',
           });
         }
@@ -1032,16 +1039,23 @@ export class MailerService {
     let imgCounter = 0;
 
     const processedItems: OrderMailItem[] = (paymentData.items || []).map((item) => {
-      const localPath = this.resolveLocalProductImagePath(item.image);
+      let imageToResolve = item.image;
+      if (!imageToResolve && (item.name || '').toLowerCase().includes('charm')) {
+        imageToResolve = 'prod-mohinh-1792641014106-54374.jpg';
+      }
+      const localPath = this.resolveLocalProductImagePath(imageToResolve);
       if (localPath) {
         let cid = fileToCidMap.get(localPath);
         if (!cid) {
-          cid = `pay-prod-img-${imgCounter++}`;
+          cid = `pay-prod-${imgCounter++}@ktufa.vn`;
           fileToCidMap.set(localPath, cid);
+          const ext = path.extname(localPath).toLowerCase();
+          const contentType = ext === '.png' ? 'image/png' : ext === '.webp' ? 'image/webp' : 'image/jpeg';
           mailAttachments.push({
             filename: path.basename(localPath),
             path: localPath,
             cid: cid,
+            contentType,
             contentDisposition: 'inline',
           });
         }
