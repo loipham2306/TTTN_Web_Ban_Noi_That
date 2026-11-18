@@ -1578,15 +1578,20 @@ import { provinces } from '../../data/provinces';
           if (itemImgSrc && typeof itemImgSrc === 'string' && itemImgSrc.includes('/uploads/')) {
             itemImgSrc = '/uploads/' + itemImgSrc.substring(itemImgSrc.indexOf('/uploads/') + '/uploads/'.length);
           }
-          if (!itemImgSrc && (it.name || '').toLowerCase().includes('charm')) {
+          const isCharm = (it.name || '').toLowerCase().includes('charm');
+          if (!itemImgSrc && isCharm) {
             itemImgSrc = '/uploads/prod-mohinh-1792641014106-54374.jpg';
           }
+          const genericFallback = isCharm
+            ? '/uploads/prod-mohinh-1792641014106-54374.jpg'
+            : 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=200&q=80';
+
           return `
           <tr class="border-b border-walnut-900/5 hover:bg-sand-50/70 transition-colors">
             <td class="px-3.5 py-3">
               <div class="flex items-center gap-3">
                 ${itemImgSrc
-                  ? `<img src="${itemImgSrc}" alt="${it.name}" class="w-12 h-12 object-cover rounded-none border border-walnut-900/10 shrink-0 shadow-xs bg-white" onerror="this.onerror=null; this.src='/uploads/prod-mohinh-1792641014106-54374.jpg';" />`
+                  ? `<img src="${itemImgSrc}" alt="${it.name}" class="w-12 h-12 object-cover rounded-none border border-walnut-900/10 shrink-0 shadow-xs bg-white" onerror="this.onerror=null; this.src='${genericFallback}';" />`
                   : `<div class="w-12 h-12 bg-sand-200/80 rounded-none shrink-0 border border-walnut-900/10 flex items-center justify-center text-xl">🛋️</div>`
                 }
                 <div class="min-w-0 pr-1">
