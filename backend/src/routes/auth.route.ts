@@ -12,28 +12,7 @@ export const authRouter = Router();
 
 const RESET_JWT_SECRET = ENV.JWT_SECRET + '_password_reset_secret_salt_2026';
 
-// Tự động kiểm tra và khởi tạo bảng password_otps nếu chưa có trong MySQL
-const initPasswordOtpsTable = async () => {
-  try {
-    await prisma.$executeRawUnsafe(`
-      CREATE TABLE IF NOT EXISTS \`password_otps\` (
-        \`id\` bigint(20) UNSIGNED NOT NULL AUTO_INCREMENT,
-        \`user_id\` bigint(20) UNSIGNED NOT NULL,
-        \`otp_hash\` varchar(255) NOT NULL,
-        \`expires_at\` datetime NOT NULL,
-        \`attempts\` int(11) NOT NULL DEFAULT 0,
-        \`used_at\` datetime DEFAULT NULL,
-        \`created_at\` datetime DEFAULT current_timestamp(),
-        PRIMARY KEY (\`id\`),
-        KEY \`user_id\` (\`user_id\`),
-        CONSTRAINT \`password_otps_ibfk_1\` FOREIGN KEY (\`user_id\`) REFERENCES \`users\` (\`id\`) ON DELETE CASCADE
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-    `);
-  } catch (err) {
-    // Không làm gián đoạn nếu CSDL chưa kết nối
-  }
-};
-initPasswordOtpsTable();
+// Bảng password_otps đã được quản lý và tự động tạo bởi Prisma schema trên Supabase.
 
 
 // Helper tạo JWT Token
@@ -744,9 +723,6 @@ authRouter.post('/forgot-password', authLimiter, async (req: Request, res: Respo
     if (!emailRegex.test(cleanEmail)) {
       return res.status(400).json({ success: false, message: 'Địa chỉ email không đúng định dạng.' });
     }
-
-    // Đảm bảo bảng đã tồn tại
-    await initPasswordOtpsTable();
 
     // Tìm kiếm tài khoản người dùng
     const user = await prisma.users.findUnique({

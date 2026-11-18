@@ -19,8 +19,8 @@ let pendingCodOrders: any[] = [];
 
 try {
   const [cashbookRes, codRes] = await Promise.all([
-    fetch('http://localhost:4000/api/cashbook', { signal: AbortSignal.timeout(3000) }),
-    fetch('http://localhost:4000/api/cashbook/pending-cod', { signal: AbortSignal.timeout(3000) }),
+    fetch('http://localhost:4000/api/cashbook', { signal: AbortSignal.timeout(8000) }),
+    fetch('http://localhost:4000/api/cashbook/pending-cod', { signal: AbortSignal.timeout(8000) }),
   ]);
 
   if (cashbookRes.ok) {

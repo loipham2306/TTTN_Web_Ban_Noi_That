@@ -498,7 +498,7 @@ export const syncCartWithServerStock = async (apiUrl?: string): Promise<{ update
     items.map(async (item) => {
       try {
         const res = await fetch(`${baseUrl}/products/${encodeURIComponent(item.slug)}`, {
-          signal: AbortSignal.timeout(3000),
+          signal: AbortSignal.timeout(8000),
         });
         if (res.ok) {
           const json = await res.json();

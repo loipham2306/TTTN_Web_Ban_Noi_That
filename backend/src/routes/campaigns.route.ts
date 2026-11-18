@@ -8,51 +8,7 @@ export const campaignsRouter = Router();
 // Bảo vệ toàn bộ route chiến dịch email
 campaignsRouter.use(requireAdminOrInternal);
 
-// Khởi tạo bảng email_campaigns trong MySQL và nạp dữ liệu mẫu ban đầu
-const initCampaignsTable = async () => {
-  try {
-    await prisma.$executeRawUnsafe(`
-      CREATE TABLE IF NOT EXISTS \`email_campaigns\` (
-        \`id\` int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
-        \`code\` varchar(50) NOT NULL,
-        \`title\` varchar(255) NOT NULL,
-        \`target_audience\` varchar(100) NOT NULL DEFAULT 'all',
-        \`recipients_count\` int(11) NOT NULL DEFAULT 0,
-        \`action_type\` varchar(50) NOT NULL DEFAULT 'send-now',
-        \`status\` varchar(50) NOT NULL DEFAULT 'Đã hoàn tất',
-        \`content\` text NOT NULL,
-        \`open_rate\` decimal(5, 2) NOT NULL DEFAULT 0.00,
-        \`click_rate\` decimal(5, 2) NOT NULL DEFAULT 0.00,
-        \`sent_count\` int(11) NOT NULL DEFAULT 0,
-        \`created_at\` datetime DEFAULT current_timestamp(),
-        \`updated_at\` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-        PRIMARY KEY (\`id\`),
-        UNIQUE KEY \`unique_campaign_code\` (\`code\`)
-      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-    `);
-
-    // Kiểm tra xem bảng đã có dữ liệu chưa
-    const existing: any[] = await prisma.$queryRawUnsafe(`
-      SELECT COUNT(*) as count FROM \`email_campaigns\`
-    `);
-    const count = Number(existing[0]?.count || 0);
-
-    if (count === 0) {
-      await prisma.$executeRawUnsafe(`
-        INSERT INTO \`email_campaigns\` (\`code\`, \`title\`, \`target_audience\`, \`recipients_count\`, \`action_type\`, \`status\`, \`content\`, \`open_rate\`, \`click_rate\`, \`sent_count\`, \`created_at\`)
-        VALUES 
-        ('CAM-001', 'Chào mừng thành viên mới - Nhận ngay Voucher 10% đơn đầu tiên', 'Tất cả khách hàng', 9, 'send-now', 'Đã hoàn tất', 'Kính gửi Quý khách hàng,\n\nCảm ơn Quý khách đã đăng ký thành viên tại Cửa hàng Nội Thất. Để bắt đầu hành trình kiến tạo không gian sống mơ ước, chúng tôi xin gửi tặng Quý khách mã giảm giá 10% cho đơn hàng đầu tiên: WELCOME2026.\n\nChúc Quý khách có trải nghiệm mua sắm tuyệt vời!', 88.50, 42.00, 9, DATE_SUB(NOW(), INTERVAL 3 DAY)),
-        ('CAM-002', 'Tri ân Hội viên VIP - Ra mắt Bộ sưu tập Gỗ Óc Chó Mùa Thu 2026', 'Hội viên VIP (Kim Cương / Vàng)', 2, 'send-now', 'Đã hoàn tất', 'Kính gửi Hội viên VIP,\n\nNhân dịp ra mắt bộ sưu tập nội thất cao cấp Mùa Thu 2026, Nội Thất trân trọng kính mời Quý khách trải nghiệm những tuyệt tác gỗ tự nhiên mới nhất với ưu đãi đặc quyền lên tới 20% cùng dịch vụ tư vấn thiết kế phong thủy miễn phí.\n\nTrân trọng cảm ơn sự đồng hành của Quý khách!', 95.00, 68.50, 2, DATE_SUB(NOW(), INTERVAL 1 DAY));
-      `);
-      console.log('✅ Đã khởi tạo bảng email_campaigns và nạp 2 chiến dịch mẫu ban đầu vào MySQL.');
-    }
-  } catch (err) {
-    console.warn('⚠️ Lỗi kiểm tra / khởi tạo bảng email_campaigns:', err);
-  }
-};
-
-// Chạy khởi tạo bảng khi module được import
-initCampaignsTable();
+// Bảng email_campaigns đã được quản lý và tạo bởi Prisma schema trên Supabase.
 
 // Helper lấy màu sắc trạng thái chiến dịch
 function getStatusColor(status: string) {
@@ -66,9 +22,9 @@ function getStatusColor(status: string) {
 // ================================================================
 campaignsRouter.get('/', async (_req: Request, res: Response) => {
   try {
-    const rows: any[] = await prisma.$queryRawUnsafe(`
-      SELECT * FROM \`email_campaigns\` ORDER BY \`id\` DESC
-    `);
+    const rows = await prisma.email_campaigns.findMany({
+      orderBy: { id: 'desc' },
+    });
 
     const formatted = rows.map((r) => {
       const sentDate = r.created_at ? new Date(r.created_at).toLocaleDateString('vi-VN') : 'Vừa xong';
@@ -216,32 +172,32 @@ campaignsRouter.post('/', async (req: Request, res: Response) => {
     const status = isDraft ? 'Bản nháp' : isSendNow ? 'Đã hoàn tất' : 'Đang gửi tự động';
 
     // Sinh mã chiến dịch tiếp theo
-    const lastRow: any[] = await prisma.$queryRawUnsafe(`
-      SELECT id FROM \`email_campaigns\` ORDER BY id DESC LIMIT 1
-    `);
-    const nextNum = (Number(lastRow[0]?.id || 0) + 1);
+    const lastRow = await prisma.email_campaigns.findFirst({
+      orderBy: { id: 'desc' },
+      select: { id: true },
+    });
+    const nextNum = (Number(lastRow?.id || 0) + 1);
     const code = `CAM-${String(nextNum).padStart(3, '0')}`;
 
     // Tỷ lệ tương tác thực tế ước lượng
     const openRate = isDraft ? 0.00 : 85.50;
     const clickRate = isDraft ? 0.00 : 38.00;
 
-    // 3. Lưu chiến dịch vào MySQL
-    await prisma.$executeRawUnsafe(
-      `INSERT INTO \`email_campaigns\` 
-      (\`code\`, \`title\`, \`target_audience\`, \`recipients_count\`, \`action_type\`, \`status\`, \`content\`, \`open_rate\`, \`click_rate\`, \`sent_count\`, \`created_at\`)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())`,
-      code,
-      title.trim(),
-      targetAudienceName,
-      recipientCount,
-      actionType || 'send-now',
-      status,
-      content.trim(),
-      openRate,
-      clickRate,
-      isDraft ? 0 : recipientCount
-    );
+    // 3. Lưu chiến dịch vào CSDL
+    await prisma.email_campaigns.create({
+      data: {
+        code,
+        title: title.trim(),
+        target_audience: targetAudienceName,
+        recipients_count: recipientCount,
+        action_type: actionType || 'send-now',
+        status,
+        content: content.trim(),
+        open_rate: openRate,
+        click_rate: clickRate,
+        sent_count: isDraft ? 0 : recipientCount,
+      },
+    });
 
     // 4. Nếu là "Gửi ngay", kích hoạt phát hành qua MailerService
     if (isSendNow) {
@@ -322,35 +278,38 @@ campaignsRouter.post('/:id/duplicate', async (req: Request, res: Response) => {
   try {
     const code = req.params.id;
 
-    const rows: any[] = await prisma.$queryRawUnsafe(
-      `SELECT * FROM \`email_campaigns\` WHERE \`code\` = ? LIMIT 1`,
-      code
-    );
+    const src = await prisma.email_campaigns.findUnique({
+      where: { code },
+    });
 
-    if (!rows || rows.length === 0) {
+    if (!src) {
       return res.status(404).json({ success: false, message: 'Không tìm thấy chiến dịch nguồn.' });
     }
 
-    const src = rows[0];
     const newTitle = `${src.title} (Bản sao)`;
 
     // Sinh mã mới
-    const lastRow: any[] = await prisma.$queryRawUnsafe(`
-      SELECT id FROM \`email_campaigns\` ORDER BY id DESC LIMIT 1
-    `);
-    const nextNum = (Number(lastRow[0]?.id || 0) + 1);
+    const lastRow = await prisma.email_campaigns.findFirst({
+      orderBy: { id: 'desc' },
+      select: { id: true },
+    });
+    const nextNum = (Number(lastRow?.id || 0) + 1);
     const newCode = `CAM-${String(nextNum).padStart(3, '0')}`;
 
-    await prisma.$executeRawUnsafe(
-      `INSERT INTO \`email_campaigns\` 
-      (\`code\`, \`title\`, \`target_audience\`, \`recipients_count\`, \`action_type\`, \`status\`, \`content\`, \`open_rate\`, \`click_rate\`, \`sent_count\`, \`created_at\`)
-      VALUES (?, ?, ?, ?, 'draft', 'Bản nháp', ?, 0.00, 0.00, 0, NOW())`,
-      newCode,
-      newTitle,
-      src.target_audience,
-      src.recipients_count,
-      src.content
-    );
+    await prisma.email_campaigns.create({
+      data: {
+        code: newCode,
+        title: newTitle,
+        target_audience: src.target_audience,
+        recipients_count: src.recipients_count,
+        action_type: 'draft',
+        status: 'Bản nháp',
+        content: src.content,
+        open_rate: 0.00,
+        click_rate: 0.00,
+        sent_count: 0,
+      },
+    });
 
     return res.json({
       success: true,
@@ -387,10 +346,9 @@ campaignsRouter.delete('/:id', async (req: Request, res: Response) => {
   try {
     const code = req.params.id;
 
-    await prisma.$executeRawUnsafe(
-      `DELETE FROM \`email_campaigns\` WHERE \`code\` = ?`,
-      code
-    );
+    await prisma.email_campaigns.delete({
+      where: { code },
+    });
 
     return res.json({
       success: true,

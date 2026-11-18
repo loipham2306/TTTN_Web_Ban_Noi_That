@@ -8,9 +8,9 @@ let chatSessionsCount = 0;
 
 try {
   const [ordersRes, analyticsRes, chatSessionsRes] = await Promise.all([
-    fetch('http://localhost:4000/api/orders', { signal: AbortSignal.timeout(2000) }),
-    fetch('http://localhost:4000/api/orders/analytics', { signal: AbortSignal.timeout(2000) }),
-    fetch('http://localhost:4000/api/phong-thuy/chat-sessions', { signal: AbortSignal.timeout(2000) }),
+    fetch('http://localhost:4000/api/orders', { signal: AbortSignal.timeout(8000) }),
+    fetch('http://localhost:4000/api/orders/analytics', { signal: AbortSignal.timeout(8000) }),
+    fetch('http://localhost:4000/api/phong-thuy/chat-sessions', { signal: AbortSignal.timeout(8000) }),
   ]);
 
   if (ordersRes.ok) {

@@ -13,7 +13,7 @@ let staffStats = {
 
 // 1. Tải danh sách nhân sự thực tế từ Backend API (kèm fallback an toàn)
 try {
-  const staffRes = await fetch('http://localhost:4000/api/staff', { signal: AbortSignal.timeout(3000) });
+  const staffRes = await fetch('http://localhost:4000/api/staff', { signal: AbortSignal.timeout(8000) });
   if (staffRes.ok) {
     const json = await staffRes.json();
     if (json.success && Array.isArray(json.data)) {
@@ -29,7 +29,7 @@ try {
 
 // 2. Tải danh mục vai trò chức vụ nhân sự từ Backend
 try {
-  const rolesRes = await fetch('http://localhost:4000/api/staff/roles', { signal: AbortSignal.timeout(3000) });
+  const rolesRes = await fetch('http://localhost:4000/api/staff/roles', { signal: AbortSignal.timeout(8000) });
   if (rolesRes.ok) {
     const json = await rolesRes.json();
     if (json.success && Array.isArray(json.data)) {
