@@ -4,6 +4,7 @@ import { verifyToken, requireAdmin, requireAdminOrInternal, optionalToken, AuthU
 import jwt from 'jsonwebtoken';
 import { ENV } from '../config/env.js';
 import { MailerService } from '../services/mailer.service.js';
+import { TIER_UPGRADE_VOUCHERS } from './coupons.route.js';
 
 export const ordersRouter = Router();
 
@@ -189,6 +190,22 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
           const meetsMin = subtotalAmount >= Number(coupon.min_order_value || 0);
 
           if (isValidDate && hasUsage && meetsMin) {
+            // Ràng buộc bảo mật thăng hạng: Khách hàng phải đạt đúng bậc hạng mới được dùng voucher thăng hạng
+            const tierRule = TIER_UPGRADE_VOUCHERS[cleanCoupon];
+            if (tierRule) {
+              const completedOrders = await tx.orders.findMany({
+                where: {
+                  user_id: user.id,
+                  order_status: 'completed',
+                },
+                select: { total_amount: true },
+              });
+              const totalSpent = completedOrders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
+              if (totalSpent < tierRule.minSpent) {
+                throw new Error(`Mã ưu đãi "${cleanCoupon}" chỉ dành cho khách hàng đã thăng ${tierRule.tierLabel} (Chi tiêu tích lũy từ ${tierRule.minSpent.toLocaleString('vi-VN')} đ).`);
+              }
+            }
+
             // Ràng buộc bảo mật: Mỗi khách hàng chỉ được dùng mã ưu đãi này 1 lần duy nhất
             const userUsedCoupon = await tx.orders.findFirst({
               where: {
@@ -199,6 +216,9 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
             });
 
             if (userUsedCoupon) {
+              if (tierRule) {
+                throw new Error(`Bạn đã sử dụng ưu đãi thăng ${tierRule.tierLabel} cho một đơn hàng trước đó rồi (Mỗi khách hàng chỉ được giảm 1 lần khi thăng cấp hạng).`);
+              }
               throw new Error(`Bạn đã sử dụng mã ưu đãi "${cleanCoupon}" cho một đơn hàng trước đó.`);
             }
 

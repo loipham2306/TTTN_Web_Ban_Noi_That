@@ -395,7 +395,7 @@ const isItemActive = (item: MenuItem): boolean => {
                     <!-- User Info & Tier -->
                     <div class="min-w-0 flex-1">
                       <div class="flex items-center gap-1.5 flex-wrap">
-                        <span class="text-[8.5px] font-bold uppercase tracking-[0.16em] px-2 py-0.5 bg-[#D8B670]/20 text-[#D8B670] border border-[#D8B670]/40">
+                        <span class="text-[8.5px] font-bold uppercase tracking-[0.16em] px-2 py-0.5 bg-[#D8B670]/20 text-[#D8B670] border border-[#D8B670]/40" data-user-tier>
                           HỘI VIÊN THÂN THIẾT
                         </span>
                       </div>
@@ -1185,7 +1185,7 @@ const isItemActive = (item: MenuItem): boolean => {
 
 <script>
   import { readCart, countItems, CART_EVENT } from '../scripts/cart';
-  import { readUser, clearUser, sanitizeUserName, AUTH_EVENT } from '../scripts/auth';
+  import { readUser, clearUser, sanitizeUserName, AUTH_EVENT, refreshUserProfile } from '../scripts/auth';
 
   // ----- Badge giỏ hàng -----
   const badge = document.querySelector<HTMLElement>('[data-cart-count]');
@@ -1231,6 +1231,12 @@ const isItemActive = (item: MenuItem): boolean => {
     const userContact = user?.email || user?.phone || 'Thành viên KTUFA';
     document.querySelectorAll<HTMLElement>('[data-user-email]').forEach((el) => {
       el.textContent = userContact;
+    });
+
+    // Cập nhật bậc hạng hội viên động (HỘI VIÊN ĐỒNG / BẠC / VÀNG / KIM CƯƠNG)
+    const userTier = user?.tierBadge || (user?.tier ? `HỘI VIÊN ${user.tier.toUpperCase()}` : 'HỘI VIÊN THÂN THIẾT');
+    document.querySelectorAll<HTMLElement>('[data-user-tier]').forEach((el) => {
+      el.textContent = userTier;
     });
 
     // Cập nhật Monogram Initials (ví dụ Phạm Lợi -> PL)
@@ -1288,6 +1294,10 @@ const isItemActive = (item: MenuItem): boolean => {
         fullUser.name = sanitizeUserName(data.user.full_name || fullUser.name, fullUser.role);
         fullUser.email = data.user.email;
         if (data.user.phone) fullUser.phone = data.user.phone;
+        fullUser.tier = data.user.tier;
+        fullUser.tierBadge = data.user.tierBadge;
+        fullUser.tierColor = data.user.tierColor;
+        fullUser.totalSpent = data.user.totalSpent;
         localStorage.setItem('current_user', JSON.stringify(fullUser));
         syncAuth();
       } else {

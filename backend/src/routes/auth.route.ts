@@ -525,6 +525,61 @@ authRouter.get('/me', verifyToken, async (req: Request, res: Response) => {
       return res.status(401).json({ success: false, message: 'Tài khoản không tồn tại hoặc đã bị khóa.' });
     }
 
+    // Tính tổng chi tiêu và thứ hạng hội viên
+    const completedOrders = await prisma.orders.findMany({
+      where: {
+        user_id: user.id,
+        order_status: 'completed',
+      },
+      select: { total_amount: true },
+    });
+    const totalSpent = completedOrders.reduce((sum, o) => sum + Number(o.total_amount || 0), 0);
+
+    let tier = 'Đồng';
+    let tierBadge = 'HỘI VIÊN ĐỒNG';
+    let tierColor = 'bg-orange-100 text-orange-800 border-orange-300';
+    let nextTier = 'Bạc';
+    let nextTierThreshold = 5_000_000;
+    let availableVoucherCode: string | null = null;
+
+    if (totalSpent >= 50_000_000) {
+      tier = 'Kim Cương';
+      tierBadge = 'HỘI VIÊN KIM CƯƠNG';
+      tierColor = 'bg-purple-100 text-purple-800 border-purple-300';
+      nextTier = 'Tối Đa';
+      nextTierThreshold = 50_000_000;
+      availableVoucherCode = 'UP-KIMCUONG';
+    } else if (totalSpent >= 20_000_000) {
+      tier = 'Vàng';
+      tierBadge = 'HỘI VIÊN VÀNG';
+      tierColor = 'bg-amber-100 text-amber-800 border-amber-300';
+      nextTier = 'Kim Cương';
+      nextTierThreshold = 50_000_000;
+      availableVoucherCode = 'UP-VANG';
+    } else if (totalSpent >= 5_000_000) {
+      tier = 'Bạc';
+      tierBadge = 'HỘI VIÊN BẠC';
+      tierColor = 'bg-slate-100 text-slate-800 border-slate-300';
+      nextTier = 'Vàng';
+      nextTierThreshold = 20_000_000;
+      availableVoucherCode = 'UP-BAC';
+    }
+
+    let voucherUsed = false;
+    if (availableVoucherCode) {
+      const vCoupon = await prisma.coupons.findUnique({ where: { code: availableVoucherCode } });
+      if (vCoupon) {
+        const orderUsed = await prisma.orders.findFirst({
+          where: {
+            user_id: user.id,
+            coupon_id: vCoupon.id,
+            order_status: { not: 'cancelled' },
+          },
+        });
+        voucherUsed = Boolean(orderUsed);
+      }
+    }
+
     return res.json({
       success: true,
       user: {
@@ -534,6 +589,17 @@ authRouter.get('/me', verifyToken, async (req: Request, res: Response) => {
         phone: user.phone,
         avatar: user.avatar_url,
         role: user.roles?.name || 'customer',
+        tier,
+        tierBadge,
+        tierColor,
+        totalSpent,
+        nextTier,
+        nextTierThreshold,
+        amountToNextTier: Math.max(0, nextTierThreshold - totalSpent),
+        tierVoucher: availableVoucherCode ? {
+          code: availableVoucherCode,
+          isUsed: voucherUsed,
+        } : null,
       },
     });
   } catch (error: any) {

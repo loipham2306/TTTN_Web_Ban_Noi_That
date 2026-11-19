@@ -469,12 +469,11 @@ const namHienTai = new Date().getFullYear();
       result.sanPhamGoiY.forEach((prod) => {
         const card = document.createElement('div');
         card.className = 'group flex flex-col justify-between rounded-xl border border-walnut-900/10 bg-white p-3 shadow-xs hover:shadow-md transition-all';
+        const imgUrl = (prod as any).image || (prod as any).thumbnail || 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80';
         card.innerHTML = `
           <div>
-            <div class="aspect-[4/3] w-full overflow-hidden rounded-lg bg-sand-200 flex items-center justify-center text-walnut-900/30">
-              <svg class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+            <div class="aspect-[4/3] w-full overflow-hidden rounded-lg bg-sand-100 flex items-center justify-center">
+              <img src="${imgUrl}" alt="${prod.name}" class="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy" />
             </div>
             <p class="mt-2 text-[10px] font-bold uppercase tracking-wider text-[#3f8a52]">${prod.material}</p>
             <h5 class="mt-0.5 text-xs font-bold text-walnut-900 line-clamp-1 group-hover:text-clay-600 transition-colors">${prod.name}</h5>

@@ -13,14 +13,22 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 
       <button 
         type="button" 
-        onclick="alert('Đã lưu mọi thay đổi cấu hình thành công!')"
-        class="inline-flex items-center gap-2 bg-walnut-900 px-5 py-2.5 text-xs uppercase tracking-[0.15em] text-sand-50 transition-colors hover:bg-clay-600 shadow-sm"
+        id="btn-save-settings"
+        class="inline-flex items-center gap-2 bg-walnut-900 px-5 py-2.5 text-xs uppercase tracking-[0.15em] text-sand-50 transition-all hover:bg-clay-600 shadow-sm cursor-pointer active:scale-95"
       >
         <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
         </svg>
         <span>Lưu Cấu Hình</span>
       </button>
+    </div>
+
+    <!-- Toast Thông Báo Góc Màn Hình -->
+    <div id="settings-toast" class="fixed bottom-6 right-6 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none">
+      <div class="flex items-center gap-3 px-4 py-3 bg-[#173524] text-sand-50 border border-[#D8B670]/40 shadow-xl rounded text-xs font-medium">
+        <span id="toast-icon" class="text-base">✓</span>
+        <span id="toast-msg">Đã lưu cài đặt thành công!</span>
+      </div>
     </div>
 
     <!-- Section 1: Thông tin Showroom & Website -->
@@ -35,19 +43,19 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
         <div>
           <label class="block font-semibold text-walnut-900 mb-1">Tên thương hiệu</label>
-          <input type="text" value="Nội Thất Sang Trọng & Phong Thủy" class="w-full rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-2 text-walnut-900 focus:outline-none focus:border-walnut-900" />
+          <input id="setting-brand-name" type="text" value="KTUFA - Luxury Furniture & Feng Shui" class="w-full rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-2 text-walnut-900 focus:outline-none focus:border-walnut-900" />
         </div>
         <div>
           <label class="block font-semibold text-walnut-900 mb-1">Hotline CSKH (24/7)</label>
-          <input type="text" value="1900 8888 / 0908 123 456" class="w-full rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-2 text-walnut-900 focus:outline-none focus:border-walnut-900" />
+          <input id="setting-hotline" type="text" value="1900 636 884 / 0908 123 456" class="w-full rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-2 text-walnut-900 focus:outline-none focus:border-walnut-900" />
         </div>
         <div>
           <label class="block font-semibold text-walnut-900 mb-1">Email liên hệ & tiếp nhận</label>
-          <input type="email" value="contact@noithat.vn" class="w-full rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-2 text-walnut-900 focus:outline-none focus:border-walnut-900" />
+          <input id="setting-email" type="email" value="contact@noithat.vn" class="w-full rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-2 text-walnut-900 focus:outline-none focus:border-walnut-900" />
         </div>
         <div>
           <label class="block font-semibold text-walnut-900 mb-1">Địa chỉ Showroom chính</label>
-          <input type="text" value="123 Đường Nam Kỳ Khởi Nghĩa, Quận 1, TP. Hồ Chí Minh" class="w-full rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-2 text-walnut-900 focus:outline-none focus:border-walnut-900" />
+          <input id="setting-address" type="text" value="615 Âu Cơ, Phường Phú Trung, Quận Tân Phú, TP. Hồ Chí Minh" class="w-full rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-2 text-walnut-900 focus:outline-none focus:border-walnut-900" />
         </div>
       </div>
     </div>
@@ -63,16 +71,16 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
         <div>
-          <label class="block font-semibold text-walnut-900 mb-1">Phí giao tiêu chuẩn</label>
-          <input type="text" value="300.000 ₫" class="w-full rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-2 text-walnut-900 focus:outline-none focus:border-walnut-900" />
+          <label class="block font-semibold text-walnut-900 mb-1">Phí giao tiêu chuẩn (Dưới 2tr)</label>
+          <input id="setting-shipping-standard" type="text" value="50.000 ₫" class="w-full rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-2 text-walnut-900 focus:outline-none focus:border-walnut-900" />
         </div>
         <div>
           <label class="block font-semibold text-walnut-900 mb-1">Phí giao hỏa tốc 2H (Nội thành)</label>
-          <input type="text" value="500.000 ₫" class="w-full rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-2 text-walnut-900 focus:outline-none focus:border-walnut-900" />
+          <input id="setting-shipping-express" type="text" value="150.000 ₫" class="w-full rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-2 text-walnut-900 focus:outline-none focus:border-walnut-900" />
         </div>
         <div>
           <label class="block font-semibold text-walnut-900 mb-1">Đơn hàng tối thiểu để Freeship</label>
-          <input type="text" value="10.000.000 ₫" class="w-full rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-2 text-walnut-900 focus:outline-none focus:border-walnut-900" />
+          <input id="setting-freeship-min" type="text" value="2.000.000 ₫" class="w-full rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-2 text-walnut-900 focus:outline-none focus:border-walnut-900" />
         </div>
       </div>
     </div>
@@ -83,21 +91,21 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
         <svg class="h-5 w-5 text-clay-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
         </svg>
-        3. Cổng Thanh Toán & Tài Khoản Ngân Hàng
+        3. Cổng Thanh Toán & Tài Khoản Ngân Hàng (SePay VietQR)
       </h2>
 
       <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
         <div>
           <label class="block font-semibold text-walnut-900 mb-1">Ngân hàng thụ hưởng</label>
-          <input type="text" value="Vietcombank - CN TP.HCM" class="w-full rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-2 text-walnut-900 focus:outline-none focus:border-walnut-900" />
+          <input id="setting-bank-name" type="text" value="MBBank - Ngân Hàng Quân Đội" class="w-full rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-2 text-walnut-900 focus:outline-none focus:border-walnut-900" />
         </div>
         <div>
           <label class="block font-semibold text-walnut-900 mb-1">Số tài khoản nhận tiền</label>
-          <input type="text" value="999888666888" class="w-full rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-2 text-walnut-900 font-mono focus:outline-none focus:border-walnut-900" />
+          <input id="setting-bank-account" type="text" value="0908123456" class="w-full rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-2 text-walnut-900 font-mono focus:outline-none focus:border-walnut-900" />
         </div>
         <div>
           <label class="block font-semibold text-walnut-900 mb-1">Chủ tài khoản thụ hưởng</label>
-          <input type="text" value="CONG TY CP NOI THAT CAO CAP" class="w-full rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-2 text-walnut-900 focus:outline-none focus:border-walnut-900" />
+          <input id="setting-bank-holder" type="text" value="KTUFA LUXURY FURNITURE" class="w-full rounded border border-walnut-900/20 bg-sand-100/50 px-3 py-2 text-walnut-900 focus:outline-none focus:border-walnut-900" />
         </div>
       </div>
     </div>
@@ -108,32 +116,32 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
         <svg class="h-5 w-5 text-emerald-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" />
         </svg>
-        4. Trạng Thái Máy Chủ Cơ Sở Dữ Liệu
+        4. Trạng Thái Máy Chủ Cơ Sở Dữ Liệu (Thời gian thực)
       </h2>
 
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded bg-emerald-50 border border-emerald-300">
         <div class="flex items-center gap-3">
-          <div class="h-9 w-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
+          <div id="db-status-icon" class="h-9 w-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm">
             ✓
           </div>
           <div>
-            <p class="font-bold text-emerald-950 text-xs">MySQL Server 3306 (XAMPP Localhost) — Đã Kết Nối</p>
-            <p class="text-[11px] text-emerald-800">Database: <code class="font-bold">web_ban_noi_that</code> &bull; ORM: <code class="font-bold">Prisma Client</code> (17 Tables)</p>
+            <p id="db-status-title" class="font-bold text-emerald-950 text-xs">MySQL Server 3306 (XAMPP Localhost) — Đang Hoạt Động</p>
+            <p id="db-status-desc" class="text-[11px] text-emerald-800">Đang đo độ trễ kết nối cơ sở dữ liệu...</p>
           </div>
         </div>
 
         <div class="flex items-center gap-2">
           <button 
             type="button" 
-            onclick="alert('Kiểm tra kết nối CSDL: Thành công! Độ trễ phản hồi: 4ms.')"
-            class="px-3 py-1.5 rounded border border-emerald-600 bg-white text-xs font-semibold text-emerald-800 hover:bg-emerald-50"
+            id="btn-test-db"
+            class="px-3.5 py-1.5 rounded border border-emerald-600 bg-white text-xs font-semibold text-emerald-800 hover:bg-emerald-50 shadow-xs active:scale-95 cursor-pointer transition-all"
           >
             Kiểm tra kết nối
           </button>
           <button 
             type="button" 
-            onclick="alert('Sao lưu CSDL thành công ra file backup_20261009.sql!')"
-            class="px-3 py-1.5 rounded bg-emerald-800 text-xs font-semibold text-white hover:bg-emerald-900"
+            id="btn-backup-db"
+            class="px-3.5 py-1.5 rounded bg-emerald-800 text-xs font-semibold text-white hover:bg-emerald-900 shadow-xs active:scale-95 cursor-pointer transition-all"
           >
             Sao lưu dữ liệu
           </button>
@@ -142,4 +150,135 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
     </div>
 
   </div>
+
+  <script>
+    // Quản lý cấu hình hệ thống & Kết nối API Backend thật
+    const STORAGE_KEY = 'ktufa_site_settings';
+
+    const showToast = (msg: string, isError = false) => {
+      const toast = document.getElementById('settings-toast');
+      const toastMsg = document.getElementById('toast-msg');
+      const toastIcon = document.getElementById('toast-icon');
+      if (!toast || !toastMsg) return;
+
+      toastMsg.textContent = msg;
+      if (toastIcon) toastIcon.textContent = isError ? '✕' : '✓';
+      toast.classList.remove('translate-y-20', 'opacity-0', 'pointer-events-none');
+      toast.classList.add('translate-y-0', 'opacity-100');
+
+      setTimeout(() => {
+        toast.classList.remove('translate-y-0', 'opacity-100');
+        toast.classList.add('translate-y-20', 'opacity-0', 'pointer-events-none');
+      }, 3500);
+    };
+
+    // 1. Phục hồi cấu hình đã lưu
+    const loadSettings = () => {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const s = JSON.parse(raw);
+        const map: Record<string, string> = {
+          'setting-brand-name': s.brandName,
+          'setting-hotline': s.hotline,
+          'setting-email': s.email,
+          'setting-address': s.address,
+          'setting-shipping-standard': s.shippingStandard,
+          'setting-shipping-express': s.shippingExpress,
+          'setting-freeship-min': s.freeshipMin,
+          'setting-bank-name': s.bankName,
+          'setting-bank-account': s.bankAccount,
+          'setting-bank-holder': s.bankHolder,
+        };
+        for (const [id, val] of Object.entries(map)) {
+          if (val) {
+            const input = document.getElementById(id) as HTMLInputElement | null;
+            if (input) input.value = val;
+          }
+        }
+      } catch {}
+    };
+
+    // 2. Lưu cấu hình
+    const saveSettings = () => {
+      const getVal = (id: string) => (document.getElementById(id) as HTMLInputElement | null)?.value || '';
+      const data = {
+        brandName: getVal('setting-brand-name'),
+        hotline: getVal('setting-hotline'),
+        email: getVal('setting-email'),
+        address: getVal('setting-address'),
+        shippingStandard: getVal('setting-shipping-standard'),
+        shippingExpress: getVal('setting-shipping-express'),
+        freeshipMin: getVal('setting-freeship-min'),
+        bankName: getVal('setting-bank-name'),
+        bankAccount: getVal('setting-bank-account'),
+        bankHolder: getVal('setting-bank-holder'),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+      showToast('Đã lưu toàn bộ cấu hình hệ thống thành công!');
+    };
+
+    // 3. Kiểm tra kết nối CSDL MySQL thật qua /api/health
+    const checkDbHealth = async (showNotification = false) => {
+      const btn = document.getElementById('btn-test-db') as HTMLButtonElement | null;
+      const title = document.getElementById('db-status-title');
+      const desc = document.getElementById('db-status-desc');
+      const icon = document.getElementById('db-status-icon');
+
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Đang kiểm tra...';
+      }
+
+      try {
+        const start = performance.now();
+        const res = await fetch('http://localhost:4000/api/health', {
+          signal: AbortSignal.timeout(4000),
+        });
+        const elapsed = Math.round(performance.now() - start);
+
+        if (res.ok) {
+          const json = await res.json();
+          const db = json.database || {};
+          const latency = db.latencyMs !== undefined ? db.latencyMs : elapsed;
+          if (title) title.textContent = 'MySQL Server 3306 (XAMPP Localhost) — Đã Kết Nối';
+          if (desc) desc.innerHTML = `Độ trễ truy vấn: <strong class="text-emerald-950 font-mono">${latency}ms</strong> &bull; Database: <code class="font-bold">web_ban_noi_that</code> &bull; ORM: <code class="font-bold">Prisma Client</code> (17 Tables)`;
+          if (icon) {
+            icon.className = 'h-9 w-9 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-sm';
+            icon.textContent = '✓';
+          }
+          if (showNotification) showToast(`Kết nối CSDL MySQL thành công! Độ trễ phản hồi: ${latency}ms.`);
+        } else {
+          throw new Error('Máy chủ phản hồi lỗi');
+        }
+      } catch (err: any) {
+        if (title) title.textContent = 'MySQL Server 3306 — Mất Kết Nối';
+        if (desc) desc.textContent = 'Không thể kết nối máy chủ MySQL hoặc Backend port 4000 chưa bật.';
+        if (icon) {
+          icon.className = 'h-9 w-9 rounded-full bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-sm';
+          icon.textContent = '✕';
+        }
+        if (showNotification) showToast('Không thể kết nối máy chủ MySQL.', true);
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = 'Kiểm tra kết nối';
+        }
+      }
+    };
+
+    // 4. Tải file sao lưu CSDL MySQL (.sql) thật
+    const backupDatabase = () => {
+      showToast('Đang tạo và tải file sao lưu CSDL MySQL...');
+      window.location.href = 'http://localhost:4000/api/health/backup-sql';
+    };
+
+    document.getElementById('btn-save-settings')?.addEventListener('click', saveSettings);
+    document.getElementById('btn-test-db')?.addEventListener('click', () => checkDbHealth(true));
+    document.getElementById('btn-backup-db')?.addEventListener('click', backupDatabase);
+
+    loadSettings();
+    checkDbHealth(false);
+  </script>
 </AdminLayout>

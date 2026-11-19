@@ -781,7 +781,7 @@ const provinces = [
   import { readCart, clearCart, totalPrice, formatVnd } from '../../scripts/cart';
   import type { CartItem } from '../../scripts/cart';
   import { initAuthForm, required, email, phone, minLength } from '../../scripts/validate';
-  import { readUser } from '../../scripts/auth';
+  import { readUser, getToken } from '../../scripts/auth';
 
   const initCheckout = () => {
     const root = document.querySelector<HTMLElement>('[data-checkout-root]');
@@ -1965,23 +1965,124 @@ ${value('phone')}`,
         return;
       }
 
-      // Phân loại: Đủ điều kiện & Chưa đủ điều kiện
+      // Tách nhóm: Đặc quyền thăng hạng hội viên & Mã ưu đãi thông thường
+      const tierVouchers = allAvailableCoupons.filter((cp) => cp.isTierVoucher);
+      const normalCoupons = allAvailableCoupons.filter((cp) => !cp.isTierVoucher);
+
       const eligible: any[] = [];
       const ineligible: any[] = [];
 
-      allAvailableCoupons.forEach((cp) => {
+      normalCoupons.forEach((cp) => {
         const minReq = Number(cp.minOrderValue) || 0;
-        if (subtotal >= minReq) eligible.push(cp);
+        if (subtotal >= minReq && !cp.isUsed) eligible.push(cp);
         else ineligible.push(cp);
       });
 
-      // Cập nhật số lượng khả dụng ở nút mở ngoài form
-      if (couponAvailableCount) couponAvailableCount.textContent = String(eligible.length);
+      // Đếm số lượng mã khả dụng thực tế
+      const activeTierCouponsCount = tierVouchers.filter((cp) => cp.isEligible && !cp.isUsed && subtotal >= (Number(cp.minOrderValue) || 0)).length;
+      const totalEligibleCount = eligible.length + activeTierCouponsCount;
+      if (couponAvailableCount) couponAvailableCount.textContent = String(totalEligibleCount);
 
       let html = '';
 
+      // 1. KHỐI VOUCHER ĐẶC QUYỀN THĂNG HẠNG (Chỉ giảm 1 lần duy nhất)
+      if (tierVouchers.length > 0) {
+        html += `
+          <div class="mb-5 p-3.5 bg-gradient-to-r from-[#173524]/10 via-[#D8B670]/15 to-[#173524]/10 border border-[#D8B670]/50 rounded-none shadow-xs">
+            <div class="flex items-center justify-between gap-2 mb-3">
+              <div class="flex items-center gap-2">
+                <span class="text-base">👑</span>
+                <h4 class="text-xs font-bold uppercase tracking-wider text-[#173524]">Đặc Quyền Thăng Hạng Hội Viên</h4>
+              </div>
+              <span class="text-[10px] font-bold text-amber-900 bg-amber-100 border border-amber-300 px-2 py-0.5">Giảm 1 lần duy nhất</span>
+            </div>
+            <div class="space-y-2.5">
+        `;
+
+        tierVouchers.forEach((cp) => {
+          const minReq = Number(cp.minOrderValue) || 0;
+          const meetsSubtotal = subtotal >= minReq;
+          const isCurrent = currentCoupon && currentCoupon.code === cp.code;
+          const isUsed = Boolean(cp.isUsed);
+          const isEligible = Boolean(cp.isEligible);
+          const canApply = isEligible && !isUsed && meetsSubtotal;
+
+          let badgeHtml = '';
+          let actionBtnHtml = '';
+
+          if (isCurrent) {
+            badgeHtml = '<span class="text-[9.5px] font-bold text-[#173524] bg-sand-200 px-2 py-0.5 uppercase tracking-wider">Đang áp dụng</span>';
+            actionBtnHtml = `
+              <button type="button" data-apply-code="${cp.code}" class="shrink-0 px-4 py-2 font-bold uppercase tracking-[0.12em] text-xs bg-[#173524] text-[#D8B670] border border-[#D8B670]/40 shadow-xs cursor-pointer">
+                Đang dùng ✓
+              </button>
+            `;
+          } else if (isUsed) {
+            badgeHtml = '<span class="text-[9.5px] font-bold text-rose-700 bg-rose-50 border border-rose-200 px-2 py-0.5 uppercase tracking-wider">Đã sử dụng</span>';
+            actionBtnHtml = `
+              <button type="button" disabled class="shrink-0 px-3 py-2 text-[11px] font-bold uppercase tracking-wider bg-sand-200 text-walnut-400 border border-walnut-900/10 cursor-not-allowed">
+                Đã dùng
+              </button>
+            `;
+          } else if (!isEligible) {
+            badgeHtml = `<span class="text-[9.5px] font-bold text-walnut-700 bg-sand-200 border border-walnut-900/20 px-2 py-0.5 uppercase tracking-wider">Khóa</span>`;
+            actionBtnHtml = `
+              <button type="button" disabled class="shrink-0 px-3 py-2 text-[11px] font-bold uppercase tracking-wider bg-sand-200 text-walnut-400 border border-walnut-900/10 cursor-not-allowed">
+                Chưa đạt
+              </button>
+            `;
+          } else if (!meetsSubtotal) {
+            const needed = minReq - subtotal;
+            badgeHtml = `<span class="text-[9.5px] font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 uppercase tracking-wider">Đơn từ ${formatVnd(minReq)}</span>`;
+            actionBtnHtml = `
+              <button type="button" disabled class="shrink-0 px-3 py-2 text-[11px] font-bold uppercase tracking-wider bg-sand-200 text-walnut-400 border border-walnut-900/10 cursor-not-allowed">
+                Thiếu ${formatVnd(needed)}
+              </button>
+            `;
+          } else {
+            badgeHtml = '<span class="text-[9.5px] font-bold text-emerald-800 bg-emerald-100 border border-emerald-300 px-2 py-0.5 uppercase tracking-wider">Khả dụng (1 lần)</span>';
+            actionBtnHtml = `
+              <button type="button" data-apply-code="${cp.code}" class="shrink-0 px-4 py-2 font-bold uppercase tracking-[0.12em] text-xs bg-[#D8B670] text-[#173524] hover:bg-[#F3E5AB] shadow-xs active:scale-95 cursor-pointer">
+                Áp dụng
+              </button>
+            `;
+          }
+
+          html += `
+            <div class="p-3.5 rounded-none border transition-all duration-200 ${
+              isCurrent
+                ? 'border-2 border-[#173524] bg-white shadow-md ring-2 ring-[#D8B670]/40'
+                : (canApply ? 'border-[#D8B670]/70 bg-white hover:border-[#173524] hover:shadow-xs' : 'border-walnut-900/15 bg-white/70 opacity-75')
+            } flex items-center justify-between gap-3">
+              <div class="flex items-center gap-3 min-w-0">
+                <img 
+                  src="/images/icons/discount-voucher.png" 
+                  alt="Voucher Thăng Hạng" 
+                  class="w-10 h-10 object-contain shrink-0 ${!canApply && !isCurrent ? 'grayscale opacity-60' : ''}" 
+                  loading="lazy"
+                />
+                <div class="min-w-0 space-y-0.5">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="font-bold text-xs font-mono uppercase px-2 py-0.5 bg-[#173524] text-[#D8B670] border border-[#D8B670]/40 tracking-wider">${cp.code}</span>
+                    <span class="text-xs font-bold text-walnut-900 truncate">Giảm ${cp.discountValue}% (${cp.tierLabel || 'Hội viên'})</span>
+                    ${badgeHtml}
+                  </div>
+                  <p class="text-[11px] ${canApply ? 'text-[#173524] font-medium' : 'text-walnut-800/80'}">
+                    ${cp.requirementNote || `Đơn tối thiểu ${formatVnd(cp.minOrderValue || 0)}`}
+                  </p>
+                </div>
+              </div>
+              ${actionBtnHtml}
+            </div>
+          `;
+        });
+
+        html += '</div></div>';
+      }
+
+      // 2. CÁC MÃ GIẢM GIÁ THÔNG THƯỜNG KHẢ DỤNG
       if (eligible.length > 0) {
-        html += '<p class="text-[11px] font-bold uppercase tracking-wider text-[#173524] mb-2.5">Mã có thể sử dụng (' + eligible.length + ')</p>';
+        html += '<p class="text-[11px] font-bold uppercase tracking-wider text-[#173524] mb-2.5">Mã ưu đãi có thể sử dụng (' + eligible.length + ')</p>';
         html += '<div class="space-y-2.5">';
         eligible.forEach((cp) => {
           const isFreeShip = cp.discountType === 'free_shipping';
@@ -2034,8 +2135,9 @@ ${value('phone')}`,
         html += '</div>';
       }
 
+      // 3. CÁC MÃ CHƯA ĐỦ ĐIỀU KIỆN
       if (ineligible.length > 0) {
-        html += '<p class="text-[11px] font-bold uppercase tracking-wider text-walnut-800/60 mt-5 mb-2.5">Chưa đủ điều kiện (' + ineligible.length + ')</p>';
+        html += '<p class="text-[11px] font-bold uppercase tracking-wider text-walnut-800/60 mt-5 mb-2.5">Chưa đủ điều kiện đơn hàng (' + ineligible.length + ')</p>';
         html += '<div class="space-y-2.5 opacity-65">';
         ineligible.forEach((cp) => {
           const isFreeShip = cp.discountType === 'free_shipping';
@@ -2062,8 +2164,11 @@ ${value('phone')}`,
                   <div class="flex items-center gap-2 flex-wrap">
                     <span class="font-bold text-xs font-mono uppercase px-2 py-0.5 bg-sand-200 text-walnut-700 tracking-wider">${cp.code}</span>
                     <span class="text-xs font-semibold text-walnut-700 truncate">${valText}</span>
+                    ${cp.isUsed ? '<span class="text-[9.5px] font-bold text-rose-700 bg-rose-50 px-2 py-0.5 uppercase tracking-wider">Đã dùng</span>' : ''}
                   </div>
-                  <p class="text-[11px] text-amber-800/90 font-medium">Đơn tối thiểu ${formatVnd(cp.minOrderValue || 0)} (Mua thêm ${formatVnd(needed)} để dùng)</p>
+                  <p class="text-[11px] text-amber-800/90 font-medium">
+                    ${cp.isUsed ? 'Mỗi tài khoản chỉ được dùng mã này 1 lần duy nhất' : `Đơn tối thiểu ${formatVnd(cp.minOrderValue || 0)} (Mua thêm ${formatVnd(needed)} để dùng)`}
+                  </p>
                 </div>
               </div>
               <button
@@ -2071,7 +2176,7 @@ ${value('phone')}`,
                 disabled
                 class="shrink-0 px-3.5 py-1.5 rounded-none text-[11px] font-bold uppercase tracking-wider bg-sand-200/80 text-walnut-400 border border-walnut-900/10 cursor-not-allowed"
               >
-                Chưa đủ
+                ${cp.isUsed ? 'Đã dùng' : 'Chưa đủ'}
               </button>
             </div>
           `;
@@ -2094,8 +2199,13 @@ ${value('phone')}`,
       });
     };
 
-    // Tải danh sách tất cả voucher từ máy chủ
-    fetch('http://localhost:4000/api/coupons')
+    // Tải danh sách tất cả voucher từ máy chủ (kèm token nếu có để cá nhân hóa)
+    const userAuthToken = getToken();
+    fetch('http://localhost:4000/api/coupons', {
+      headers: {
+        ...(userAuthToken ? { Authorization: `Bearer ${userAuthToken}` } : {}),
+      },
+    })
       .then((r) => r.json())
       .then((json) => {
         if (json.success && Array.isArray(json.data)) {
@@ -2112,7 +2222,11 @@ ${value('phone')}`,
             quickCouponsContainer.classList.remove('hidden');
             const items = readCart();
             const subtotal = totalPrice(items);
-            const eligibleCount = allAvailableCoupons.filter((c) => subtotal >= (Number(c.minOrderValue) || 0)).length;
+            const eligibleCount = allAvailableCoupons.filter((c) => {
+              if (c.isUsed) return false;
+              if (c.isTierVoucher && !c.isEligible) return false;
+              return subtotal >= (Number(c.minOrderValue) || 0);
+            }).length;
             if (couponAvailableCount) couponAvailableCount.textContent = String(eligibleCount);
           }
         }

@@ -5,27 +5,142 @@ import { optionalToken, verifyToken, requireAdmin } from '../middlewares/auth.mi
 export const couponsRouter = Router();
 
 // ================================================================
-// GET /api/coupons - Lấy danh sách mã giảm giá
+// CẤU HÌNH VOUCHER ĐẶC QUYỀN THĂNG HẠNG HỘI VIÊN
+// Mỗi khách hàng chỉ được giảm 1 lần duy nhất cho mỗi bậc thăng hạng
 // ================================================================
-couponsRouter.get('/', async (_req: Request, res: Response) => {
+export const TIER_UPGRADE_VOUCHERS: Record<string, { tierKey: string; tierLabel: string; minSpent: number; perk: string }> = {
+  'UP-BAC': {
+    tierKey: 'SILVER',
+    tierLabel: 'Hạng Bạc',
+    minSpent: 5_000_000,
+    perk: 'Giảm 5% tối đa 500.000 đ (Chỉ dùng 1 lần)',
+  },
+  'UP-VANG': {
+    tierKey: 'GOLD',
+    tierLabel: 'Hạng Vàng',
+    minSpent: 20_000_000,
+    perk: 'Giảm 10% tối đa 1.500.000 đ (Chỉ dùng 1 lần)',
+  },
+  'UP-KIMCUONG': {
+    tierKey: 'DIAMOND',
+    tierLabel: 'Hạng Kim Cương',
+    minSpent: 50_000_000,
+    perk: 'Giảm 15% tối đa 3.000.000 đ (Chỉ dùng 1 lần)',
+  },
+};
+
+/**
+ * Kiểm tra điều kiện thăng hạng của khách hàng đối với voucher
+ */
+export async function checkUserTierEligibility(userId: bigint, couponCode: string, prismaClient: any = prisma) {
+  const cleanCode = couponCode.toUpperCase().trim();
+  const rule = TIER_UPGRADE_VOUCHERS[cleanCode];
+  if (!rule) return { isTierVoucher: false, eligible: true };
+
+  const completedOrders = await prismaClient.orders.findMany({
+    where: {
+      user_id: userId,
+      order_status: 'completed',
+    },
+    select: { total_amount: true },
+  });
+  const totalSpent = completedOrders.reduce((sum: number, o: any) => sum + Number(o.total_amount || 0), 0);
+
+  if (totalSpent < rule.minSpent) {
+    return {
+      isTierVoucher: true,
+      eligible: false,
+      rule,
+      totalSpent,
+      message: `Mã ưu đãi này chỉ dành cho khách hàng đã thăng ${rule.tierLabel} (Chi tiêu tích lũy từ ${rule.minSpent.toLocaleString('vi-VN')} đ). Tổng chi tiêu hiện tại của bạn: ${totalSpent.toLocaleString('vi-VN')} đ.`,
+    };
+  }
+
+  return {
+    isTierVoucher: true,
+    eligible: true,
+    rule,
+    totalSpent,
+  };
+}
+
+// ================================================================
+// GET /api/coupons - Lấy danh sách mã giảm giá (kèm trạng thái cá nhân hóa)
+// ================================================================
+couponsRouter.get('/', optionalToken, async (req: Request, res: Response) => {
   try {
     const list = await prisma.coupons.findMany({
       orderBy: { id: 'desc' },
     });
 
-    const data = list.map((c) => ({
-      id: c.id,
-      code: c.code,
-      discountType: c.discount_type,
-      discountValue: Number(c.discount_value),
-      minOrderValue: c.min_order_value ? Number(c.min_order_value) : 0,
-      maxDiscountAmount: c.max_discount_amount ? Number(c.max_discount_amount) : null,
-      startDate: c.start_date,
-      endDate: c.end_date,
-      usageLimit: c.usage_limit,
-      usedCount: c.used_count || 0,
-      status: c.status !== false,
-    }));
+    let userTotalSpent = 0;
+    let usedCouponIds: number[] = [];
+
+    if (req.user?.id) {
+      const userId = BigInt(req.user.id);
+      const [completedOrders, userUsedOrders] = await Promise.all([
+        prisma.orders.findMany({
+          where: { user_id: userId, order_status: 'completed' },
+          select: { total_amount: true },
+        }),
+        prisma.orders.findMany({
+          where: { user_id: userId, coupon_id: { not: null }, order_status: { not: 'cancelled' } },
+          select: { coupon_id: true },
+        }),
+      ]);
+      userTotalSpent = completedOrders.reduce((sum: number, o: any) => sum + Number(o.total_amount || 0), 0);
+      usedCouponIds = userUsedOrders.map((o) => o.coupon_id as number).filter(Boolean);
+    }
+
+    const data = list.map((c) => {
+      const codeUpper = c.code.toUpperCase().trim();
+      const tierRule = TIER_UPGRADE_VOUCHERS[codeUpper];
+      const isTierVoucher = Boolean(tierRule);
+      const isUsed = usedCouponIds.includes(c.id);
+
+      let isEligible = true;
+      let requirementNote: string | null = null;
+
+      if (isTierVoucher && tierRule) {
+        if (!req.user?.id) {
+          isEligible = false;
+          requirementNote = `Đăng nhập để nhận ưu đãi ${tierRule.tierLabel}`;
+        } else if (isUsed) {
+          isEligible = false;
+          requirementNote = `Bạn đã sử dụng ưu đãi thăng ${tierRule.tierLabel} (Mỗi hội viên chỉ được giảm 1 lần)`;
+        } else if (userTotalSpent < tierRule.minSpent) {
+          isEligible = false;
+          const remain = tierRule.minSpent - userTotalSpent;
+          requirementNote = `Tích lũy thêm ${remain.toLocaleString('vi-VN')} đ để mở khóa ${tierRule.tierLabel}`;
+        } else {
+          isEligible = true;
+          requirementNote = `Đặc quyền ${tierRule.tierLabel} khả dụng (Giảm 1 lần duy nhất)`;
+        }
+      } else if (isUsed) {
+        isEligible = false;
+        requirementNote = 'Bạn đã sử dụng mã này cho đơn hàng trước đó';
+      }
+
+      return {
+        id: c.id,
+        code: c.code,
+        discountType: c.discount_type,
+        discountValue: Number(c.discount_value),
+        minOrderValue: c.min_order_value ? Number(c.min_order_value) : 0,
+        maxDiscountAmount: c.max_discount_amount ? Number(c.max_discount_amount) : null,
+        startDate: c.start_date,
+        endDate: c.end_date,
+        usageLimit: c.usage_limit,
+        usedCount: c.used_count || 0,
+        status: c.status !== false,
+        isTierVoucher,
+        tierLabel: tierRule ? tierRule.tierLabel : null,
+        minSpentRequired: tierRule ? tierRule.minSpent : null,
+        isUsed,
+        isEligible,
+        requirementNote,
+      };
+    });
 
     return res.json({ success: true, data });
   } catch (error: any) {
@@ -72,7 +187,26 @@ couponsRouter.post('/validate', optionalToken, async (req: Request, res: Respons
       return res.status(400).json({ success: false, message: 'Mã giảm giá đã hết lượt sử dụng.' });
     }
 
-    // Kiểm tra xem tài khoản khách hàng đã từng dùng mã này chưa
+    // Kiểm tra điều kiện đặc quyền thăng hạng hội viên (nếu là voucher thăng hạng)
+    const tierRule = TIER_UPGRADE_VOUCHERS[cleanCode];
+    if (tierRule) {
+      if (!req.user?.id) {
+        return res.status(401).json({
+          success: false,
+          message: `Mã ưu đãi "${cleanCode}" là đặc quyền khi thăng ${tierRule.tierLabel}. Vui lòng đăng nhập để sử dụng.`,
+        });
+      }
+
+      const eligibility = await checkUserTierEligibility(BigInt(req.user.id), cleanCode);
+      if (!eligibility.eligible) {
+        return res.status(400).json({
+          success: false,
+          message: eligibility.message,
+        });
+      }
+    }
+
+    // Kiểm tra xem tài khoản khách hàng đã từng dùng mã này chưa (Chỉ dùng 1 lần)
     if (req.user?.id) {
       const userUsed = await prisma.orders.findFirst({
         where: {
@@ -82,6 +216,12 @@ couponsRouter.post('/validate', optionalToken, async (req: Request, res: Respons
         },
       });
       if (userUsed) {
+        if (tierRule) {
+          return res.status(400).json({
+            success: false,
+            message: `Bạn đã sử dụng ưu đãi thăng ${tierRule.tierLabel} cho một đơn hàng trước đó rồi (Mỗi khách hàng chỉ được giảm 1 lần khi thăng cấp hạng).`,
+          });
+        }
         return res.status(400).json({
           success: false,
           message: 'Bạn đã sử dụng mã giảm giá này cho một đơn hàng trước đó.',
@@ -117,7 +257,9 @@ couponsRouter.post('/validate', optionalToken, async (req: Request, res: Respons
 
     return res.json({
       success: true,
-      message: coupon.discount_type === 'free_shipping' ? 'Áp dụng mã miễn phí vận chuyển thành công!' : 'Áp dụng mã giảm giá thành công!',
+      message: tierRule
+        ? `Áp dụng thành công ưu đãi đặc quyền thăng ${tierRule.tierLabel} (Giảm 1 lần duy nhất)!`
+        : (coupon.discount_type === 'free_shipping' ? 'Áp dụng mã miễn phí vận chuyển thành công!' : 'Áp dụng mã giảm giá thành công!'),
       data: {
         couponId: coupon.id,
         code: coupon.code,
@@ -126,6 +268,8 @@ couponsRouter.post('/validate', optionalToken, async (req: Request, res: Respons
         discountAmount,
         minOrderValue: minOrderVal,
         maxDiscountAmount: coupon.max_discount_amount ? Number(coupon.max_discount_amount) : null,
+        isTierVoucher: Boolean(tierRule),
+        tierLabel: tierRule ? tierRule.tierLabel : null,
       },
     });
   } catch (error: any) {

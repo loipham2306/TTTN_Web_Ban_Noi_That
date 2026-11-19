@@ -1,9 +1,11 @@
 // src/data/contact.ts
-// Thông tin liên hệ dùng chung cho nút nổi (ContactFab) và khối showroom.
-// TODO: thay bằng số Zalo và trang Facebook thật của cửa hàng.
+// Thông tin liên hệ dùng chung cho nút nổi (ContactFab), khối showroom và trang Về chúng tôi.
 export const CONTACT = {
+  brandName: 'KTUFA - Luxury Furniture',
   phone: '1900636884',
   phoneLabel: '1900 636 884',
-  zalo: 'https://zalo.me/0900000000',
-  messenger: 'https://m.me/ten-trang-facebook',
+  zaloPhone: '0908123456',
+  zalo: 'https://zalo.me/0908123456',
+  messenger: 'https://m.me/ktufa.furniture',
+  email: 'contact@ktufa.vn',
 };

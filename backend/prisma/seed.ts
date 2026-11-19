@@ -132,6 +132,43 @@ async function main() {
       used_count: 0,
       status: true,
     },
+    // Đặc quyền voucher khi thăng hạng hội viên (mỗi khách hàng chỉ dùng 1 lần)
+    {
+      code: 'UP-BAC',
+      discount_type: 'percent',
+      discount_value: 5,
+      min_order_value: 500000,
+      max_discount_amount: 500000,
+      start_date: new Date(),
+      end_date: new Date(Date.now() + 365 * 86400000),
+      usage_limit: null,
+      used_count: 0,
+      status: true,
+    },
+    {
+      code: 'UP-VANG',
+      discount_type: 'percent',
+      discount_value: 10,
+      min_order_value: 1000000,
+      max_discount_amount: 1500000,
+      start_date: new Date(),
+      end_date: new Date(Date.now() + 365 * 86400000),
+      usage_limit: null,
+      used_count: 0,
+      status: true,
+    },
+    {
+      code: 'UP-KIMCUONG',
+      discount_type: 'percent',
+      discount_value: 15,
+      min_order_value: 2000000,
+      max_discount_amount: 3000000,
+      start_date: new Date(),
+      end_date: new Date(Date.now() + 365 * 86400000),
+      usage_limit: null,
+      used_count: 0,
+      status: true,
+    },
   ];
 
   for (const cp of sampleCoupons) {

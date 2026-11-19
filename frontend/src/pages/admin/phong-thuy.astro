@@ -517,7 +517,7 @@ const formatDateTime = (iso: string) => {
         const id = row.dataset.id;
         const code = row.dataset.code;
         if (confirm(`Bạn có chắc chắn muốn xoá phiên hội thoại ${code}?`)) {
-          fetch(`/api/phong-thuy/chat-sessions/${id}`, { method: 'DELETE' })
+          fetch(`http://localhost:4000/api/phong-thuy/chat-sessions/${id}`, { method: 'DELETE' })
             .then(res => res.json())
             .then(res => {
               if (res.success) {
@@ -623,7 +623,7 @@ const formatDateTime = (iso: string) => {
     btnDeleteCurrent?.addEventListener('click', () => {
       if (!activeSessionId) return;
       if (confirm('Bạn có chắc chắn muốn xoá phiên trò chuyện này?')) {
-        fetch(`/api/phong-thuy/chat-sessions/${activeSessionId}`, { method: 'DELETE' })
+        fetch(`http://localhost:4000/api/phong-thuy/chat-sessions/${activeSessionId}`, { method: 'DELETE' })
           .then(res => res.json())
           .then(res => {
             if (res.success) {

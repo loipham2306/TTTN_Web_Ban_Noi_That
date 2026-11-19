@@ -1435,29 +1435,39 @@ import { provinces } from '../../data/provinces';
 
       if (!progressBar || !progressText || !nextHint) return;
 
+      let tierName = 'Hạng Đồng';
       if (totalSpentNumber >= 50000000) {
+        tierName = 'Hạng Kim Cương (VIP)';
         progressBar.style.width = '100%';
-        progressText.textContent = 'Hạng Kim Cương (VIP)';
-        nextHint.innerHTML = 'Quý khách đang sở hữu hạng cao nhất với đặc quyền chiết khấu 15% trọn đời.';
+        progressText.textContent = tierName;
+        nextHint.innerHTML = 'Quý khách đạt hạng cao nhất! Voucher đặc quyền: <strong class="text-clay-700 font-mono bg-sand-200 px-1.5 py-0.5">UP-KIMCUONG</strong> (Giảm 15% - Giảm 1 lần duy nhất).';
       } else if (totalSpentNumber >= 20000000) {
+        tierName = 'Hạng Vàng (VIP)';
         const pct = Math.min(100, (totalSpentNumber / 50000000) * 100);
         progressBar.style.width = `${pct}%`;
-        progressText.textContent = 'Hạng Vàng';
+        progressText.textContent = tierName;
         const remain = 50000000 - totalSpentNumber;
-        nextHint.innerHTML = `Chi tiêu thêm <strong class="text-clay-700">${fmtVnd(remain)}</strong> để thăng hạng <strong>Kim Cương (VIP)</strong>.`;
+        nextHint.innerHTML = `Voucher thăng hạng hiện tại: <strong class="text-clay-700 font-mono bg-sand-200 px-1.5 py-0.5">UP-VANG</strong> (Giảm 10% - 1 lần). Chi tiêu thêm <strong>${fmtVnd(remain)}</strong> để thăng hạng <strong>Kim Cương</strong>.`;
       } else if (totalSpentNumber >= 5000000) {
+        tierName = 'Hạng Bạc';
         const pct = Math.min(100, (totalSpentNumber / 20000000) * 100);
         progressBar.style.width = `${pct}%`;
-        progressText.textContent = 'Hạng Bạc';
+        progressText.textContent = tierName;
         const remain = 20000000 - totalSpentNumber;
-        nextHint.innerHTML = `Chi tiêu thêm <strong class="text-clay-700">${fmtVnd(remain)}</strong> để thăng hạng <strong>Vàng (VIP)</strong>.`;
+        nextHint.innerHTML = `Voucher thăng hạng hiện tại: <strong class="text-clay-700 font-mono bg-sand-200 px-1.5 py-0.5">UP-BAC</strong> (Giảm 5% - 1 lần). Chi tiêu thêm <strong>${fmtVnd(remain)}</strong> để thăng hạng <strong>Vàng (VIP)</strong>.`;
       } else {
+        tierName = 'Hạng Đồng';
         const pct = Math.max(15, (totalSpentNumber / 5000000) * 100);
         progressBar.style.width = `${pct}%`;
-        progressText.textContent = 'Hạng Đồng';
+        progressText.textContent = tierName;
         const remain = 5000000 - totalSpentNumber;
-        nextHint.innerHTML = `Chi tiêu thêm <strong class="text-clay-700">${fmtVnd(remain)}</strong> để thăng hạng <strong>Bạc</strong>.`;
+        nextHint.innerHTML = `Chi tiêu thêm <strong class="text-clay-700">${fmtVnd(remain)}</strong> để thăng <strong>Hạng Bạc</strong> và nhận voucher giảm 5% (1 lần duy nhất).`;
       }
+
+      const elTierBadge = document.getElementById('page-user-tier-badge');
+      const infoTier = document.getElementById('page-info-tier');
+      if (elTierBadge) elTierBadge.textContent = tierName;
+      if (infoTier) infoTier.textContent = tierName;
     };
 
     // =========================================================

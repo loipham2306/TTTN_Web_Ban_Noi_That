@@ -8,6 +8,10 @@ export interface AuthUser {
   phone?: string;
   avatar?: string;
   role?: 'customer' | 'admin' | 'seller';
+  tier?: string;
+  tierBadge?: string;
+  tierColor?: string;
+  totalSpent?: number;
 }
 
 export const AUTH_KEY = 'current_user';
@@ -147,4 +151,39 @@ export function clearUser(redirectUrl?: string): void {
   } catch (e) {
     console.error('Lỗi khi đăng xuất:', e);
   }
+}
+
+// Làm mới thông tin phiên làm việc và bậc hạng hội viên từ server
+export async function refreshUserProfile(): Promise<AuthUser | null> {
+  const token = getToken();
+  if (!token) return null;
+  try {
+    const res = await fetch('http://localhost:4000/api/auth/me', {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const json = await res.json();
+    if (json.success && json.user) {
+      const u = json.user;
+      const currentUser = readUser() || { name: u.full_name || 'Khách' };
+      const updatedUser: AuthUser = {
+        ...currentUser,
+        id: u.id,
+        name: sanitizeUserName(u.full_name, u.role),
+        email: u.email,
+        phone: u.phone,
+        avatar: u.avatar,
+        role: u.role,
+        tier: u.tier,
+        tierBadge: u.tierBadge,
+        tierColor: u.tierColor,
+        totalSpent: u.totalSpent,
+      };
+      localStorage.setItem(AUTH_KEY, JSON.stringify(updatedUser));
+      window.dispatchEvent(new Event(AUTH_EVENT));
+      return updatedUser;
+    }
+  } catch (err) {
+    console.warn('Không thể đồng bộ hồ sơ /me:', err);
+  }
+  return readUser();
 }
