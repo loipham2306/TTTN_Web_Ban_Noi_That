@@ -115,12 +115,12 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
           slug.replace(/^cham-/, 'charm-'),
         ] : [];
 
-        const product = await prisma.products.findFirst({
+        const product: any = await prisma.products.findFirst({
           where: {
             deleted_at: null,
             OR: [
               ...(candidateSlugs.length > 0 ? [{ slug: { in: candidateSlugs } }] : []),
-              ...(item.name ? [{ name: { equals: String(item.name).trim(), mode: 'insensitive' as const } }] : []),
+              ...(item.name ? [{ name: { equals: String(item.name).trim(), mode: 'insensitive' as any } } as any] : []),
             ],
           },
           include: {
@@ -134,7 +134,7 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
           realName = product.name;
 
           if (product.product_images && product.product_images.length > 0) {
-            const thumb = product.product_images.find((img) => img.is_thumbnail) || product.product_images[0];
+            const thumb = product.product_images.find((img: any) => img.is_thumbnail) || product.product_images[0];
             if (thumb && thumb.image_url) {
               itemImage = thumb.image_url;
             }
