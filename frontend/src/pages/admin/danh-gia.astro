@@ -59,7 +59,10 @@ const avgRating = totalReviews > 0 ? (reviews.reduce((acc, r) => acc + r.rating,
 
       <div class="flex items-center gap-2">
         <span class="inline-flex items-center gap-1.5 bg-amber-500/10 text-amber-900 border border-amber-500/30 px-3.5 py-2 rounded text-xs font-bold">
-          <span>⭐</span> Điểm trung bình: {avgRating} / 5.0 ({totalReviews} đánh giá)
+          <svg class="w-3.5 h-3.5 text-amber-600 shrink-0" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+          </svg>
+          Điểm trung bình: {avgRating} / 5.0 ({totalReviews} đánh giá)
         </span>
       </div>
     </div>

@@ -141,7 +141,7 @@ export default function FengShuiChatbot() {
       const apiBase = import.meta.env.PUBLIC_API_URL || 'http://localhost:4000/api';
       // Lọc bỏ tin nhắn lỗi và tin nhắn đầu tiên
       const validHistory = newMessages
-        .filter((m) => !m.content.startsWith('⚠️'))
+        .filter((m) => !m.content.startsWith('Lỗi kết nối:'))
         .slice(1);
       const historyPayload = validHistory.map((m) => ({
         role: m.role,
@@ -229,7 +229,7 @@ export default function FengShuiChatbot() {
       const errorMsg: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: `⚠️ Lỗi kết nối: ${err.message || 'Vui lòng thử lại sau giây lát!'}\n\n*Gợi ý: Hãy bấm lại câu hỏi hoặc tải lại trang.*`,
+        content: `Lỗi kết nối: ${err.message || 'Vui lòng thử lại sau giây lát!'}\n\n*Gợi ý: Hãy bấm lại câu hỏi hoặc tải lại trang.*`,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
       setMessages((prev) => [...prev, errorMsg]);
@@ -402,8 +402,8 @@ export default function FengShuiChatbot() {
 
                 <div
                   className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 shadow-sm text-sm ${msg.role === 'user'
-                      ? 'bg-[#173524] text-white rounded-br-xs'
-                      : 'bg-white text-neutral-800 border border-neutral-200/70 rounded-bl-xs'
+                    ? 'bg-[#173524] text-white rounded-br-xs'
+                    : 'bg-white text-neutral-800 border border-neutral-200/70 rounded-bl-xs'
                     }`}
                 >
                   <div className="break-words">
@@ -460,7 +460,9 @@ export default function FengShuiChatbot() {
                     onClick={() => sendMessage(`Món "${productContext}" này có hợp với bản mệnh của tôi không?`)}
                     className="rounded-full border border-amber-500/40 bg-amber-50 px-2.5 py-1 text-[11px] font-semibold text-amber-900 hover:bg-amber-100 transition-colors text-left flex items-center gap-1 shadow-xs"
                   >
-                    <span>⭐</span>
+                    <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3 text-amber-500 shrink-0">
+                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                    </svg>
                     <span className="truncate max-w-[280px]">Món "{productContext}" này có hợp mệnh tôi không?</span>
                   </button>
                 )}

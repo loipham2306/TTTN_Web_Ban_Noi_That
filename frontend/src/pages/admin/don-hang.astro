@@ -390,7 +390,7 @@ const totalRevenue = displayOrders
                   <svg class="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                   </svg>
-                  <span>💳 Xác nhận đã nhận tiền chuyển khoản</span>
+                  <span>Xác nhận đã nhận tiền chuyển khoản</span>
                 </button>
                 <p class="text-[10px] text-amber-800 mt-1 italic leading-tight text-center">
                   * Bấm khi tiền đã vào tài khoản. Đơn sẽ chuyển sang "Đang chuẩn bị" và tự gửi email cho khách.
@@ -418,7 +418,14 @@ const totalRevenue = displayOrders
 
               <!-- Lý do hủy đơn nếu đơn bị hủy -->
               <div id="modal-cancel-reason-box" class="hidden p-2.5 bg-red-50 border border-red-200 text-red-800 text-xs">
-                <p class="font-bold text-[10px] uppercase text-red-900">⚠️ Lý do hủy đơn:</p>
+                <p class="font-bold text-[10px] uppercase text-red-900 flex items-center gap-1">
+                  <svg class="w-3.5 h-3.5 text-red-700 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                    <line x1="12" y1="9" x2="12" y2="13"/>
+                    <line x1="12" y1="17" x2="12.01" y2="17"/>
+                  </svg>
+                  <span>Lý do hủy đơn:</span>
+                </p>
                 <p id="modal-cancel-reason-text" class="mt-0.5 font-medium"></p>
               </div>
             </div>
@@ -546,7 +553,11 @@ const totalRevenue = displayOrders
 
           <!-- Thông báo lưu ý nghiệp vụ -->
           <div class="bg-amber-50/90 border border-amber-300/70 p-3 text-xs text-amber-950 flex items-start gap-2.5 shadow-2xs">
-            <span class="text-base shrink-0 leading-none">⚠️</span>
+            <svg class="w-4 h-4 text-amber-700 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
             <div class="leading-relaxed text-[11.5px]">
               <strong class="font-bold">Lưu ý quản trị:</strong> Hệ thống sẽ tự động hoàn tồn kho cho các biến thể sản phẩm trong đơn và hoàn lượt mã giảm giá (nếu có). Lý do hủy sẽ hiển thị minh bạch cho khách hàng và lưu vào lịch sử đơn hàng.
             </div>
@@ -1013,7 +1024,7 @@ const totalRevenue = displayOrders
         showToast('Không thể kết nối máy chủ backend!');
       } finally {
         btnConfirmPaid.disabled = false;
-        btnConfirmPaid.textContent = '💳 Xác nhận đã nhận tiền chuyển khoản';
+        btnConfirmPaid.textContent = 'Xác nhận đã nhận tiền chuyển khoản';
       }
     });
 

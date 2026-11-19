@@ -208,8 +208,11 @@ import { provinces } from '../../data/provinces';
             </p>
           </div>
           <div class="pt-3 border-t border-walnut-900/10 mt-4">
-            <a href="tel:1900636884" class="text-xs font-bold text-[#173524] hover:text-[#D8B670] transition-colors flex items-center gap-2">
-              <span>📞 Hotline: 1900 636 884</span>
+            <a href="tel:1900636884" class="text-xs font-bold text-[#173524] hover:text-[#D8B670] transition-colors inline-flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5 text-[#D8B670] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+              <span>Hotline: 1900 636 884</span>
             </a>
             <p class="text-[11px] text-walnut-800/60 mt-0.5">Thời gian: 08:30 - 21:00 (Cả T7 & CN)</p>
           </div>
@@ -408,8 +411,11 @@ import { provinces } from '../../data/provinces';
                     placeholder="Nhập mật khẩu hiện tại..." 
                     class="w-full border border-walnut-900/20 bg-sand-50/50 px-3.5 py-2.5 text-xs text-walnut-900 outline-none transition-colors focus:border-[#173524] focus:bg-white"
                   />
-                  <button type="button" data-toggle-password="input-old-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-walnut-800/50 hover:text-walnut-900 cursor-pointer text-xs" title="Ẩn/Hiện">
-                    👁️
+                  <button type="button" data-toggle-password="input-old-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-walnut-800/50 hover:text-walnut-900 cursor-pointer p-1" title="Ẩn/Hiện">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
                   </button>
                 </div>
               </div>
@@ -428,8 +434,11 @@ import { provinces } from '../../data/provinces';
                       placeholder="Ít nhất 6 ký tự..." 
                       class="w-full border border-walnut-900/20 bg-sand-50/50 px-3.5 py-2.5 text-xs text-walnut-900 outline-none transition-colors focus:border-[#173524] focus:bg-white"
                     />
-                    <button type="button" data-toggle-password="input-new-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-walnut-800/50 hover:text-walnut-900 cursor-pointer text-xs" title="Ẩn/Hiện">
-                      👁️
+                    <button type="button" data-toggle-password="input-new-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-walnut-800/50 hover:text-walnut-900 cursor-pointer p-1" title="Ẩn/Hiện">
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
                     </button>
                   </div>
                 </div>
@@ -447,8 +456,11 @@ import { provinces } from '../../data/provinces';
                       placeholder="Nhập lại mật khẩu..." 
                       class="w-full border border-walnut-900/20 bg-sand-50/50 px-3.5 py-2.5 text-xs text-walnut-900 outline-none transition-colors focus:border-[#173524] focus:bg-white"
                     />
-                    <button type="button" data-toggle-password="input-confirm-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-walnut-800/50 hover:text-walnut-900 cursor-pointer text-xs" title="Ẩn/Hiện">
-                      👁️
+                    <button type="button" data-toggle-password="input-confirm-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-walnut-800/50 hover:text-walnut-900 cursor-pointer p-1" title="Ẩn/Hiện">
+                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                        <circle cx="12" cy="12" r="3"/>
+                      </svg>
                     </button>
                   </div>
                 </div>
@@ -506,7 +518,12 @@ import { provinces } from '../../data/provinces';
           <div id="orders-table-wrapper" class="hidden space-y-4">
             <div class="flex items-center justify-between">
               <h2 class="text-sm font-bold text-walnut-900 uppercase tracking-wide flex items-center gap-2">
-                <span>📦 Lịch sử đặt hàng</span>
+                <svg class="w-4 h-4 text-[#D8B670]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                  <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                  <line x1="12" y1="22.08" x2="12" y2="12"/>
+                </svg>
+                <span>Lịch sử đặt hàng</span>
                 <span id="orders-count-badge" class="text-[11px] font-bold px-2 py-0.5 bg-[#173524]/10 text-[#173524]">0 đơn</span>
               </h2>
               <span class="text-[11px] text-walnut-800/60 hidden sm:inline-block">Bấm "Chi tiết" để xem hóa đơn & sản phẩm</span>
@@ -533,8 +550,12 @@ import { provinces } from '../../data/provinces';
 
           <!-- Empty state -->
           <div id="orders-empty" class="hidden text-center py-16 bg-white border border-walnut-900/15 px-4 shadow-sm">
-            <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-sand-100 flex items-center justify-center text-3xl">
-              📦
+            <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-sand-100 flex items-center justify-center text-[#173524]">
+              <svg class="w-8 h-8 text-[#173524]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                <line x1="12" y1="22.08" x2="12" y2="12"/>
+              </svg>
             </div>
             <h3 class="font-bold text-base text-walnut-900">Quý khách chưa có đơn hàng nào</h3>
             <p class="mt-1 text-xs text-walnut-800/70 max-w-md mx-auto">
@@ -1069,7 +1090,11 @@ import { provinces } from '../../data/provinces';
 
           <!-- Thông báo lưu ý nhẹ nhàng -->
           <div class="bg-amber-50/80 border border-amber-300/60 p-3 rounded-none text-xs text-amber-900 flex items-start gap-2.5 shadow-2xs">
-            <span class="text-base shrink-0 leading-none">⚠️</span>
+            <svg class="w-4 h-4 text-amber-700 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+              <line x1="12" y1="9" x2="12" y2="13"/>
+              <line x1="12" y1="17" x2="12.01" y2="17"/>
+            </svg>
             <div class="leading-relaxed text-[11.5px]">
               <strong class="font-bold">Lưu ý quan trọng:</strong> Khi xác nhận hủy, đơn hàng sẽ không thể hoàn tác. Số lượng sản phẩm và mã khuyến mãi (nếu có) sẽ được hoàn trả lại hệ thống.
             </div>
@@ -1615,7 +1640,13 @@ import { provinces } from '../../data/provinces';
               <div class="flex items-center gap-3">
                 ${itemImgSrc
                   ? `<img src="${itemImgSrc}" alt="${it.name}" class="w-12 h-12 object-cover rounded-none border border-walnut-900/10 shrink-0 shadow-xs bg-white" onerror="this.onerror=null; this.src='${genericFallback}';" />`
-                  : `<div class="w-12 h-12 bg-sand-200/80 rounded-none shrink-0 border border-walnut-900/10 flex items-center justify-center text-xl">🛋️</div>`
+                  : `<div class="w-12 h-12 bg-sand-200/80 rounded-none shrink-0 border border-walnut-900/10 flex items-center justify-center">
+                      <svg class="w-6 h-6 text-[#173524]/60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M20 9V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v2"/>
+                        <path d="M2 11a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-5Z"/>
+                        <path d="M4 18v2m16-2v2"/>
+                      </svg>
+                    </div>`
                 }
                 <div class="min-w-0 pr-1">
                   <a href="${it.slug ? `/san-pham/${it.slug}` : '#'}" class="font-bold text-walnut-900 text-xs leading-snug line-clamp-2 hover:text-[#173524] transition-colors">
@@ -1638,7 +1669,11 @@ import { provinces } from '../../data/provinces';
           ${o.orderStatus === 'cancelled' ? `
             <div class="mb-5 bg-red-50 border-l-4 border-red-500 p-4 text-red-900 rounded-none shadow-xs">
               <div class="flex items-start gap-3">
-                <span class="text-xl">⚠️</span>
+                <svg class="w-5 h-5 text-red-600 shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                  <line x1="12" y1="9" x2="12" y2="13"/>
+                  <line x1="12" y1="17" x2="12.01" y2="17"/>
+                </svg>
                 <div>
                   <p class="font-bold text-xs uppercase tracking-wider text-red-900">Đơn hàng này đã bị hủy</p>
                   <p class="text-xs text-red-800 mt-1"><strong>Lý do:</strong> ${o.cancelReason || 'Đơn hàng đã được hủy theo quy định.'}</p>
@@ -1650,7 +1685,10 @@ import { provinces } from '../../data/provinces';
           ${isBank && o.paymentStatus !== 'paid' && o.orderStatus !== 'cancelled' ? `
             <div class="mb-5 bg-gradient-to-br from-amber-50 to-orange-50/40 border border-amber-300/80 p-4 sm:p-5 rounded-none shadow-xs">
               <div class="flex items-center gap-2 border-b border-amber-200/80 pb-2.5 mb-3.5">
-                <span class="text-lg">💳</span>
+                <svg class="w-4 h-4 text-amber-900 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="20" height="14" x="2" y="5" rx="2"/>
+                  <line x1="2" y1="10" x2="22" y2="10"/>
+                </svg>
                 <h4 class="font-bold text-xs uppercase tracking-wider text-amber-950">Quét mã VietQR để thanh toán đơn hàng này</h4>
                 <span class="ml-auto text-[10px] font-bold text-amber-900 bg-amber-200 px-2.5 py-0.5 rounded-full border border-amber-300">Chờ thanh toán</span>
               </div>
@@ -1893,7 +1931,17 @@ import { provinces } from '../../data/provinces';
                 </span>` : ''}
               </div>
             </td>
-            <td class="px-4 py-3.5 text-xs text-walnut-800/70 whitespace-nowrap">📅 ${dateStr}</td>
+            <td class="px-4 py-3.5 text-xs text-walnut-800/70 whitespace-nowrap">
+              <span class="inline-flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-[#173524]/60 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                  <line x1="16" y1="2" x2="16" y2="6"/>
+                  <line x1="8" y1="2" x2="8" y2="6"/>
+                  <line x1="3" y1="10" x2="21" y2="10"/>
+                </svg>
+                <span>${dateStr}</span>
+              </span>
+            </td>
             <td class="px-4 py-3.5">
               <p class="font-semibold text-walnut-900 text-xs">${recipientName}</p>
               <p class="text-[11px] text-walnut-800/60 font-mono">${recipientPhone}</p>
@@ -3079,7 +3127,12 @@ import { provinces } from '../../data/provinces';
       if (userAddresses.length === 0) {
         addrContainer.innerHTML = `
           <div class="p-8 text-center border border-dashed border-walnut-900/20 bg-sand-50/50">
-            <span class="text-3xl block mb-2">📍</span>
+            <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-sand-100 flex items-center justify-center text-[#173524]">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+            </div>
             <p class="text-xs font-bold text-walnut-900 uppercase tracking-wider">Chưa có địa chỉ nhận hàng nào</p>
             <p class="text-[11px] text-walnut-800/70 mt-1 max-w-sm mx-auto">Thêm địa chỉ giao hàng để hệ thống tự động điền khi bạn đặt mua sản phẩm nội thất.</p>
             <button type="button" class="btn-quick-add-addr mt-3.5 inline-flex items-center gap-1.5 bg-[#173524] text-[#D8B670] px-4 py-2 text-xs font-bold uppercase tracking-wider hover:bg-walnut-900 border border-[#D8B670]/40 transition-colors cursor-pointer shadow-xs">
@@ -3409,6 +3462,9 @@ import { provinces } from '../../data/provinces';
     const btnSubmitPass = document.getElementById('btn-submit-change-pass') as HTMLButtonElement | null;
 
     // Toggle password eye
+    const EYE_OPEN_ICON = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>`;
+    const EYE_SLASH_ICON = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>`;
+
     document.querySelectorAll<HTMLButtonElement>('[data-toggle-password]').forEach((btn) => {
       btn.addEventListener('click', () => {
         const targetId = btn.dataset.togglePassword;
@@ -3417,10 +3473,10 @@ import { provinces } from '../../data/provinces';
         if (input) {
           if (input.type === 'password') {
             input.type = 'text';
-            btn.textContent = '🙈';
+            btn.innerHTML = EYE_SLASH_ICON;
           } else {
             input.type = 'password';
-            btn.textContent = '👁️';
+            btn.innerHTML = EYE_OPEN_ICON;
           }
         }
       });

@@ -487,8 +487,13 @@ const stats = [
                     placeholder="Hoặc dán link ảnh trực tiếp (https://...)" 
                     class="w-full border border-walnut-900/20 bg-sand-100/50 px-2.5 py-1.5 text-xs outline-none focus:border-clay-600 focus:bg-sand-50 rounded text-walnut-900"
                   />
-                  <p id="prod-main-img-error" class="hidden mt-1.5 text-[11px] text-danger-600 font-medium leading-relaxed">
-                    ⚠️ Link này không tải được ảnh. Hãy chuột phải vào ảnh trên mạng &rarr; chọn <strong>"Sao chép địa chỉ hình ảnh"</strong> (Copy image address) thay vì copy link cả trang web bài viết.
+                  <p id="prod-main-img-error" class="hidden mt-1.5 text-[11px] text-danger-600 font-medium leading-relaxed flex items-start gap-1.5">
+                    <svg class="w-3.5 h-3.5 shrink-0 mt-0.5 text-danger-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/>
+                      <line x1="12" y1="9" x2="12" y2="13"/>
+                      <line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    <span>Link này không tải được ảnh. Hãy chuột phải vào ảnh trên mạng &rarr; chọn <strong>"Sao chép địa chỉ hình ảnh"</strong> (Copy image address) thay vì copy link cả trang web bài viết.</span>
                   </p>
                 </div>
               </div>
@@ -740,11 +745,11 @@ const stats = [
           if (mainImgUrlInput) mainImgUrlInput.value = json.url;
           showToast('Đã tải và lưu ảnh lên máy chủ thành công!');
         } else {
-          showToast('⚠️ Không thể lưu ảnh lên máy chủ. Hãy kiểm tra kết nối backend!');
+          showToast('Không thể lưu ảnh lên máy chủ. Hãy kiểm tra kết nối backend!');
           // Giữ preview cục bộ nhưng KHÔNG lưu base64 vào currentUploadedMainUrl
         }
       } catch (err) {
-        showToast('⚠️ Backend offline! Không thể tải ảnh lên máy chủ.');
+        showToast('Backend offline! Không thể tải ảnh lên máy chủ.');
       } finally {
         mainUploadSpinner?.classList.add('hidden');
         mainPreviewWrapper?.classList.remove('hidden');
@@ -972,7 +977,7 @@ const stats = [
       // Nếu người dùng không sửa giá khi chỉnh sửa, giữ nguyên giá gốc ban đầu
       let price = priceInput ? Number(priceInput) : (mode === 'edit' && targetRow ? Number(targetRow.dataset.price || 0) : 0);
       if (!price || price <= 0) {
-        showToast('⚠️ Vui lòng nhập giá bán hợp lệ (> 0đ)!');
+        showToast('Vui lòng nhập giá bán hợp lệ (> 0đ)!');
         return;
       }
 
@@ -1033,7 +1038,7 @@ const stats = [
             });
             const json = await res.json();
             if (!res.ok || !json.success) {
-              showToast(json.message || '⚠️ Lỗi khi cập nhật sản phẩm trên máy chủ!');
+              showToast(json.message || 'Lỗi khi cập nhật sản phẩm trên máy chủ!');
               return;
             }
           }
@@ -1058,7 +1063,7 @@ const stats = [
           });
           const json = await res.json();
           if (!res.ok || !json.success) {
-            showToast(json.message || '⚠️ Không thể thêm sản phẩm vào cơ sở dữ liệu!');
+            showToast(json.message || 'Không thể thêm sản phẩm vào cơ sở dữ liệu!');
             return;
           }
           if (json.data?.id) {
@@ -1067,7 +1072,7 @@ const stats = [
         }
       } catch (err) {
         console.error('Lỗi lưu sản phẩm:', err);
-        showToast('⚠️ Không thể kết nối tới máy chủ. Kiểm tra backend có đang chạy không!');
+        showToast('Không thể kết nối tới máy chủ. Kiểm tra backend có đang chạy không!');
         return;
       }
 
@@ -1385,14 +1390,14 @@ const stats = [
             });
             const json = await res.json();
             if (!res.ok || !json.success) {
-              showToast(json.message || '⚠️ Không thể xóa sản phẩm khỏi cơ sở dữ liệu!');
+              showToast(json.message || 'Không thể xóa sản phẩm khỏi cơ sở dữ liệu!');
               deleteModal.classList.add('hidden');
               targetSlugToDelete = null;
               return;
             }
           } catch (err) {
             console.error('Lỗi khi xóa sản phẩm:', err);
-            showToast('⚠️ Không thể kết nối tới máy chủ để xóa sản phẩm!');
+            showToast('Không thể kết nối tới máy chủ để xóa sản phẩm!');
             deleteModal.classList.add('hidden');
             targetSlugToDelete = null;
             return;

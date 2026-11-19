@@ -479,7 +479,13 @@ const provinces = [
                 <a href="/tai-khoan?tab=orders" class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500 hover:text-gray-900 transition-colors">
                   ← Quay lại danh sách đơn hàng
                 </a>
-                <span class="text-xs text-gray-400">⏱ Hết hạn sau: <strong data-sepay-timer class="text-gray-700 font-mono font-semibold">15:00</strong></span>
+                <span class="inline-flex items-center gap-1.5 text-xs text-gray-500">
+                  <svg class="w-3.5 h-3.5 text-[#D8B670]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
+                  Hết hạn sau: <strong data-sepay-timer class="text-gray-700 font-mono font-semibold">15:00</strong>
+                </span>
               </div>
             </div>
 
@@ -503,7 +509,12 @@ const provinces = [
               </div>
             </div>
 
-            <p data-success-badge class="mt-3 text-[11px] uppercase tracking-[0.22em] text-[#D8B670] font-bold">THANH TOÁN THÀNH CÔNG 🎉</p>
+            <p data-success-badge class="mt-3 text-[11px] uppercase tracking-[0.22em] text-[#D8B670] font-bold flex items-center justify-center gap-1.5">
+              <svg class="w-4 h-4 text-[#D8B670]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+              </svg>
+              THANH TOÁN THÀNH CÔNG
+            </p>
             <h2 data-success-title class="mt-1 font-display text-2xl sm:text-3xl font-bold tracking-wide text-white">Thanh toán VietQR Hoàn Tất</h2>
             <p class="mt-1.5 text-xs text-sand-200/90 max-w-md mx-auto">Giao dịch của bạn đã được hệ thống ghi nhận và xác thực thành công.</p>
           </div>
@@ -555,7 +566,11 @@ const provinces = [
             <!-- THẺ THÔNG TIN GIAO HÀNG & SẢN PHẨM -->
             <div class="bg-white border border-walnut-900/15 p-5 shadow-xs text-xs space-y-3">
               <p class="font-bold uppercase tracking-wider text-walnut-900 text-[11px] flex items-center gap-1.5 border-b border-walnut-900/10 pb-2">
-                <span>📍 Thông tin người nhận</span>
+                <svg class="w-3.5 h-3.5 text-[#173524]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+                <span>Thông tin người nhận</span>
               </p>
               <div class="space-y-1 text-walnut-800 leading-relaxed">
                 <p><span class="font-semibold text-walnut-900" id="receipt-customer-name">--</span> (<span id="receipt-customer-phone">--</span>)</p>
@@ -899,7 +914,12 @@ const provinces = [
       if (savedAddresses.length === 0) {
         chooseAddressList.innerHTML = `
           <div class="text-center py-8 px-4 bg-white/80 border border-dashed border-walnut-900/20">
-            <span class="text-3xl block mb-2">📍</span>
+            <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-sand-100 flex items-center justify-center text-[#173524]">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                <circle cx="12" cy="10" r="3"/>
+              </svg>
+            </div>
             <p class="text-xs font-bold text-walnut-900 uppercase tracking-wider">Chưa có địa chỉ nhận hàng nào</p>
             <p class="text-[11px] text-walnut-800/70 mt-1 max-w-sm mx-auto">Vui lòng bấm "+ Quản lý & Thêm địa chỉ mới" bên dưới để thiết lập địa chỉ nhận hàng tư gia.</p>
           </div>
@@ -1546,7 +1566,14 @@ ${value('phone')}`,
           successStatusEl.innerHTML = '✓ ĐÃ THANH TOÁN (PAID)';
           successStatusEl.className = 'inline-flex items-center gap-1 font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded text-[11px]';
         } else {
-          successStatusEl.innerHTML = methodKey === 'cod' ? '⏱ THANH TOÁN KHI NHẬN HÀNG (COD)' : '⏱ CHỜ XÁC NHẬN CHUYỂN KHOẢN';
+          const statusText = methodKey === 'cod' ? 'THANH TOÁN KHI NHẬN HÀNG (COD)' : 'CHỜ XÁC NHẬN CHUYỂN KHOẢN';
+          successStatusEl.innerHTML = `
+            <svg class="w-3.5 h-3.5 text-amber-700" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <polyline points="12 6 12 12 16 14"/>
+            </svg>
+            ${statusText}
+          `;
           successStatusEl.className = 'inline-flex items-center gap-1 font-bold text-amber-800 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded text-[11px]';
         }
       }
@@ -1958,7 +1985,12 @@ ${value('phone')}`,
       if (allAvailableCoupons.length === 0) {
         couponModalList.innerHTML = `
           <div class="text-center py-8 px-4 bg-white/80 border border-dashed border-walnut-900/20">
-            <span class="text-3xl block mb-2">🏷️</span>
+            <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-sand-100 flex items-center justify-center text-[#D8B670]">
+              <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/>
+                <line x1="7" y1="7" x2="7.01" y2="7"/>
+              </svg>
+            </div>
             <p class="text-xs font-bold text-walnut-900 uppercase tracking-wider">Hiện chưa có mã ưu đãi nào khả dụng</p>
             <p class="text-[11px] text-walnut-800/70 mt-1">Các chương trình ưu đãi đặc quyền sẽ được cập nhật sớm nhất.</p>
           </div>
@@ -1992,7 +2024,9 @@ ${value('phone')}`,
           <div class="mb-5 p-3.5 bg-gradient-to-r from-[#173524]/10 via-[#D8B670]/15 to-[#173524]/10 border border-[#D8B670]/50 rounded-none shadow-xs">
             <div class="flex items-center justify-between gap-2 mb-3">
               <div class="flex items-center gap-2">
-                <span class="text-base">👑</span>
+                <svg class="w-4 h-4 text-[#D8B670]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14v2H5z"/>
+                </svg>
                 <h4 class="text-xs font-bold uppercase tracking-wider text-[#173524]">Đặc Quyền Thăng Hạng Hội Viên</h4>
               </div>
               <span class="text-[10px] font-bold text-amber-900 bg-amber-100 border border-amber-300 px-2 py-0.5">Giảm 1 lần duy nhất</span>

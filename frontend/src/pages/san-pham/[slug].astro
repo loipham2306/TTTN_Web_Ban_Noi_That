@@ -557,7 +557,14 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
         <!-- Policy & Voucher Incentive -->
         <div class="bg-sand-50 p-5 rounded border border-walnut-900/10 text-xs space-y-2 text-walnut-900">
           <p class="font-bold uppercase tracking-wider text-[11px] text-clay-700 flex items-center gap-1.5">
-            <span>🎁</span> Nhận Voucher Khuyến Mãi
+            <svg class="w-3.5 h-3.5 text-clay-700 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 12 20 22 4 22 4 12"/>
+              <rect width="20" height="5" x="2" y="7"/>
+              <line x1="12" y1="22" x2="12" y2="7"/>
+              <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/>
+              <path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+            </svg>
+            <span>Nhận Voucher Khuyến Mãi</span>
           </p>
           <p class="text-walnut-800 leading-relaxed">
             Đánh giá kèm cảm nhận thực tế sau khi mua sắm để nhận ngay mã giảm giá <strong class="text-clay-600 font-semibold">100.000 ₫</strong> cho đơn hàng kế tiếp.
@@ -629,7 +636,10 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
               {r.reply && (
                 <div class="mt-4 rounded border-l-2 border-clay-600 bg-sand-100/70 p-3.5 text-xs text-walnut-800 space-y-1">
                   <div class="flex items-center gap-1.5 font-bold text-clay-700 uppercase tracking-wider text-[10px]">
-                    <span>💬 Phản hồi từ Quản trị viên Nội Thất:</span>
+                    <svg class="w-3 h-3 text-clay-700 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+                    </svg>
+                    <span>Phản hồi từ Quản trị viên Nội Thất:</span>
                   </div>
                   <p class="leading-relaxed">{r.reply}</p>
                 </div>
@@ -987,7 +997,7 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
           price: currentPrice,
         });
         updateWishlistUI(true);
-        showToast(`Đã thêm "${currentName}" vào danh sách yêu thích! ❤️`);
+        showToast(`Đã thêm "${currentName}" vào danh sách yêu thích!`);
       }
       localStorage.setItem('user_wishlist_guest', JSON.stringify(guestList));
       window.dispatchEvent(new Event('wishlist:changed'));
