@@ -31,8 +31,14 @@ const namHienTai = new Date().getFullYear();
       {/* CỘT TRÁI: Form nhập liệu nhanh (5 cột) */}
       <div class="lg:col-span-5">
         <div class="rounded-2xl border border-walnut-900/15 bg-white p-6 shadow-sm sm:p-8 sticky top-28">
-          <div class="flex items-center gap-2.5 pb-4 border-b border-walnut-900/10 mb-6">
-            <span class="text-xl">🔮</span>
+          <div class="flex items-center gap-3 pb-4 border-b border-walnut-900/10 mb-6">
+            <div class="w-9 h-9 rounded-xl bg-[#173524] flex items-center justify-center text-[#D8B670] shadow-xs shrink-0 border border-[#D8B670]/30">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-5 h-5">
+                <circle cx="12" cy="12" r="9" stroke-opacity="0.4" />
+                <polygon points="12,3 14.5,9.5 21,12 14.5,14.5 12,21 9.5,14.5 3,12 9.5,9.5" fill="currentColor" fill-opacity="0.2" />
+                <circle cx="12" cy="12" r="2" fill="currentColor" />
+              </svg>
+            </div>
             <div>
               <h2 class="font-display text-lg font-bold text-[#173524]">Thông tin bản mệnh</h2>
               <p class="text-xs text-walnut-800/80">Điền thông tin để chuyên gia AI luận giải</p>
@@ -102,15 +108,23 @@ const namHienTai = new Date().getFullYear();
             </button>
           </form>
 
-          <p class="mt-5 text-[11px] leading-relaxed text-walnut-800/80 bg-sand-50 p-3 rounded-lg border border-walnut-900/5">
-            💡 <em>Lưu ý: Nếu bạn sinh vào tháng 1 hoặc 2 dương lịch trước Tết Nguyên Đán, nên tính theo năm âm lịch để quẻ mệnh chính xác nhất.</em>
+          <p class="mt-5 text-[11px] leading-relaxed text-walnut-800/85 bg-sand-50 p-3 rounded-lg border border-walnut-900/10 flex items-start gap-2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-4 h-4 text-amber-700 shrink-0 mt-0.5">
+              <path d="M12 2a7 7 0 0 0-7 7c0 2.5 1.5 4.5 3 6v2a2 2 0 0 0 2 2h4a2 2 0 0 0 2-2v-2c1.5-1.5 3-3.5 3-6a7 7 0 0 0-7-7z" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M10 21h4" stroke-linecap="round" />
+            </svg>
+            <span><em>Lưu ý: Nếu bạn sinh vào tháng 1 hoặc 2 dương lịch trước Tết Nguyên Đán, nên tính theo năm âm lịch để quẻ mệnh chính xác nhất.</em></span>
           </p>
 
           {/* LỊCH SỬ TRA CỨU GẦN ĐÂY */}
           <div id="kt-recent-history-section" class="mt-6 pt-5 border-t border-walnut-900/10 hidden">
             <div class="flex items-center justify-between mb-3">
               <span class="text-[11px] font-bold uppercase tracking-[0.15em] text-[#173524] flex items-center gap-1.5">
-                <span>🕒</span> Lịch sử tra cứu gần đây
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-3.5 h-3.5 text-[#173524]">
+                  <circle cx="12" cy="12" r="9" />
+                  <polyline points="12 7 12 12 15 15" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Lịch sử tra cứu gần đây
               </span>
               <button
                 type="button"
@@ -130,27 +144,49 @@ const namHienTai = new Date().getFullYear();
 
         {/* Trạng thái chưa bấm: Placeholder */}
         <div data-kt-placeholder class="rounded-2xl border border-walnut-900/10 bg-white/70 p-8 sm:p-12 text-center">
-          <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-sand-100 text-3xl shadow-inner">
-            ☯️
+          <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-tr from-[#173524] via-[#1d432d] to-[#122b1d] p-[2px] shadow-md border border-[#D8B670]/40">
+            <div class="w-full h-full rounded-full border border-[#D8B670]/30 flex items-center justify-center text-[#D8B670]">
+              <svg viewBox="0 0 24 24" class="w-8 h-8" fill="currentColor">
+                <path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2Zm0 18a8 8 0 0 1 0-16 4 4 0 0 1 4 4 4 4 0 0 0-4 4 4 4 0 0 1 0 8Z" />
+                <circle cx="12" cy="6" r="1.5" />
+                <circle cx="12" cy="14" r="1.5" fill="#173524" />
+              </svg>
+            </div>
           </div>
           <h3 class="mt-5 font-display text-xl font-bold text-[#173524]">Studio Tư Vấn Phong Thủy Trực Quan</h3>
           <p class="mt-2 text-sm leading-relaxed text-walnut-800 max-w-md mx-auto">
             Vui lòng điền thông tin bên trái và bấm <strong>“Xem Luận Giải AI & Sản Phẩm”</strong> để nhận phân tích bản mệnh, hướng tốt và các món nội thất thịnh vượng dành riêng cho bạn.
           </p>
           <div class="mt-8 grid grid-cols-3 gap-3 max-w-md mx-auto text-left">
-            <div class="p-3 bg-white rounded-xl border border-walnut-900/10 shadow-xs">
-              <span class="text-base">🧭</span>
-              <p class="mt-1 font-bold text-xs text-walnut-900">Bát Trạch</p>
+            <div class="p-3.5 bg-white rounded-xl border border-walnut-900/10 shadow-xs hover:border-[#D8B670]/50 transition-colors">
+              <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-800 flex items-center justify-center mb-1.5">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-4 h-4">
+                  <circle cx="12" cy="12" r="9" />
+                  <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="currentColor" fill-opacity="0.25" />
+                </svg>
+              </div>
+              <p class="font-bold text-xs text-walnut-900">Bát Trạch</p>
               <p class="text-[11px] text-walnut-800/80">4 hướng cát đại lợi</p>
             </div>
-            <div class="p-3 bg-white rounded-xl border border-walnut-900/10 shadow-xs">
-              <span class="text-base">🎨</span>
-              <p class="mt-1 font-bold text-xs text-walnut-900">Màu Tương Sinh</p>
+            <div class="p-3.5 bg-white rounded-xl border border-walnut-900/10 shadow-xs hover:border-[#D8B670]/50 transition-colors">
+              <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-800 flex items-center justify-center mb-1.5">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-4 h-4">
+                  <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" stroke-linecap="round" stroke-linejoin="round" />
+                  <circle cx="12" cy="14" r="2" fill="currentColor" fill-opacity="0.3" />
+                </svg>
+              </div>
+              <p class="font-bold text-xs text-walnut-900">Màu Tương Sinh</p>
               <p class="text-[11px] text-walnut-800/80">Ngũ hành kích tài lộc</p>
             </div>
-            <div class="p-3 bg-white rounded-xl border border-walnut-900/10 shadow-xs">
-              <span class="text-base">🛋️</span>
-              <p class="mt-1 font-bold text-xs text-walnut-900">Nội Thất Gợi Ý</p>
+            <div class="p-3.5 bg-white rounded-xl border border-walnut-900/10 shadow-xs hover:border-[#D8B670]/50 transition-colors">
+              <div class="w-7 h-7 rounded-lg bg-[#173524]/10 text-[#173524] flex items-center justify-center mb-1.5">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-4 h-4">
+                  <path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M3 11a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6z" stroke-linecap="round" stroke-linejoin="round" />
+                  <path d="M5 19v2M19 19v2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </div>
+              <p class="font-bold text-xs text-walnut-900">Nội Thất Gợi Ý</p>
               <p class="text-[11px] text-walnut-800/80">Sản phẩm thực tế</p>
             </div>
           </div>
@@ -158,8 +194,12 @@ const namHienTai = new Date().getFullYear();
 
         {/* Trạng thái Loading đang gọi AI */}
         <div data-kt-loading class="hidden rounded-2xl border border-emerald-500/20 bg-white p-8 sm:p-12 text-center">
-          <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-2xl animate-spin">
-            🔮
+          <div class="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-[#173524] text-[#D8B670] shadow-md border border-[#D8B670]/40">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-7 h-7 animate-spin">
+              <circle cx="12" cy="12" r="9" stroke-dasharray="14 10" />
+              <polygon points="12,5 14,10 19,12 14,14 12,19 10,14 5,12 10,10" fill="currentColor" fill-opacity="0.25" />
+              <circle cx="12" cy="12" r="2" fill="currentColor" />
+            </svg>
           </div>
           <h3 class="mt-4 font-display text-lg font-bold text-[#173524]">Chuyên Gia Phong Thủy AI Đang Luận Giải...</h3>
           <p class="mt-1 text-xs text-walnut-800">Đang tra cứu quái số Bát Trạch và lựa chọn sản phẩm phù hợp trong kho hàng</p>
@@ -189,16 +229,24 @@ const namHienTai = new Date().getFullYear();
 
             {/* Hướng tốt */}
             <div class="mt-6">
-              <p class="text-xs font-bold uppercase tracking-[0.15em] text-[#173524] flex items-center gap-1.5">
-                <span>🧭</span> Bốn hướng đại cát nên đón nhận:
+              <p class="text-xs font-bold uppercase tracking-[0.15em] text-[#173524] flex items-center gap-2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 text-[#2f6f42] shrink-0">
+                  <circle cx="12" cy="12" r="9" />
+                  <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" fill="currentColor" />
+                </svg>
+                <span>Bốn hướng đại cát nên đón nhận:</span>
               </p>
               <dl data-kt-huong class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-sm"></dl>
             </div>
 
             {/* Màu sắc hợp */}
             <div class="mt-6 pt-5 border-t border-walnut-900/10">
-              <p class="text-xs font-bold uppercase tracking-[0.15em] text-[#173524] flex items-center gap-1.5">
-                <span>🎨</span> Màu sắc tương sinh & tương hợp:
+              <p class="text-xs font-bold uppercase tracking-[0.15em] text-[#173524] flex items-center gap-2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 text-[#2f6f42] shrink-0">
+                  <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z" />
+                  <circle cx="12" cy="14" r="2" fill="currentColor" />
+                </svg>
+                <span>Màu sắc tương sinh & tương hợp:</span>
               </p>
               <div data-kt-mau class="mt-2.5 flex flex-wrap gap-2 text-sm"></div>
             </div>
@@ -207,9 +255,11 @@ const namHienTai = new Date().getFullYear();
           {/* 2. Thẻ Luận Giải Chuyên Sâu Của AI Gemini */}
           <div class="rounded-2xl border border-emerald-600/30 bg-white p-6 sm:p-8 shadow-sm relative overflow-hidden">
             <div class="flex items-center justify-between gap-3 pb-4 border-b border-emerald-600/10">
-              <div class="flex items-center gap-2.5">
-                <div class="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-100 text-emerald-800 text-sm">
-                  ✨
+              <div class="flex items-center gap-3">
+                <div class="flex h-8 w-8 items-center justify-center rounded-lg bg-[#173524] text-[#D8B670] text-sm shadow-xs border border-[#D8B670]/30 shrink-0">
+                  <svg viewBox="0 0 24 24" fill="currentColor" class="w-4 h-4">
+                    <path d="M12 2L14.4 8.6L21 11L14.4 13.4L12 20L9.6 13.4L3 11L9.6 8.6L12 2Z" />
+                  </svg>
                 </div>
                 <div>
                   <h4 class="font-display text-base font-bold text-[#173524]">Lời Luận Giải Từ Chuyên Gia AI</h4>
@@ -230,7 +280,10 @@ const namHienTai = new Date().getFullYear();
             <div class="flex items-center justify-between pb-4 border-b border-walnut-900/10">
               <div>
                 <h4 class="font-display text-base font-bold text-[#173524] flex items-center gap-2">
-                  <span>🛋️</span> Sản Phẩm Nội Thất Hợp Bản Mệnh
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 text-[#2f6f42] shrink-0">
+                    <path d="M19 9V6a2 2 0 0 0-2-2H7a2 2 0 0 0-2 2v3M3 11a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-6zM5 19v2M19 19v2" />
+                  </svg>
+                  <span>Sản Phẩm Nội Thất Hợp Bản Mệnh</span>
                 </h4>
                 <p class="text-xs text-walnut-800/80">Được chọn lọc theo chất liệu & màu sắc tương sinh</p>
               </div>
@@ -247,8 +300,11 @@ const namHienTai = new Date().getFullYear();
           {/* 4. Nút bấm tương tác tiếp nối với Chatbot */}
           <div class="rounded-2xl bg-gradient-to-r from-[#173524] to-[#2f4a38] p-5 text-white flex flex-col sm:flex-row items-center justify-between gap-4 shadow-md">
             <div>
-              <p class="font-bold text-sm flex items-center gap-1.5">
-                <span>💬</span> Bạn muốn hỏi chi tiết hơn về cách kê đồ?
+              <p class="font-bold text-sm flex items-center gap-2">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 text-amber-300 shrink-0">
+                  <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z" />
+                </svg>
+                <span>Bạn muốn hỏi chi tiết hơn về cách kê đồ?</span>
               </p>
               <p class="text-xs text-emerald-200/90 mt-0.5">
                 Bấm nút để trò chuyện trực tiếp 1-1 với Chuyên gia AI về căn phòng này.

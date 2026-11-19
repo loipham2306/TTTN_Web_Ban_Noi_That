@@ -338,8 +338,12 @@ export default function FengShuiChatbot() {
           {/* Header */}
           <div className="relative flex items-center justify-between border-b border-[#2f4a38]/10 bg-gradient-to-r from-[#173524] via-[#1f3f2d] to-[#2f4a38] px-4 py-3 text-white">
             <div className="flex items-center gap-3">
-              <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-amber-400/20 ring-2 ring-amber-300/40">
-                <span className="text-lg">🔮</span>
+              <div className="relative flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-tr from-[#173524] to-[#244e36] ring-2 ring-[#D8B670]/40 text-[#D8B670]">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="w-5 h-5">
+                  <circle cx="12" cy="12" r="9" strokeOpacity="0.4" />
+                  <polygon points="12,3 14.5,9.5 21,12 14.5,14.5 12,21 9.5,14.5 3,12 9.5,9.5" fill="currentColor" fillOpacity="0.25" />
+                  <circle cx="12" cy="12" r="2" fill="currentColor" />
+                </svg>
                 <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-[#173524] bg-emerald-400" />
               </div>
               <div>
@@ -388,8 +392,11 @@ export default function FengShuiChatbot() {
                 className={`flex gap-2.5 ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {msg.role === 'assistant' && (
-                  <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#173524] text-white text-xs shadow-sm">
-                    🔮
+                  <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#173524] text-[#D8B670] text-xs shadow-sm border border-[#D8B670]/30">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="w-4 h-4">
+                      <polygon points="12,3 14.5,9.5 21,12 14.5,14.5 12,21 9.5,14.5 3,12 9.5,9.5" fill="currentColor" fillOpacity="0.3" />
+                      <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+                    </svg>
                   </div>
                 )}
 
@@ -415,8 +422,11 @@ export default function FengShuiChatbot() {
             {/* Trạng thái đang gõ */}
             {isLoading && (
               <div className="flex gap-2.5 justify-start items-center">
-                <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#173524] text-white text-xs">
-                  🔮
+                <div className="flex h-7 w-7 flex-shrink-0 items-center justify-center rounded-full bg-[#173524] text-[#D8B670] text-xs shadow-sm border border-[#D8B670]/30">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" className="w-4 h-4">
+                    <polygon points="12,3 14.5,9.5 21,12 14.5,14.5 12,21 9.5,14.5 3,12 9.5,9.5" fill="currentColor" fillOpacity="0.3" />
+                    <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+                  </svg>
                 </div>
                 <div className="bg-white border border-neutral-200/70 rounded-2xl px-4 py-2.5 shadow-sm">
                   <div className="flex items-center gap-1.5">
@@ -437,8 +447,11 @@ export default function FengShuiChatbot() {
           {/* Các câu hỏi gợi ý nhanh (chips) */}
           {messages.length <= 2 && (
             <div className="border-t border-neutral-200/60 bg-white/80 px-3 py-2">
-              <p className="text-[11px] font-medium text-neutral-500 mb-1.5">
-                {productContext ? '✨ Gợi ý cho sản phẩm đang xem:' : '✨ Câu hỏi thường gặp:'}
+              <p className="text-[11px] font-medium text-neutral-500 mb-1.5 flex items-center gap-1">
+                <svg viewBox="0 0 24 24" fill="currentColor" className="w-3.5 h-3.5 text-amber-500 shrink-0">
+                  <path d="M12 2L14.4 8.6L21 11L14.4 13.4L12 20L9.6 13.4L3 11L9.6 8.6L12 2Z" />
+                </svg>
+                <span>{productContext ? 'Gợi ý cho sản phẩm đang xem:' : 'Câu hỏi thường gặp:'}</span>
               </p>
               <div className="flex flex-wrap gap-1.5">
                 {productContext && (
