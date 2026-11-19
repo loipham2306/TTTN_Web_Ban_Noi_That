@@ -127,6 +127,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 <script>
   import { mergeGuestCartIntoUser } from '../../scripts/cart';
+  import { getToken, clearUser, AUTH_EVENT } from '../../scripts/auth';
   // =========================================================================
   // 1. CẤU HÌNH GOOGLE CLIENT ID
   // 👉 DÁN MÃ CÓ ĐUÔI ".apps.googleusercontent.com" VÀO GIỮA 2 DẤU "" DƯỚI ĐÂY:
@@ -140,6 +141,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       : (ENV_CLIENT_ID && !ENV_CLIENT_ID.includes("DÁN_") ? ENV_CLIENT_ID.trim() : "");
 
   document.addEventListener('DOMContentLoaded', () => {
+    // Nếu đang ở trang đăng nhập mà không có token hợp lệ, dọn sạch cache phiên cũ
+    if (!getToken() && localStorage.getItem('current_user')) {
+      clearUser();
+    }
+
     // Khởi tạo con mắt xem/ẩn mật khẩu
     const toggleLoginPass = document.getElementById('toggle-login-password') as HTMLButtonElement;
     const loginPassInput = document.getElementById('login-password') as HTMLInputElement;

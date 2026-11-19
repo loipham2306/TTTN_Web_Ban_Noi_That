@@ -86,6 +86,15 @@ export function sanitizeUserName(name?: string | null, role?: string): string {
 
 export function readUser(): AuthUser | null {
   try {
+    const token = getToken();
+    if (!token) {
+      // Nếu không có token hợp lệ (hoặc token đã hết hạn), dọn dẹp cache rác nếu có
+      if (typeof window !== 'undefined' && localStorage.getItem(AUTH_KEY)) {
+        localStorage.removeItem(AUTH_KEY);
+      }
+      return null;
+    }
+
     const raw = localStorage.getItem(AUTH_KEY);
     if (!raw) return null;
     const user = JSON.parse(raw) as AuthUser;
