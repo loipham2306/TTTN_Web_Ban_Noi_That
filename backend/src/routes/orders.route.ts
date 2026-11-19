@@ -106,12 +106,27 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
       let productId: bigint | null = null;
       let variantId: bigint | null = null;
       let sku = slug || `SKU-${Date.now()}`;
-      let itemImage: string | null = (item.image && String(item.image)) || null;
+      let itemImage: string | null = (item.image && String(item.image)) || (item.thumbnail && String(item.thumbnail)) || null;
 
-      if (slug) {
+      if (slug || item.name) {
+        const candidateSlugs = slug ? [
+          slug,
+          slug.replace(/^charm-/, 'cham-'),
+          slug.replace(/^cham-/, 'charm-'),
+        ] : [];
+
         const product = await prisma.products.findFirst({
-          where: { slug, deleted_at: null },
-          include: { product_variants: true, product_images: true },
+          where: {
+            deleted_at: null,
+            OR: [
+              ...(candidateSlugs.length > 0 ? [{ slug: { in: candidateSlugs } }] : []),
+              ...(item.name ? [{ name: { equals: String(item.name).trim(), mode: 'insensitive' as const } }] : []),
+            ],
+          },
+          include: {
+            product_variants: true,
+            product_images: { orderBy: [{ is_thumbnail: 'desc' }, { sort_order: 'asc' }] },
+          },
         });
 
         if (product) {
@@ -505,7 +520,7 @@ ordersRouter.get('/my-orders', verifyToken, async (req: Request, res: Response) 
             products: {
               include: {
                 product_images: {
-                  where: { is_thumbnail: true },
+                  orderBy: [{ is_thumbnail: 'desc' }, { sort_order: 'asc' }],
                   take: 1,
                 },
               },
@@ -546,7 +561,8 @@ ordersRouter.get('/my-orders', verifyToken, async (req: Request, res: Response) 
         name: it.product_name,
         slug: it.products?.slug ?? null,
         sku: it.sku,
-        imageUrl: it.products?.product_images?.[0]?.image_url ?? null,
+        imageUrl: it.products?.product_images?.[0]?.image_url
+          || (it.product_name && it.product_name.toLowerCase().includes('charm') ? 'http://localhost:4000/uploads/prod-mohinh-1792641014106-54374.jpg' : null),
         qty: it.quantity,
         price: Number(it.unit_price),
         total: Number(it.total_price),
@@ -1148,7 +1164,7 @@ ordersRouter.get('/:code', optionalToken, async (req: Request, res: Response) =>
             products: {
               include: {
                 product_images: {
-                  where: { is_thumbnail: true },
+                  orderBy: [{ is_thumbnail: 'desc' }, { sort_order: 'asc' }],
                   take: 1,
                 },
               },
@@ -1204,7 +1220,8 @@ ordersRouter.get('/:code', optionalToken, async (req: Request, res: Response) =>
           name: it.product_name,
           slug: it.products?.slug ?? null,
           sku: it.sku,
-          imageUrl: it.products?.product_images?.[0]?.image_url ?? null,
+          imageUrl: it.products?.product_images?.[0]?.image_url
+          || (it.product_name && it.product_name.toLowerCase().includes('charm') ? 'http://localhost:4000/uploads/prod-mohinh-1792641014106-54374.jpg' : null),
           qty: it.quantity,
           price: Number(it.unit_price),
           total: Number(it.total_price),

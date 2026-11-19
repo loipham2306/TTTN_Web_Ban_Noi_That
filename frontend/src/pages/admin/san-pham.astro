@@ -6,7 +6,7 @@ import { productDetails } from '../../data/product-details';
 // Lấy danh mục từ MySQL (kèm fallback)
 let categories = initialCategories;
 try {
-  const catRes = await fetch('http://localhost:4000/api/categories', { signal: AbortSignal.timeout(2000) });
+  const catRes = await fetch('http://localhost:4000/api/categories', { signal: AbortSignal.timeout(8000) });
   if (catRes.ok) {
     const catJson = await catRes.json();
     if (catJson.success && Array.isArray(catJson.data) && catJson.data.length > 0) {
@@ -28,7 +28,7 @@ const tonKhoDefault: Record<string, string> = {
 // Lấy sản phẩm từ MySQL (kèm fallback)
 let rows: any[] = [];
 try {
-  const prodRes = await fetch('http://localhost:4000/api/products?limit=100', { signal: AbortSignal.timeout(2000) });
+  const prodRes = await fetch('http://localhost:4000/api/products?limit=100', { signal: AbortSignal.timeout(8000) });
   if (prodRes.ok) {
     const prodJson = await prodRes.json();
     if (prodJson.success && Array.isArray(prodJson.data) && prodJson.data.length > 0) {

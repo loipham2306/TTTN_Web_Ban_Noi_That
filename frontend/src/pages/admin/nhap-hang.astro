@@ -16,9 +16,9 @@ let productList: any[] = [];
 
 try {
   const [slipsRes, suppRes, prodRes] = await Promise.all([
-    fetch('http://localhost:4000/api/import-slips', { signal: AbortSignal.timeout(3000) }),
-    fetch('http://localhost:4000/api/suppliers', { signal: AbortSignal.timeout(3000) }),
-    fetch('http://localhost:4000/api/products?limit=100', { signal: AbortSignal.timeout(3000) }),
+    fetch('http://localhost:4000/api/import-slips', { signal: AbortSignal.timeout(8000) }),
+    fetch('http://localhost:4000/api/suppliers', { signal: AbortSignal.timeout(8000) }),
+    fetch('http://localhost:4000/api/products?limit=100', { signal: AbortSignal.timeout(8000) }),
   ]);
 
   if (slipsRes.ok) {

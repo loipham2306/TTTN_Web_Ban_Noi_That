@@ -1778,6 +1778,7 @@ ${value('phone')}`,
             name: i.name,
             price: i.price,
             qty: i.qty,
+            image: i.thumbnail || (i as any).image || undefined,
           })),
         };
 

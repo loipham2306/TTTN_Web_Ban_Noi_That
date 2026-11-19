@@ -1596,12 +1596,25 @@ import { provinces } from '../../data/provinces';
           }
         }
 
-        const itemsRows = (o.items || []).map((it: any) => `
+        const itemsRows = (o.items || []).map((it: any) => {
+          let itemImgSrc = it.imageUrl;
+          if (itemImgSrc && typeof itemImgSrc === 'string' && itemImgSrc.includes('/uploads/')) {
+            itemImgSrc = '/uploads/' + itemImgSrc.substring(itemImgSrc.indexOf('/uploads/') + '/uploads/'.length);
+          }
+          const isCharm = (it.name || '').toLowerCase().includes('charm');
+          if (!itemImgSrc && isCharm) {
+            itemImgSrc = '/uploads/prod-mohinh-1792641014106-54374.jpg';
+          }
+          const genericFallback = isCharm
+            ? '/uploads/prod-mohinh-1792641014106-54374.jpg'
+            : 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=200&q=80';
+
+          return `
           <tr class="border-b border-walnut-900/5 hover:bg-sand-50/70 transition-colors">
             <td class="px-3.5 py-3">
               <div class="flex items-center gap-3">
-                ${it.imageUrl
-                  ? `<img src="${it.imageUrl}" alt="${it.name}" class="w-12 h-12 object-cover rounded-none border border-walnut-900/10 shrink-0 shadow-xs bg-white" />`
+                ${itemImgSrc
+                  ? `<img src="${itemImgSrc}" alt="${it.name}" class="w-12 h-12 object-cover rounded-none border border-walnut-900/10 shrink-0 shadow-xs bg-white" onerror="this.onerror=null; this.src='${genericFallback}';" />`
                   : `<div class="w-12 h-12 bg-sand-200/80 rounded-none shrink-0 border border-walnut-900/10 flex items-center justify-center text-xl">🛋️</div>`
                 }
                 <div class="min-w-0 pr-1">
@@ -1618,7 +1631,8 @@ import { provinces } from '../../data/provinces';
             <td class="px-3 py-3 text-right text-xs text-walnut-800/80 font-medium whitespace-nowrap">${fmtVnd(it.price)}</td>
             <td class="px-2 py-3 text-center font-bold text-walnut-900 text-xs whitespace-nowrap">${it.qty}</td>
             <td class="px-3.5 py-3 text-right font-bold text-clay-700 text-xs whitespace-nowrap">${fmtVnd(it.total || it.price * it.qty)}</td>
-          </tr>`).join('');
+          </tr>`;
+        }).join('');
 
         panelBody.innerHTML = `
           ${o.orderStatus === 'cancelled' ? `
