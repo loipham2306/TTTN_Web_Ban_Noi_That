@@ -177,6 +177,8 @@ export function clearUser(redirectUrl?: string): void {
   try {
     localStorage.removeItem(AUTH_KEY);
     localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(ADMIN_AUTH_KEY);
+    localStorage.removeItem(ADMIN_TOKEN_KEY);
     window.dispatchEvent(new Event(AUTH_EVENT));
     window.dispatchEvent(new CustomEvent('cart:updated', { detail: [] }));
     if (redirectUrl) {

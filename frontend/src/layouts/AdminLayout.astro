@@ -465,11 +465,17 @@ for (const g of navGroups) {
         }
       });
 
-      // Xử lý Đăng xuất (Chỉ xóa phiên Admin, không làm mất đăng nhập của Khách hàng)
+      // Xử lý Đăng xuất Quản trị viên triệt để (Xóa sạch toàn bộ phiên Admin & Storefront để tránh rò rỉ phiên)
       const handleLogout = () => {
         if (confirm('Bạn có chắc chắn muốn đăng xuất khỏi trang Quản trị viên?')) {
           localStorage.removeItem('admin_token');
           localStorage.removeItem('admin_user');
+          localStorage.removeItem('auth_token');
+          localStorage.removeItem('current_user');
+          try {
+            window.dispatchEvent(new Event('auth:changed'));
+            window.dispatchEvent(new CustomEvent('cart:updated', { detail: [] }));
+          } catch {}
           window.location.href = '/dang-nhap?redirect=/admin';
         }
       };

@@ -141,8 +141,25 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
       : (ENV_CLIENT_ID && !ENV_CLIENT_ID.includes("DÁN_") ? ENV_CLIENT_ID.trim() : "");
 
   document.addEventListener('DOMContentLoaded', () => {
-    // Nếu đang ở trang đăng nhập mà không có token hợp lệ, dọn sạch cache phiên cũ
-    if (!getToken() && localStorage.getItem('current_user')) {
+    // Nếu đang ở trang đăng nhập mà có tham số redirect=/admin hoặc error=admin_required:
+    // Đảm bảo dọn sạch toàn bộ session Quản trị viên cũ để Header hiển thị đúng trạng thái Khách
+    const urlParams = new URLSearchParams(window.location.search);
+    const isRedirectAdmin = urlParams.get('redirect') === '/admin';
+    const isAdminRequired = urlParams.get('error') === 'admin_required';
+
+    if (isRedirectAdmin || isAdminRequired) {
+      localStorage.removeItem('admin_token');
+      localStorage.removeItem('admin_user');
+      const cur = localStorage.getItem('current_user');
+      if (cur) {
+        try {
+          const u = JSON.parse(cur);
+          if (u.role === 'admin' || u.role === 'seller' || u.role === 'cashier') {
+            clearUser();
+          }
+        } catch {}
+      }
+    } else if (!getToken() && localStorage.getItem('current_user')) {
       clearUser();
     }
 
@@ -352,7 +369,6 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
     }
 
     // Kiểm tra thông báo từ URL (Ví dụ chuyển hướng do chưa có quyền Admin)
-    const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('error') === 'admin_required') {
       showAlertBanner(
         'Yêu cầu quyền Quản trị viên',
