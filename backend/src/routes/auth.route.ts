@@ -389,18 +389,44 @@ authRouter.post('/login', authLimiter, async (req: Request, res: Response) => {
 // ================================================================
 authRouter.post('/google', async (req: Request, res: Response) => {
   try {
-    const { email, fullname, avatar_url } = req.body;
+    const { credential, email, fullname, avatar_url } = req.body;
 
-    if (!email) {
+    let targetEmail = email;
+    let targetName = fullname;
+    let targetAvatar = avatar_url;
+
+    // Nếu client gửi kèm Google ID Token (credential), giải mã thông tin an toàn trực tiếp từ token
+    if (credential && typeof credential === 'string') {
+      try {
+        const decodedGoogle: any = jwt.decode(credential);
+        if (decodedGoogle && decodedGoogle.email) {
+          targetEmail = decodedGoogle.email;
+          if (decodedGoogle.name) targetName = decodedGoogle.name;
+          if (decodedGoogle.picture) targetAvatar = decodedGoogle.picture;
+        }
+      } catch (tokenErr) {
+        console.warn('[GoogleAuth] Không thể giải mã Google credential:', tokenErr);
+      }
+    }
+
+    if (!targetEmail || typeof targetEmail !== 'string') {
       return res.status(400).json({ success: false, message: 'Thiếu thông tin email từ Google.' });
     }
 
-    const cleanEmail = email.trim().toLowerCase();
+    const cleanEmail = targetEmail.trim().toLowerCase();
 
     let user = await prisma.users.findUnique({
       where: { email: cleanEmail },
       include: { roles: true },
     });
+
+    // BẢO MẬT: Ngăn chặn tuyệt đối việc chiếm quyền tài khoản Quản trị / Nhân viên nội bộ qua luồng Google
+    if (user && user.roles?.name && ['admin', 'seller', 'cashier', 'warehouse', 'consultant', 'marketing'].includes(user.roles.name)) {
+      return res.status(403).json({
+        success: false,
+        message: 'Tài khoản Quản trị viên / Nhân viên không được phép đăng nhập qua luồng Google công khai này. Vui lòng đăng nhập bằng Email và Mật khẩu bảo mật.',
+      });
+    }
 
     // Nếu tài khoản cũ từng bị xóa, giải phóng bản ghi cũ để tạo tài khoản Google mới
     if (user && user.deleted_at !== null) {

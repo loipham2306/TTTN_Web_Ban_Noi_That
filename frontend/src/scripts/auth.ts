@@ -20,6 +20,31 @@ export const ADMIN_AUTH_KEY = 'admin_user';
 export const ADMIN_TOKEN_KEY = 'admin_token';
 export const AUTH_EVENT = 'auth:changed';
 
+/**
+ * Tự động xóa sạch các dữ liệu thử nghiệm cũ (mock) có chứa mật khẩu bản rõ hoặc dữ liệu rác
+ * còn sót lại trong LocalStorage của trình duyệt từ các phiên bản trước.
+ */
+export function cleanupLegacySensitiveStorage(): void {
+  if (typeof window === 'undefined') return;
+  try {
+    const legacySensitiveKeys = [
+      'registered_customers',
+      'registered_users',
+      'user_passwords',
+      'mock_customers',
+    ];
+    legacySensitiveKeys.forEach((key) => {
+      if (localStorage.getItem(key)) {
+        localStorage.removeItem(key);
+      }
+    });
+  } catch {}
+}
+
+if (typeof window !== 'undefined') {
+  cleanupLegacySensitiveStorage();
+}
+
 export function isTokenExpired(token: string): boolean {
   try {
     const parts = token.split('.');

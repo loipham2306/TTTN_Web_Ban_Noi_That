@@ -1,5 +1,6 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
+import { verifyToken, requireAdmin } from '../middlewares/auth.middleware.js';
 import path from 'path';
 import fs from 'fs';
 
@@ -46,8 +47,8 @@ router.get('/', async (_req: Request, res: Response) => {
   }
 });
 
-// GET /api/health/backup-sql - Xuất và tải trực tiếp file sao lưu CSDL MySQL (.sql)
-router.get('/backup-sql', (_req: Request, res: Response) => {
+// GET /api/health/backup-sql - Xuất và tải trực tiếp file sao lưu CSDL MySQL (.sql) (Yêu cầu quyền Admin)
+router.get('/backup-sql', verifyToken, requireAdmin, (_req: Request, res: Response) => {
   try {
     const candidatePaths = [
       path.resolve(process.cwd(), 'database/web_ban_noi_that.sql'),

@@ -80,7 +80,7 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
           where: { id: user.id },
           data: { phone },
         });
-      } catch {}
+      } catch { }
     }
 
     // 2. Xác thực từng sản phẩm từ CSDL, kiểm tra tồn kho và đối chiếu giá thực tế
@@ -120,7 +120,7 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
             deleted_at: null,
             OR: [
               ...(candidateSlugs.length > 0 ? [{ slug: { in: candidateSlugs } }] : []),
-              ...(item.name ? [{ name: { equals: String(item.name).trim(), mode: 'insensitive' as any } } as any] : []),
+              ...(item.name ? [{ name: { equals: String(item.name).trim(), } }] : []),
             ],
           },
           include: {
@@ -200,7 +200,7 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
         if (coupon && coupon.status !== false) {
           const now = new Date();
           const isValidDate = (!coupon.start_date || new Date(coupon.start_date) <= now) &&
-                              (!coupon.end_date || new Date(coupon.end_date) >= now);
+            (!coupon.end_date || new Date(coupon.end_date) >= now);
           const hasUsage = !coupon.usage_limit || (coupon.used_count || 0) < coupon.usage_limit;
           const meetsMin = subtotalAmount >= Number(coupon.min_order_value || 0);
 
@@ -1221,7 +1221,7 @@ ordersRouter.get('/:code', optionalToken, async (req: Request, res: Response) =>
           slug: it.products?.slug ?? null,
           sku: it.sku,
           imageUrl: it.products?.product_images?.[0]?.image_url
-          || (it.product_name && it.product_name.toLowerCase().includes('charm') ? 'http://localhost:4000/uploads/prod-mohinh-1792641014106-54374.jpg' : null),
+            || (it.product_name && it.product_name.toLowerCase().includes('charm') ? 'http://localhost:4000/uploads/prod-mohinh-1792641014106-54374.jpg' : null),
           qty: it.quantity,
           price: Number(it.unit_price),
           total: Number(it.total_price),
@@ -1328,7 +1328,7 @@ ordersRouter.patch('/:id/status', verifyToken, requireAdmin, async (req: Request
               where: { id: vId },
               data: { stock_quantity: Math.max(0, curr - item.quantity) },
             });
-          } catch (e) {}
+          } catch (e) { }
         }
       }
 

@@ -263,6 +263,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
+            credential: response.credential,
             email: googleUser.email,
             fullname: googleUser.name,
             avatar_url: googleUser.avatar,

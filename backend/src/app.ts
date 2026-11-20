@@ -19,7 +19,7 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: (origin, callback) => {
-      // Cho phép requests không có origin (curl, postman, mobile)
+      // Cho phép requests không có origin (curl, postman, mobile app, internal SSR)
       if (!origin) return callback(null, true);
       if (
         allowedOrigins.includes(origin) ||
@@ -28,7 +28,7 @@ app.use(
       ) {
         return callback(null, true);
       }
-      return callback(null, true);
+      return callback(null, false);
     },
     credentials: true,
   })

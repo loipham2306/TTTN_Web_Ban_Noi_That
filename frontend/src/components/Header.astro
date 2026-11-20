@@ -1253,10 +1253,18 @@ const isItemActive = (item: MenuItem): boolean => {
     });
 
     document.querySelectorAll<HTMLElement>('[data-user-avatar-wrap]').forEach((el) => {
+      el.innerHTML = '';
       if (user?.avatar) {
-        el.innerHTML = `<img src="${user.avatar}" alt="${cleanName}" class="w-full h-full object-cover rounded-full" />`;
+        const img = document.createElement('img');
+        img.src = user.avatar;
+        img.alt = cleanName;
+        img.className = 'w-full h-full object-cover rounded-full';
+        el.appendChild(img);
       } else {
-        el.innerHTML = `<div class="w-full h-full rounded-full bg-[#173524] flex items-center justify-center font-display font-bold text-sm tracking-wider text-[#D8B670]" data-user-initials>${initials}</div>`;
+        const div = document.createElement('div');
+        div.className = 'w-full h-full rounded-full bg-[#173524] flex items-center justify-center font-display font-bold text-sm tracking-wider text-[#D8B670]';
+        div.textContent = initials;
+        el.appendChild(div);
       }
     });
 
