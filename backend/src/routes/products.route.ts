@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
 import { optionalToken, verifyToken, requireAdmin } from '../middlewares/auth.middleware.js';
+import { getCache, setCache, invalidateCachePrefix } from '../utils/cache.js';
 
 export const productsRouter = Router();
 
@@ -10,6 +11,12 @@ export const productsRouter = Router();
 // ================================================================
 productsRouter.get('/', async (req: Request, res: Response) => {
   try {
+    const cacheKey = `products:list:${req.originalUrl}`;
+    const cached = getCache<any>(cacheKey);
+    if (cached) {
+      return res.json(cached);
+    }
+
     const { category, minPrice, maxPrice, page = '1', limit = '12', search, material, color } = req.query;
 
     const pageNum  = Math.max(1, parseInt(page as string, 10));
@@ -93,11 +100,13 @@ productsRouter.get('/', async (req: Request, res: Response) => {
       shortDescription: p.short_description,
     }));
 
-    return res.json({
+    const payload = {
       success: true,
       data,
       pagination: { page: pageNum, limit: limitNum, total, totalPages: Math.ceil(total / limitNum) },
-    });
+    };
+    setCache(cacheKey, payload, 45);
+    return res.json(payload);
   } catch (error: any) {
     console.error('Loi lay san pham:', error);
     return res.status(500).json({ success: false, message: 'Loi may chu.', error: error.message });
@@ -110,6 +119,16 @@ productsRouter.get('/', async (req: Request, res: Response) => {
 productsRouter.get('/:slug', async (req: Request, res: Response) => {
   try {
     const { slug } = req.params;
+    const cacheKey = `products:slug:${slug}`;
+    const cached = getCache<any>(cacheKey);
+    if (cached) {
+      // Tăng lượt xem bất đồng bộ (không block response)
+      prisma.products.update({
+        where: { id: BigInt(cached.data.id) },
+        data: { view_count: { increment: 1 } },
+      }).catch(() => {});
+      return res.json(cached);
+    }
 
     const product = await prisma.products.findFirst({
       where: { slug, deleted_at: null },
@@ -124,13 +143,13 @@ productsRouter.get('/:slug', async (req: Request, res: Response) => {
       return res.status(404).json({ success: false, message: 'Khong tim thay san pham.' });
     }
 
-    // Increment view count
-    await prisma.products.update({
+    // Tăng lượt xem bất đồng bộ (không chờ thêm 1 round-trip mạng tới Supabase)
+    prisma.products.update({
       where: { id: product.id },
       data: { view_count: { increment: 1 } },
-    });
+    }).catch(() => {});
 
-    return res.json({
+    const payload = {
       success: true,
       data: {
         id:               Number(product.id),
@@ -157,7 +176,9 @@ productsRouter.get('/:slug', async (req: Request, res: Response) => {
           isThumbnail: img.is_thumbnail,
         })),
       },
-    });
+    };
+    setCache(cacheKey, payload, 45);
+    return res.json(payload);
   } catch (error: any) {
     console.error('Loi lay chi tiet san pham:', error);
     return res.status(500).json({ success: false, message: 'Loi may chu.', error: error.message });
@@ -216,6 +237,9 @@ productsRouter.post('/', verifyToken, requireAdmin, async (req: Request, res: Re
       },
       include: { product_variants: true, product_images: true },
     });
+
+    invalidateCachePrefix('products:');
+    invalidateCachePrefix('categories:');
 
     return res.status(201).json({
       success: true,
@@ -315,6 +339,9 @@ productsRouter.put('/:id', verifyToken, requireAdmin, async (req: Request, res: 
       }
     }
 
+    invalidateCachePrefix('products:');
+    invalidateCachePrefix('categories:');
+
     return res.json({ success: true, message: 'Cap nhat san pham thanh cong!' });
   } catch (error: any) {
     console.error('Loi sua san pham:', error);
@@ -336,6 +363,9 @@ productsRouter.delete('/:id', verifyToken, requireAdmin, async (req: Request, re
       data: { deleted_at: new Date(), status: false },
     });
 
+    invalidateCachePrefix('products:');
+    invalidateCachePrefix('categories:');
+
     return res.json({ success: true, message: 'Xoa san pham thanh cong!' });
   } catch (error: any) {
     console.error('Loi xoa san pham:', error);
@@ -348,11 +378,17 @@ productsRouter.delete('/:id', verifyToken, requireAdmin, async (req: Request, re
 // ================================================================
 productsRouter.get('/categories/all', async (_req: Request, res: Response) => {
   try {
+    const cacheKey = 'categories:products_all';
+    const cached = getCache<any[]>(cacheKey);
+    if (cached) {
+      return res.json({ success: true, data: cached });
+    }
     const cats = await prisma.categories.findMany({
       where: { status: true },
       orderBy: { id: 'asc' },
       select: { id: true, name: true, slug: true, image_url: true },
     });
+    setCache(cacheKey, cats, 60);
     return res.json({ success: true, data: cats });
   } catch (error: any) {
     return res.status(500).json({ success: false, message: 'Loi may chu.', error: error.message });

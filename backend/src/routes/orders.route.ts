@@ -4,6 +4,7 @@ import { verifyToken, requireAdmin, requireAdminOrInternal, optionalToken, AuthU
 import jwt from 'jsonwebtoken';
 import { ENV } from '../config/env.js';
 import { MailerService } from '../services/mailer.service.js';
+import { invalidateCachePrefix } from '../utils/cache.js';
 
 export const ordersRouter = Router();
 
@@ -319,6 +320,8 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
       return orderCreated;
     });
 
+    invalidateCachePrefix('products:');
+
     // Tự động lưu địa chỉ vào sổ địa chỉ (user_addresses) nếu khách chưa có địa chỉ nào hoặc có tick chọn lưu địa chỉ
     try {
       if (province && district && address) {
@@ -632,6 +635,7 @@ ordersRouter.post('/:idOrCode/cancel', verifyToken, async (req: Request, res: Re
         }
       }
     }
+    invalidateCachePrefix('products:');
 
     // 2. Hoàn lại lượt sử dụng coupon (nếu có)
     if (existingOrder.coupon_id) {
@@ -1278,6 +1282,7 @@ ordersRouter.patch('/:id/status', verifyToken, requireAdmin, async (req: Request
           console.warn('Lỗi hoàn lượt sử dụng coupon:', couponErr);
         }
       }
+      invalidateCachePrefix('products:');
     }
 
     // Nếu mở lại đơn hàng từng bị hủy -> Trừ lại tồn kho biến thể và tính lại lượt dùng coupon
@@ -1306,6 +1311,7 @@ ordersRouter.patch('/:id/status', verifyToken, requireAdmin, async (req: Request
           console.warn('Lỗi tăng lại lượt sử dụng coupon:', couponErr);
         }
       }
+      invalidateCachePrefix('products:');
     }
 
     const updatedOrder = await prisma.orders.update({
@@ -1518,6 +1524,7 @@ export async function autoCancelExpiredOrders(hoursThreshold = 24): Promise<{ ca
             }
           }
         }
+        invalidateCachePrefix('products:');
 
         // 2. Hoàn lại lượt dùng coupon nếu có
         if (order.coupon_id) {

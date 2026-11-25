@@ -302,31 +302,33 @@ export default function FengShuiChatbot() {
 
   return (
     <>
-      {/* Nút Floating Kích Hoạt Chatbot Phong Thủy - Ẩn đi khi popup chat đang mở */}
+      {/* Nút Floating Kích Hoạt Chatbot Phong Thủy - Thu gọn thành nút tròn, rê chuột mới bung chữ */}
       {!isOpen && (
-        <div id="feng-shui-fab-container" data-floating-fab="true" className="fixed bottom-6 right-20 z-40 flex items-center sm:right-24 animate-in fade-in duration-200">
+        <div id="feng-shui-fab-container" data-floating-fab="true" className="fixed bottom-6 right-[4.75rem] z-40 flex items-center sm:right-[5.5rem] animate-in fade-in duration-200">
           <button
             type="button"
             onClick={() => setIsOpen(true)}
-            className="group relative flex h-12 items-center gap-2 rounded-full bg-gradient-to-r from-[#173524] to-[#2f4a38] px-3.5 py-2 text-white shadow-xl ring-2 ring-amber-400/30 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:ring-amber-400/60 active:scale-95 sm:px-4 sm:gap-2.5"
+            className="group relative flex h-12 min-w-12 items-center justify-center rounded-full bg-gradient-to-r from-[#173524] to-[#2f4a38] px-3 text-white shadow-xl ring-2 ring-amber-400/35 transition-all duration-300 hover:px-4 hover:shadow-2xl hover:ring-amber-400/70 active:scale-95 cursor-pointer"
             aria-label="Mở tư vấn phong thủy AI"
+            title="AI Phong Thủy"
           >
-            {/* Vòng sáng nhấp nháy thu hút sự chú ý */}
-            <span className="relative flex h-3 w-3">
+            {/* Chấm xanh trạng thái online ở góc */}
+            <span className="absolute -top-0.5 -right-0.5 flex h-3 w-3">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex h-3 w-3 rounded-full bg-emerald-500"></span>
+              <span className="relative inline-flex h-3 w-3 rounded-full border border-[#173524] bg-emerald-500"></span>
             </span>
 
             {/* Icon Bát Quái / Sao Phong Thủy */}
-            <svg className="h-5 w-5 text-amber-300 transition-transform group-hover:rotate-45" viewBox="0 0 24 24" fill="currentColor">
+            <svg className="h-5 w-5 shrink-0 text-amber-300 transition-transform duration-300 group-hover:rotate-45" viewBox="0 0 24 24" fill="currentColor">
               <path d="M12 2L14.4 8.6L21 11L14.4 13.4L12 20L9.6 13.4L3 11L9.6 8.6L12 2Z" />
             </svg>
 
-            <span className="text-xs font-semibold tracking-wide hidden xs:inline sm:inline">AI Phong Thủy</span>
-
-            {/* Badge NEW */}
-            <span className="rounded-full bg-amber-400 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-neutral-900 shadow-sm">
-              AI
+            {/* Chữ chỉ bung mượt khi rê chuột vào */}
+            <span className="flex items-center gap-1.5 max-w-0 overflow-hidden opacity-0 whitespace-nowrap transition-all duration-300 group-hover:max-w-[160px] group-hover:opacity-100 group-hover:ml-2">
+              <span className="text-xs font-semibold tracking-wide">AI Phong Thủy</span>
+              <span className="rounded-full bg-amber-400 px-1.5 py-0.5 text-[9px] font-black uppercase tracking-wider text-neutral-900 shadow-sm">
+                AI
+              </span>
             </span>
           </button>
         </div>

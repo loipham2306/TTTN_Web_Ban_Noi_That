@@ -36,8 +36,8 @@ app.use(
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Serve uploaded static files
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+// Serve uploaded static files with browser cache (7 days)
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads'), { maxAge: '7d', etag: true }));
 
 app.get('/', (_req, res) => {
   res.json({

@@ -15,6 +15,11 @@ interface Props {
 const { title, description = 'Nội thất thiết kế cho không gian sống đẳng cấp.', noPaddingTop = false } = Astro.props;
 const isHome = Astro.url.pathname === '/';
 const hasTopPadding = !isHome && !noPaddingTop;
+const hideFloatingFabs =
+  Astro.url.pathname.startsWith('/admin') ||
+  Astro.url.pathname.startsWith('/dang-nhap') ||
+  Astro.url.pathname.startsWith('/dang-ky') ||
+  Astro.url.pathname.startsWith('/quen-mat-khau');
 ---
 <!doctype html>
 <html lang="vi">
@@ -37,8 +42,8 @@ href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;7
 <slot />
 </main>
 <Footer />
-{!Astro.url.pathname.startsWith('/admin') && <ContactFab />}
-{!Astro.url.pathname.startsWith('/admin') && <FengShuiChatbot client:load />}
+{!hideFloatingFabs && <ContactFab />}
+{!hideFloatingFabs && <FengShuiChatbot client:load />}
 {!Astro.url.pathname.startsWith('/admin') && <QuickViewModal />}
 
 <!-- global.css an.grid > * / article[data-product] khi JS chua chay.

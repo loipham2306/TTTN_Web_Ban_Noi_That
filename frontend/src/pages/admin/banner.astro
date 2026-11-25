@@ -55,6 +55,7 @@ const showcaseBanners = banners.filter((b) => b.position === 'showcase').length;
 const sanPhamBanners = banners.filter((b) => b.position === 'san-pham').length;
 const phongThuyBanners = banners.filter((b) => b.position === 'phong-thuy').length;
 const veChungToiBanners = banners.filter((b) => b.position === 've-chung-toi').length;
+const authBanners = banners.filter((b) => b.position === 'auth').length;
 ---
 
 <AdminLayout title="Quản Lý Banner & Hình Ảnh Quảng Cáo - Nội Thất">
@@ -91,6 +92,16 @@ const veChungToiBanners = banners.filter((b) => b.position === 've-chung-toi').l
 
         <button 
           type="button" 
+          id="btn-create-auth-banner"
+          class="inline-flex items-center gap-1.5 bg-[#FAF8F5] px-3.5 py-2 text-xs uppercase tracking-[0.12em] text-[#173524] transition-all hover:bg-sand-200 shadow-xs font-bold border border-[#173524]/30 cursor-pointer"
+          title="Tạo nhanh hoặc cập nhật banner cho trang Đăng Nhập & Đăng Ký"
+        >
+          <span class="text-amber-600 font-bold">✦</span>
+          <span>Banner Đăng Nhập & ĐK</span>
+        </button>
+
+        <button 
+          type="button" 
           id="btn-open-create-banner"
           class="inline-flex items-center gap-1.5 bg-[#173524] px-4 py-2 text-xs uppercase tracking-[0.15em] text-[#D8B670] transition-colors hover:bg-walnut-900 shadow-sm cursor-pointer font-bold border border-[#D8B670]/40"
         >
@@ -103,7 +114,7 @@ const veChungToiBanners = banners.filter((b) => b.position === 've-chung-toi').l
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-3.5">
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-3.5 shadow-2xs">
         <p class="text-[11px] uppercase text-walnut-800/70 font-semibold">Tổng số lượng</p>
         <p id="stat-total" class="text-xl font-bold text-walnut-900 mt-1">{totalBanners} mục</p>
@@ -118,6 +129,13 @@ const veChungToiBanners = banners.filter((b) => b.position === 've-chung-toi').l
           <span class="text-[10px] text-amber-700 font-bold">✦</span>
         </div>
         <p id="stat-ve-chung-toi" class="text-xl font-bold text-[#173524] mt-1">{veChungToiBanners} banner</p>
+      </div>
+      <div class="rounded border border-[#173524]/30 bg-[#173524]/5 p-3.5 shadow-2xs cursor-pointer hover:bg-[#173524]/10 transition-all border-l-4 border-l-[#D8B670]" data-stat-pill="auth" title="Nhấp để lọc nhanh Banner Đăng Nhập & Đăng Ký">
+        <div class="flex items-center justify-between">
+          <p class="text-[11px] uppercase text-[#173524] font-bold">Đăng Nhập / ĐK</p>
+          <span class="text-[10px] text-amber-700 font-bold">✦</span>
+        </div>
+        <p id="stat-auth" class="text-xl font-bold text-[#173524] mt-1">{authBanners} banner</p>
       </div>
       <div class="rounded border border-amber-900/15 bg-amber-50/40 p-3.5 shadow-2xs cursor-pointer hover:bg-amber-100/50 transition-all" data-stat-pill="hero" title="Nhấp để lọc Hero Trang Chủ">
         <p class="text-[11px] uppercase text-amber-900/80 font-semibold">Hero Trang Chủ</p>
@@ -189,6 +207,13 @@ const veChungToiBanners = banners.filter((b) => b.position === 've-chung-toi').l
       >
         Không Gian Thực Tế ({showcaseBanners})
       </button>
+      <button 
+        type="button" 
+        data-position-pill="auth"
+        class="tab-pill shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer bg-sand-50 text-walnut-900 border border-walnut-900/15 hover:bg-walnut-900 hover:text-sand-50 shadow-2xs"
+      >
+        Đăng Nhập & Đăng Ký ({authBanners})
+      </button>
     </div>
 
     <!-- Filter & Controls -->
@@ -216,6 +241,7 @@ const veChungToiBanners = banners.filter((b) => b.position === 've-chung-toi').l
         <option value="san-pham">Banner Menu Sản Phẩm</option>
         <option value="phong-thuy">Banner Menu Phong Thủy</option>
         <option value="ve-chung-toi">Banner Về Chúng Tôi</option>
+        <option value="auth">Banner Đăng Nhập & Đăng Ký</option>
         <option value="promo">Khuyến mãi</option>
       </select>
 
@@ -301,7 +327,12 @@ const veChungToiBanners = banners.filter((b) => b.position === 've-chung-toi').l
                   Về Chúng Tôi
                 </span>
               )}
-              {b.position !== 'hero' && b.position !== 'space' && b.position !== 'showcase' && b.position !== 'san-pham' && b.position !== 'phong-thuy' && b.position !== 've-chung-toi' && (
+              {b.position === 'auth' && (
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#173524] text-[#F3E5AB] border border-[#D8B670]/50 shadow-xs">
+                  Đăng Nhập & Đăng Ký
+                </span>
+              )}
+              {b.position !== 'hero' && b.position !== 'space' && b.position !== 'showcase' && b.position !== 'san-pham' && b.position !== 'phong-thuy' && b.position !== 've-chung-toi' && b.position !== 'auth' && (
                 <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-walnut-900 text-sand-50 shadow-xs">
                   {b.position === 'promo' ? 'Khuyến Mãi' : b.position}
                 </span>
@@ -482,6 +513,7 @@ const veChungToiBanners = banners.filter((b) => b.position === 've-chung-toi').l
                 <option value="san-pham">Banner Menu Sản Phẩm (/san-pham)</option>
                 <option value="phong-thuy">Banner Menu Phong Thủy (/phong-thuy)</option>
                 <option value="ve-chung-toi">Banner Về Chúng Tôi (/ve-chung-toi)</option>
+                <option value="auth">Banner Đăng Nhập & Đăng Ký (/dang-nhap, /dang-ky)</option>
                 <option value="promo">Quảng cáo / Khuyến mãi giữa trang</option>
               </select>
             </div>
@@ -684,6 +716,21 @@ const veChungToiBanners = banners.filter((b) => b.position === 've-chung-toi').l
     if (previewImg) previewImg.src = formImageUrl.value;
   });
 
+  const btnCreateAuthBanner = document.getElementById('btn-create-auth-banner');
+  btnCreateAuthBanner?.addEventListener('click', () => {
+    openCreateModal();
+    if (modalHeading) modalHeading.textContent = 'Banner Đăng Nhập & Đăng Ký (/dang-nhap, /dang-ky)';
+    if (modalEyebrow) modalEyebrow.textContent = 'Trang Thành Viên';
+    formPosition.value = 'auth';
+    formTitle.value = 'Không gian sống đẳng cấp bắt đầu từ những lựa chọn chỉn chu.';
+    formSubtitle.value = 'NỘI THẤT CAO CẤP KTUFA';
+    formDesc.value = 'Lưu sản phẩm yêu thích, theo dõi đơn hàng vận chuyển theo thời gian thực và nhận ưu đãi đặc quyền dành riêng cho hội viên.';
+    formLink.value = '/san-pham';
+    formBtnText.value = 'Khám phá bộ sưu tập';
+    formImageUrl.value = 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1400&q=85';
+    if (previewImg) previewImg.src = formImageUrl.value;
+  });
+
   formPosition?.addEventListener('change', () => {
     if (formPosition.value === 've-chung-toi') {
       if (!formLink.value || formLink.value === '/san-pham') formLink.value = '/ve-chung-toi#cau-chuyen';
@@ -693,6 +740,10 @@ const veChungToiBanners = banners.filter((b) => b.position === 've-chung-toi').l
       if (!formLink.value || formLink.value.startsWith('/ve-chung-toi')) formLink.value = '/san-pham';
     } else if (formPosition.value === 'phong-thuy') {
       if (!formLink.value || formLink.value.startsWith('/ve-chung-toi')) formLink.value = '/phong-thuy';
+    } else if (formPosition.value === 'auth') {
+      if (!formTitle.value) formTitle.value = 'Không gian sống đẳng cấp bắt đầu từ những lựa chọn chỉn chu.';
+      if (!formSubtitle.value) formSubtitle.value = 'NỘI THẤT CAO CẤP KTUFA';
+      if (!formLink.value || formLink.value.startsWith('/ve-chung-toi')) formLink.value = '/san-pham';
     }
   });
 
