@@ -229,14 +229,14 @@ const isItemActive = (item: MenuItem): boolean => {
                             <a
                               href={child.href}
                               class:list={[
-                                'group/item flex items-center justify-between px-5 py-3 sm:py-3.5 text-[13.5px] sm:text-sm text-neutral-200 transition-all rounded-none hover:bg-white/[0.08] hover:text-[#D8B670]',
-                                childActive && 'text-[#D8B670] font-semibold bg-white/[0.08] border-l-2 border-[#D8B670]',
+                                'group/item flex items-center justify-between px-5 py-3 sm:py-3.5 text-[13.5px] sm:text-sm text-neutral-200 transition-all rounded-none hover:bg-[#F3E5AB]/15 hover:text-[#FFF2B2] border-l-2 border-transparent hover:border-[#D8B670]',
+                                childActive && 'text-[#FFF2B2] font-semibold bg-[#F3E5AB]/20 border-l-2 border-[#D8B670]',
                               ]}
                             >
                               <span class="whitespace-nowrap transition-transform duration-200 group-hover/item:translate-x-1.5 font-medium">
                                 {child.label}
                               </span>
-                              <svg class="h-3.5 w-3.5 opacity-0 -translate-x-1.5 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 text-[#D8B670] shrink-0 ml-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <svg class="h-3.5 w-3.5 opacity-0 -translate-x-1.5 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 text-[#FFF2B2] shrink-0 ml-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                               </svg>
                             </a>
@@ -280,10 +280,12 @@ const isItemActive = (item: MenuItem): boolean => {
             aria-controls="account-menu-panel"
             title="Tài khoản"
           >
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5 shrink-0">
-              <circle cx="12" cy="8" r="3.5" />
-              <path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5" stroke-linecap="round" />
-            </svg>
+            <div data-header-user-avatar class="shrink-0 flex items-center justify-center">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5 shrink-0">
+                <circle cx="12" cy="8" r="3.5" />
+                <path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5" stroke-linecap="round" />
+              </svg>
+            </div>
             <span class="account-name max-w-[110px] truncate text-[13px] font-medium xl:max-w-[130px]" data-user-name>Khách</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="account-caret h-3 w-3 shrink-0 opacity-60">
               <path d="M6 9l6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
@@ -345,30 +347,30 @@ const isItemActive = (item: MenuItem): boolean => {
                   </span>
                   <a
                     href="/phong-thuy"
-                    class="group flex items-center gap-3 p-2 rounded-none hover:bg-white/[0.08] transition-colors"
+                    class="group flex items-center gap-3 p-2 rounded-none hover:bg-[#F3E5AB]/15 border-l-2 border-transparent hover:border-[#D8B670] transition-colors"
                   >
-                    <div class="w-7 h-7 rounded-none bg-[#D8B670]/15 text-[#D8B670] flex items-center justify-center shrink-0 border border-[#D8B670]/30">
+                    <div class="w-7 h-7 rounded-none bg-[#D8B670]/15 text-[#D8B670] group-hover:text-[#FFF2B2] flex items-center justify-center shrink-0 border border-[#D8B670]/30">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-4 h-4">
                         <path d={ICON.star} stroke-linecap="round" stroke-linejoin="round" />
                       </svg>
                     </div>
                     <div class="text-left min-w-0">
-                      <span class="text-[13px] font-medium text-white group-hover:text-[#D8B670] group-hover:translate-x-0.5 transition-all block truncate">Tư vấn Phong thủy AI</span>
+                      <span class="text-[13px] font-medium text-white group-hover:text-[#FFF2B2] group-hover:translate-x-0.5 transition-all block truncate">Tư vấn Phong thủy AI</span>
                       <span class="text-[10.5px] text-neutral-400 block truncate">Định hướng tài lộc tư gia</span>
                     </div>
                   </a>
 
                   <a
                     href="tel:1900636884"
-                    class="group flex items-center gap-3 p-2 rounded-none hover:bg-white/[0.08] transition-colors"
+                    class="group flex items-center gap-3 p-2 rounded-none hover:bg-[#F3E5AB]/15 border-l-2 border-transparent hover:border-[#D8B670] transition-colors"
                   >
-                    <div class="w-7 h-7 rounded-none bg-emerald-500/15 text-emerald-400 flex items-center justify-center shrink-0 border border-emerald-500/30">
+                    <div class="w-7 h-7 rounded-none bg-emerald-500/15 text-emerald-400 group-hover:text-[#FFF2B2] flex items-center justify-center shrink-0 border border-emerald-500/30">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="w-4 h-4">
                         <path d={ICON.phone} stroke-linecap="round" stroke-linejoin="round" />
                       </svg>
                     </div>
                     <div class="text-left min-w-0">
-                      <span class="text-[13px] font-medium text-white group-hover:text-[#D8B670] group-hover:translate-x-0.5 transition-all block truncate">Hotline Concierge 24/7</span>
+                      <span class="text-[13px] font-medium text-white group-hover:text-[#FFF2B2] group-hover:translate-x-0.5 transition-all block truncate">Hotline Concierge 24/7</span>
                       <span class="text-[10.5px] text-neutral-400 block font-mono">1900 636 884</span>
                     </div>
                   </a>
@@ -416,11 +418,11 @@ const isItemActive = (item: MenuItem): boolean => {
                   <div class="mt-3 pt-2.5 border-t border-white/10">
                     <a
                       href="/tai-khoan"
-                      class="group flex items-center justify-center gap-2 py-2 px-3 rounded-none bg-white/[0.04] hover:bg-[#D8B670]/15 border border-white/10 hover:border-[#D8B670]/50 text-neutral-200 hover:text-[#D8B670] text-[13px] sm:text-sm font-semibold tracking-wider transition-all duration-200"
+                      class="group flex items-center justify-center gap-2 py-2 px-3 rounded-none bg-white/[0.04] hover:bg-[#F3E5AB]/20 border border-white/10 hover:border-[#D8B670] text-neutral-200 hover:text-[#FFF2B2] text-[13px] sm:text-sm font-semibold tracking-wider transition-all duration-200"
                     >
-                      <span class="text-[9.5px] text-[#D8B670]">✦</span>
+                      <span class="text-[9.5px] text-[#D8B670] group-hover:text-[#FFF2B2]">✦</span>
                       <span>Không gian thành viên</span>
-                      <span class="text-xs text-[#D8B670] group-hover:translate-x-1.5 transition-transform">→</span>
+                      <span class="text-xs text-[#D8B670] group-hover:text-[#FFF2B2] group-hover:translate-x-1.5 transition-transform">→</span>
                     </a>
                   </div>
                 </div>
@@ -429,15 +431,15 @@ const isItemActive = (item: MenuItem): boolean => {
                 <div class="admin-only px-3.5 pt-2.5 pb-1">
                   <a
                     href="/admin"
-                    class="flex items-center justify-between p-2.5 rounded-none bg-gradient-to-r from-[#D8B670]/20 to-[#D8B670]/5 border border-[#D8B670]/40 hover:border-[#D8B670] transition-all group"
+                    class="flex items-center justify-between p-2.5 rounded-none bg-gradient-to-r from-[#D8B670]/20 to-[#D8B670]/5 border border-[#D8B670]/40 hover:border-[#D8B670] hover:bg-[#F3E5AB]/20 transition-all group"
                   >
-                    <div class="flex items-center gap-2.5 text-[#D8B670]">
+                    <div class="flex items-center gap-2.5 text-[#D8B670] group-hover:text-[#FFF2B2]">
                       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="w-4 h-4 shrink-0">
                         <path d={ICON.shield} stroke-linecap="round" stroke-linejoin="round" />
                       </svg>
                       <span class="text-xs font-bold uppercase tracking-wider">Trang quản trị (Admin)</span>
                     </div>
-                    <span class="text-[#D8B670] text-sm group-hover:translate-x-1 transition-transform">→</span>
+                    <span class="text-[#D8B670] group-hover:text-[#FFF2B2] text-sm group-hover:translate-x-1 transition-transform">→</span>
                   </a>
                 </div>
 
@@ -453,15 +455,15 @@ const isItemActive = (item: MenuItem): boolean => {
                         <a
                           href="/tai-khoan?tab=orders"
                           data-open-profile="orders"
-                          class="group/item flex items-center justify-between px-3.5 py-2.5 sm:py-3 text-[13.5px] sm:text-sm text-neutral-200 transition-all rounded-none hover:bg-white/[0.08] hover:text-[#D8B670]"
+                          class="group/item flex items-center justify-between px-3.5 py-2.5 sm:py-3 text-[13.5px] sm:text-sm text-neutral-200 transition-all rounded-none hover:bg-[#F3E5AB]/15 hover:text-[#FFF2B2] border-l-2 border-transparent hover:border-[#D8B670]"
                         >
                           <div class="flex items-center gap-3 min-w-0 transition-transform duration-200 group-hover/item:translate-x-1.5">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="w-4.5 h-4.5 text-[#D8B670]/70 group-hover/item:text-[#D8B670] transition-colors shrink-0">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="w-4.5 h-4.5 text-[#D8B670]/70 group-hover/item:text-[#FFF2B2] transition-colors shrink-0">
                               <path d={ICON.box} stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                             <span class="font-medium truncate">Đơn hàng của tôi</span>
                           </div>
-                          <svg class="h-3.5 w-3.5 opacity-0 -translate-x-1.5 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 text-[#D8B670] shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg class="h-3.5 w-3.5 opacity-0 -translate-x-1.5 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 text-[#FFF2B2] shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                           </svg>
                         </a>
@@ -470,15 +472,15 @@ const isItemActive = (item: MenuItem): boolean => {
                         <a
                           href="/tai-khoan?tab=vouchers"
                           data-open-profile="vouchers"
-                          class="group/item flex items-center justify-between px-3.5 py-2.5 sm:py-3 text-[13.5px] sm:text-sm text-neutral-200 transition-all rounded-none hover:bg-white/[0.08] hover:text-[#D8B670]"
+                          class="group/item flex items-center justify-between px-3.5 py-2.5 sm:py-3 text-[13.5px] sm:text-sm text-neutral-200 transition-all rounded-none hover:bg-[#F3E5AB]/15 hover:text-[#FFF2B2] border-l-2 border-transparent hover:border-[#D8B670]"
                         >
                           <div class="flex items-center gap-3 min-w-0 transition-transform duration-200 group-hover/item:translate-x-1.5">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="w-4.5 h-4.5 text-[#D8B670]/70 group-hover/item:text-[#D8B670] transition-colors shrink-0">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="w-4.5 h-4.5 text-[#D8B670]/70 group-hover/item:text-[#FFF2B2] transition-colors shrink-0">
                               <path d={ICON.star} stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                             <span class="font-medium truncate">Ví Voucher & Ưu đãi</span>
                           </div>
-                          <svg class="h-3.5 w-3.5 opacity-0 -translate-x-1.5 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 text-[#D8B670] shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg class="h-3.5 w-3.5 opacity-0 -translate-x-1.5 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 text-[#FFF2B2] shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                           </svg>
                         </a>
@@ -487,15 +489,15 @@ const isItemActive = (item: MenuItem): boolean => {
                         <a
                           href="/tai-khoan?tab=wishlist"
                           data-open-profile="wishlist"
-                          class="group/item flex items-center justify-between px-3.5 py-2.5 sm:py-3 text-[13.5px] sm:text-sm text-neutral-200 transition-all rounded-none hover:bg-white/[0.08] hover:text-[#D8B670]"
+                          class="group/item flex items-center justify-between px-3.5 py-2.5 sm:py-3 text-[13.5px] sm:text-sm text-neutral-200 transition-all rounded-none hover:bg-[#F3E5AB]/15 hover:text-[#FFF2B2] border-l-2 border-transparent hover:border-[#D8B670]"
                         >
                           <div class="flex items-center gap-3 min-w-0 transition-transform duration-200 group-hover/item:translate-x-1.5">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="w-4.5 h-4.5 text-rose-400/80 group-hover/item:text-rose-400 transition-colors shrink-0">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="w-4.5 h-4.5 text-rose-400/80 group-hover/item:text-rose-300 transition-colors shrink-0">
                               <path d={ICON.heart} stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                             <span class="font-medium truncate">Bộ sưu tập Yêu thích</span>
                           </div>
-                          <svg class="h-3.5 w-3.5 opacity-0 -translate-x-1.5 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 text-[#D8B670] shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg class="h-3.5 w-3.5 opacity-0 -translate-x-1.5 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 text-[#FFF2B2] shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                           </svg>
                         </a>
@@ -513,15 +515,15 @@ const isItemActive = (item: MenuItem): boolean => {
                         <a
                           href="/tai-khoan?tab=profile"
                           data-open-profile="profile"
-                          class="group/item flex items-center justify-between px-3.5 py-2.5 sm:py-3 text-[13.5px] sm:text-sm text-neutral-200 transition-all rounded-none hover:bg-white/[0.08] hover:text-[#D8B670]"
+                          class="group/item flex items-center justify-between px-3.5 py-2.5 sm:py-3 text-[13.5px] sm:text-sm text-neutral-200 transition-all rounded-none hover:bg-[#F3E5AB]/15 hover:text-[#FFF2B2] border-l-2 border-transparent hover:border-[#D8B670]"
                         >
                           <div class="flex items-center gap-3 min-w-0 transition-transform duration-200 group-hover/item:translate-x-1.5">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="w-4.5 h-4.5 text-[#D8B670]/70 group-hover/item:text-[#D8B670] transition-colors shrink-0">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="w-4.5 h-4.5 text-[#D8B670]/70 group-hover/item:text-[#FFF2B2] transition-colors shrink-0">
                               <path d={ICON.user} stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                             <span class="font-medium truncate">Hồ sơ & Đổi mật khẩu</span>
                           </div>
-                          <svg class="h-3.5 w-3.5 opacity-0 -translate-x-1.5 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 text-[#D8B670] shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg class="h-3.5 w-3.5 opacity-0 -translate-x-1.5 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 text-[#FFF2B2] shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                           </svg>
                         </a>
@@ -530,15 +532,15 @@ const isItemActive = (item: MenuItem): boolean => {
                         <a
                           href="/tai-khoan?tab=addresses"
                           data-open-profile="addresses"
-                          class="group/item flex items-center justify-between px-3.5 py-2.5 sm:py-3 text-[13.5px] sm:text-sm text-neutral-200 transition-all rounded-none hover:bg-white/[0.08] hover:text-[#D8B670]"
+                          class="group/item flex items-center justify-between px-3.5 py-2.5 sm:py-3 text-[13.5px] sm:text-sm text-neutral-200 transition-all rounded-none hover:bg-[#F3E5AB]/15 hover:text-[#FFF2B2] border-l-2 border-transparent hover:border-[#D8B670]"
                         >
                           <div class="flex items-center gap-3 min-w-0 transition-transform duration-200 group-hover/item:translate-x-1.5">
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="w-4.5 h-4.5 text-[#D8B670]/70 group-hover/item:text-[#D8B670] transition-colors shrink-0">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" class="w-4.5 h-4.5 text-[#D8B670]/70 group-hover/item:text-[#FFF2B2] transition-colors shrink-0">
                               <path d={ICON.pin} stroke-linecap="round" stroke-linejoin="round" />
                             </svg>
                             <span class="font-medium truncate">Sổ địa chỉ nhận hàng</span>
                           </div>
-                          <svg class="h-3.5 w-3.5 opacity-0 -translate-x-1.5 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 text-[#D8B670] shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg class="h-3.5 w-3.5 opacity-0 -translate-x-1.5 transition-all duration-200 group-hover/item:opacity-100 group-hover/item:translate-x-0 text-[#FFF2B2] shrink-0 ml-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                           </svg>
                         </a>
@@ -789,8 +791,8 @@ const isItemActive = (item: MenuItem): boolean => {
     --panel-bg: rgba(23, 53, 36, 0.97);
     --panel-border: #24472f;
     --panel-text: #d4d4d4;
-    --panel-text-hover: #ffffff;
-    --panel-hover-bg: rgba(255, 255, 255, 0.1);
+    --panel-text-hover: #FFF2B2;
+    --panel-hover-bg: rgba(243, 229, 171, 0.15);
     --panel-muted: #8a8a8a;
     --panel-divider: rgba(255, 255, 255, 0.12);
     --panel-accent: #fbbf24;
@@ -1244,9 +1246,23 @@ const isItemActive = (item: MenuItem): boolean => {
       el.textContent = initials;
     });
 
+    // Cập nhật avatar trên nút tài khoản Desktop
+    document.querySelectorAll<HTMLElement>('[data-header-user-avatar]').forEach((el) => {
+      if (user) {
+        if (user.avatar) {
+          el.innerHTML = `<img src="${user.avatar}" alt="${cleanName}" class="h-6 w-6 rounded-full object-cover border border-[#D8B670]/70 shrink-0 shadow-xs" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'h-6 w-6 rounded-full bg-[#173524] text-[#D8B670] border border-[#D8B670]/60 flex items-center justify-center font-bold text-[10px] shrink-0\\'>${initials}</div>';" />`;
+        } else {
+          el.innerHTML = `<div class="h-6 w-6 rounded-full bg-[#173524] text-[#D8B670] border border-[#D8B670]/60 flex items-center justify-center font-bold text-[10px] shrink-0 shadow-xs">${initials}</div>`;
+        }
+      } else {
+        el.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" class="h-5 w-5 shrink-0"><circle cx="12" cy="8" r="3.5" /><path d="M4.5 20c1.2-3.6 4-5.5 7.5-5.5s6.3 1.9 7.5 5.5" stroke-linecap="round" /></svg>`;
+      }
+    });
+
+    // Cập nhật avatar trong menu dropdown tài khoản
     document.querySelectorAll<HTMLElement>('[data-user-avatar-wrap]').forEach((el) => {
       if (user?.avatar) {
-        el.innerHTML = `<img src="${user.avatar}" alt="${cleanName}" class="w-full h-full object-cover rounded-full" />`;
+        el.innerHTML = `<img src="${user.avatar}" alt="${cleanName}" class="w-full h-full object-cover rounded-full" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'w-full h-full rounded-full bg-[#173524] flex items-center justify-center font-display font-bold text-sm tracking-wider text-[#D8B670]\\'>${initials}</div>';" />`;
       } else {
         el.innerHTML = `<div class="w-full h-full rounded-full bg-[#173524] flex items-center justify-center font-display font-bold text-sm tracking-wider text-[#D8B670]" data-user-initials>${initials}</div>`;
       }

@@ -135,14 +135,26 @@ if (customersList.length === 0) {
                 data-spent-raw={c.spentRaw}
                 data-date={c.date}
                 data-status={c.status}
+                data-avatar={c.avatar || ''}
               >
                 <td class="py-3 px-4 font-mono font-bold text-walnut-900" data-col="id">{c.id}</td>
                 <td class="py-3 px-4">
                   <div class="flex items-center gap-2.5">
                     {c.avatar ? (
-                      <img src={c.avatar} alt={c.name} class="h-7 w-7 rounded-full object-cover border border-walnut-900/10" />
+                      <div class="relative h-7 w-7 rounded-full overflow-hidden shrink-0 border border-[#D8B670]/40 shadow-xs">
+                        <img 
+                          src={c.avatar} 
+                          alt={c.name} 
+                          class="h-full w-full object-cover" 
+                          referrerpolicy="no-referrer"
+                          onerror="this.style.display='none'; if (this.nextElementSibling) this.nextElementSibling.style.display='flex';"
+                        />
+                        <div class="h-full w-full bg-[#173524] text-[#D8B670] hidden items-center justify-center font-bold text-[10px]" data-col="avatar">
+                          {c.name.split(' ').map((n: string) => n[0]).slice(-2).join('')}
+                        </div>
+                      </div>
                     ) : (
-                      <div class="h-7 w-7 rounded-full bg-sand-200 text-walnut-900 flex items-center justify-center font-bold text-[10px]" data-col="avatar">
+                      <div class="h-7 w-7 rounded-full bg-[#173524] text-[#D8B670] border border-[#D8B670]/40 flex items-center justify-center font-bold text-[10px] shrink-0" data-col="avatar">
                         {c.name.split(' ').map((n: string) => n[0]).slice(-2).join('')}
                       </div>
                     )}
@@ -251,8 +263,9 @@ if (customersList.length === 0) {
         <div class="p-6 sm:p-8 space-y-4 overflow-y-auto flex-1 bg-[#FAF8F5]">
           <!-- User header card -->
           <div class="flex items-center gap-3.5 bg-white p-4 border border-walnut-900/15 shadow-xs">
-            <div id="modal-avatar" class="h-12 w-12 rounded-full bg-[#173524] text-[#E6CA85] border border-[#D8B670]/40 flex items-center justify-center font-bold text-sm shadow-inner shrink-0">
-              VA
+            <div id="modal-avatar" class="relative h-12 w-12 rounded-full bg-[#173524] text-[#E6CA85] border border-[#D8B670]/40 flex items-center justify-center font-bold text-sm shadow-inner shrink-0 overflow-hidden">
+              <img id="modal-avatar-img" class="h-full w-full object-cover hidden" alt="Avatar" referrerpolicy="no-referrer" />
+              <span id="modal-avatar-initials">VA</span>
             </div>
             <div class="flex-1 min-w-0">
               <h3 id="modal-display-name" class="font-bold text-walnut-900 text-base truncate">Nguyễn Văn An</h3>
@@ -510,7 +523,44 @@ if (customersList.length === 0) {
 
       modalDisplayName.textContent = name;
       modalDisplayEmail.textContent = email;
-      modalAvatar.textContent = name.split(' ').map((n: string) => n[0]).slice(-2).join('');
+
+      const rowImg = row.querySelector('img');
+      const avatarSrc = (row.dataset.avatar || row.getAttribute('data-avatar') || (rowImg ? (rowImg.getAttribute('src') || rowImg.src) : '') || '').trim();
+      const initials = name.split(/\s+/).map((n: string) => n[0]).slice(-2).join('').toUpperCase() || 'KH';
+
+      const modalAvatarImg = document.getElementById('modal-avatar-img') as HTMLImageElement | null;
+      const modalAvatarInitials = document.getElementById('modal-avatar-initials') as HTMLElement | null;
+
+      if (modalAvatarInitials) {
+        modalAvatarInitials.textContent = initials;
+      }
+
+      if (modalAvatarImg) {
+        if (avatarSrc) {
+          modalAvatarImg.onload = () => {
+            modalAvatarImg.classList.remove('hidden');
+            if (modalAvatarInitials) modalAvatarInitials.classList.add('hidden');
+          };
+          modalAvatarImg.onerror = () => {
+            // Thử nạp trực tiếp qua cổng backend 4000 nếu đường dẫn relative bị lỗi
+            if (avatarSrc.startsWith('/uploads/') && !modalAvatarImg.src.includes(':4000')) {
+              modalAvatarImg.src = `http://localhost:4000${avatarSrc}`;
+              return;
+            }
+            modalAvatarImg.classList.add('hidden');
+            if (modalAvatarInitials) modalAvatarInitials.classList.remove('hidden');
+          };
+          modalAvatarImg.src = avatarSrc;
+          if (modalAvatarImg.complete && modalAvatarImg.naturalWidth > 0) {
+            modalAvatarImg.classList.remove('hidden');
+            if (modalAvatarInitials) modalAvatarInitials.classList.add('hidden');
+          }
+        } else {
+          modalAvatarImg.classList.add('hidden');
+          if (modalAvatarInitials) modalAvatarInitials.classList.remove('hidden');
+        }
+      }
+
       modalInputName.value = name;
       modalInputPhone.value = phone === 'Chưa cập nhật' ? '' : phone;
       if (modalDisplayTier) modalDisplayTier.value = tier;
@@ -607,6 +657,15 @@ if (customersList.length === 0) {
       const deleteBtn = row.querySelector('[data-btn-delete-customer]');
 
       viewBtn?.addEventListener('click', () => {
+        openCustomerModal(row);
+      });
+
+      // Nhấp vào hàng khách hàng bất kỳ để mở modal chi tiết
+      row.addEventListener('click', (e) => {
+        const target = e.target as HTMLElement;
+        if (target.closest('button') || target.closest('a') || target.closest('input')) {
+          return;
+        }
         openCustomerModal(row);
       });
 
