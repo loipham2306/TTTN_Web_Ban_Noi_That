@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
 import { verifyToken, requireAdmin } from '../middlewares/auth.middleware.js';
+import { getCache, setCache, invalidateCachePrefix } from '../utils/cache.js';
 
 export const categoriesRouter = Router();
 
@@ -9,6 +10,11 @@ export const categoriesRouter = Router();
 // ================================================================
 categoriesRouter.get('/', async (_req: Request, res: Response) => {
   try {
+    const cacheKey = 'categories:all';
+    const cached = getCache<any[]>(cacheKey);
+    if (cached) {
+      return res.json({ success: true, data: cached });
+    }
     const cats = await prisma.categories.findMany({
       orderBy: { id: 'asc' },
       include: {
@@ -26,6 +32,8 @@ categoriesRouter.get('/', async (_req: Request, res: Response) => {
       status: c.status !== false,
       productCount: c._count.products,
     }));
+
+    setCache(cacheKey, data, 60);
 
     return res.json({ success: true, data });
   } catch (error: any) {
@@ -61,6 +69,9 @@ categoriesRouter.post('/', verifyToken, requireAdmin, async (req: Request, res: 
       },
     });
 
+    invalidateCachePrefix('categories:');
+    invalidateCachePrefix('products:');
+
     return res.status(201).json({
       success: true,
       message: 'Thêm danh mục thành công!',
@@ -94,6 +105,9 @@ categoriesRouter.put('/:id', verifyToken, requireAdmin, async (req: Request, res
         ...(status !== undefined ? { status } : {}),
       },
     });
+
+    invalidateCachePrefix('categories:');
+    invalidateCachePrefix('products:');
 
     return res.json({
       success: true,
@@ -130,6 +144,9 @@ categoriesRouter.delete('/:id', verifyToken, requireAdmin, async (req: Request, 
     }
 
     await prisma.categories.delete({ where: { id } });
+
+    invalidateCachePrefix('categories:');
+    invalidateCachePrefix('products:');
 
     return res.json({ success: true, message: 'Đã xóa danh mục thành công!' });
   } catch (error: any) {

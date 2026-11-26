@@ -107,7 +107,7 @@ const INTERVAL_MS = 6000; // thời gian mỗi slide (6 giây)
             alt={s.alt}
             loading={i === 0 ? 'eager' : 'lazy'}
             fetchpriority={i === 0 ? 'high' : undefined}
-            class="slide-img no-anim absolute inset-0 h-full w-full object-cover"
+            class="slide-img absolute inset-0 h-full w-full object-cover"
             onerror="this.src='https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1920&q=80'"
           />
           {/* Lớp phủ đen giữ nguyên style của bạn */}
@@ -179,13 +179,21 @@ const INTERVAL_MS = 6000; // thời gian mỗi slide (6 giây)
     transition: opacity 1s ease;
   }
 
-  /* Ảnh phóng nhẹ rồi thu về khi slide hiện ra */
+  /* Ảnh phóng nhẹ rồi thu về khi slide hiện ra (áp dụng cho cả slide đầu tiên khi mới tải trang) */
+  @keyframes heroSlideZoom {
+    from {
+      transform: scale(1.06);
+    }
+    to {
+      transform: scale(1);
+    }
+  }
   .slide-img {
+    animation: none;
     transform: scale(1.06);
-    transition: transform 7s ease-out;
   }
   .slide.is-active .slide-img {
-    transform: scale(1);
+    animation: heroSlideZoom 7s ease-out forwards;
   }
 
   /* Chữ trượt lên lần lượt */
@@ -208,6 +216,8 @@ const INTERVAL_MS = 6000; // thời gian mỗi slide (6 giây)
     .slide.is-active,
     .slide-img,
     .slide-content > * {
+      animation: none !important;
+      transform: none !important;
       transition-duration: 0.01ms !important;
       transition-delay: 0s !important;
     }

@@ -72,6 +72,29 @@ async function seedBanners() {
     console.log('Banner for ve-chung-toi already exists');
   }
 
+  const existingAuth = await prisma.banners.findFirst({
+    where: { position: 'auth' }
+  });
+
+  if (!existingAuth) {
+    await prisma.banners.create({
+      data: {
+        title: 'Không gian sống đẳng cấp bắt đầu từ những lựa chọn chỉn chu.',
+        subtitle: 'NỘI THẤT CAO CẤP KTUFA',
+        description: 'Lưu sản phẩm yêu thích, theo dõi đơn hàng vận chuyển theo thời gian thực và nhận ưu đãi đặc quyền dành riêng cho hội viên.',
+        image_url: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1400&q=85',
+        link_url: '/san-pham',
+        button_text: 'Khám phá bộ sưu tập',
+        position: 'auth',
+        display_order: 1,
+        is_active: true,
+      }
+    });
+    console.log('Created banner for auth');
+  } else {
+    console.log('Banner for auth already exists');
+  }
+
   process.exit(0);
 }
 

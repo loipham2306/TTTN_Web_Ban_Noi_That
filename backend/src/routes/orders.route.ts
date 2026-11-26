@@ -5,6 +5,8 @@ import jwt from 'jsonwebtoken';
 import { ENV } from '../config/env.js';
 import { MailerService } from '../services/mailer.service.js';
 import { TIER_UPGRADE_VOUCHERS } from './coupons.route.js';
+import { invalidateCachePrefix } from '../utils/cache.js';
+import { calculateShippingFee } from '../utils/shipping.js';
 
 export const ordersRouter = Router();
 
@@ -240,14 +242,17 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
             appliedCouponId = coupon.id;
             appliedCoupon = coupon;
             const val = Number(coupon.discount_value);
+            // Tính cước cơ bản dựa trên giá trị đơn, tỉnh thành và số lượng kiện (tính đến hàng cồng kềnh/theo bộ)
+            const totalOrderQty = validatedItems.reduce((sum, item) => sum + item.qty, 0);
+            const standardShipFee = calculateShippingFee(subtotalAmount, province || '', totalOrderQty);
+
             if (coupon.discount_type === 'percent' || (coupon.discount_type as string) === 'percentage') {
               discountAmount = Math.round((subtotalAmount * val) / 100);
               if (coupon.max_discount_amount && discountAmount > Number(coupon.max_discount_amount)) {
                 discountAmount = Number(coupon.max_discount_amount);
               }
             } else if (coupon.discount_type === 'free_shipping') {
-              const stdShip = subtotalAmount >= 2000000 ? 0 : 50000;
-              discountAmount = (val === 0 || val >= stdShip) ? stdShip : val;
+              discountAmount = (val === 0 || val >= standardShipFee) ? standardShipFee : val;
             } else {
               discountAmount = Math.min(subtotalAmount, val);
             }
@@ -263,7 +268,8 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
 
       // 2. Tính toán cước phí và tổng tiền
       const isFreeShipping = appliedCoupon?.discount_type === 'free_shipping';
-      const baseShippingFee = subtotalAmount >= 2000000 ? 0 : 50000;
+      const totalOrderQty = validatedItems.reduce((sum, item) => sum + item.qty, 0);
+      const baseShippingFee = calculateShippingFee(subtotalAmount, province || '', totalOrderQty);
       let actualShippingFee = baseShippingFee;
 
       if (isFreeShipping) {
@@ -338,6 +344,8 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
 
       return orderCreated;
     });
+
+    invalidateCachePrefix('products:');
 
     // Tự động lưu địa chỉ vào sổ địa chỉ (user_addresses) nếu khách chưa có địa chỉ nào hoặc có tick chọn lưu địa chỉ
     try {
@@ -668,6 +676,7 @@ ordersRouter.post('/:idOrCode/cancel', verifyToken, async (req: Request, res: Re
         }
       }
     }
+    invalidateCachePrefix('products:');
 
     // 2. Hoàn lại lượt sử dụng coupon (nếu có)
     if (existingOrder.coupon_id) {
@@ -1314,6 +1323,7 @@ ordersRouter.patch('/:id/status', verifyToken, requireAdmin, async (req: Request
           console.warn('Lỗi hoàn lượt sử dụng coupon:', couponErr);
         }
       }
+      invalidateCachePrefix('products:');
     }
 
     // Nếu mở lại đơn hàng từng bị hủy -> Trừ lại tồn kho biến thể và tính lại lượt dùng coupon
@@ -1342,6 +1352,7 @@ ordersRouter.patch('/:id/status', verifyToken, requireAdmin, async (req: Request
           console.warn('Lỗi tăng lại lượt sử dụng coupon:', couponErr);
         }
       }
+      invalidateCachePrefix('products:');
     }
 
     const updatedOrder = await prisma.orders.update({
@@ -1554,6 +1565,7 @@ export async function autoCancelExpiredOrders(hoursThreshold = 24): Promise<{ ca
             }
           }
         }
+        invalidateCachePrefix('products:');
 
         // 2. Hoàn lại lượt dùng coupon nếu có
         if (order.coupon_id) {

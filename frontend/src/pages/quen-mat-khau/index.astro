@@ -1,303 +1,326 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import AuthBannerShowcase from '../../components/AuthBannerShowcase.astro';
 ---
 
 <BaseLayout title="Quên mật khẩu | Nội Thất" description="Khôi phục quyền truy cập tài khoản Nội Thất thông qua mã xác thực OTP gửi qua email.">
 
-  <section class="mx-auto max-w-7xl px-4 py-12 sm:py-16">
-    <div class="grid gap-12 lg:grid-cols-2 lg:gap-16">
+  <section id="auth-page-section" class="relative min-h-[calc(100svh-6rem)] sm:min-h-[calc(100svh-7rem)] flex items-center justify-center py-4 sm:py-6 px-4 bg-[#FAF8F5] overflow-hidden">
+    <!-- Hiệu ứng ánh sáng nền tinh tế -->
+    <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(216,182,112,0.14),transparent_50%)]"></div>
+    <div class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,rgba(23,53,36,0.08),transparent_55%)]"></div>
 
-      <!-- Banner thương hiệu bên trái (Đồng bộ với Đăng nhập & Đăng ký) -->
-      <div class="hidden bg-walnut-900 p-10 text-sand-50 lg:flex lg:flex-col lg:justify-between rounded shadow-sm">
-        <p class="text-lg uppercase tracking-[0.32em]">NỘI THẤT CAO CẤP</p>
-        <div>
-          <p class="font-display text-3xl leading-snug">Khôi phục quyền truy cập tài khoản của bạn.</p>
-          <p class="mt-6 text-sm text-sand-200/80 leading-relaxed">
-            Hệ thống bảo vệ dữ liệu hội viên theo chuẩn an toàn cao. Mã OTP 6 chữ số sẽ được gửi trực tiếp đến hòm thư bảo mật để bảo vệ tuyệt đối thông tin đơn hàng và tài khoản của bạn.
-          </p>
-          <div class="mt-8 flex items-center gap-4 text-xs text-sand-300">
-            <div class="flex items-center gap-2">
-              <span class="inline-block h-2 w-2 rounded-full bg-emerald-400"></span>
-              <span>Xác thực OTP 5 phút</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <span class="inline-block h-2 w-2 rounded-full bg-amber-400"></span>
-              <span>Mã hóa HMAC-SHA256</span>
-            </div>
-          </div>
-        </div>
-        <div class="pt-6 border-t border-sand-50/15 text-xs text-sand-200/60">
-          Cần hỗ trợ trực tiếp? Hotline: <strong class="text-sand-100">0359.180.209</strong> (8:00 - 21:00)
-        </div>
-      </div>
+    <div class="relative mx-auto max-w-6xl w-full">
+      <div id="auth-portal-card" class="grid lg:grid-cols-12 lg:min-h-[552px] bg-white border border-walnut-900/15 shadow-[0_24px_64px_-16px_rgba(23,53,36,0.14)] overflow-hidden">
 
-      <!-- Khung biểu mẫu 3 bước bên phải -->
-      <div class="max-w-md w-full mx-auto lg:mx-0">
-        
-        <!-- Thanh tiến trình 3 bước trực quan -->
-        <div class="mb-8 flex items-center justify-between border-b border-walnut-900/10 pb-4">
-          <div id="step-indicator-1" class="flex items-center gap-2 text-xs font-bold text-clay-700 transition-colors">
-            <span class="flex h-6 w-6 items-center justify-center rounded-full bg-clay-700 text-white text-[11px]">1</span>
-            <span>Email</span>
-          </div>
-          <div class="h-0.5 w-8 bg-walnut-900/15"></div>
-          <div id="step-indicator-2" class="flex items-center gap-2 text-xs font-semibold text-walnut-800/40 transition-colors">
-            <span class="flex h-6 w-6 items-center justify-center rounded-full bg-sand-200 text-walnut-800 text-[11px]">2</span>
-            <span>Mã OTP</span>
-          </div>
-          <div class="h-0.5 w-8 bg-walnut-900/15"></div>
-          <div id="step-indicator-3" class="flex items-center gap-2 text-xs font-semibold text-walnut-800/40 transition-colors">
-            <span class="flex h-6 w-6 items-center justify-center rounded-full bg-sand-200 text-walnut-800 text-[11px]">3</span>
-            <span>Mật khẩu mới</span>
-          </div>
+        <!-- CỘT TRÁI: BANNER ĐỘNG DÙNG CHUNG VỚI ĐĂNG NHẬP & ĐĂNG KÝ -->
+        <div class="lg:col-span-6">
+          <AuthBannerShowcase
+            position="auth"
+            fallbackTitle="Khôi phục quyền truy cập tài khoản của bạn."
+            fallbackSubtitle="BẢO MẬT TÀI KHOẢN KTUFA"
+            fallbackDescription="Mã xác thực OTP 6 chữ số sẽ được gửi trực tiếp đến email của bạn để bảo vệ tuyệt đối thông tin đơn hàng và tài khoản."
+            highlights={[
+              'Xác thực OTP 5 phút',
+              'Mã hóa HMAC-SHA256',
+              'Hotline 1900 636 884',
+            ]}
+          />
         </div>
 
-        <!-- ============================================================ -->
-        <!-- BƯỚC 1: NHẬP EMAIL ĐỂ GỬI MÃ OTP -->
-        <!-- ============================================================ -->
-        <div id="step-1-container" class="space-y-6">
-          <div>
-            <h1 class="font-display text-2xl tracking-tight sm:text-3xl text-walnut-900">Quên mật khẩu?</h1>
-            <p class="mt-2 text-sm text-walnut-800/80 leading-relaxed">
-              Nhập địa chỉ email liên kết với tài khoản của bạn. Chúng tôi sẽ gửi mã OTP 6 số để bạn đặt lại mật khẩu.
-            </p>
-          </div>
+        <!-- CỘT PHẢI: KHUNG BIỂU MẪU 3 BƯỚC -->
+        <div class="lg:col-span-6 relative p-6 sm:p-8 lg:px-10 lg:py-6 flex flex-col justify-center bg-white overflow-hidden">
+          <div class="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#D8B670] via-[#F3E5AB] to-[#C49E52] lg:hidden"></div>
 
-          <form id="form-step-1" novalidate class="space-y-4">
-            <div>
-              <label for="step1-email" class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800 font-medium">
-                Địa chỉ Email *
-              </label>
-              <input 
-                id="step1-email" 
-                name="email" 
-                type="email" 
-                required 
-                placeholder="vidu: an.nguyen@gmail.com" 
-                autocomplete="email" 
-                class="mt-1.5 w-full border border-walnut-900/20 bg-sand-50 px-4 py-2.5 text-sm outline-none transition-colors focus:border-clay-600 focus:bg-sand-100/30" 
-              />
-              <p id="err-step1-email" class="mt-1.5 hidden text-xs text-red-600 font-medium"></p>
+          <div class="mx-auto w-full max-w-md">
+            <div class="mb-2">
+              <span class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.25em] text-[#997734]">
+                <span class="h-1.5 w-1.5 rounded-full bg-[#D8B670]"></span>
+                Khôi phục tài khoản KTUFA
+              </span>
             </div>
 
-            <button 
-              type="submit" 
-              id="btn-send-otp"
-              class="w-full bg-clay-600 px-8 py-3.5 text-xs uppercase tracking-[0.2em] font-semibold text-sand-50 transition-all hover:bg-clay-500 shadow-sm cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              <span>Gửi mã xác thực OTP</span>
-            </button>
-          </form>
-
-          <p class="text-xs text-walnut-800 text-center pt-2">
-            Nhớ lại mật khẩu?
-            <a href="/dang-nhap" class="font-bold text-walnut-900 underline underline-offset-4 transition-colors hover:text-clay-600">Đăng nhập ngay</a>
-          </p>
-        </div>
-
-
-        <!-- ============================================================ -->
-        <!-- BƯỚC 2: NHẬP MÃ OTP 6 CHỮ SỐ -->
-        <!-- ============================================================ -->
-        <div id="step-2-container" class="hidden space-y-6">
-          <div>
-            <h2 class="font-display text-2xl tracking-tight sm:text-3xl text-walnut-900">Xác thực mã OTP</h2>
-            <p class="mt-2 text-sm text-walnut-800/80 leading-relaxed">
-              Mã xác thực 6 số đã được gửi tới email <strong id="display-target-email" class="font-bold text-walnut-900 break-all"></strong>. Vui lòng kiểm tra hộp thư đến (hoặc hòm thư rác).
-            </p>
-          </div>
-
-          <form id="form-step-2" novalidate class="space-y-5">
-            <div>
-              <label class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800 font-medium mb-2 text-center">
-                Nhập 6 chữ số OTP *
-              </label>
-              
-              <!-- 6 ô nhập mã OTP hỗ trợ tự động nhảy ô, xóa lùi và dán (paste) -->
-              <div class="flex items-center justify-center gap-2 sm:gap-3" id="otp-inputs-wrapper">
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  maxlength="1"
-                  pattern="[0-9]*"
-                  data-index="0"
-                  autocomplete="one-time-code"
-                  class="otp-input h-12 w-11 sm:h-14 sm:w-12 text-center text-xl font-bold font-mono border-2 border-clay-600 ring-2 ring-clay-600/25 bg-white text-walnut-900 rounded outline-none transition-all shadow-xs"
-                  autofocus
-                />
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  maxlength="1"
-                  pattern="[0-9]*"
-                  data-index="1"
-                  class="otp-input h-12 w-11 sm:h-14 sm:w-12 text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900 rounded outline-none transition-all shadow-xs"
-                />
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  maxlength="1"
-                  pattern="[0-9]*"
-                  data-index="2"
-                  class="otp-input h-12 w-11 sm:h-14 sm:w-12 text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900 rounded outline-none transition-all shadow-xs"
-                />
-                <span class="text-walnut-900/30 font-bold select-none">-</span>
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  maxlength="1"
-                  pattern="[0-9]*"
-                  data-index="3"
-                  class="otp-input h-12 w-11 sm:h-14 sm:w-12 text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900 rounded outline-none transition-all shadow-xs"
-                />
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  maxlength="1"
-                  pattern="[0-9]*"
-                  data-index="4"
-                  class="otp-input h-12 w-11 sm:h-14 sm:w-12 text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900 rounded outline-none transition-all shadow-xs"
-                />
-                <input
-                  type="text"
-                  inputmode="numeric"
-                  maxlength="1"
-                  pattern="[0-9]*"
-                  data-index="5"
-                  class="otp-input h-12 w-11 sm:h-14 sm:w-12 text-center text-xl font-bold font-mono border border-walnut-900/20 bg-sand-50 text-walnut-900 rounded outline-none transition-all shadow-xs"
-                />
+            <!-- Thanh tiến trình 3 bước trực quan -->
+            <div class="mb-6 flex items-center justify-between border-b border-walnut-900/10 pb-3.5">
+              <div id="step-indicator-1" class="flex items-center gap-2 text-xs font-bold text-[#173524] transition-colors">
+                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-[#173524] text-[#E6CA85] text-[11px] font-bold">1</span>
+                <span>Email</span>
               </div>
-              <p id="err-step2-otp" class="mt-2 hidden text-xs text-red-600 font-medium text-center"></p>
+              <div class="h-0.5 w-8 bg-walnut-900/15"></div>
+              <div id="step-indicator-2" class="flex items-center gap-2 text-xs font-semibold text-walnut-800/40 transition-colors">
+                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-sand-200 text-walnut-800 text-[11px]">2</span>
+                <span>Mã OTP</span>
+              </div>
+              <div class="h-0.5 w-8 bg-walnut-900/15"></div>
+              <div id="step-indicator-3" class="flex items-center gap-2 text-xs font-semibold text-walnut-800/40 transition-colors">
+                <span class="flex h-6 w-6 items-center justify-center rounded-full bg-sand-200 text-walnut-800 text-[11px]">3</span>
+                <span>Mật khẩu mới</span>
+              </div>
             </div>
 
-            <!-- Đếm ngược hiệu lực 5 phút & Nút gửi lại mã 60s -->
-            <div class="rounded-lg bg-sand-100/60 p-3.5 text-xs text-walnut-800 space-y-2 border border-walnut-900/10">
-              <div class="flex items-center justify-between">
-                <span class="text-walnut-800/70">Mã hết hạn sau:</span>
-                <span id="otp-timer-display" class="font-mono font-bold text-clay-700">05:00</span>
+            <!-- ============================================================ -->
+            <!-- BƯỚC 1: NHẬP EMAIL ĐỂ GỬI MÃ OTP -->
+            <!-- ============================================================ -->
+            <div id="step-1-container" class="space-y-5 auth-stagger">
+              <div>
+                <h1 class="font-display text-2xl tracking-tight sm:text-3xl text-walnut-900 font-semibold">Quên mật khẩu?</h1>
+                <p class="mt-1.5 text-sm text-walnut-800/75 leading-relaxed">
+                  Nhập địa chỉ email liên kết với tài khoản của bạn. Chúng tôi sẽ gửi mã OTP 6 số để bạn đặt lại mật khẩu.
+                </p>
               </div>
-              <div class="flex items-center justify-between pt-2 border-t border-walnut-900/10">
-                <span class="text-walnut-800/70">Chưa nhận được mã?</span>
-                <button 
-                  type="button" 
-                  id="btn-resend-otp" 
-                  class="font-bold text-clay-700 underline hover:text-clay-900 disabled:opacity-50 disabled:no-underline disabled:cursor-not-allowed cursor-pointer transition-colors"
+
+              <form id="form-step-1" novalidate class="space-y-4">
+                <div class="group">
+                  <label for="step1-email" class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800 font-semibold">
+                    Địa chỉ Email *
+                  </label>
+                  <div class="relative mt-1.5">
+                    <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-walnut-800/45 transition-colors group-focus-within:text-[#173524]">
+                      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                      </svg>
+                    </span>
+                    <input
+                      id="step1-email"
+                      name="email"
+                      type="email"
+                      required
+                      placeholder="vidu: an.nguyen@gmail.com"
+                      autocomplete="email"
+                      class="w-full border border-walnut-900/20 bg-[#FAF8F5]/70 pl-10 pr-4 py-2.5 text-sm text-walnut-900 outline-none transition-all duration-200 focus:border-[#173524] focus:bg-white focus:ring-2 focus:ring-[#D8B670]/25"
+                    />
+                  </div>
+                  <p id="err-step1-email" class="mt-1.5 hidden text-xs text-red-600 font-medium"></p>
+                </div>
+
+                <button
+                  type="submit"
+                  id="btn-send-otp"
+                  class="auth-cta-shimmer relative overflow-hidden w-full bg-[#173524] border border-[#D8B670]/50 px-8 py-3.5 text-xs uppercase tracking-[0.22em] font-bold text-[#E6CA85] transition-all duration-200 hover:bg-[#1f4730] hover:text-white shadow-md cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  Gửi lại mã (<span id="resend-countdown">60</span>s)
+                  <span class="relative z-10">Gửi mã xác thực OTP</span>
                 </button>
-              </div>
+              </form>
+
+              <p class="text-xs text-walnut-800/80 text-center pt-1">
+                Nhớ lại mật khẩu?
+                <a href="/dang-nhap" class="font-bold text-[#173524] underline underline-offset-4 transition-colors hover:text-[#997734]">Đăng nhập ngay</a>
+              </p>
             </div>
 
-            <button 
-              type="submit" 
-              id="btn-verify-otp"
-              class="w-full bg-clay-600 px-8 py-3.5 text-xs uppercase tracking-[0.2em] font-semibold text-sand-50 transition-all hover:bg-clay-500 shadow-sm cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              <span>Xác nhận mã OTP</span>
-            </button>
-          </form>
+            <!-- ============================================================ -->
+            <!-- BƯỚC 2: NHẬP MÃ OTP 6 CHỮ SỐ -->
+            <!-- ============================================================ -->
+            <div id="step-2-container" class="hidden space-y-5 auth-stagger">
+              <div>
+                <h2 class="font-display text-2xl tracking-tight sm:text-3xl text-walnut-900 font-semibold">Xác thực mã OTP</h2>
+                <p class="mt-1.5 text-sm text-walnut-800/75 leading-relaxed">
+                  Mã xác thực 6 số đã được gửi tới email <strong id="display-target-email" class="font-bold text-walnut-900 break-all"></strong>. Vui lòng kiểm tra hộp thư đến (hoặc hòm thư rác).
+                </p>
+              </div>
 
-          <div class="text-center pt-1">
-            <button 
-              type="button" 
-              id="btn-back-to-step1" 
-              class="text-xs text-walnut-800/70 hover:text-clay-600 underline transition-colors cursor-pointer"
-            >
-              ← Thay đổi địa chỉ email
-            </button>
-          </div>
-        </div>
+              <form id="form-step-2" novalidate class="space-y-4">
+                <div>
+                  <label class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800 font-semibold mb-2 text-center">
+                    Nhập 6 chữ số OTP *
+                  </label>
 
+                  <!-- 6 ô nhập mã OTP hỗ trợ tự động nhảy ô, xóa lùi và dán (paste) -->
+                  <div class="flex items-center justify-center gap-2 sm:gap-2.5" id="otp-inputs-wrapper">
+                    <input
+                      type="text"
+                      inputmode="numeric"
+                      maxlength="1"
+                      pattern="[0-9]*"
+                      data-index="0"
+                      autocomplete="one-time-code"
+                      class="otp-input h-12 w-10 sm:h-13 sm:w-11 text-center text-xl font-bold font-mono border-2 border-[#173524] ring-2 ring-[#D8B670]/30 bg-white text-walnut-900 outline-none transition-all shadow-xs"
+                      autofocus
+                    />
+                    <input
+                      type="text"
+                      inputmode="numeric"
+                      maxlength="1"
+                      pattern="[0-9]*"
+                      data-index="1"
+                      class="otp-input h-12 w-10 sm:h-13 sm:w-11 text-center text-xl font-bold font-mono border border-walnut-900/20 bg-[#FAF8F5] text-walnut-900 outline-none transition-all shadow-xs"
+                    />
+                    <input
+                      type="text"
+                      inputmode="numeric"
+                      maxlength="1"
+                      pattern="[0-9]*"
+                      data-index="2"
+                      class="otp-input h-12 w-10 sm:h-13 sm:w-11 text-center text-xl font-bold font-mono border border-walnut-900/20 bg-[#FAF8F5] text-walnut-900 outline-none transition-all shadow-xs"
+                    />
+                    <span class="text-walnut-900/30 font-bold select-none">-</span>
+                    <input
+                      type="text"
+                      inputmode="numeric"
+                      maxlength="1"
+                      pattern="[0-9]*"
+                      data-index="3"
+                      class="otp-input h-12 w-10 sm:h-13 sm:w-11 text-center text-xl font-bold font-mono border border-walnut-900/20 bg-[#FAF8F5] text-walnut-900 outline-none transition-all shadow-xs"
+                    />
+                    <input
+                      type="text"
+                      inputmode="numeric"
+                      maxlength="1"
+                      pattern="[0-9]*"
+                      data-index="4"
+                      class="otp-input h-12 w-10 sm:h-13 sm:w-11 text-center text-xl font-bold font-mono border border-walnut-900/20 bg-[#FAF8F5] text-walnut-900 outline-none transition-all shadow-xs"
+                    />
+                    <input
+                      type="text"
+                      inputmode="numeric"
+                      maxlength="1"
+                      pattern="[0-9]*"
+                      data-index="5"
+                      class="otp-input h-12 w-10 sm:h-13 sm:w-11 text-center text-xl font-bold font-mono border border-walnut-900/20 bg-[#FAF8F5] text-walnut-900 outline-none transition-all shadow-xs"
+                    />
+                  </div>
+                  <p id="err-step2-otp" class="mt-2 hidden text-xs text-red-600 font-medium text-center"></p>
+                </div>
 
-        <!-- ============================================================ -->
-        <!-- BƯỚC 3: ĐẶT MẬT KHẨU MỚI -->
-        <!-- ============================================================ -->
-        <div id="step-3-container" class="hidden space-y-6">
-          <div>
-            <h2 class="font-display text-2xl tracking-tight sm:text-3xl text-walnut-900">Thiết lập mật khẩu mới</h2>
-            <p class="mt-2 text-sm text-walnut-800/80 leading-relaxed">
-              Mã OTP đã được xác thực thành công. Vui lòng tạo mật khẩu mới an toàn cho tài khoản của bạn.
-            </p>
-          </div>
+                <!-- Đếm ngược hiệu lực 5 phút & Nút gửi lại mã 60s -->
+                <div class="bg-[#FAF8F5] p-3.5 text-xs text-walnut-800 space-y-2 border border-walnut-900/10">
+                  <div class="flex items-center justify-between">
+                    <span class="text-walnut-800/70">Mã hết hạn sau:</span>
+                    <span id="otp-timer-display" class="font-mono font-bold text-[#173524]">05:00</span>
+                  </div>
+                  <div class="flex items-center justify-between pt-2 border-t border-walnut-900/10">
+                    <span class="text-walnut-800/70">Chưa nhận được mã?</span>
+                    <button
+                      type="button"
+                      id="btn-resend-otp"
+                      class="font-bold text-[#173524] underline hover:text-[#997734] disabled:opacity-50 disabled:no-underline disabled:cursor-not-allowed cursor-pointer transition-colors"
+                    >
+                      Gửi lại mã (<span id="resend-countdown">60</span>s)
+                    </button>
+                  </div>
+                </div>
 
-          <form id="form-step-3" novalidate class="space-y-4">
-            <div>
-              <label for="step3-password" class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800 font-medium">
-                Mật khẩu mới *
-              </label>
-              <div class="relative mt-1.5">
-                <input 
-                  id="step3-password" 
-                  name="newPassword" 
-                  type="password" 
-                  required 
-                  autocomplete="new-password" 
-                  placeholder="Nhập ít nhất 6 ký tự" 
-                  class="w-full border border-walnut-900/20 bg-sand-50 pl-4 pr-11 py-2.5 text-sm outline-none transition-colors focus:border-clay-600 focus:bg-sand-100/30" 
-                />
+                <button
+                  type="submit"
+                  id="btn-verify-otp"
+                  class="auth-cta-shimmer relative overflow-hidden w-full bg-[#173524] border border-[#D8B670]/50 px-8 py-3.5 text-xs uppercase tracking-[0.22em] font-bold text-[#E6CA85] transition-all duration-200 hover:bg-[#1f4730] hover:text-white shadow-md cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
+                >
+                  <span class="relative z-10">Xác nhận mã OTP</span>
+                </button>
+              </form>
+
+              <div class="text-center pt-1">
                 <button
                   type="button"
-                  id="toggle-step3-password"
-                  class="absolute right-3 top-1/2 -translate-y-1/2 text-walnut-800/50 hover:text-walnut-900 transition-colors p-1 cursor-pointer focus:outline-none"
-                  aria-label="Xem mật khẩu mới"
-                  title="Xem hoặc ẩn mật khẩu"
+                  id="btn-back-to-step1"
+                  class="text-xs text-walnut-800/75 hover:text-[#173524] underline transition-colors cursor-pointer"
                 >
-                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                  ← Thay đổi địa chỉ email
                 </button>
               </div>
-              
-              <!-- Thanh đo độ an toàn mật khẩu (Tái sử dụng chuẩn kiểm tra từ validate.ts) -->
-              <div id="password-strength-container" class="mt-2 hidden">
-                <div class="flex items-center justify-between text-[11px] mb-1">
-                  <span class="text-walnut-800/70">Độ an toàn:</span>
-                  <span id="password-strength-text" class="font-bold text-red-600">Yếu</span>
-                </div>
-                <div class="h-1.5 w-full bg-sand-200 rounded-full overflow-hidden">
-                  <div id="password-strength-bar" class="h-full w-1/3 bg-red-500 transition-all duration-300"></div>
-                </div>
-              </div>
-              <p id="err-step3-password" class="mt-1.5 hidden text-xs text-red-600 font-medium"></p>
             </div>
 
-            <div>
-              <label for="step3-confirm" class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800 font-medium">
-                Xác nhận mật khẩu mới *
-              </label>
-              <div class="relative mt-1.5">
-                <input 
-                  id="step3-confirm" 
-                  name="confirmPassword" 
-                  type="password" 
-                  required 
-                  autocomplete="new-password" 
-                  placeholder="Nhập lại mật khẩu mới" 
-                  class="w-full border border-walnut-900/20 bg-sand-50 pl-4 pr-11 py-2.5 text-sm outline-none transition-colors focus:border-clay-600 focus:bg-sand-100/30" 
-                />
+            <!-- ============================================================ -->
+            <!-- BƯỚC 3: ĐẶT MẬT KHẨU MỚI -->
+            <!-- ============================================================ -->
+            <div id="step-3-container" class="hidden space-y-5 auth-stagger">
+              <div>
+                <h2 class="font-display text-2xl tracking-tight sm:text-3xl text-walnut-900 font-semibold">Thiết lập mật khẩu mới</h2>
+                <p class="mt-1.5 text-sm text-walnut-800/75 leading-relaxed">
+                  Mã OTP đã được xác thực thành công. Vui lòng tạo mật khẩu mới an toàn cho tài khoản của bạn.
+                </p>
+              </div>
+
+              <form id="form-step-3" novalidate class="space-y-4">
+                <div class="group">
+                  <label for="step3-password" class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800 font-semibold">
+                    Mật khẩu mới *
+                  </label>
+                  <div class="relative mt-1.5">
+                    <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-walnut-800/45 transition-colors group-focus-within:text-[#173524]">
+                      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                      </svg>
+                    </span>
+                    <input
+                      id="step3-password"
+                      name="newPassword"
+                      type="password"
+                      required
+                      autocomplete="new-password"
+                      placeholder="Nhập ít nhất 6 ký tự"
+                      class="w-full border border-walnut-900/20 bg-[#FAF8F5]/70 pl-10 pr-11 py-2.5 text-sm text-walnut-900 outline-none transition-all duration-200 focus:border-[#173524] focus:bg-white focus:ring-2 focus:ring-[#D8B670]/25"
+                    />
+                    <button
+                      type="button"
+                      id="toggle-step3-password"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-walnut-800/50 hover:text-[#173524] transition-colors p-1 cursor-pointer focus:outline-none"
+                      aria-label="Xem mật khẩu mới"
+                      title="Xem hoặc ẩn mật khẩu"
+                    >
+                      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                    </button>
+                  </div>
+
+                  <!-- Thanh đo độ an toàn mật khẩu -->
+                  <div id="password-strength-container" class="mt-2 hidden">
+                    <div class="flex items-center justify-between text-[11px] mb-1">
+                      <span class="text-walnut-800/70">Độ an toàn:</span>
+                      <span id="password-strength-text" class="font-bold text-red-600">Yếu</span>
+                    </div>
+                    <div class="h-1.5 w-full bg-sand-200 rounded-full overflow-hidden">
+                      <div id="password-strength-bar" class="h-full w-1/3 bg-red-500 transition-all duration-300"></div>
+                    </div>
+                  </div>
+                  <p id="err-step3-password" class="mt-1.5 hidden text-xs text-red-600 font-medium"></p>
+                </div>
+
+                <div class="group">
+                  <label for="step3-confirm" class="block text-[11px] uppercase tracking-[0.2em] text-walnut-800 font-semibold">
+                    Xác nhận mật khẩu mới *
+                  </label>
+                  <div class="relative mt-1.5">
+                    <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-walnut-800/45 transition-colors group-focus-within:text-[#173524]">
+                      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                      </svg>
+                    </span>
+                    <input
+                      id="step3-confirm"
+                      name="confirmPassword"
+                      type="password"
+                      required
+                      autocomplete="new-password"
+                      placeholder="Nhập lại mật khẩu mới"
+                      class="w-full border border-walnut-900/20 bg-[#FAF8F5]/70 pl-10 pr-11 py-2.5 text-sm text-walnut-900 outline-none transition-all duration-200 focus:border-[#173524] focus:bg-white focus:ring-2 focus:ring-[#D8B670]/25"
+                    />
+                    <button
+                      type="button"
+                      id="toggle-step3-confirm"
+                      class="absolute right-3 top-1/2 -translate-y-1/2 text-walnut-800/50 hover:text-[#173524] transition-colors p-1 cursor-pointer focus:outline-none"
+                      aria-label="Xem mật khẩu xác nhận"
+                      title="Xem hoặc ẩn mật khẩu"
+                    >
+                      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                    </button>
+                  </div>
+                  <p id="err-step3-confirm" class="mt-1.5 hidden text-xs text-red-600 font-medium"></p>
+                </div>
+
                 <button
-                  type="button"
-                  id="toggle-step3-confirm"
-                  class="absolute right-3 top-1/2 -translate-y-1/2 text-walnut-800/50 hover:text-walnut-900 transition-colors p-1 cursor-pointer focus:outline-none"
-                  aria-label="Xem mật khẩu xác nhận"
-                  title="Xem hoặc ẩn mật khẩu"
+                  type="submit"
+                  id="btn-save-password"
+                  class="auth-cta-shimmer relative overflow-hidden w-full bg-[#173524] border border-[#D8B670]/50 px-8 py-3.5 text-xs uppercase tracking-[0.22em] font-bold text-[#E6CA85] transition-all duration-200 hover:bg-[#1f4730] hover:text-white shadow-md cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" /></svg>
+                  <span class="relative z-10">Lưu mật khẩu mới</span>
                 </button>
-              </div>
-              <p id="err-step3-confirm" class="mt-1.5 hidden text-xs text-red-600 font-medium"></p>
+              </form>
             </div>
 
-            <button 
-              type="submit" 
-              id="btn-save-password"
-              class="w-full bg-clay-600 px-8 py-3.5 text-xs uppercase tracking-[0.2em] font-semibold text-sand-50 transition-all hover:bg-clay-500 shadow-sm cursor-pointer flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              <span>Lưu mật khẩu mới</span>
-            </button>
-          </form>
+          </div>
         </div>
 
       </div>
-
     </div>
   </section>
 
@@ -308,6 +331,58 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
   </div>
 
 </BaseLayout>
+
+<style is:global>
+  #site-header,
+  main,
+  #auth-page-section {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  @keyframes authFadeSlideUp {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 12px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  .auth-stagger:not(.hidden) > * {
+    animation: authFadeSlideUp 0.42s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+  .auth-stagger:not(.hidden) > *:nth-child(1) { animation-delay: 0.03s; }
+  .auth-stagger:not(.hidden) > *:nth-child(2) { animation-delay: 0.06s; }
+  .auth-stagger:not(.hidden) > *:nth-child(3) { animation-delay: 0.09s; }
+  .auth-stagger:not(.hidden) > *:nth-child(4) { animation-delay: 0.12s; }
+
+  .auth-cta-shimmer::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(90deg, transparent, rgba(243, 229, 171, 0.24), transparent);
+    transition: transform 0.65s ease;
+  }
+  .auth-cta-shimmer:hover::after {
+    transform: translateX(100%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .auth-stagger:not(.hidden) > * {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
+    .auth-cta-shimmer::after {
+      display: none;
+    }
+  }
+</style>
 
 <script>
   import { checkPasswordStrength } from '../../scripts/validate';

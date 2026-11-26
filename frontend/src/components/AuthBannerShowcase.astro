@@ -1,0 +1,382 @@
+---
+interface AuthBannerItem {
+  id?: number;
+  title: string;
+  subtitle: string;
+  description: string;
+  imageUrl: string;
+  linkUrl?: string;
+  buttonText?: string;
+}
+
+interface Props {
+  position?: string;
+  fallbackTitle: string;
+  fallbackSubtitle?: string;
+  fallbackDescription: string;
+  fallbackImage?: string;
+  highlights?: string[];
+}
+
+const {
+  position = 'auth',
+  fallbackTitle,
+  fallbackSubtitle = 'NỘI THẤT CAO CẤP KTUFA',
+  fallbackDescription,
+  fallbackImage = 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1400&q=85',
+  highlights = [
+    'Bảo mật chuẩn Enterprise',
+    'Ưu đãi thành viên VIP',
+    'Theo dõi đơn hàng 24/7',
+  ],
+} = Astro.props;
+
+let banners: AuthBannerItem[] = [];
+
+try {
+  const res = await fetch(`http://localhost:4000/api/banners?position=${encodeURIComponent(position)}&activeOnly=true`, {
+    signal: AbortSignal.timeout(5000),
+  });
+  if (res.ok) {
+    const json = await res.json();
+    if (json.success && Array.isArray(json.data) && json.data.length > 0) {
+      banners = json.data.map((item: any) => ({
+        id: item.id,
+        title: item.title || fallbackTitle,
+        subtitle: item.subtitle || fallbackSubtitle,
+        description: item.description || fallbackDescription,
+        imageUrl: item.imageUrl || fallbackImage,
+        linkUrl: item.linkUrl || '/san-pham',
+        buttonText: item.buttonText || 'Khám phá ngay',
+      }));
+    }
+  }
+} catch {
+  // Dùng fallback khi backend chưa chạy lúc build
+}
+
+if (banners.length === 0) {
+  banners = [
+    {
+      title: fallbackTitle,
+      subtitle: fallbackSubtitle,
+      description: fallbackDescription,
+      imageUrl: fallbackImage,
+      linkUrl: '/san-pham',
+      buttonText: 'Khám phá ngay',
+    },
+  ];
+}
+
+const primaryBanner = banners[0];
+---
+
+<div
+  id="auth-banner-showcase"
+  data-banner-position={position}
+  data-fallback-title={fallbackTitle}
+  data-fallback-subtitle={fallbackSubtitle}
+  data-fallback-desc={fallbackDescription}
+  data-fallback-image={fallbackImage}
+  class="hidden lg:flex relative flex-col justify-between bg-[#173524] text-sand-50 overflow-hidden min-h-[552px] h-full select-none group"
+>
+  <!-- Thanh ánh kim vàng gold trên đỉnh -->
+  <div class="absolute top-0 left-0 right-0 h-[3px] bg-gradient-to-r from-[#D8B670] via-[#F3E5AB] to-[#C49E52] z-30"></div>
+
+  <!-- Khung ảnh nền động + Ken Burns Zoom -->
+  <div id="auth-banner-slides" class="absolute inset-0 z-0">
+    {banners.map((b, idx) => (
+      <div
+        class={`auth-banner-slide absolute inset-0 transition-opacity duration-1000 ease-in-out ${idx === 0 ? 'opacity-100 is-active' : 'opacity-0 pointer-events-none'}`}
+        data-slide-index={idx}
+        data-title={b.title}
+        data-subtitle={b.subtitle}
+        data-desc={b.description}
+        data-link={b.linkUrl || '/san-pham'}
+        data-btn={b.buttonText || 'Khám phá ngay'}
+      >
+        <img
+          src={b.imageUrl}
+          alt={b.title}
+          class="auth-ken-burns h-full w-full object-cover object-center"
+          loading="eager"
+          onerror={`this.src='${fallbackImage}'`}
+        />
+      </div>
+    ))}
+  </div>
+
+  <!-- Lớp phủ Gradient đa tầng giúp chữ nổi bật và sang trọng -->
+  <div class="absolute inset-0 z-10 bg-gradient-to-t from-[#0B1B12]/95 via-[#173524]/70 to-[#0F2418]/45 pointer-events-none"></div>
+  <div class="absolute inset-0 z-10 bg-[radial-gradient(circle_at_top_right,rgba(216,182,112,0.22),transparent_55%)] pointer-events-none"></div>
+  <!-- Khung viền mảnh bên trong -->
+  <div class="absolute inset-4 z-10 border border-[#D8B670]/25 pointer-events-none"></div>
+
+  <!-- Nội dung trên cùng: Thương hiệu & Chỉ báo Slide -->
+  <div class="relative z-20 p-8 pb-0 flex items-center justify-between gap-4">
+    <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 bg-[#0F2418]/65 backdrop-blur-md border border-[#D8B670]/40 text-[#F3E5AB]">
+      <span class="h-1.5 w-1.5 rounded-full bg-[#D8B670] animate-pulse"></span>
+      <span id="auth-banner-subtitle" class="text-[10px] font-bold uppercase tracking-[0.26em]">
+        {primaryBanner.subtitle}
+      </span>
+    </div>
+
+    <div id="auth-banner-dots" class={`flex items-center gap-1.5 ${banners.length > 1 ? '' : 'hidden'}`}>
+      {banners.map((_, idx) => (
+        <button
+          type="button"
+          data-dot-index={idx}
+          aria-label={`Xem banner ${idx + 1}`}
+          class={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${idx === 0 ? 'w-6 bg-[#D8B670]' : 'w-1.5 bg-white/40 hover:bg-white/70'}`}
+        ></button>
+      ))}
+    </div>
+  </div>
+
+  <!-- Nội dung chính giữa: Tiêu đề & Mô tả -->
+  <div class="relative z-20 px-8 my-auto py-6">
+    <div class="w-12 h-[2px] bg-gradient-to-r from-[#D8B670] to-transparent mb-4"></div>
+    <h2
+      id="auth-banner-title"
+      class="font-display text-2xl xl:text-[31px] font-semibold leading-[1.28] text-white tracking-tight drop-shadow-sm transition-all duration-500"
+    >
+      {primaryBanner.title}
+    </h2>
+    <p
+      id="auth-banner-desc"
+      class="mt-3 text-sm text-sand-100/85 leading-relaxed max-w-md transition-all duration-500"
+    >
+      {primaryBanner.description}
+    </p>
+
+    <div class="mt-5">
+      <a
+        id="auth-banner-link"
+        href={primaryBanner.linkUrl || '/san-pham'}
+        class="inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-[#E6CA85] hover:text-white transition-colors group/link"
+      >
+        <span id="auth-banner-btn-text">{primaryBanner.buttonText || 'Khám phá ngay'}</span>
+        <svg class="w-3.5 h-3.5 transition-transform duration-300 group-hover/link:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+        </svg>
+      </a>
+    </div>
+  </div>
+
+  <!-- Chân card: Đặc quyền thành viên (Frosted Glass) -->
+  <div class="relative z-20 px-8 pb-8">
+    <div class="grid grid-cols-3 gap-2.5 pt-4 border-t border-[#D8B670]/25">
+      {highlights.map((item) => (
+        <div class="flex items-center gap-1.5 bg-white/[0.06] backdrop-blur-sm border border-white/10 px-2.5 py-2 text-[10.5px] font-medium text-sand-100/90">
+          <svg class="w-3.5 h-3.5 text-[#D8B670] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7" />
+          </svg>
+          <span class="truncate">{item}</span>
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<style is:global>
+  @keyframes authKenBurns {
+    0% {
+      transform: scale(1) translate3d(0, 0, 0);
+    }
+    50% {
+      transform: scale(1.08) translate3d(-1%, -1%, 0);
+    }
+    100% {
+      transform: scale(1) translate3d(0, 0, 0);
+    }
+  }
+
+  #auth-banner-showcase .auth-banner-slide.is-active .auth-ken-burns {
+    animation: authKenBurns 16s ease-in-out infinite;
+    will-change: transform;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #auth-banner-showcase .auth-banner-slide.is-active .auth-ken-burns {
+      animation: none !important;
+    }
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    const container = document.getElementById('auth-banner-showcase');
+    if (!container) return;
+
+    const position = container.dataset.bannerPosition || 'auth';
+    const fallbackTitle = container.dataset.fallbackTitle || '';
+    const fallbackSubtitle = container.dataset.fallbackSubtitle || 'NỘI THẤT CAO CẤP KTUFA';
+    const fallbackDesc = container.dataset.fallbackDesc || '';
+    const fallbackImage = container.dataset.fallbackImage || '';
+
+    const slidesWrap = document.getElementById('auth-banner-slides');
+    const dotsWrap = document.getElementById('auth-banner-dots');
+    const titleEl = document.getElementById('auth-banner-title');
+    const subtitleEl = document.getElementById('auth-banner-subtitle');
+    const descEl = document.getElementById('auth-banner-desc');
+    const linkEl = document.getElementById('auth-banner-link') as HTMLAnchorElement | null;
+    const btnTextEl = document.getElementById('auth-banner-btn-text');
+
+    const CACHE_KEY = `ktufa_banner_cache_${position}`;
+
+    const renderBannerItems = (items: any[]) => {
+      if (!items || items.length === 0) return;
+      if (slidesWrap) {
+        slidesWrap.innerHTML = items
+          .map((item: any, idx: number) => {
+            const title = (item.title || fallbackTitle).replace(/"/g, '&quot;');
+            const subtitle = (item.subtitle || fallbackSubtitle).replace(/"/g, '&quot;');
+            const desc = (item.description || fallbackDesc).replace(/"/g, '&quot;');
+            const img = (item.imageUrl || fallbackImage).replace(/"/g, '&quot;');
+            const link = (item.linkUrl || '/san-pham').replace(/"/g, '&quot;');
+            const btn = (item.buttonText || 'Khám phá ngay').replace(/"/g, '&quot;');
+            return `
+              <div
+                class="auth-banner-slide absolute inset-0 transition-opacity duration-1000 ease-in-out ${idx === 0 ? 'opacity-100 is-active' : 'opacity-0 pointer-events-none'}"
+                data-slide-index="${idx}"
+                data-title="${title}"
+                data-subtitle="${subtitle}"
+                data-desc="${desc}"
+                data-link="${link}"
+                data-btn="${btn}"
+              >
+                <img
+                  src="${img}"
+                  alt="${title}"
+                  class="auth-ken-burns h-full w-full object-cover object-center"
+                  loading="eager"
+                  onerror="this.src='${fallbackImage}'"
+                />
+              </div>
+            `;
+          })
+          .join('');
+      }
+
+      if (dotsWrap) {
+        if (items.length > 1) {
+          dotsWrap.classList.remove('hidden');
+          dotsWrap.innerHTML = items
+            .map(
+              (_: any, idx: number) => `
+              <button
+                type="button"
+                data-dot-index="${idx}"
+                aria-label="Xem banner ${idx + 1}"
+                class="h-1.5 rounded-full transition-all duration-300 cursor-pointer ${idx === 0 ? 'w-6 bg-[#D8B670]' : 'w-1.5 bg-white/40 hover:bg-white/70'}"
+              ></button>
+            `
+            )
+            .join('');
+        } else {
+          dotsWrap.classList.add('hidden');
+          dotsWrap.innerHTML = '';
+        }
+      }
+
+      activateSlide(0);
+      startAutoSlide();
+    };
+
+    let currentIdx = 0;
+    let slideTimer: number | null = null;
+
+    const activateSlide = (idx: number) => {
+      const slides = container.querySelectorAll<HTMLElement>('.auth-banner-slide');
+      const dots = container.querySelectorAll<HTMLElement>('[data-dot-index]');
+      if (!slides.length) return;
+
+      const safeIdx = ((idx % slides.length) + slides.length) % slides.length;
+      currentIdx = safeIdx;
+
+      slides.forEach((s, i) => {
+        if (i === safeIdx) {
+          s.classList.add('opacity-100', 'is-active');
+          s.classList.remove('opacity-0', 'pointer-events-none');
+        } else {
+          s.classList.remove('opacity-100', 'is-active');
+          s.classList.add('opacity-0', 'pointer-events-none');
+        }
+      });
+
+      dots.forEach((d, i) => {
+        if (i === safeIdx) {
+          d.classList.add('w-6', 'bg-[#D8B670]');
+          d.classList.remove('w-1.5', 'bg-white/40');
+        } else {
+          d.classList.remove('w-6', 'bg-[#D8B670]');
+          d.classList.add('w-1.5', 'bg-white/40');
+        }
+      });
+
+      const active = slides[safeIdx];
+      if (active) {
+        if (titleEl && active.dataset.title) titleEl.textContent = active.dataset.title;
+        if (subtitleEl && active.dataset.subtitle) subtitleEl.textContent = active.dataset.subtitle;
+        if (descEl && active.dataset.desc) descEl.textContent = active.dataset.desc;
+        if (linkEl && active.dataset.link) linkEl.href = active.dataset.link;
+        if (btnTextEl && active.dataset.btn) btnTextEl.textContent = active.dataset.btn;
+      }
+    };
+
+    const startAutoSlide = () => {
+      if (slideTimer) window.clearInterval(slideTimer);
+      const count = container.querySelectorAll('.auth-banner-slide').length;
+      if (count > 1) {
+        slideTimer = window.setInterval(() => {
+          activateSlide(currentIdx + 1);
+        }, 6000);
+      }
+    };
+
+    dotsWrap?.addEventListener('click', (e) => {
+      const btn = (e.target as HTMLElement).closest('[data-dot-index]') as HTMLElement | null;
+      if (!btn) return;
+      const idx = Number(btn.dataset.dotIndex);
+      if (!Number.isNaN(idx)) {
+        activateSlide(idx);
+        startAutoSlide();
+      }
+    });
+
+    // Hiển thị ngay dữ liệu cache (nếu có) để tránh chớp ảnh khi chuyển qua lại Đăng nhập <-> Đăng ký
+    try {
+      const cachedRaw = sessionStorage.getItem(CACHE_KEY);
+      if (cachedRaw) {
+        const cachedItems = JSON.parse(cachedRaw);
+        if (Array.isArray(cachedItems) && cachedItems.length > 0) {
+          renderBannerItems(cachedItems);
+        }
+      }
+    } catch {}
+
+    startAutoSlide();
+
+    // Đồng bộ động từ API để phản ánh ngay thay đổi của Admin trong /admin/banner
+    try {
+      const res = await fetch(`http://localhost:4000/api/banners?position=${encodeURIComponent(position)}&activeOnly=true`);
+      if (!res.ok) return;
+      const json = await res.json();
+      if (!json.success || !Array.isArray(json.data) || json.data.length === 0) return;
+
+      const items = json.data;
+      try {
+        const newSerialized = JSON.stringify(items);
+        if (sessionStorage.getItem(CACHE_KEY) === newSerialized) {
+          return; // Dữ liệu giống hệt cache -> không render lại để tránh giật hình
+        }
+        sessionStorage.setItem(CACHE_KEY, newSerialized);
+      } catch {}
+
+      renderBannerItems(items);
+    } catch {
+      // Giữ nguyên dữ liệu SSR/fallback nếu offline
+    }
+  });
+</script>
+

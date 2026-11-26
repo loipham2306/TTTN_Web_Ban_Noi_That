@@ -1141,10 +1141,10 @@ const provinces = [
       }
     };
 
-    const applyCoupon = async (codeToApply: string) => {
+    const applyCoupon = async (codeToApply: string, isAutoRestore: boolean = false) => {
       const code = codeToApply.trim().toUpperCase();
       if (!code) {
-        showCouponMessage('Vui lòng nhập mã giảm giá.', 'error');
+        if (!isAutoRestore) showCouponMessage('Vui lòng nhập mã giảm giá.', 'error');
         return;
       }
 
@@ -1173,14 +1173,34 @@ const provinces = [
         if (res.ok && json.success && json.data) {
           currentCoupon = json.data;
           localStorage.setItem('cart_coupon', code);
+          if (couponInput) couponInput.value = code;
           clearCouponMessage(); // Xóa thông báo thành công thừa thãi, chỉ giữ box coupon gọn gàng
           updateCouponUI();
           renderSummary();
         } else {
-          showCouponMessage(json.message || 'Mã giảm giá không hợp lệ.', 'error');
+          // Mã không hợp lệ hoặc không đủ điều kiện:
+          // Xóa ngay cart_coupon khỏi localStorage để không bị kẹt lại lần sau
+          localStorage.removeItem('cart_coupon');
+          currentCoupon = null;
+          updateCouponUI();
+          renderSummary();
+
+          if (isAutoRestore) {
+            // Khi tự động khôi phục lúc tải trang mà mã lỗi -> Âm thầm xóa trắng ô nhập và không bung cảnh báo đỏ
+            if (couponInput) couponInput.value = '';
+            clearCouponMessage();
+          } else {
+            showCouponMessage(json.message || 'Mã giảm giá không hợp lệ.', 'error');
+          }
         }
       } catch (err) {
-        showCouponMessage('Không thể kết nối máy chủ để kiểm tra mã.', 'error');
+        localStorage.removeItem('cart_coupon');
+        if (!isAutoRestore) {
+          showCouponMessage('Không thể kết nối máy chủ để kiểm tra mã.', 'error');
+        } else {
+          if (couponInput) couponInput.value = '';
+          clearCouponMessage();
+        }
       } finally {
         if (applyCouponBtn) {
           applyCouponBtn.disabled = false;
@@ -1277,6 +1297,45 @@ const provinces = [
       return row;
     };
 
+    /**
+     * Tính toán phí vận chuyển thông minh theo Tỉnh/Thành phố, Giá trị đơn hàng và Phụ phí hàng cồng kềnh/đi theo bộ
+     */
+    const calculateShippingFee = (subtotal: number, province: string = '', totalQty: number = 1): number => {
+      if (subtotal <= 0 || totalQty <= 0) return 0;
+      if (subtotal >= 10000000) return 0; // Freeship toàn quốc từ 10 triệu
+
+      const p = (province || '').toLowerCase().trim();
+      // KV1: Duy nhất TP.HCM (Kho hàng chính)
+      const isKV1 = !p || p.includes('hồ chí minh') || p.includes('hcm') || p.includes('sài gòn');
+
+      // KV2: Ngoại thành & Tỉnh giáp ranh TP.HCM
+      const isKV2 = p.includes('bình dương') || p.includes('đồng nai') || p.includes('long an') || 
+                    p.includes('bà rịa') || p.includes('vũng tàu') || p.includes('tây ninh') || p.includes('bình phước');
+
+      // KV3: Các tỉnh Miền Tây & Miền Nam lân cận
+      const isKV3 = p.includes('cần thơ') || p.includes('tiền giang') || p.includes('bến tre') || 
+                    p.includes('vĩnh long') || p.includes('trà vinh') || p.includes('đồng tháp') || 
+                    p.includes('an giang') || p.includes('kiên giang') || p.includes('hậu giang') || 
+                    p.includes('sóc trăng') || p.includes('bạc liêu') || p.includes('cà mau');
+
+      // KV4 (Còn lại): Liên miền Bắc - Nam & Miền Trung (Hà Nội, Hải Phòng, Đà Nẵng, Bắc Ninh, Quảng Ninh...)
+
+      let baseShip = 0;
+      if (subtotal >= 5000000) {
+        baseShip = isKV1 ? 50000 : (isKV2 ? 90000 : (isKV3 ? 160000 : 220000));
+      } else if (subtotal >= 3000000) {
+        baseShip = isKV1 ? 140000 : (isKV2 ? 190000 : (isKV3 ? 250000 : 350000));
+      } else if (subtotal >= 1000000) {
+        baseShip = isKV1 ? 80000 : (isKV2 ? 120000 : (isKV3 ? 160000 : 230000));
+      } else {
+        baseShip = isKV1 ? 45000 : (isKV2 ? 70000 : (isKV3 ? 95000 : 120000));
+      }
+
+      // Phụ phí kiện hàng cồng kềnh / theo bộ: Từ món thứ 3 trở lên phụ thu 20.000 ₫/món đóng gói bốc xếp
+      const bulkyFee = totalQty > 2 ? (totalQty - 2) * 20000 : 0;
+      return baseShip + bulkyFee;
+    };
+
     const renderSummary = () => {
       const items = readCart();
 
@@ -1285,14 +1344,16 @@ const provinces = [
         items.forEach((item) => itemsEl.appendChild(buildRow(item)));
       }
 
+      const totalQty = items.reduce((sum, item) => sum + item.qty, 0);
       const countEl = root.querySelector<HTMLElement>('[data-checkout-count]');
       if (countEl) {
-        const totalQty = items.reduce((sum, item) => sum + item.qty, 0);
         countEl.textContent = `${totalQty} sản phẩm`;
       }
 
       const subtotal = totalPrice(items);
-      const standardShipping = subtotal >= 2000000 ? 0 : (items.length > 0 ? 50000 : 0);
+      const provSelect = form?.querySelector<HTMLSelectElement>('#ck-province');
+      const selectedProvince = provSelect?.value || '';
+      const standardShipping = calculateShippingFee(subtotal, selectedProvince, totalQty);
       let shippingFee = standardShipping;
       let discountAmount = 0;
 
@@ -2268,11 +2329,10 @@ ${value('phone')}`,
       })
       .catch(() => {});
 
-    // Kiểm tra xem đã có mã lưu từ trước chưa
+    // Kiểm tra xem đã có mã lưu từ trước chưa (áp dụng ở chế độ autoRestore: nếu mã lỗi thì âm thầm dọn dẹp)
     const savedCoupon = localStorage.getItem('cart_coupon');
     if (savedCoupon) {
-      if (couponInput) couponInput.value = savedCoupon;
-      applyCoupon(savedCoupon);
+      applyCoupon(savedCoupon, true);
     }
 
     if (form) {
@@ -2344,6 +2404,11 @@ ${value('phone')}`,
 
     root.querySelectorAll<HTMLButtonElement>('[data-step-back]').forEach((btn) => {
       btn.addEventListener('click', () => goTo(Number(btn.dataset.stepBack ?? 0)));
+    });
+
+    const provSelect = form?.querySelector<HTMLSelectElement>('#ck-province');
+    provSelect?.addEventListener('change', () => {
+      renderSummary();
     });
 
     placeOrderBtn?.addEventListener('click', placeOrder);

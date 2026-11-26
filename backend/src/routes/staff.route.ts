@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
 import { prisma } from '../config/prisma.js';
-import { verifyToken, requireAdmin, requireAdminOrInternal } from '../middlewares/auth.middleware.js';
+import { verifyToken, requireAdmin, requireSuperAdmin, requireAdminOrInternal } from '../middlewares/auth.middleware.js';
 
 export const staffRouter = Router();
 
@@ -9,16 +9,16 @@ export const staffRouter = Router();
 export const ROLE_DEPARTMENT_MAP: Record<string, string> = {
   admin: 'Ban Giám Đốc',
   seller: 'Phòng Kinh Doanh',
-  consultant: 'Tư Vấn Khách Hàng',
-  warehouse: 'Kho Vận',
-  marketing: 'Truyền Thông',
+  cashier: 'Phòng Kế Toán & Quỹ',
+  warehouse: 'Kho Vận & Giao Hàng',
+  marketing: 'Truyền Thông & Marketing',
 };
 
 // Bản đồ tên hiển thị vai trò tiếng Việt trang trọng
 export const ROLE_DISPLAY_MAP: Record<string, string> = {
   admin: 'Quản Trị Viên (Admin)',
   seller: 'Quản Lý Bán Hàng',
-  consultant: 'Chuyên Viên Tư Vấn Phong Thủy',
+  cashier: 'Thu Ngân & Kế Toán Quỹ',
   warehouse: 'Thủ Kho & Vận Chuyển',
   marketing: 'Marketing & Khuyến Mãi',
 };
@@ -30,9 +30,9 @@ const initStaffData = async () => {
       { id: 1, name: 'admin', description: 'Quản trị viên toàn quyền' },
       { id: 2, name: 'seller', description: 'Quản lý bán hàng' },
       { id: 3, name: 'customer', description: 'Khách mua hàng' },
-      { id: 4, name: 'consultant', description: 'Chuyên viên tư vấn phong thủy' },
       { id: 5, name: 'warehouse', description: 'Thủ kho & vận chuyển' },
       { id: 6, name: 'marketing', description: 'Marketing & truyền thông' },
+      { id: 7, name: 'cashier', description: 'Thu Ngân & Kế Toán Quỹ' },
     ];
 
     for (const r of rolesToEnsure) {
@@ -72,7 +72,7 @@ const initStaffData = async () => {
           name: 'Đặng Thảo Vy',
           email: 'vy.dang@noithat.vn',
           phone: '0909003003',
-          roleName: 'consultant',
+          roleName: 'seller',
           status: true,
         },
         {
@@ -220,7 +220,7 @@ staffRouter.get('/', requireAdminOrInternal, async (req: Request, res: Response)
 staffRouter.get('/roles', requireAdminOrInternal, async (_req: Request, res: Response) => {
   try {
     const roles = await prisma.roles.findMany({
-      where: { name: { not: 'customer' } },
+      where: { name: { notIn: ['customer', 'consultant'] } },
       orderBy: { id: 'asc' },
     });
 
@@ -248,7 +248,7 @@ staffRouter.get('/roles', requireAdminOrInternal, async (_req: Request, res: Res
 // ================================================================
 // POST /api/staff - Thêm nhân viên mới vào hệ thống
 // ================================================================
-staffRouter.post('/', verifyToken, requireAdmin, async (req: Request, res: Response) => {
+staffRouter.post('/', verifyToken, requireSuperAdmin, async (req: Request, res: Response) => {
   try {
     const { name, email, phone, roleId, roleName, password } = req.body;
 
@@ -347,7 +347,7 @@ staffRouter.post('/', verifyToken, requireAdmin, async (req: Request, res: Respo
 // ================================================================
 // PUT /api/staff/:id/role - Phân quyền / Cập nhật vai trò nhân sự
 // ================================================================
-staffRouter.put('/:id/role', verifyToken, requireAdmin, async (req: Request, res: Response) => {
+staffRouter.put('/:id/role', verifyToken, requireSuperAdmin, async (req: Request, res: Response) => {
   try {
     const staffId = Number(req.params.id);
     const { roleId, roleName } = req.body;
@@ -410,7 +410,7 @@ staffRouter.put('/:id/role', verifyToken, requireAdmin, async (req: Request, res
 // ================================================================
 // PATCH /api/staff/:id/status - Khóa / Mở khóa tài khoản nhân sự
 // ================================================================
-staffRouter.patch('/:id/status', verifyToken, requireAdmin, async (req: Request, res: Response) => {
+staffRouter.patch('/:id/status', verifyToken, requireSuperAdmin, async (req: Request, res: Response) => {
   try {
     const staffId = Number(req.params.id);
     if (isNaN(staffId)) {
@@ -473,7 +473,7 @@ staffRouter.patch('/:id/status', verifyToken, requireAdmin, async (req: Request,
 // ================================================================
 // DELETE /api/staff/:id - Xóa an toàn nhân sự (Soft delete)
 // ================================================================
-staffRouter.delete('/:id', verifyToken, requireAdmin, async (req: Request, res: Response) => {
+staffRouter.delete('/:id', verifyToken, requireSuperAdmin, async (req: Request, res: Response) => {
   try {
     const staffId = Number(req.params.id);
     if (isNaN(staffId)) {

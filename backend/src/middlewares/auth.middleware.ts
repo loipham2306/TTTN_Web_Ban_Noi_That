@@ -77,9 +77,19 @@ export const requireRole = (allowedRoles: string[]) => {
 };
 
 /**
- * Middleware yêu cầu quyền Quản trị viên (Admin hoặc Seller)
+ * Danh sách toàn bộ vai trò nhân sự nội bộ được phép truy cập khu vực Quản trị
  */
-export const requireAdmin = requireRole(['admin', 'seller', 'cashier']);
+export const ALL_STAFF_ROLES = ['admin', 'seller', 'cashier', 'warehouse', 'marketing'];
+
+/**
+ * Middleware yêu cầu quyền Quản trị viên tối cao (Chỉ dành cho Admin)
+ */
+export const requireSuperAdmin = requireRole(['admin']);
+
+/**
+ * Middleware yêu cầu quyền Quản trị viên hoặc Nhân viên nghiệp vụ nội bộ
+ */
+export const requireAdmin = requireRole(ALL_STAFF_ROLES);
 
 /**
  * Middleware tùy chọn: Nếu có token thì giải mã, không có thì vẫn cho qua (cho các API công khai cần nhận diện user nếu đã login)
@@ -106,7 +116,7 @@ export const requireAdminOrInternal = (req: Request, res: Response, next: NextFu
     try {
       const decoded = jwt.verify(token, ENV.JWT_SECRET) as AuthUserPayload;
       req.user = decoded;
-      if (['admin', 'seller', 'cashier'].includes(decoded.role)) {
+      if (ALL_STAFF_ROLES.includes(decoded.role)) {
         return next();
       }
       return res.status(403).json({

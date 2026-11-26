@@ -1,4 +1,7 @@
 import crypto from 'crypto';
+import path from 'path';
+import fs from 'fs';
+import multer from 'multer';
 import { MailerService } from '../services/mailer.service.js';
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
@@ -421,7 +424,7 @@ authRouter.post('/google', async (req: Request, res: Response) => {
     });
 
     // BẢO MẬT: Ngăn chặn tuyệt đối việc chiếm quyền tài khoản Quản trị / Nhân viên nội bộ qua luồng Google
-    if (user && user.roles?.name && ['admin', 'seller', 'cashier', 'warehouse', 'consultant', 'marketing'].includes(user.roles.name)) {
+    if (user && user.roles?.name && ['admin', 'seller', 'cashier', 'warehouse', 'marketing'].includes(user.roles.name)) {
       return res.status(403).json({
         success: false,
         message: 'Tài khoản Quản trị viên / Nhân viên không được phép đăng nhập qua luồng Google công khai này. Vui lòng đăng nhập bằng Email và Mật khẩu bảo mật.',
@@ -690,6 +693,147 @@ authRouter.put('/profile', verifyToken, async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error('Lỗi cập nhật hồ sơ cá nhân:', error);
     return res.status(500).json({ success: false, message: 'Lỗi máy chủ khi cập nhật thông tin.', error: error.message });
+  }
+});
+
+// ================================================================
+// Cấu hình Multer cho tải lên Ảnh Đại Diện (Avatar)
+// ================================================================
+const backendAvatarDir = path.join(process.cwd(), 'uploads', 'avatars');
+if (!fs.existsSync(backendAvatarDir)) {
+  fs.mkdirSync(backendAvatarDir, { recursive: true });
+}
+
+const frontendAvatarDir = path.resolve(process.cwd(), '../frontend/public/uploads/avatars');
+if (!fs.existsSync(frontendAvatarDir)) {
+  try {
+    fs.mkdirSync(frontendAvatarDir, { recursive: true });
+  } catch {}
+}
+
+const avatarUpload = multer({
+  storage: multer.diskStorage({
+    destination: (_req, _file, cb) => {
+      cb(null, backendAvatarDir);
+    },
+    filename: (req: any, file, cb) => {
+      const ext = path.extname(file.originalname).toLowerCase() || '.jpg';
+      const userId = req.user?.id || 'anon';
+      cb(null, `avatar-u${userId}-${Date.now()}${ext}`);
+    },
+  }),
+  limits: { fileSize: 5 * 1024 * 1024 }, // Giới hạn 5MB
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Chỉ chấp nhận tệp hình ảnh định dạng JPG, PNG, WEBP!'));
+    }
+  },
+});
+
+const syncAvatarToFrontend = (filename: string) => {
+  try {
+    if (fs.existsSync(frontendAvatarDir)) {
+      const src = path.join(backendAvatarDir, filename);
+      const dest = path.join(frontendAvatarDir, filename);
+      fs.copyFileSync(src, dest);
+    }
+  } catch (err) {
+    console.warn('Không thể sao chép avatar sang frontend public:', err);
+  }
+};
+
+// ================================================================
+// POST /api/auth/profile/avatar - Tải lên / Cập nhật ảnh đại diện người dùng
+// ================================================================
+authRouter.post('/profile/avatar', verifyToken, avatarUpload.single('avatar'), async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ success: false, message: 'Chưa đăng nhập hoặc phiên làm việc đã hết hạn.' });
+    }
+
+    const userId = BigInt(req.user.id);
+    let avatarUrl: string | null = null;
+
+    if (req.file) {
+      const filename = req.file.filename;
+      syncAvatarToFrontend(filename);
+      avatarUrl = `/uploads/avatars/${filename}`;
+    } else if (req.body.avatar_url) {
+      avatarUrl = String(req.body.avatar_url).trim();
+    } else {
+      return res.status(400).json({ success: false, message: 'Vui lòng chọn một tệp hình ảnh để tải lên.' });
+    }
+
+    const updated = await prisma.users.update({
+      where: { id: userId },
+      data: {
+        avatar_url: avatarUrl,
+        updated_at: new Date(),
+      },
+      include: { roles: true },
+    });
+
+    console.log(`[AUTH] Cập nhật ảnh đại diện thành công cho User ID: ${userId} -> "${updated.avatar_url}"`);
+
+    return res.json({
+      success: true,
+      message: 'Cập nhật ảnh đại diện thành công!',
+      avatar_url: updated.avatar_url,
+      user: {
+        id: Number(updated.id),
+        email: updated.email,
+        full_name: cleanFullName(updated.full_name, updated.roles?.name),
+        phone: updated.phone || 'Chưa cập nhật',
+        avatar: updated.avatar_url,
+        role: updated.roles?.name || 'customer',
+      },
+    });
+  } catch (error: any) {
+    console.error('Lỗi khi tải ảnh đại diện:', error);
+    return res.status(500).json({ success: false, message: error.message || 'Lỗi khi tải ảnh đại diện.' });
+  }
+});
+
+// ================================================================
+// DELETE /api/auth/profile/avatar - Xóa ảnh đại diện (quay về ký tự viết tắt mặc định)
+// ================================================================
+authRouter.delete('/profile/avatar', verifyToken, async (req: Request, res: Response) => {
+  try {
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({ success: false, message: 'Chưa đăng nhập.' });
+    }
+
+    const userId = BigInt(req.user.id);
+
+    const updated = await prisma.users.update({
+      where: { id: userId },
+      data: {
+        avatar_url: null,
+        updated_at: new Date(),
+      },
+      include: { roles: true },
+    });
+
+    console.log(`[AUTH] Đã xóa ảnh đại diện của User ID: ${userId}`);
+
+    return res.json({
+      success: true,
+      message: 'Đã xóa ảnh đại diện. Hệ thống sẽ sử dụng ký tự viết tắt mặc định.',
+      avatar_url: null,
+      user: {
+        id: Number(updated.id),
+        email: updated.email,
+        full_name: cleanFullName(updated.full_name, updated.roles?.name),
+        phone: updated.phone || 'Chưa cập nhật',
+        avatar: null,
+        role: updated.roles?.name || 'customer',
+      },
+    });
+  } catch (error: any) {
+    console.error('Lỗi khi xóa ảnh đại diện:', error);
+    return res.status(500).json({ success: false, message: error.message || 'Lỗi khi xóa ảnh đại diện.' });
   }
 });
 

@@ -30,12 +30,12 @@ import { provinces } from '../../data/provinces';
        MAIN CONTENT: 2-COLUMN BENTO DASHBOARD
        ===================================================== -->
   <section class="mx-auto max-w-7xl px-4 py-10 sm:py-14">
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
+    <div id="account-dashboard-grid" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch">
 
       <!-- ===================================================
            CỘT TRÁI: SIDEBAR THÔNG TIN & MENU ĐIỀU HƯỚNG (4 CỘT)
            =================================================== -->
-      <aside class="lg:col-span-4 flex flex-col justify-between h-full space-y-6 lg:space-y-0 account-animate-enter">
+      <aside class="lg:col-span-4 flex flex-col account-animate-enter">
 
         <!-- Card Khách Hàng Tóm Tắt (Walnut & Gold Accent) -->
         <div class="rounded-none border border-walnut-900/15 bg-white shadow-md overflow-hidden text-walnut-900 flex-shrink-0">
@@ -45,7 +45,7 @@ import { provinces } from '../../data/provinces';
             <div class="absolute top-0 left-0 right-0 h-[2.5px] bg-gradient-to-r from-[#D8B670] via-[#F3E5AB] to-[#C49E52]"></div>
             <div class="absolute -right-6 -bottom-6 w-32 h-32 rounded-full bg-[#D8B670]/10 pointer-events-none"></div>
 
-            <div class="flex items-center gap-4 relative z-10">
+            <div class="flex items-center gap-4 relative z-10 account-inner-slide">
               <!-- Avatar -->
               <div 
                 id="page-user-avatar" 
@@ -77,25 +77,27 @@ import { provinces } from '../../data/provinces';
           </div>
 
           <!-- Loyalty Tier Bar (Thanh tiến độ hạng hội viên) -->
-          <div class="p-4 bg-[#FAF8F5] border-b border-walnut-900/10 space-y-2">
-            <div class="flex items-center justify-between text-xs">
-              <span class="font-semibold text-walnut-800">Cấp bậc tích lũy:</span>
-              <span id="tier-progress-text" class="font-bold text-[#173524]">Hạng Bạc</span>
+          <div class="p-4 bg-[#FAF8F5] border-b border-walnut-900/10">
+            <div class="space-y-2 account-inner-slide">
+              <div class="flex items-center justify-between text-xs">
+                <span class="font-semibold text-walnut-800">Cấp bậc tích lũy:</span>
+                <span id="tier-progress-text" class="font-bold text-[#173524]">Hạng Bạc</span>
+              </div>
+              <!-- Progress Track -->
+              <div class="w-full h-2 bg-sand-200/80 rounded-full overflow-hidden">
+                <div id="tier-progress-bar" class="h-full bg-gradient-to-r from-[#173524] to-[#D8B670] transition-all duration-700 w-[20%]"></div>
+              </div>
+              <p id="tier-next-hint" class="text-[11px] text-walnut-800/70">
+                Tích lũy thêm chi tiêu để nâng hạng <strong class="text-clay-700">Vàng (VIP)</strong> nhận voucher 10%.
+              </p>
             </div>
-            <!-- Progress Track -->
-            <div class="w-full h-2 bg-sand-200/80 rounded-full overflow-hidden">
-              <div id="tier-progress-bar" class="h-full bg-gradient-to-r from-[#173524] to-[#D8B670] transition-all duration-700 w-[20%]"></div>
-            </div>
-            <p id="tier-next-hint" class="text-[11px] text-walnut-800/70">
-              Tích lũy thêm chi tiêu để nâng hạng <strong class="text-clay-700">Vàng (VIP)</strong> nhận voucher 10%.
-            </p>
           </div>
 
           <!-- Nút Admin (Chỉ hiện khi là Admin/Staff) -->
           <div id="page-admin-box" class="hidden p-3 bg-amber-50/80 border-b border-amber-200/60">
             <a 
               href="/admin" 
-              class="w-full flex items-center justify-center gap-2 text-xs font-bold text-amber-900 bg-amber-200/60 hover:bg-amber-200 border border-amber-400/50 py-2 transition-colors uppercase tracking-wider"
+              class="account-inner-slide w-full flex items-center justify-center gap-2 text-xs font-bold text-amber-900 bg-amber-200/60 hover:bg-amber-200 border border-amber-400/50 py-2 transition-colors uppercase tracking-wider"
             >
               <svg class="w-4 h-4 text-amber-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
@@ -105,7 +107,7 @@ import { provinces } from '../../data/provinces';
           </div>
 
           <!-- Menu Danh Mục Điều Hướng Dọc -->
-          <nav class="p-2 space-y-1">
+          <nav class="p-2 space-y-1 account-inner-slide">
             <button 
               type="button" 
               data-page-tab="profile" 
@@ -183,7 +185,7 @@ import { provinces } from '../../data/provinces';
             <button 
               type="button" 
               data-logout 
-              class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs uppercase tracking-wider font-bold text-red-600 hover:text-white bg-red-50 hover:bg-red-600 border border-red-200 hover:border-red-600 transition-all duration-200 cursor-pointer rounded-none"
+              class="account-inner-slide w-full flex items-center justify-center gap-2 px-4 py-2.5 text-xs uppercase tracking-wider font-bold text-red-600 hover:text-white bg-red-50 hover:bg-red-600 border border-red-200 hover:border-red-600 transition-all duration-200 cursor-pointer rounded-none"
             >
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
@@ -194,27 +196,49 @@ import { provinces } from '../../data/provinces';
 
         </div>
 
-        <!-- Trợ Giúp & Chăm Sóc Khách Hàng (Tự động mở rộng chiều cao bằng card bên phải) -->
-        <div class="rounded-none border border-walnut-900/10 bg-[#FAF8F5] p-5 flex flex-col justify-between shadow-xs lg:mt-6 flex-1">
-          <div class="space-y-3">
-            <h4 class="font-bold text-xs uppercase tracking-wider text-walnut-900 flex items-center gap-2">
-              <svg class="w-4 h-4 text-[#173524]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
-              </svg>
-              <span>Hỗ trợ quý khách</span>
-            </h4>
-            <p class="text-xs text-walnut-800/80 leading-relaxed">
-              Cần hỗ trợ tra cứu đơn hoặc thay đổi địa chỉ nhận hàng? Liên hệ chuyên viên tư vấn cao cấp:
-            </p>
+        <!-- Trợ Giúp & Chăm Sóc Khách Hàng (Tự động dãn đều chạm đúng cạnh đáy của cột phải trên desktop) -->
+        <div 
+          id="sidebar-support-card" 
+          class="rounded-none border border-walnut-900/15 bg-white shadow-sm flex flex-col mt-6 overflow-hidden lg:flex-1"
+        >
+          <!-- PHẦN 1: HỖ TRỢ QUÝ KHÁCH (CHIỀU CAO 50% BẰNG PHẦN 2) -->
+          <div class="flex-1 px-5 py-3.5 sm:px-6 sm:py-4 flex flex-col justify-center bg-[#FAF8F5] border-b border-walnut-900/10">
+            <div class="space-y-1.5 account-inner-slide">
+              <div class="flex items-center justify-between">
+                <h4 class="font-bold text-xs uppercase tracking-wider text-walnut-900 flex items-center gap-2">
+                  <svg class="w-4 h-4 text-[#173524]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/>
+                  </svg>
+                  <span>Hỗ trợ quý khách</span>
+                </h4>
+                <span class="inline-block px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider bg-[#173524]/10 text-[#173524] rounded-none">
+                  VIP 24/7
+                </span>
+              </div>
+              <p class="text-xs text-walnut-800/80 leading-relaxed">
+                Cần hỗ trợ tra cứu đơn hoặc thay đổi địa chỉ nhận hàng? Chuyên viên tư vấn KTUFA luôn sẵn sàng phục vụ chu đáo.
+              </p>
+            </div>
           </div>
-          <div class="pt-3 border-t border-walnut-900/10 mt-4">
-            <a href="tel:1900636884" class="text-xs font-bold text-[#173524] hover:text-[#D8B670] transition-colors inline-flex items-center gap-1.5">
-              <svg class="w-3.5 h-3.5 text-[#D8B670] shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
-              </svg>
-              <span>Hotline: 1900 636 884</span>
-            </a>
-            <p class="text-[11px] text-walnut-800/60 mt-0.5">Thời gian: 08:30 - 21:00 (Cả T7 & CN)</p>
+          <!-- PHẦN 2: HOTLINE TỔNG ĐÀI (CHIỀU CAO 50% BẰNG PHẦN 1) -->
+          <div class="flex-1 px-5 py-3.5 sm:px-6 sm:py-4 flex flex-col justify-center bg-white">
+            <div class="space-y-2 text-center sm:text-left account-inner-slide">
+              <span class="text-[10px] font-bold uppercase tracking-wider text-walnut-800/60 block">
+                Tổng đài tư vấn trực tiếp
+              </span>
+              <a 
+                href="tel:1900636884" 
+                class="w-full flex items-center justify-center gap-2 px-4 py-2 bg-[#173524] hover:bg-[#204932] text-[#E6CA85] hover:text-white font-bold text-xs sm:text-sm tracking-wider uppercase transition-all shadow-xs border border-[#D8B670]/40 rounded-none group"
+              >
+                <svg class="w-4 h-4 text-[#D8B670] shrink-0 group-hover:scale-110 transition-transform" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                </svg>
+                <span>Hotline: 1900 636 884</span>
+              </a>
+              <p class="text-[11px] text-walnut-800/70 text-center">
+                Thời gian: <strong class="text-walnut-900 font-semibold">08:30 - 21:00</strong> (Cả T7 & CN)
+              </p>
+            </div>
           </div>
         </div>
 
@@ -223,28 +247,32 @@ import { provinces } from '../../data/provinces';
       <!-- ===================================================
            CỘT PHẢI: KHỐI NỘI DUNG CHÍNH THEO TAB (8 CỘT)
            =================================================== -->
-      <main class="lg:col-span-8 space-y-6 flex flex-col justify-between h-full account-animate-enter-delay-1">
+      <main id="account-dashboard-main" class="lg:col-span-8 flex flex-col account-animate-enter-delay-1">
 
         <!-- =================================================
              TAB 1: HỒ SƠ CÁ NHÂN & ĐỔI MẬT KHẨU
              ================================================= -->
-        <div id="page-pane-profile" class="page-tab-pane space-y-6 flex-1 flex flex-col justify-between">
+        <div id="page-pane-profile" class="page-tab-pane gap-6">
           
           <!-- Thống Kê Nhanh (3 Bento Cards) -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="rounded-none border border-walnut-900/15 bg-white p-5 shadow-xs hover:border-[#173524]/50 transition-colors">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-walnut-800/60 block">Tổng chi tiêu</span>
-              <p id="page-info-spent" class="text-xl font-bold font-mono text-[#173524] mt-1">0 ₫</p>
-              <span class="text-[11px] text-emerald-700 font-medium mt-1 inline-flex items-center gap-1">
-                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
-                Tích lũy trọn đời
-              </span>
+            <div class="rounded-none border border-walnut-900/15 bg-white p-5 shadow-xs hover:border-[#173524]/50 transition-colors overflow-hidden">
+              <div class="account-inner-slide">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-walnut-800/60 block">Tổng chi tiêu</span>
+                <p id="page-info-spent" class="text-xl font-bold font-mono text-[#173524] mt-1">0 ₫</p>
+                <span class="text-[11px] text-emerald-700 font-medium mt-1 inline-flex items-center gap-1">
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+                  Tích lũy trọn đời
+                </span>
+              </div>
             </div>
 
-            <div class="rounded-none border border-walnut-900/15 bg-white p-5 shadow-xs hover:border-[#173524]/50 transition-colors">
-              <span class="text-[10px] font-bold uppercase tracking-wider text-walnut-800/60 block">Đơn hoàn thành</span>
-              <p id="page-info-orders" class="text-xl font-bold font-mono text-clay-700 mt-1">0 đơn hàng</p>
-              <span class="text-[11px] text-walnut-800/70 mt-1 block">Giao thành công</span>
+            <div class="rounded-none border border-walnut-900/15 bg-white p-5 shadow-xs hover:border-[#173524]/50 transition-colors overflow-hidden">
+              <div class="account-inner-slide">
+                <span class="text-[10px] font-bold uppercase tracking-wider text-walnut-800/60 block">Đơn hoàn thành</span>
+                <p id="page-info-orders" class="text-xl font-bold font-mono text-clay-700 mt-1">0 đơn hàng</p>
+                <span class="text-[11px] text-walnut-800/70 mt-1 block">Giao thành công</span>
+              </div>
             </div>
 
             
@@ -253,7 +281,7 @@ import { provinces } from '../../data/provinces';
           <!-- Card Chi Tiết Hồ Sơ -->
           <div class="rounded-none border border-walnut-900/15 bg-white shadow-sm overflow-hidden">
             <div class="bg-[#F0EBE3] px-6 py-4 border-b border-walnut-900/10 flex items-center justify-between flex-wrap gap-2">
-              <h2 class="font-bold text-sm uppercase tracking-wide text-walnut-900 flex items-center gap-2">
+              <h2 class="font-bold text-sm uppercase tracking-wide text-walnut-900 flex items-center gap-2 account-inner-slide">
                 <svg class="w-4 h-4 text-[#173524]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2"/>
                 </svg>
@@ -264,7 +292,7 @@ import { provinces } from '../../data/provinces';
               <button 
                 type="button" 
                 id="btn-toggle-edit-profile" 
-                class="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider bg-white hover:bg-[#173524] text-[#173524] hover:text-[#E6CA85] border border-walnut-900/20 hover:border-[#173524] transition-all cursor-pointer shadow-xs rounded-none"
+                class="account-inner-slide inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider bg-white hover:bg-[#173524] text-[#173524] hover:text-[#E6CA85] border border-walnut-900/20 hover:border-[#173524] transition-all cursor-pointer shadow-xs rounded-none"
               >
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -274,7 +302,7 @@ import { provinces } from '../../data/provinces';
             </div>
 
             <!-- CHẾ ĐỘ XEM (VIEW MODE) -->
-            <div id="profile-view-mode" class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div id="profile-view-mode" class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-5 account-inner-slide">
               <div class="space-y-1">
                 <label class="text-[11px] font-bold uppercase tracking-wider text-walnut-800/60 block">Họ và tên</label>
                 <div class="p-3 bg-sand-50/70 border border-walnut-900/10 text-sm font-bold text-walnut-900" id="page-info-name">
@@ -305,7 +333,7 @@ import { provinces } from '../../data/provinces';
             </div>
 
             <!-- CHẾ ĐỘ CHỈNH SỬA (EDIT MODE - Ban đầu ẩn) -->
-            <form id="form-edit-profile" class="hidden p-6 space-y-4 bg-sand-50/40 border-t border-walnut-900/5">
+            <form id="form-edit-profile" class="hidden p-6 space-y-4 bg-sand-50/40 border-t border-walnut-900/5 account-inner-slide">
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label for="input-edit-name" class="block text-xs font-bold text-walnut-900 mb-1.5">
@@ -384,99 +412,188 @@ import { provinces } from '../../data/provinces';
             </form>
           </div>
 
-          <!-- Card Đổi Mật Khẩu An Toàn -->
-          <div class="rounded-none border border-walnut-900/15 bg-white shadow-sm overflow-hidden">
-            <div class="bg-[#F0EBE3] px-6 py-4 border-b border-walnut-900/10">
-              <h2 class="font-bold text-sm uppercase tracking-wide text-walnut-900 flex items-center gap-2">
-                <svg class="w-4 h-4 text-clay-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
-                </svg>
-                <span>Đổi mật khẩu tài khoản</span>
-              </h2>
-              <p class="text-[11px] text-walnut-800/70 mt-0.5">
-                Khuyến nghị đặt mật khẩu có độ dài từ 6 ký tự trở lên để bảo vệ đơn hàng và điểm tích lũy.
-              </p>
+          <!-- Bố cục 2 Card: Cập nhật Ảnh Đại Diện (Trái) & Đổi Mật Khẩu (Phải) - Chiều cao cân xứng bằng nhau -->
+          <div id="profile-bottom-cards-grid" class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch lg:flex-1">
+            <!-- CARD CẬP NHẬT ẢNH ĐẠI DIỆN (BÊN TRÁI - 5 CỘT) -->
+            <div class="lg:col-span-5 rounded-none border border-walnut-900/15 bg-white shadow-sm overflow-hidden flex flex-col h-full">
+              <div class="bg-[#F0EBE3] px-6 py-4 border-b border-walnut-900/10 min-h-[76px] flex flex-col justify-center">
+                <div class="account-inner-slide">
+                  <h2 class="font-bold text-sm uppercase tracking-wide text-walnut-900 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-[#173524]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 10a3 3 0 11-6 0 3 3 0 016 0zm6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span>Ảnh đại diện tài khoản</span>
+                  </h2>
+                  <p class="text-[11px] text-walnut-800/70 mt-0.5">
+                    Ảnh đại diện cá nhân giúp nhận diện tài khoản khi mua sắm và tương tác.
+                  </p>
+                </div>
+              </div>
+
+              <div class="p-6 flex flex-col items-center justify-between text-center flex-1 space-y-4 account-inner-slide">
+                <!-- Khung tròn Avatar trung tâm -->
+                <div class="relative group my-auto flex flex-col items-center justify-center w-full">
+                  <div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full p-[3px] bg-gradient-to-tr from-[#D8B670] via-[#F3E5AB] to-[#997734] shadow-md flex items-center justify-center overflow-hidden mx-auto">
+                    <div id="profile-avatar-container" class="w-full h-full rounded-full bg-[#173524] flex items-center justify-center overflow-hidden text-[#E6CA85] font-display font-bold text-2xl tracking-wider select-none">
+                      <!-- Tự động điền ảnh hoặc ký tự viết tắt -->
+                      PL
+                    </div>
+                  </div>
+                  <div class="mt-2.5 flex justify-center w-full">
+                    <span id="profile-avatar-badge" class="inline-flex items-center gap-1 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-sand-100 text-walnut-800 border border-walnut-900/15">
+                      Mặc định
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Thao tác Avatar -->
+                <div class="w-full flex flex-col gap-2 pt-1 mt-auto">
+                  <input type="file" id="input-avatar-file" accept="image/png, image/jpeg, image/webp" class="hidden" />
+                  
+                  <div class="flex items-center justify-center gap-2 flex-wrap">
+                    <button
+                      type="button"
+                      id="btn-choose-avatar"
+                      class="bg-white hover:bg-sand-100 text-walnut-900 border border-walnut-900/30 px-3.5 py-2 text-xs uppercase tracking-wider font-bold transition-all shadow-xs cursor-pointer inline-flex items-center gap-1.5"
+                    >
+                      <svg class="w-3.5 h-3.5 text-[#173524]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <span id="btn-choose-text">Chọn ảnh mới</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      id="btn-delete-avatar"
+                      class="hidden bg-red-50 hover:bg-red-100 text-red-700 border border-red-200 px-3 py-2 text-xs uppercase tracking-wider font-semibold transition-all cursor-pointer inline-flex items-center gap-1"
+                      title="Xóa ảnh và dùng chữ cái viết tắt"
+                    >
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      <span>Xóa ảnh</span>
+                    </button>
+                  </div>
+
+                  <button
+                    type="button"
+                    id="btn-save-avatar"
+                    disabled
+                    class="w-full bg-[#173524] text-[#E6CA85] border border-[#D8B670]/50 hover:bg-[#204932] hover:text-white disabled:opacity-50 disabled:cursor-not-allowed px-4 py-2.5 text-xs uppercase tracking-wider font-bold transition-all shadow-xs cursor-pointer inline-flex items-center justify-center gap-2"
+                  >
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                    </svg>
+                    <span>Lưu ảnh đại diện</span>
+                  </button>
+
+                  <p class="text-[10.5px] text-walnut-800/60 mt-1">
+                    Hỗ trợ file JPG, PNG, WEBP. Dung lượng tối đa 5MB.
+                  </p>
+                </div>
+              </div>
             </div>
 
-            <form id="form-change-password" class="p-6 space-y-4 max-w-xl">
-              <div>
-                <label for="input-old-password" class="block text-xs font-semibold text-walnut-900 mb-1.5">
-                  Mật khẩu hiện tại <span class="text-red-500">*</span>
-                </label>
-                <div class="relative">
-                  <input 
-                    type="password" 
-                    id="input-old-password" 
-                    required 
-                    placeholder="Nhập mật khẩu hiện tại..." 
-                    class="w-full border border-walnut-900/20 bg-sand-50/50 px-3.5 py-2.5 text-xs text-walnut-900 outline-none transition-colors focus:border-[#173524] focus:bg-white"
-                  />
-                  <button type="button" data-toggle-password="input-old-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-walnut-800/50 hover:text-walnut-900 cursor-pointer p-1" title="Ẩn/Hiện">
-                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-                      <circle cx="12" cy="12" r="3"/>
+            <!-- CARD ĐỔI MẬT KHẨU AN TOÀN (BÊN PHẢI - 7 CỘT) -->
+            <div class="lg:col-span-7 rounded-none border border-walnut-900/15 bg-white shadow-sm overflow-hidden flex flex-col h-full">
+              <div class="bg-[#F0EBE3] px-6 py-4 border-b border-walnut-900/10 min-h-[76px] flex flex-col justify-center">
+                <div class="account-inner-slide">
+                  <h2 class="font-bold text-sm uppercase tracking-wide text-walnut-900 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-clay-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
                     </svg>
+                    <span>Đổi mật khẩu tài khoản</span>
+                  </h2>
+                  <p class="text-[11px] text-walnut-800/70 mt-0.5">
+                    Khuyến nghị đặt mật khẩu có độ dài từ 6 ký tự trở lên để bảo vệ đơn hàng và điểm tích lũy.
+                  </p>
+                </div>
+              </div>
+
+              <form id="form-change-password" class="p-6 flex flex-col justify-between flex-1 space-y-4 account-inner-slide">
+                <div class="space-y-4">
+                  <!-- Hàng 1: Mật khẩu hiện tại -->
+                  <div>
+                    <label for="input-old-password" class="block text-xs font-semibold text-walnut-900 mb-1.5">
+                      Mật khẩu hiện tại <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                      <input 
+                        type="password" 
+                        id="input-old-password" 
+                        required 
+                        placeholder="Nhập mật khẩu hiện tại..." 
+                        class="w-full border border-walnut-900/20 bg-sand-50/50 px-3.5 py-2.5 text-xs text-walnut-900 outline-none transition-colors focus:border-[#173524] focus:bg-white"
+                      />
+                      <button type="button" data-toggle-password="input-old-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-walnut-800/50 hover:text-walnut-900 cursor-pointer p-1" title="Ẩn/Hiện">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                          <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Hàng 2: Mật khẩu mới -->
+                  <div>
+                    <label for="input-new-password" class="block text-xs font-semibold text-walnut-900 mb-1.5">
+                      Mật khẩu mới <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                      <input 
+                        type="password" 
+                        id="input-new-password" 
+                        required 
+                        minlength="6"
+                        placeholder="Ít nhất 6 ký tự..." 
+                        class="w-full border border-walnut-900/20 bg-sand-50/50 px-3.5 py-2.5 text-xs text-walnut-900 outline-none transition-colors focus:border-[#173524] focus:bg-white"
+                      />
+                      <button type="button" data-toggle-password="input-new-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-walnut-800/50 hover:text-walnut-900 cursor-pointer p-1" title="Ẩn/Hiện">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                          <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Hàng 3: Xác nhận mật khẩu mới -->
+                  <div>
+                    <label for="input-confirm-password" class="block text-xs font-semibold text-walnut-900 mb-1.5">
+                      Xác nhận mật khẩu mới <span class="text-red-500">*</span>
+                    </label>
+                    <div class="relative">
+                      <input 
+                        type="password" 
+                        id="input-confirm-password" 
+                        required 
+                        minlength="6"
+                        placeholder="Nhập lại mật khẩu..." 
+                        class="w-full border border-walnut-900/20 bg-sand-50/50 px-3.5 py-2.5 text-xs text-walnut-900 outline-none transition-colors focus:border-[#173524] focus:bg-white"
+                      />
+                      <button type="button" data-toggle-password="input-confirm-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-walnut-800/50 hover:text-walnut-900 cursor-pointer p-1" title="Ẩn/Hiện">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+                          <circle cx="12" cy="12" r="3"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Nút Lưu mật khẩu nằm dưới 3 hàng, căn đáy tương xứng với nút Lưu avatar -->
+                <div class="pt-2 mt-auto">
+                  <button 
+                    type="submit" 
+                    id="btn-submit-change-pass" 
+                    class="w-full sm:w-auto bg-[#173524] text-[#E6CA85] border border-[#D8B670]/50 hover:bg-[#204932] hover:text-white px-6 py-2.5 text-xs uppercase tracking-wider font-bold transition-all shadow-xs cursor-pointer inline-flex items-center justify-center gap-2 rounded-none"
+                  >
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                    <span>Lưu mật khẩu mới</span>
                   </button>
                 </div>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label for="input-new-password" class="block text-xs font-semibold text-walnut-900 mb-1.5">
-                    Mật khẩu mới <span class="text-red-500">*</span>
-                  </label>
-                  <div class="relative">
-                    <input 
-                      type="password" 
-                      id="input-new-password" 
-                      required 
-                      minlength="6"
-                      placeholder="Ít nhất 6 ký tự..." 
-                      class="w-full border border-walnut-900/20 bg-sand-50/50 px-3.5 py-2.5 text-xs text-walnut-900 outline-none transition-colors focus:border-[#173524] focus:bg-white"
-                    />
-                    <button type="button" data-toggle-password="input-new-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-walnut-800/50 hover:text-walnut-900 cursor-pointer p-1" title="Ẩn/Hiện">
-                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-                        <circle cx="12" cy="12" r="3"/>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-
-                <div>
-                  <label for="input-confirm-password" class="block text-xs font-semibold text-walnut-900 mb-1.5">
-                    Xác nhận mật khẩu mới <span class="text-red-500">*</span>
-                  </label>
-                  <div class="relative">
-                    <input 
-                      type="password" 
-                      id="input-confirm-password" 
-                      required 
-                      minlength="6"
-                      placeholder="Nhập lại mật khẩu..." 
-                      class="w-full border border-walnut-900/20 bg-sand-50/50 px-3.5 py-2.5 text-xs text-walnut-900 outline-none transition-colors focus:border-[#173524] focus:bg-white"
-                    />
-                    <button type="button" data-toggle-password="input-confirm-password" class="absolute right-3 top-1/2 -translate-y-1/2 text-walnut-800/50 hover:text-walnut-900 cursor-pointer p-1" title="Ẩn/Hiện">
-                      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
-                        <circle cx="12" cy="12" r="3"/>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div id="change-pass-msg" class="hidden text-xs py-2.5 px-3.5 rounded-none font-medium"></div>
-
-              <button 
-                type="submit" 
-                id="btn-submit-change-pass" 
-                class="bg-[#173524] text-[#E6CA85] border border-[#D8B670]/50 hover:bg-[#204932] hover:text-white px-6 py-2.5 text-xs uppercase tracking-wider font-bold transition-all shadow-xs cursor-pointer inline-flex items-center gap-2 rounded-none"
-              >
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
-                <span>Lưu mật khẩu mới</span>
-              </button>
-            </form>
+              </form>
+            </div>
           </div>
 
         </div>
@@ -484,86 +601,118 @@ import { provinces } from '../../data/provinces';
         <!-- =================================================
              TAB 2: QUẢN LÝ ĐƠN HÀNG (ORDERS)
              ================================================= -->
-        <div id="page-pane-orders" class="page-tab-pane hidden space-y-6">
+        <div id="page-pane-orders" class="page-tab-pane hidden gap-6">
 
           <!-- Thanh Lọc Trạng Thái Đơn Hàng -->
-          <div class="bg-white border border-walnut-900/15 p-2 flex items-center gap-2 overflow-x-auto shadow-xs text-xs font-semibold">
-            <button type="button" data-order-filter="all" class="order-filter-btn px-4 py-2 rounded-none transition-colors is-active">
-              Tất cả đơn
-            </button>
-            <button type="button" data-order-filter="pending" class="order-filter-btn px-4 py-2 rounded-none transition-colors text-walnut-800/70 hover:text-walnut-900">
-              Chờ xác nhận
-            </button>
-            <button type="button" data-order-filter="shipping" class="order-filter-btn px-4 py-2 rounded-none transition-colors text-walnut-800/70 hover:text-walnut-900">
-              Đang giao hàng
-            </button>
-            <button type="button" data-order-filter="completed" class="order-filter-btn px-4 py-2 rounded-none transition-colors text-walnut-800/70 hover:text-walnut-900">
-              Đã giao thành công
-            </button>
-            <button type="button" data-order-filter="cancelled" class="order-filter-btn px-4 py-2 rounded-none transition-colors text-walnut-800/70 hover:text-walnut-900">
-              Đã hủy
-            </button>
+          <div class="bg-white border border-walnut-900/15 p-2 flex items-center gap-2 overflow-x-auto shadow-xs text-xs font-semibold overflow-hidden">
+            <div class="flex items-center gap-2 account-inner-slide">
+              <button type="button" data-order-filter="all" class="order-filter-btn px-4 py-2 rounded-none transition-colors is-active">
+                Tất cả đơn
+              </button>
+              <button type="button" data-order-filter="pending" class="order-filter-btn px-4 py-2 rounded-none transition-colors text-walnut-800/70 hover:text-walnut-900">
+                Chờ xác nhận
+              </button>
+              <button type="button" data-order-filter="shipping" class="order-filter-btn px-4 py-2 rounded-none transition-colors text-walnut-800/70 hover:text-walnut-900">
+                Đang giao hàng
+              </button>
+              <button type="button" data-order-filter="completed" class="order-filter-btn px-4 py-2 rounded-none transition-colors text-walnut-800/70 hover:text-walnut-900">
+                Đã giao thành công
+              </button>
+              <button type="button" data-order-filter="cancelled" class="order-filter-btn px-4 py-2 rounded-none transition-colors text-walnut-800/70 hover:text-walnut-900">
+                Đã hủy
+              </button>
+            </div>
           </div>
 
           <!-- Loading State -->
-          <div id="orders-loading" class="py-16 text-center text-xs text-walnut-800/60 bg-white border border-walnut-900/15">
-            <svg class="animate-spin w-6 h-6 mx-auto mb-2 text-[#173524]" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-            </svg>
-            <span>Đang tải danh sách đơn hàng từ máy chủ...</span>
+          <div id="orders-loading" class="py-16 text-center text-xs text-walnut-800/60 bg-white border border-walnut-900/15 flex-1 flex flex-col items-center justify-center overflow-hidden">
+            <div class="account-inner-slide">
+              <svg class="animate-spin w-6 h-6 mx-auto mb-2 text-[#173524]" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              <span>Đang tải danh sách đơn hàng từ máy chủ...</span>
+            </div>
           </div>
 
-          <!-- Orders Table Wrapper -->
-          <div id="orders-table-wrapper" class="hidden space-y-4">
-            <div class="flex items-center justify-between">
-              <h2 class="text-sm font-bold text-walnut-900 uppercase tracking-wide flex items-center gap-2">
-                <svg class="w-4 h-4 text-[#D8B670]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                  <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                  <line x1="12" y1="22.08" x2="12" y2="12"/>
-                </svg>
-                <span>Lịch sử đặt hàng</span>
-                <span id="orders-count-badge" class="text-[11px] font-bold px-2 py-0.5 bg-[#173524]/10 text-[#173524]">0 đơn</span>
-              </h2>
-              <span class="text-[11px] text-walnut-800/60 hidden sm:inline-block">Bấm "Chi tiết" để xem hóa đơn & sản phẩm</span>
+          <!-- Orders Table Wrapper with Pagination (Thiết kế Card sang trọng, phân trang cố định ở đáy) -->
+          <div 
+            id="orders-table-wrapper" 
+            class="hidden rounded-none border border-walnut-900/15 bg-white shadow-sm flex flex-col justify-between overflow-hidden min-h-[500px] flex-1"
+          >
+            <div class="flex-1 flex flex-col">
+              <!-- Card Header -->
+              <div class="bg-[#F0EBE3] px-6 py-4 border-b border-walnut-900/10 flex items-center justify-between flex-wrap gap-2 shrink-0">
+                <div class="flex items-center gap-3 account-inner-slide">
+                  <h2 class="text-sm font-bold text-walnut-900 uppercase tracking-wide flex items-center gap-2">
+                    <svg class="w-4 h-4 text-[#173524]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                      <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                      <line x1="12" y1="22.08" x2="12" y2="12"/>
+                    </svg>
+                    <span>Lịch sử đặt hàng</span>
+                  </h2>
+                  <span id="orders-count-badge" class="text-xs font-bold px-2.5 py-0.5 bg-[#173524] text-[#E6CA85] rounded-none">
+                    0 đơn
+                  </span>
+                </div>
+                <span class="text-xs text-walnut-800/70 hidden sm:inline-block account-inner-slide">
+                  Bấm "Chi tiết" để xem hóa đơn & sản phẩm
+                </span>
+              </div>
+
+              <!-- Table Container -->
+              <div class="overflow-x-auto flex-1 account-inner-slide">
+                <table class="w-full text-sm">
+                  <thead>
+                    <tr class="bg-[#173524] text-white text-xs uppercase tracking-wider">
+                      <th class="px-2.5 py-3.5 text-left font-bold whitespace-nowrap">Mã đơn</th>
+                      <th class="px-2.5 py-3.5 text-left font-bold">Sản phẩm</th>
+                      <th class="px-2 py-3.5 text-center font-bold whitespace-nowrap">Ngày đặt</th>
+                      <th class="px-2 py-3.5 text-right font-bold whitespace-nowrap">Tổng tiền</th>
+                      <th class="px-2 py-3.5 text-center font-bold whitespace-nowrap">Trạng thái</th>
+                      <th class="px-2.5 py-3.5 text-center font-bold whitespace-nowrap">Hành động</th>
+                    </tr>
+                  </thead>
+                  <tbody id="orders-table-body" class="divide-y divide-walnut-900/8 bg-white">
+                    <!-- Filled by JS -->
+                  </tbody>
+                </table>
+              </div>
             </div>
 
-            <div class="overflow-x-auto rounded-none border border-walnut-900/15 bg-white shadow-sm">
-              <table class="w-full text-sm">
-                <thead>
-                  <tr class="bg-[#173524] text-white text-[11px] uppercase tracking-wider">
-                    <th class="px-4 py-3.5 text-left font-semibold">Mã đơn</th>
-                    <th class="px-4 py-3.5 text-left font-semibold">Ngày đặt</th>
-                    <th class="px-4 py-3.5 text-left font-semibold">Người nhận</th>
-                    <th class="px-4 py-3.5 text-right font-semibold">Tổng tiền</th>
-                    <th class="px-4 py-3.5 text-center font-semibold">Trạng thái</th>
-                    <th class="px-4 py-3.5 text-center font-semibold">Hành động</th>
-                  </tr>
-                </thead>
-                <tbody id="orders-table-body" class="divide-y divide-walnut-900/8 bg-white">
-                  <!-- Filled by JS -->
-                </tbody>
-              </table>
+            <!-- Thanh phân trang (Cố định ở đáy card, căn bằng cạnh dưới card hỗ trợ quý khách) -->
+            <div 
+              id="orders-pagination" 
+              class="border-t border-walnut-900/10 bg-[#FAF8F5] px-4 py-3.5 sm:px-6 flex items-center justify-between flex-wrap gap-3 mt-auto"
+            >
+              <div id="orders-pagination-info" class="text-xs text-walnut-800/75 font-medium account-inner-slide">
+                Đang hiển thị...
+              </div>
+              <div id="orders-pagination-controls" class="flex items-center gap-1.5 account-inner-slide">
+                <!-- Nút số trang & chuyển trang render bằng JS -->
+              </div>
             </div>
           </div>
 
           <!-- Empty state -->
-          <div id="orders-empty" class="hidden text-center py-16 bg-white border border-walnut-900/15 px-4 shadow-sm">
-            <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-sand-100 flex items-center justify-center text-[#173524]">
-              <svg class="w-8 h-8 text-[#173524]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
-                <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
-                <line x1="12" y1="22.08" x2="12" y2="12"/>
-              </svg>
+          <div id="orders-empty" class="hidden text-center py-16 bg-white border border-walnut-900/15 px-4 shadow-sm flex-1 flex flex-col items-center justify-center overflow-hidden">
+            <div class="account-inner-slide">
+              <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-sand-100 flex items-center justify-center text-[#173524]">
+                <svg class="w-8 h-8 text-[#173524]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/>
+                  <polyline points="3.27 6.96 12 12.01 20.73 6.96"/>
+                  <line x1="12" y1="22.08" x2="12" y2="12"/>
+                </svg>
+              </div>
+              <h3 class="font-bold text-base text-walnut-900">Quý khách chưa có đơn hàng nào</h3>
+              <p class="mt-1 text-xs text-walnut-800/70 max-w-md mx-auto">
+                Khám phá ngay bộ sưu tập nội thất thượng lưu mới nhất để chọn cho không gian sống những tác phẩm hoàn mỹ.
+              </p>
+              <a href="/san-pham" class="mt-5 inline-block bg-[#173524] text-[#E6CA85] hover:bg-[#204932] hover:text-white px-6 py-2.5 rounded-none text-xs font-bold uppercase tracking-wider transition-colors border border-[#D8B670]/40 shadow-xs">
+                Khám phá sản phẩm ngay →
+              </a>
             </div>
-            <h3 class="font-bold text-base text-walnut-900">Quý khách chưa có đơn hàng nào</h3>
-            <p class="mt-1 text-xs text-walnut-800/70 max-w-md mx-auto">
-              Khám phá ngay bộ sưu tập nội thất thượng lưu mới nhất để chọn cho không gian sống những tác phẩm hoàn mỹ.
-            </p>
-            <a href="/san-pham" class="mt-5 inline-block bg-[#173524] text-[#E6CA85] hover:bg-[#204932] hover:text-white px-6 py-2.5 rounded-none text-xs font-bold uppercase tracking-wider transition-colors border border-[#D8B670]/40 shadow-xs">
-              Khám phá sản phẩm ngay →
-            </a>
           </div>
 
         </div>
@@ -571,24 +720,52 @@ import { provinces } from '../../data/provinces';
         <!-- =================================================
              TAB 3: VÍ VOUCHER & ƯU ĐÃI (MỚI)
              ================================================= -->
-        <div id="page-pane-vouchers" class="page-tab-pane hidden space-y-6">
-          <div class="bg-white border border-walnut-900/15 p-5 shadow-sm">
-            <div class="flex items-center justify-between pb-3 border-b border-walnut-900/10">
-              <div>
-                <h2 class="font-bold text-sm uppercase tracking-wide text-walnut-900 flex items-center gap-2">
-                  <img src="/images/icons/discount-voucher.png" alt="Voucher" class="w-5 h-5 object-contain shrink-0" />
-                  <span>Mã giảm giá & Đặc quyền thành viên</span>
-                </h2>
-                <p class="text-[11px] text-walnut-800/70 mt-0.5">Áp dụng mã tại bước Thanh toán để nhận ưu đãi chiết khấu trực tiếp.</p>
+        <div id="page-pane-vouchers" class="page-tab-pane hidden">
+          <div 
+            id="vouchers-main-card"
+            class="bg-white border border-walnut-900/15 px-5 pt-5 pb-3 sm:px-6 sm:pt-6 sm:pb-3.5 shadow-sm flex flex-col justify-between overflow-hidden min-h-[500px] flex-1"
+          >
+            <!-- Khối nội dung trên (Header, Loading, Grid, Empty State) -->
+            <div class="flex-1 flex flex-col space-y-4 account-inner-slide">
+              <!-- Header -->
+              <div class="flex items-center justify-between pb-3 border-b border-walnut-900/10 flex-wrap gap-2">
+                <div>
+                  <h2 class="font-bold text-sm uppercase tracking-wide text-walnut-900 flex items-center gap-2">
+                    <img src="/images/icons/discount-voucher.png" alt="Voucher" class="w-5 h-5 object-contain shrink-0" />
+                    <span>Mã giảm giá & Đặc quyền thành viên</span>
+                    <span id="vouchers-count-badge" class="px-2.5 py-0.5 text-xs font-bold bg-[#173524] text-[#D8B670] border border-[#D8B670]/40">
+                      0 mã
+                    </span>
+                  </h2>
+                  <p class="text-[11px] text-walnut-800/70 mt-0.5">Áp dụng mã tại bước Thanh toán để nhận ưu đãi chiết khấu trực tiếp.</p>
+                </div>
+              </div>
+
+              <!-- Vouchers Loading -->
+              <div id="vouchers-loading" class="py-12 text-center text-xs text-walnut-800/60 font-medium">
+                <svg class="animate-spin w-6 h-6 mx-auto mb-2 text-[#173524]" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                <span>Đang tải danh sách voucher ưu đãi...</span>
+              </div>
+
+              <!-- Vouchers Grid -->
+              <div id="vouchers-grid" class="hidden grid grid-cols-1 md:grid-cols-2 gap-3.5 items-start">
+                <!-- Filled by JS -->
+              </div>
+
+              <!-- Empty State -->
+              <div id="vouchers-empty" class="hidden py-12 text-center text-xs text-walnut-800/70 border border-dashed border-walnut-900/15 bg-sand-50/50 p-6">
+                <span class="text-3xl block mb-2">🏷️</span>
+                <p class="font-bold text-walnut-900 uppercase tracking-wide">Hiện chưa có mã giảm giá nào</p>
+                <p class="text-[11px] text-walnut-800/60 mt-1">Các chương trình ưu đãi mới nhất sẽ sớm được cập nhật tại đây.</p>
               </div>
             </div>
 
-            <!-- Vouchers Grid -->
-            <div id="vouchers-loading" class="py-12 text-center text-xs text-walnut-800/60">
-              Đang tải danh sách voucher ưu đãi...
-            </div>
-            <div id="vouchers-grid" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <!-- Filled by JS -->
+            <!-- Phân trang Voucher (Cố định ở đáy card, căn bằng cạnh dưới card hỗ trợ quý khách) -->
+            <div id="vouchers-pagination-container" class="hidden mt-auto pt-3 shrink-0 account-inner-slide">
+              <!-- Rendered by JS -->
             </div>
           </div>
         </div>
@@ -596,171 +773,177 @@ import { provinces } from '../../data/provinces';
         <!-- =================================================
              TAB 4: SẢN PHẨM YÊU THÍCH (LUXURY WISHLIST)
              ================================================= -->
-        <div id="page-pane-wishlist" class="page-tab-pane hidden space-y-4">
-          <div class="bg-white border border-walnut-900/15 p-5 sm:p-6 shadow-sm space-y-5">
-            <!-- 1. HEADER & BULK ACTION BAR -->
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-walnut-900/10 gap-3">
-              <div>
-                <h2 class="font-display text-base sm:text-lg font-bold uppercase tracking-wide text-walnut-900 flex items-center gap-2">
-                  <span class="text-rose-600">♥</span>
-                  <span>Bộ sưu tập Yêu thích</span>
-                  <span id="wishlist-count-badge" class="px-2.5 py-0.5 text-xs font-bold bg-[#173524] text-[#D8B670] border border-[#D8B670]/40">
-                    0 sản phẩm
-                  </span>
-                </h2>
-                <p class="text-xs text-walnut-800/70 mt-1 italic">
-                  Các tác phẩm nội thất bạn đã lưu lại để cân nhắc và hoàn thiện không gian sống.
-                </p>
+        <div id="page-pane-wishlist" class="page-tab-pane hidden">
+          <div 
+            id="wishlist-main-card" 
+            class="bg-white border border-walnut-900/15 px-5 pt-5 pb-3 sm:px-6 sm:pt-6 sm:pb-3.5 shadow-sm flex flex-col justify-between overflow-hidden min-h-[500px] flex-1"
+          >
+            <!-- Khối nội dung trên (Header, Toolbar, Loading, Content, Empty State) -->
+            <div class="flex-1 flex flex-col space-y-5 account-inner-slide">
+              <!-- 1. HEADER & BULK ACTION BAR -->
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between pb-4 border-b border-walnut-900/10 gap-3">
+                <div>
+                  <h2 class="font-display text-base sm:text-lg font-bold uppercase tracking-wide text-walnut-900 flex items-center gap-2">
+                    <span class="text-rose-600">♥</span>
+                    <span>Bộ sưu tập Yêu thích</span>
+                    <span id="wishlist-count-badge" class="px-2.5 py-0.5 text-xs font-bold bg-[#173524] text-[#D8B670] border border-[#D8B670]/40">
+                      0 sản phẩm
+                    </span>
+                  </h2>
+                  <p class="text-xs text-walnut-800/70 mt-1 italic">
+                    Các tác phẩm nội thất bạn đã lưu lại để cân nhắc và hoàn thiện không gian sống.
+                  </p>
+                </div>
+
+                <!-- Cụm nút Thao tác (Nút "Chọn" mặc định, căn phải) -->
+                <div id="wishlist-header-actions" class="hidden flex items-center justify-end gap-2 flex-wrap self-end sm:self-center ml-auto">
+                  <!-- Nút "Chọn" ban đầu -->
+                  <button
+                    type="button"
+                    id="btn-wishlist-start-select"
+                    class="inline-flex items-center justify-center gap-1.5 border border-[#173524] bg-white hover:bg-[#173524] text-[#173524] hover:text-[#D8B670] px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all shadow-xs cursor-pointer active:scale-95"
+                  >
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                    <span>Chọn</span>
+                  </button>
+
+                  <!-- Cụm nút khi ở Chế độ Chọn (Căn phải: Thêm vào giỏ -> Chọn tất cả -> Xóa -> Hủy) -->
+                  <div id="wishlist-selecting-actions" class="hidden flex items-center justify-end gap-2 flex-wrap">
+                    <!-- 1. Thêm tất cả vào giỏ -->
+                    <button
+                      type="button"
+                      id="btn-wishlist-add-all"
+                      class="inline-flex items-center justify-center gap-1.5 bg-[#D8B670] text-[#173524] hover:bg-[#F3E5AB] font-bold uppercase tracking-[0.12em] text-xs px-3.5 py-2 shadow-xs transition-all active:scale-95 cursor-pointer"
+                      title="Thêm vào giỏ"
+                    >
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
+                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                        <path d="M16 10a4 4 0 0 1-8 0"></path>
+                      </svg>
+                      <span id="btn-add-all-text">Thêm tất cả vào giỏ</span>
+                    </button>
+
+                    <!-- 2. Nút Chọn tất cả nằm giữa -->
+                    <button
+                      type="button"
+                      id="btn-wishlist-select-all"
+                      class="inline-flex items-center justify-center gap-1 border border-walnut-900/20 bg-white hover:bg-sand-100 text-walnut-800 px-3 py-2 text-xs font-semibold transition-colors cursor-pointer"
+                      title="Chọn tất cả"
+                    >
+                      <span id="btn-select-all-text">Chọn tất cả</span>
+                    </button>
+
+                    <!-- 3. Xóa tất cả -->
+                    <button
+                      type="button"
+                      id="btn-wishlist-clear-all"
+                      class="inline-flex items-center justify-center gap-1.5 border border-rose-300 bg-white hover:bg-rose-50 text-rose-700 px-3.5 py-2 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer active:scale-95"
+                      title="Xóa"
+                    >
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                      <span id="btn-clear-all-text">Xóa tất cả</span>
+                    </button>
+
+                    <!-- 4. Hủy -->
+                    <button
+                      type="button"
+                      id="btn-wishlist-cancel-select"
+                      class="inline-flex items-center justify-center border border-walnut-900/20 bg-white hover:bg-sand-100 text-walnut-800 px-3 py-2 text-xs font-semibold transition-colors cursor-pointer"
+                      title="Hủy chọn"
+                    >
+                      <span>Hủy</span>
+                    </button>
+                  </div>
+                </div>
               </div>
 
-              <!-- Cụm nút Thao tác (Nút "Chọn" mặc định, căn phải) -->
-              <div id="wishlist-header-actions" class="hidden flex items-center justify-end gap-2 flex-wrap self-end sm:self-center ml-auto">
-                <!-- Nút "Chọn" ban đầu -->
-                <button
-                  type="button"
-                  id="btn-wishlist-start-select"
-                  class="inline-flex items-center justify-center gap-1.5 border border-[#173524] bg-white hover:bg-[#173524] text-[#173524] hover:text-[#D8B670] px-4 py-2 text-xs font-bold uppercase tracking-wider transition-all shadow-xs cursor-pointer active:scale-95"
-                >
-                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                  </svg>
-                  <span>Chọn</span>
-                </button>
+              <!-- 2. TOOLBAR: LỌC DANH MỤC & SẮP XẾP (ĐÃ BỎ NÚT CHUYỂN DẠNG LƯỚI) -->
+              <div id="wishlist-toolbar" class="hidden flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 bg-[#FAF8F5] border border-walnut-900/10">
+                <!-- Pills Danh mục -->
+                <div id="wishlist-category-pills" class="flex items-center gap-1.5 overflow-x-auto luxury-scrollbar py-0.5 min-w-0">
+                  <!-- Render động bởi JS: Tất cả, Sofa, Bàn ăn... -->
+                </div>
 
-                <!-- Cụm nút khi ở Chế độ Chọn (Căn phải: Thêm vào giỏ -> Chọn tất cả -> Xóa -> Hủy) -->
-                <div id="wishlist-selecting-actions" class="hidden flex items-center justify-end gap-2 flex-wrap">
-                  <!-- 1. Thêm tất cả vào giỏ -->
-                  <button
-                    type="button"
-                    id="btn-wishlist-add-all"
-                    class="inline-flex items-center justify-center gap-1.5 bg-[#D8B670] text-[#173524] hover:bg-[#F3E5AB] font-bold uppercase tracking-[0.12em] text-xs px-3.5 py-2 shadow-xs transition-all active:scale-95 cursor-pointer"
-                    title="Thêm vào giỏ"
+                <!-- Sắp xếp -->
+                <div class="flex items-center gap-1.5 text-xs text-walnut-800 shrink-0 self-end sm:self-auto">
+                  <span class="text-walnut-800/70 whitespace-nowrap">Sắp xếp:</span>
+                  <select
+                    id="wishlist-sort-select"
+                    class="bg-white border border-walnut-900/20 text-xs font-semibold px-2.5 py-1.5 outline-none rounded-none focus:border-[#173524] cursor-pointer"
                   >
-                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path>
-                      <line x1="3" y1="6" x2="21" y2="6"></line>
-                      <path d="M16 10a4 4 0 0 1-8 0"></path>
-                    </svg>
-                    <span id="btn-add-all-text">Thêm tất cả vào giỏ</span>
-                  </button>
+                    <option value="newest">Mới lưu gần đây</option>
+                    <option value="price-asc">Giá: Thấp đến cao</option>
+                    <option value="price-desc">Giá: Cao đến thấp</option>
+                    <option value="name-asc">Tên: A - Z</option>
+                  </select>
+                </div>
+              </div>
 
-                  <!-- 2. Nút Chọn tất cả nằm giữa -->
-                  <button
-                    type="button"
-                    id="btn-wishlist-select-all"
-                    class="inline-flex items-center justify-center gap-1 border border-walnut-900/20 bg-white hover:bg-sand-100 text-walnut-800 px-3 py-2 text-xs font-semibold transition-colors cursor-pointer"
-                    title="Chọn tất cả"
-                  >
-                    <span id="btn-select-all-text">Chọn tất cả</span>
-                  </button>
+              <!-- 3. LOADING STATE -->
+              <div id="wishlist-loading" class="py-16 text-center text-xs text-walnut-800/60">
+                <svg class="animate-spin w-7 h-7 mx-auto mb-2 text-[#173524]" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                <span>Đang tải bộ sưu tập yêu thích...</span>
+              </div>
 
-                  <!-- 3. Xóa tất cả -->
-                  <button
-                    type="button"
-                    id="btn-wishlist-clear-all"
-                    class="inline-flex items-center justify-center gap-1.5 border border-rose-300 bg-white hover:bg-rose-50 text-rose-700 px-3.5 py-2 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer active:scale-95"
-                    title="Xóa"
-                  >
-                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                    <span id="btn-clear-all-text">Xóa tất cả</span>
-                  </button>
+              <!-- 4. CONTENT LISTING (HÀNG NGANG) -->
+              <div id="wishlist-content" class="hidden space-y-3">
+                <!-- Rendered by JS -->
+              </div>
 
-                  <!-- 4. Hủy -->
-                  <button
-                    type="button"
-                    id="btn-wishlist-cancel-select"
-                    class="inline-flex items-center justify-center border border-walnut-900/20 bg-white hover:bg-sand-100 text-walnut-800 px-3 py-2 text-xs font-semibold transition-colors cursor-pointer"
-                    title="Hủy chọn"
+              <!-- 5. LUXURY EMPTY STATE -->
+              <div id="wishlist-empty" class="hidden text-center py-12 sm:py-16 px-4">
+                <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-sand-100 border border-walnut-900/10 flex items-center justify-center text-4xl text-rose-500/70 shadow-xs">
+                  ♥
+                </div>
+                <h3 class="font-display text-lg sm:text-xl font-bold text-walnut-900 tracking-tight">
+                  Không gian yêu thích đang chờ đón những tuyệt tác
+                </h3>
+                <p class="mt-2 text-xs sm:text-sm text-walnut-800/70 max-w-md mx-auto leading-relaxed">
+                  Khám phá các bộ sưu tập nội thất cao cấp của KTUFA và lưu lại những thiết kế mà bạn ưng ý nhất để sẵn sàng hoàn thiện tư gia.
+                </p>
+                <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+                  <a
+                    href="/san-pham"
+                    class="inline-flex items-center justify-center gap-2 bg-[#173524] text-[#E6CA85] hover:bg-[#204932] hover:text-white px-7 py-3 rounded-none text-xs font-bold uppercase tracking-[0.18em] transition-all border border-[#D8B670]/40 shadow-sm active:scale-95"
                   >
-                    <span>Hủy</span>
-                  </button>
+                    <span>Khám phá bộ sưu tập ngay →</span>
+                  </a>
+                </div>
+
+                <!-- Gợi ý danh mục nhanh -->
+                <div class="mt-10 pt-8 border-t border-walnut-900/10">
+                  <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-[#B88E28] mb-4">
+                    GỢI Ý DANH MỤC THỊNH HÀNH
+                  </p>
+                  <div class="flex items-center justify-center gap-2 sm:gap-3 flex-wrap text-xs">
+                    <a href="/san-pham?category=sofa" class="px-3.5 py-2 bg-[#FAF8F5] border border-walnut-900/15 hover:border-[#173524] text-walnut-900 font-semibold transition-colors">
+                      Sofa phòng khách
+                    </a>
+                    <a href="/san-pham?category=ban-an" class="px-3.5 py-2 bg-[#FAF8F5] border border-walnut-900/15 hover:border-[#173524] text-walnut-900 font-semibold transition-colors">
+                      Bàn ăn cao cấp
+                    </a>
+                    <a href="/san-pham?category=giuong-ngu" class="px-3.5 py-2 bg-[#FAF8F5] border border-walnut-900/15 hover:border-[#173524] text-walnut-900 font-semibold transition-colors">
+                      Giường ngủ Master
+                    </a>
+                    <a href="/san-pham?category=tu-ke" class="px-3.5 py-2 bg-[#FAF8F5] border border-walnut-900/15 hover:border-[#173524] text-walnut-900 font-semibold transition-colors">
+                      Tủ kệ trang trí
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- 2. TOOLBAR: LỌC DANH MỤC & SẮP XẾP (ĐÃ BỎ NÚT CHUYỂN DẠNG LƯỚI) -->
-            <div id="wishlist-toolbar" class="hidden flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 p-3 bg-[#FAF8F5] border border-walnut-900/10">
-              <!-- Pills Danh mục -->
-              <div id="wishlist-category-pills" class="flex items-center gap-1.5 overflow-x-auto luxury-scrollbar py-0.5 min-w-0">
-                <!-- Render động bởi JS: Tất cả, Sofa, Bàn ăn... -->
-              </div>
-
-              <!-- Sắp xếp -->
-              <div class="flex items-center gap-1.5 text-xs text-walnut-800 shrink-0 self-end sm:self-auto">
-                <span class="text-walnut-800/70 whitespace-nowrap">Sắp xếp:</span>
-                <select
-                  id="wishlist-sort-select"
-                  class="bg-white border border-walnut-900/20 text-xs font-semibold px-2.5 py-1.5 outline-none rounded-none focus:border-[#173524] cursor-pointer"
-                >
-                  <option value="newest">Mới lưu gần đây</option>
-                  <option value="price-asc">Giá: Thấp đến cao</option>
-                  <option value="price-desc">Giá: Cao đến thấp</option>
-                  <option value="name-asc">Tên: A - Z</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- 3. LOADING STATE -->
-            <div id="wishlist-loading" class="py-16 text-center text-xs text-walnut-800/60">
-              <svg class="animate-spin w-7 h-7 mx-auto mb-2 text-[#173524]" fill="none" viewBox="0 0 24 24">
-                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
-              </svg>
-              <span>Đang tải bộ sưu tập yêu thích...</span>
-            </div>
-
-            <!-- 4. CONTENT LISTING (HÀNG NGANG) -->
-            <div id="wishlist-content" class="hidden space-y-3">
+            <!-- 6. PHÂN TRANG (Cố định ở đáy card, căn bằng cạnh dưới card hỗ trợ quý khách) -->
+            <div id="wishlist-pagination-container" class="hidden mt-auto pt-3 shrink-0 account-inner-slide">
               <!-- Rendered by JS -->
-            </div>
-
-            <!-- 5. PHÂN TRANG (TỐI ĐA 4 SẢN PHẨM / TRANG) -->
-            <div id="wishlist-pagination-container" class="hidden">
-              <!-- Rendered by JS -->
-            </div>
-
-            <!-- 5. LUXURY EMPTY STATE -->
-            <div id="wishlist-empty" class="hidden text-center py-12 sm:py-16 px-4">
-              <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-sand-100 border border-walnut-900/10 flex items-center justify-center text-4xl text-rose-500/70 shadow-xs">
-                ♥
-              </div>
-              <h3 class="font-display text-lg sm:text-xl font-bold text-walnut-900 tracking-tight">
-                Không gian yêu thích đang chờ đón những tuyệt tác
-              </h3>
-              <p class="mt-2 text-xs sm:text-sm text-walnut-800/70 max-w-md mx-auto leading-relaxed">
-                Khám phá các bộ sưu tập nội thất cao cấp của KTUFA và lưu lại những thiết kế mà bạn ưng ý nhất để sẵn sàng hoàn thiện tư gia.
-              </p>
-              <div class="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
-                <a
-                  href="/san-pham"
-                  class="inline-flex items-center justify-center gap-2 bg-[#173524] text-[#E6CA85] hover:bg-[#204932] hover:text-white px-7 py-3 rounded-none text-xs font-bold uppercase tracking-[0.18em] transition-all border border-[#D8B670]/40 shadow-sm active:scale-95"
-                >
-                  <span>Khám phá bộ sưu tập ngay →</span>
-                </a>
-              </div>
-
-              <!-- Gợi ý danh mục nhanh -->
-              <div class="mt-10 pt-8 border-t border-walnut-900/10">
-                <p class="text-[11px] font-bold uppercase tracking-[0.2em] text-[#B88E28] mb-4">
-                  GỢI Ý DANH MỤC THỊNH HÀNH
-                </p>
-                <div class="flex items-center justify-center gap-2 sm:gap-3 flex-wrap text-xs">
-                  <a href="/san-pham?category=sofa" class="px-3.5 py-2 bg-[#FAF8F5] border border-walnut-900/15 hover:border-[#173524] text-walnut-900 font-semibold transition-colors">
-                    Sofa phòng khách
-                  </a>
-                  <a href="/san-pham?category=ban-an" class="px-3.5 py-2 bg-[#FAF8F5] border border-walnut-900/15 hover:border-[#173524] text-walnut-900 font-semibold transition-colors">
-                    Bàn ăn cao cấp
-                  </a>
-                  <a href="/san-pham?category=giuong-ngu" class="px-3.5 py-2 bg-[#FAF8F5] border border-walnut-900/15 hover:border-[#173524] text-walnut-900 font-semibold transition-colors">
-                    Giường ngủ Master
-                  </a>
-                  <a href="/san-pham?category=tu-ke" class="px-3.5 py-2 bg-[#FAF8F5] border border-walnut-900/15 hover:border-[#173524] text-walnut-900 font-semibold transition-colors">
-                    Tủ kệ trang trí
-                  </a>
-                </div>
-              </div>
             </div>
 
           </div>
@@ -769,30 +952,49 @@ import { provinces } from '../../data/provinces';
         <!-- =================================================
              TAB 5: SỔ ĐỊA CHỈ (ADDRESSES)
              ================================================= -->
-        <div id="page-pane-addresses" class="page-tab-pane hidden space-y-4">
-          <div class="bg-white border border-walnut-900/15 p-6 shadow-sm space-y-5">
-            <div class="flex items-center justify-between pb-3 border-b border-walnut-900/10 flex-wrap gap-3">
-              <div>
-                <h2 class="font-bold text-sm uppercase tracking-wide text-walnut-900 flex items-center gap-2">
-                  <span>Địa chỉ nhận hàng</span>
-                </h2>
-                <p class="text-[11px] text-walnut-800/70 mt-0.5">Địa chỉ mặc định sẽ tự động điền khi bạn đặt mua sản phẩm.</p>
+        <div id="page-pane-addresses" class="page-tab-pane hidden">
+          <div 
+            id="addresses-main-card"
+            class="bg-white border border-walnut-900/15 px-5 pt-5 pb-3 sm:px-6 sm:pt-6 sm:pb-3.5 shadow-sm flex flex-col justify-between overflow-hidden min-h-[500px] flex-1"
+          >
+            <!-- Khối nội dung trên (Header, Grid, Empty State) -->
+            <div class="flex-1 flex flex-col space-y-4 account-inner-slide">
+              <!-- Header -->
+              <div class="flex items-center justify-between pb-3 border-b border-walnut-900/10 flex-wrap gap-3">
+                <div>
+                  <h2 class="font-bold text-sm uppercase tracking-wide text-walnut-900 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-[#173524]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span>Địa chỉ nhận hàng</span>
+                    <span id="addresses-count-badge" class="px-2.5 py-0.5 text-xs font-bold bg-[#173524] text-[#D8B670] border border-[#D8B670]/40">
+                      0 địa chỉ
+                    </span>
+                  </h2>
+                  <p class="text-[11px] text-walnut-800/70 mt-0.5">Địa chỉ mặc định sẽ tự động điền khi bạn đặt mua sản phẩm.</p>
+                </div>
+                <button
+                  type="button"
+                  id="btn-open-add-address"
+                  class="inline-flex items-center gap-1.5 bg-[#173524] text-[#D8B670] px-3.5 py-2 text-xs font-bold uppercase tracking-wider hover:bg-walnut-900 transition-colors shadow-xs cursor-pointer border border-[#D8B670]/40"
+                >
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                  </svg>
+                  <span>Thêm địa chỉ mới</span>
+                </button>
               </div>
-              <button
-                type="button"
-                id="btn-open-add-address"
-                class="inline-flex items-center gap-1.5 bg-[#173524] text-[#D8B670] px-3.5 py-2 text-xs font-bold uppercase tracking-wider hover:bg-walnut-900 transition-colors shadow-xs cursor-pointer border border-[#D8B670]/40"
-              >
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-                </svg>
-                <span>Thêm địa chỉ mới</span>
-              </button>
+
+              <!-- Address Grid Container -->
+              <div id="address-list-container" class="grid grid-cols-1 md:grid-cols-2 gap-3.5 items-start">
+                <div class="col-span-1 md:col-span-2 p-8 text-center text-xs text-walnut-800/60 font-medium">Đang tải danh sách địa chỉ...</div>
+              </div>
             </div>
 
-            <!-- Address List Container -->
-            <div id="address-list-container" class="space-y-3">
-              <div class="p-8 text-center text-xs text-walnut-800/60 font-medium">Đang tải danh sách địa chỉ...</div>
+            <!-- Phân trang Địa chỉ (Cố định ở đáy card, căn bằng cạnh dưới card hỗ trợ quý khách) -->
+            <div id="addresses-pagination-container" class="hidden mt-auto pt-3 shrink-0 account-inner-slide">
+              <!-- Rendered by JS -->
             </div>
           </div>
         </div>
@@ -1226,22 +1428,29 @@ import { provinces } from '../../data/provinces';
   .luxury-scrollbar::-webkit-scrollbar-thumb:hover {
     background: #E6CA85;
   }
-  /* Entrance animations for dashboard */
+  /* Entrance animations for dashboard: giữ cố định khung card bên ngoài, chỉ trượt nhẹ phần nội dung bên trong */
   @keyframes accountFadeInUp {
     0% {
       opacity: 0;
-      transform: translateY(18px);
     }
     100% {
       opacity: 1;
-      transform: translateY(0);
     }
   }
 
   @keyframes accountFadeIn {
     0% {
       opacity: 0;
-      transform: translateY(8px);
+    }
+    100% {
+      opacity: 1;
+    }
+  }
+
+  @keyframes accountInnerSlideUp {
+    0% {
+      opacity: 0;
+      transform: translateY(14px);
     }
     100% {
       opacity: 1;
@@ -1250,21 +1459,37 @@ import { provinces } from '../../data/provinces';
   }
 
   .account-animate-enter {
-    animation: accountFadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) both;
+    animation: accountFadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   .account-animate-enter-delay-1 {
-    animation: accountFadeInUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both;
+    animation: accountFadeInUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) 0.06s both;
   }
 
-  /* Smooth transition for active tab panes */
+  .account-inner-slide {
+    animation: accountInnerSlideUp 0.46s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .account-animate-enter-delay-1 .account-inner-slide {
+    animation-delay: 0.06s;
+  }
+
+  .page-tab-pane.hidden .account-inner-slide {
+    animation: none;
+  }
+
+  /* Smooth transition for active tab panes & stretch full height of <main> */
   .page-tab-pane:not(.hidden) {
-    animation: accountFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 0%;
+    animation: accountFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   @media (prefers-reduced-motion: reduce) {
     .account-animate-enter,
     .account-animate-enter-delay-1,
+    .account-inner-slide,
     .page-tab-pane:not(.hidden) {
       animation: none !important;
       opacity: 1 !important;
@@ -1408,14 +1633,77 @@ import { provinces } from '../../data/provinces';
       }
     }
 
-    if (elAvatar) {
-      if (avatar) {
-        elAvatar.innerHTML = `<img src="${avatar}" alt="${name}" class="h-full w-full object-cover" referrerpolicy="no-referrer" />`;
-      } else {
-        const initials = name.split(' ').map((n: string) => n[0]).slice(-2).join('');
-        elAvatar.textContent = initials || 'KH';
+    // =========================================================
+    // QUẢN LÝ AVATAR TÀI KHOẢN (GOOGLE OAUTH / TẢI ẢNH LÊN / MẶC ĐỊNH)
+    // =========================================================
+    const profileAvatarContainer = document.getElementById('profile-avatar-container');
+    const profileAvatarBadge = document.getElementById('profile-avatar-badge');
+    const inputAvatarFile = document.getElementById('input-avatar-file') as HTMLInputElement | null;
+    const btnChooseAvatar = document.getElementById('btn-choose-avatar') as HTMLButtonElement | null;
+    const btnDeleteAvatar = document.getElementById('btn-delete-avatar') as HTMLButtonElement | null;
+    const btnSaveAvatar = document.getElementById('btn-save-avatar') as HTMLButtonElement | null;
+    const avatarStatusMsg = document.getElementById('avatar-status-msg');
+
+    let selectedAvatarFile: File | null = null;
+
+    const showAvatarMsg = (text: string, isError: boolean) => {
+      // Hiển thị popup thông báo ở GÓC DƯỚI BÊN TRÁI màn hình đồng bộ phong cách KTUFA Luxury (như giỏ hàng)
+      showCartToast(text, isError ? 'error' : 'success');
+    };
+
+    const renderUserAvatar = (avatarUrl?: string | null, userName?: string) => {
+      const cleanName = (userName || fullUser.name || name || 'Khách Hàng').trim();
+      const parts = cleanName.split(/\s+/).filter(Boolean);
+      const initials = parts.length >= 2 
+        ? (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+        : (cleanName.slice(0, 2).toUpperCase() || 'KH');
+
+      // 1. Cột Sidebar trái
+      if (elAvatar) {
+        if (avatarUrl) {
+          elAvatar.innerHTML = `<img src="${avatarUrl}" alt="${cleanName}" class="h-full w-full object-cover" referrerpolicy="no-referrer" onerror="this.onerror=null; this.parentElement.textContent='${initials}';" />`;
+        } else {
+          elAvatar.textContent = initials;
+        }
       }
-    }
+
+      // 2. Card Quản lý Avatar ở giữa
+      if (profileAvatarContainer) {
+        if (avatarUrl) {
+          profileAvatarContainer.innerHTML = `<img src="${avatarUrl}" alt="${cleanName}" class="h-full w-full object-cover object-center" referrerpolicy="no-referrer" onerror="this.onerror=null; this.parentElement.textContent='${initials}';" />`;
+        } else {
+          profileAvatarContainer.textContent = initials;
+        }
+      }
+
+      // 3. Huy hiệu loại Avatar
+      if (profileAvatarBadge) {
+        if (avatarUrl) {
+          const isGoogle = avatarUrl.includes('googleusercontent.com') || avatarUrl.includes('google.com');
+          if (isGoogle) {
+            profileAvatarBadge.textContent = 'Ảnh tài khoản Google';
+            profileAvatarBadge.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300';
+          } else {
+            profileAvatarBadge.textContent = 'Ảnh tải lên';
+            profileAvatarBadge.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-amber-50 text-amber-900 border border-amber-300';
+          }
+        } else {
+          profileAvatarBadge.textContent = 'Mặc định (Chữ cái)';
+          profileAvatarBadge.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-sand-100 text-walnut-800 border border-walnut-900/15';
+        }
+      }
+
+      // 4. Trạng thái nút Xóa ảnh
+      if (btnDeleteAvatar) {
+        if (avatarUrl) {
+          btnDeleteAvatar.classList.remove('hidden');
+        } else {
+          btnDeleteAvatar.classList.add('hidden');
+        }
+      }
+    };
+
+    renderUserAvatar(avatar, name);
 
     const infoName = document.getElementById('page-info-name');
     const infoEmail = document.getElementById('page-info-email');
@@ -1863,10 +2151,12 @@ import { provinces } from '../../data/provinces';
     };
 
     // =========================================================
-    // RENDER ORDERS TABLE & FILTER
+    // RENDER ORDERS TABLE & FILTER & PHÂN TRANG (PAGINATION)
     // =========================================================
     let allUserOrders: any[] = [];
     let currentFilter = 'all';
+    const ORDERS_PER_PAGE = 8; // Tăng lên 8 đơn hàng mỗi trang để lấp đầy toàn bộ card lịch sử đơn hàng
+    let currentOrdersPage = 1;
 
     const renderOrdersTable = () => {
       const tableWrapper = document.getElementById('orders-table-wrapper')!;
@@ -1874,6 +2164,8 @@ import { provinces } from '../../data/provinces';
       const emptyEl = document.getElementById('orders-empty')!;
       const countBadge = document.getElementById('orders-count-badge')!;
       const sidebarOrdersBadge = document.getElementById('sidebar-orders-badge');
+      const paginationInfo = document.getElementById('orders-pagination-info');
+      const paginationControls = document.getElementById('orders-pagination-controls');
 
       if (sidebarOrdersBadge) sidebarOrdersBadge.textContent = String(allUserOrders.length);
 
@@ -1891,6 +2183,7 @@ import { provinces } from '../../data/provinces';
       if (allUserOrders.length === 0) {
         tableWrapper.classList.add('hidden');
         emptyEl.classList.remove('hidden');
+        alignCardBottoms();
         return;
       }
 
@@ -1901,60 +2194,104 @@ import { provinces } from '../../data/provinces';
       if (filtered.length === 0) {
         tableBody.innerHTML = `
           <tr>
-            <td colspan="6" class="py-12 text-center text-xs text-walnut-800/60">
+            <td colspan="6" class="py-16 text-center text-xs text-walnut-800/60">
               Không có đơn hàng nào thuộc trạng thái này.
             </td>
           </tr>`;
+        if (paginationInfo) paginationInfo.textContent = 'Không có dữ liệu đơn hàng';
+        if (paginationControls) paginationControls.innerHTML = '';
+        alignCardBottoms();
         return;
       }
 
-      tableBody.innerHTML = filtered.map((order: any) => {
-        const dateStr = new Date(order.createdAt).toLocaleDateString('vi-VN', {
-          day: '2-digit', month: '2-digit', year: 'numeric',
-          hour: '2-digit', minute: '2-digit',
-        });
+      // Tính toán phân trang
+      const totalFiltered = filtered.length;
+      const totalPages = Math.ceil(totalFiltered / ORDERS_PER_PAGE) || 1;
+      if (currentOrdersPage > totalPages) currentOrdersPage = totalPages;
+      if (currentOrdersPage < 1) currentOrdersPage = 1;
+
+      const startIndex = (currentOrdersPage - 1) * ORDERS_PER_PAGE;
+      const endIndex = Math.min(startIndex + ORDERS_PER_PAGE, totalFiltered);
+      const pageOrders = filtered.slice(startIndex, endIndex);
+
+      tableBody.innerHTML = pageOrders.map((order: any) => {
+        const orderDate = new Date(order.createdAt);
+        const timeStr = orderDate.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });
+        const dateOnlyStr = orderDate.toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' });
         const isBank = (order.paymentMethod === 'bank' || order.paymentMethod === 'sepay' || order.paymentMethod === 'bank_transfer');
         const isPendingBankPay = isBank && order.paymentStatus !== 'paid' && order.orderStatus !== 'cancelled';
         const { text: statusText, cls: statusCls } = getStatusInfo(order.orderStatus, order.paymentStatus, order.paymentMethod);
-        const recipientName = order.customerName || name;
-        const recipientPhone = order.phone || phone;
         const isHighlighted = highlightCode && order.orderCode === highlightCode;
         const canCancel = (order.orderStatus === 'pending' || order.orderStatus === 'confirmed');
 
+        // Lấy thông tin sản phẩm đầu tiên và số lượng sản phẩm kèm theo
+        const items = order.items || [];
+        const firstItem = items[0];
+        let itemImg = firstItem?.imageUrl || '';
+        if (itemImg && typeof itemImg === 'string' && itemImg.includes('/uploads/')) {
+          itemImg = '/uploads/' + itemImg.substring(itemImg.indexOf('/uploads/') + '/uploads/'.length);
+        }
+        const isCharm = (firstItem?.name || '').toLowerCase().includes('charm');
+        if (!itemImg && isCharm) itemImg = '/uploads/prod-mohinh-1792641014106-54374.jpg';
+        if (!itemImg) itemImg = 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=200&q=80';
+
+        const extraItemsCount = items.length - 1;
+
+        // Format mã đơn thành 2 dòng (#NT-2611 trên, -5577 dưới) để tối ưu bề ngang
+        const rawCode = String(order.orderCode || '');
+        const codeParts = rawCode.split('-');
+        let codeTop = '';
+        let codeBottom = '';
+        if (codeParts.length >= 3) {
+          codeTop = `#${codeParts[0]}-${codeParts[1]}`;
+          codeBottom = codeParts.slice(2).join('-');
+        } else if (codeParts.length === 2) {
+          codeTop = `#${codeParts[0]}`;
+          codeBottom = codeParts[1];
+        } else {
+          codeTop = `#${rawCode}`;
+        }
+
         return `
           <tr id="order-row-${order.orderCode}" class="border-b border-walnut-900/8 hover:bg-[#E6CA85]/8 transition-colors ${isHighlighted ? 'ring-2 ring-inset ring-emerald-500 bg-emerald-50/30' : ''}">
-            <td class="px-4 py-3.5">
-              <div class="flex items-center gap-2">
-                <span class="font-mono font-bold text-walnut-900 text-xs">#${order.orderCode}</span>
-                ${isHighlighted ? `<span class="inline-flex items-center gap-1 text-[9px] font-bold text-emerald-700 bg-emerald-100 border border-emerald-300 px-1.5 py-0.5 rounded-none uppercase">
+            <td class="px-2.5 py-3.5 sm:py-4 whitespace-nowrap">
+              <div class="flex flex-col leading-tight">
+                <span class="font-mono font-bold text-walnut-900 text-xs sm:text-[13px] tracking-tight">${codeTop}</span>
+                ${codeBottom ? `<span class="font-mono font-bold text-clay-700 text-[11px] sm:text-xs tracking-tight">-${codeBottom}</span>` : ''}
+                ${isHighlighted ? `<span class="inline-flex items-center gap-1 text-[8.5px] font-bold text-emerald-700 bg-emerald-100 border border-emerald-300 px-1 py-0.2 rounded-none uppercase mt-0.5 w-fit">
                   <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping"></span>Mới
                 </span>` : ''}
               </div>
             </td>
-            <td class="px-4 py-3.5 text-xs text-walnut-800/70 whitespace-nowrap">
-              <span class="inline-flex items-center gap-1.5">
-                <svg class="w-3.5 h-3.5 text-[#173524]/60 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
-                  <line x1="16" y1="2" x2="16" y2="6"/>
-                  <line x1="8" y1="2" x2="8" y2="6"/>
-                  <line x1="3" y1="10" x2="21" y2="10"/>
-                </svg>
-                <span>${dateStr}</span>
-              </span>
+            <td class="px-2.5 py-3.5 sm:py-4">
+              ${firstItem ? `
+                <div class="flex items-center gap-2">
+                  <img src="${itemImg}" alt="${firstItem.name}" class="w-10 h-10 sm:w-11 sm:h-11 object-cover border border-walnut-900/10 rounded-none shrink-0 shadow-2xs" onerror="this.src='https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=200&q=80'" />
+                  <div class="min-w-0 max-w-[130px] sm:max-w-[155px] lg:max-w-[175px]">
+                    <p class="font-semibold text-walnut-900 text-xs sm:text-[13px] truncate" title="${firstItem.name}">${firstItem.name}</p>
+                    <p class="text-[11px] sm:text-xs text-walnut-800/70 mt-0.5">${firstItem.qty || 1} món ${extraItemsCount > 0 ? `<span class="text-clay-700 font-bold">(+${extraItemsCount})</span>` : ''}</p>
+                  </div>
+                </div>
+              ` : `
+                <span class="text-xs text-walnut-800/50 italic">Đơn hàng #${order.orderCode}</span>
+              `}
             </td>
-            <td class="px-4 py-3.5">
-              <p class="font-semibold text-walnut-900 text-xs">${recipientName}</p>
-              <p class="text-[11px] text-walnut-800/60 font-mono">${recipientPhone}</p>
             </td>
-            <td class="px-4 py-3.5 text-right font-bold text-clay-700 text-sm whitespace-nowrap">${fmtVnd(order.total)}</td>
-            <td class="px-4 py-3.5 text-center">
-              <span class="inline-block border rounded-none px-2.5 py-1 text-[10px] font-bold whitespace-nowrap ${statusCls}">${statusText}</span>
+            <td class="px-2 py-3.5 sm:py-4 text-center whitespace-nowrap">
+              <div class="inline-flex flex-col items-center leading-tight">
+                <span class="font-bold text-walnut-900 text-xs sm:text-[13px]">${timeStr}</span>
+                <span class="text-[11px] text-walnut-800/70 mt-0.5">${dateOnlyStr}</span>
+              </div>
             </td>
-            <td class="px-4 py-3.5 text-center">
-              <div class="flex items-center justify-center gap-2">
+            <td class="px-2 py-3.5 sm:py-4 text-right font-bold text-clay-700 text-xs sm:text-[13px] whitespace-nowrap">${fmtVnd(order.total)}</td>
+            <td class="px-2 py-3.5 sm:py-4 text-center whitespace-nowrap">
+              <span class="inline-block border rounded-none px-2 py-0.5 text-[10.5px] font-bold whitespace-nowrap ${statusCls}">${statusText}</span>
+            </td>
+            <td class="px-2.5 py-3.5 sm:py-4 text-center whitespace-nowrap">
+              <div class="flex items-center justify-center gap-1">
                 <button
                   data-view-order="${order.orderCode}"
-                  class="btn-view-detail inline-flex items-center gap-1 bg-[#173524] text-[#E6CA85] hover:bg-[#204932] hover:text-white px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors rounded-none cursor-pointer shadow-xs whitespace-nowrap"
+                  class="btn-view-detail inline-flex items-center gap-1 bg-[#173524] text-[#E6CA85] hover:bg-[#204932] hover:text-white px-2.5 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors rounded-none cursor-pointer shadow-xs whitespace-nowrap"
                 >
                   Chi tiết
                 </button>
@@ -1962,7 +2299,7 @@ import { provinces } from '../../data/provinces';
                 <button
                   data-cancel-order="${order.id || order.orderCode}"
                   data-code="${order.orderCode}"
-                  class="btn-cancel-order inline-flex items-center gap-1 border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-500 px-2.5 py-1 text-[11px] font-semibold uppercase tracking-wider transition-colors rounded-none cursor-pointer whitespace-nowrap"
+                  class="btn-cancel-order inline-flex items-center gap-0.5 border border-red-300 text-red-600 hover:bg-red-50 hover:border-red-500 px-2 py-1.5 text-[11px] font-semibold uppercase tracking-wider transition-colors rounded-none cursor-pointer whitespace-nowrap"
                   title="Hủy đơn hàng"
                 >
                   ✕ Hủy
@@ -1971,6 +2308,76 @@ import { provinces } from '../../data/provinces';
             </td>
           </tr>`;
       }).join('');
+
+      // Cập nhật thông tin phân trang
+      if (paginationInfo) {
+        paginationInfo.innerHTML = `Hiển thị <strong class="text-walnut-900 font-bold">${startIndex + 1} – ${endIndex}</strong> trên <strong class="text-walnut-900 font-bold">${totalFiltered}</strong> đơn hàng`;
+      }
+
+      // Render các nút chuyển trang
+      if (paginationControls) {
+        let controlsHtml = '';
+
+        // Nút Trước
+        const isPrevDisabled = currentOrdersPage <= 1;
+        controlsHtml += `
+          <button 
+            type="button" 
+            data-order-page="${currentOrdersPage - 1}" 
+            ${isPrevDisabled ? 'disabled' : ''} 
+            class="px-2.5 py-1.5 text-xs font-semibold rounded-none border border-walnut-900/20 bg-white hover:bg-sand-100 disabled:opacity-40 disabled:cursor-not-allowed text-walnut-800 transition-colors inline-flex items-center gap-1"
+            title="Trang trước"
+          >
+            ‹ Trước
+          </button>
+        `;
+
+        // Các nút số trang
+        for (let p = 1; p <= totalPages; p++) {
+          const isActive = p === currentOrdersPage;
+          controlsHtml += `
+            <button 
+              type="button" 
+              data-order-page="${p}" 
+              class="min-w-[32px] px-2.5 py-1.5 text-xs rounded-none transition-all cursor-pointer font-bold ${
+                isActive 
+                  ? 'bg-[#173524] text-[#E6CA85] border border-[#173524] shadow-xs' 
+                  : 'bg-white hover:bg-sand-100 text-walnut-800 border border-walnut-900/20'
+              }"
+            >
+              ${p}
+            </button>
+          `;
+        }
+
+        // Nút Sau
+        const isNextDisabled = currentOrdersPage >= totalPages;
+        controlsHtml += `
+          <button 
+            type="button" 
+            data-order-page="${currentOrdersPage + 1}" 
+            ${isNextDisabled ? 'disabled' : ''} 
+            class="px-2.5 py-1.5 text-xs font-semibold rounded-none border border-walnut-900/20 bg-white hover:bg-sand-100 disabled:opacity-40 disabled:cursor-not-allowed text-walnut-800 transition-colors inline-flex items-center gap-1"
+            title="Trang tiếp theo"
+          >
+            Sau ›
+          </button>
+        `;
+
+        paginationControls.innerHTML = controlsHtml;
+
+        // Bind sự kiện bấm nút chuyển trang
+        paginationControls.querySelectorAll<HTMLButtonElement>('[data-order-page]').forEach((btn) => {
+          btn.addEventListener('click', () => {
+            if (btn.disabled) return;
+            const targetPage = Number(btn.dataset.orderPage);
+            if (!isNaN(targetPage) && targetPage >= 1 && targetPage <= totalPages && targetPage !== currentOrdersPage) {
+              currentOrdersPage = targetPage;
+              renderOrdersTable();
+            }
+          });
+        });
+      }
 
       // Bind Chi tiết
       tableBody.querySelectorAll<HTMLButtonElement>('.btn-view-detail').forEach((btn) => {
@@ -1990,6 +2397,9 @@ import { provinces } from '../../data/provinces';
           }
         });
       });
+
+      // Căn chỉnh cạnh đáy card hỗ trợ quý khách ngay khi render bảng xong
+      alignCardBottoms();
     };
 
     const loadOrdersData = async () => {
@@ -2053,6 +2463,7 @@ import { provinces } from '../../data/provinces';
       if (infoSpent) infoSpent.textContent = fmtVnd(calculatedTotalSpent);
       if (infoOrders) infoOrders.textContent = `${calculatedCompletedCount} đơn hàng`;
       updateLoyaltyProgress(calculatedTotalSpent);
+      alignCardBottoms();
 
       if (highlightCode) {
         const codeToOpen = highlightCode;
@@ -2075,6 +2486,7 @@ import { provinces } from '../../data/provinces';
         document.querySelectorAll('.order-filter-btn').forEach((b) => b.classList.remove('is-active'));
         btn.classList.add('is-active');
         currentFilter = btn.dataset.orderFilter || 'all';
+        currentOrdersPage = 1;
         renderOrdersTable();
       });
     });
@@ -2082,67 +2494,180 @@ import { provinces } from '../../data/provinces';
     // =========================================================
     // VOUCHERS TAB
     // =========================================================
+    let allVouchers: any[] = [];
+    let currentVouchersPage = 1;
+    const VOUCHERS_PER_PAGE = 4; // 2 hàng x 2 cột = 4 voucher/trang
+
+    const renderVouchersList = () => {
+      const grid = document.getElementById('vouchers-grid');
+      const emptyEl = document.getElementById('vouchers-empty');
+      const countBadge = document.getElementById('vouchers-count-badge');
+      const paginationContainer = document.getElementById('vouchers-pagination-container');
+      if (!grid) return;
+
+      if (countBadge) countBadge.textContent = `${allVouchers.length} mã`;
+
+      if (allVouchers.length === 0) {
+        grid.classList.add('hidden');
+        if (emptyEl) emptyEl.classList.remove('hidden');
+        if (paginationContainer) {
+          paginationContainer.classList.add('hidden');
+          paginationContainer.innerHTML = '';
+        }
+        alignCardBottoms();
+        return;
+      }
+
+      if (emptyEl) emptyEl.classList.add('hidden');
+      grid.classList.remove('hidden');
+
+      const totalPages = Math.ceil(allVouchers.length / VOUCHERS_PER_PAGE) || 1;
+      if (currentVouchersPage > totalPages) currentVouchersPage = totalPages;
+      if (currentVouchersPage < 1) currentVouchersPage = 1;
+
+      const startIndex = (currentVouchersPage - 1) * VOUCHERS_PER_PAGE;
+      const endIndex = Math.min(startIndex + VOUCHERS_PER_PAGE, allVouchers.length);
+      const pageVouchers = allVouchers.slice(startIndex, endIndex);
+
+      grid.innerHTML = pageVouchers.map((c: any) => {
+        const isPercent = c.discountType === 'percent' || c.discountType === 'percentage';
+        const isFreeShip = c.discountType === 'free_shipping';
+        const valueDisplay = isFreeShip 
+          ? (c.discountValue > 0 ? `Freeship ${fmtVnd(c.discountValue)}` : 'Freeship 100%')
+          : (isPercent ? `${c.discountValue}%` : fmtVnd(c.discountValue));
+        const minDisplay = c.minOrderValue ? `Đơn tối thiểu ${fmtVnd(c.minOrderValue)}` : 'Áp dụng cho mọi đơn';
+        const iconSrc = isFreeShip ? '/images/icons/free-shipping.png' : '/images/icons/discount-voucher.png';
+
+        return `
+          <div class="rounded-none border border-walnut-900/15 bg-[#FAF8F5] p-3.5 sm:p-4 flex flex-col justify-between gap-3 shadow-xs hover:border-[#173524]/40 hover:bg-white transition-all h-full">
+            <div class="flex items-start gap-3 min-w-0">
+              <img src="${iconSrc}" alt="Icon" class="w-10 h-10 object-contain shrink-0 mt-0.5" loading="lazy" />
+              <div class="space-y-1 min-w-0 flex-1">
+                <div class="flex items-center gap-2 flex-wrap">
+                  <span class="font-mono font-bold text-xs bg-[#173524] text-[#E6CA85] px-2.5 py-0.5 tracking-wide">${c.code}</span>
+                  <span class="text-xs font-bold text-clay-700">Giảm ${valueDisplay}</span>
+                </div>
+                <p class="text-[11px] text-walnut-800/80 leading-snug line-clamp-2">${minDisplay}</p>
+                ${c.endDate ? `<p class="text-[10px] text-walnut-800/60 font-mono">HSD: ${new Date(c.endDate).toLocaleDateString('vi-VN')}</p>` : ''}
+              </div>
+            </div>
+            <div class="pt-2.5 border-t border-walnut-900/8 flex items-center justify-between gap-2 mt-auto">
+              <span class="text-[10.5px] text-walnut-800/60 italic">Ưu đãi thành viên</span>
+              <button
+                type="button"
+                data-copy-voucher="${c.code}"
+                class="btn-copy-voucher bg-white border border-walnut-900/20 hover:border-walnut-900 hover:bg-[#173524] hover:text-[#D8B670] px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-walnut-900 transition-all cursor-pointer shrink-0 shadow-2xs active:scale-95"
+              >
+                Sao chép
+              </button>
+            </div>
+          </div>`;
+      }).join('');
+
+      grid.querySelectorAll<HTMLButtonElement>('.btn-copy-voucher').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const code = btn.dataset.copyVoucher;
+          if (code) {
+            navigator.clipboard.writeText(code);
+            const originalText = btn.textContent;
+            btn.textContent = 'Đã chép! ✓';
+            btn.classList.add('bg-emerald-100', 'text-emerald-800', 'border-emerald-300');
+            setTimeout(() => {
+              btn.textContent = originalText;
+              btn.classList.remove('bg-emerald-100', 'text-emerald-800', 'border-emerald-300');
+            }, 1800);
+          }
+        });
+      });
+
+      if (paginationContainer) {
+        if (allVouchers.length === 0) {
+          paginationContainer.classList.add('hidden');
+          paginationContainer.innerHTML = '';
+        } else {
+          paginationContainer.classList.remove('hidden');
+          paginationContainer.innerHTML = `
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3.5 border-t border-walnut-900/10 text-xs">
+              <div class="text-walnut-800/70">
+                Hiển thị <span class="font-bold text-walnut-900">${startIndex + 1}</span> - <span class="font-bold text-walnut-900">${endIndex}</span> trong số <span class="font-bold text-walnut-900">${allVouchers.length}</span> voucher
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  id="btn-vouchers-prev-page"
+                  ${currentVouchersPage <= 1 ? 'disabled' : ''}
+                  class="px-3 py-1.5 border border-walnut-900/15 bg-white text-walnut-800 hover:bg-sand-100 disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed font-medium transition-colors cursor-pointer"
+                >
+                  ‹ Trước
+                </button>
+                ${Array.from({ length: totalPages }, (_, idx) => idx + 1).map((p) => `
+                  <button
+                    type="button"
+                    data-vouchers-page="${p}"
+                    class="w-8 h-8 flex items-center justify-center font-bold text-xs border transition-colors cursor-pointer ${
+                      p === currentVouchersPage
+                        ? 'bg-[#173524] text-[#D8B670] border-[#173524] shadow-xs'
+                        : 'bg-white hover:bg-sand-100 text-walnut-800 border-walnut-900/15'
+                    }"
+                  >
+                    ${p}
+                  </button>
+                `).join('')}
+                <button
+                  type="button"
+                  id="btn-vouchers-next-page"
+                  ${currentVouchersPage === totalPages ? 'disabled' : ''}
+                  class="px-3 py-1.5 border border-walnut-900/15 bg-white text-walnut-800 hover:bg-sand-100 disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed font-medium transition-colors cursor-pointer"
+                >
+                  Sau ›
+                </button>
+              </div>
+            </div>
+          `;
+
+          document.getElementById('btn-vouchers-prev-page')?.addEventListener('click', () => {
+            if (currentVouchersPage > 1) {
+              currentVouchersPage--;
+              renderVouchersList();
+            }
+          });
+          document.getElementById('btn-vouchers-next-page')?.addEventListener('click', () => {
+            if (currentVouchersPage < totalPages) {
+              currentVouchersPage++;
+              renderVouchersList();
+            }
+          });
+          paginationContainer.querySelectorAll<HTMLButtonElement>('[data-vouchers-page]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+              const p = Number(btn.dataset.vouchersPage);
+              if (p && p !== currentVouchersPage) {
+                currentVouchersPage = p;
+                renderVouchersList();
+              }
+            });
+          });
+        }
+      }
+
+      alignCardBottoms();
+    };
+
     const loadVouchers = async () => {
       const loading = document.getElementById('vouchers-loading');
-      const grid = document.getElementById('vouchers-grid');
-      if (!loading || !grid) return;
+      if (!loading) return;
 
       try {
         const res = await fetch('http://localhost:4000/api/coupons');
         const json = await res.json();
         loading.classList.add('hidden');
 
-        if (json.success && Array.isArray(json.data) && json.data.length > 0) {
-          grid.classList.remove('hidden');
-          grid.innerHTML = json.data.map((c: any) => {
-            const isPercent = c.discountType === 'percent' || c.discountType === 'percentage';
-            const isFreeShip = c.discountType === 'free_shipping';
-            const valueDisplay = isFreeShip 
-              ? (c.discountValue > 0 ? `Freeship ${fmtVnd(c.discountValue)}` : 'Freeship 100%')
-              : (isPercent ? `${c.discountValue}%` : fmtVnd(c.discountValue));
-            const minDisplay = c.minOrderValue ? `Đơn tối thiểu ${fmtVnd(c.minOrderValue)}` : 'Áp dụng cho mọi đơn';
-            const iconSrc = isFreeShip ? '/images/icons/free-shipping.png' : '/images/icons/discount-voucher.png';
-
-            return `
-              <div class="rounded-none border border-walnut-900/15 bg-[#FAF8F5] p-4 flex items-center justify-between gap-3 shadow-xs hover:border-[#173524]/40 transition-colors">
-                <div class="flex items-center gap-3 min-w-0">
-                  <img src="${iconSrc}" alt="Icon" class="w-10 h-10 object-contain shrink-0" loading="lazy" />
-                  <div class="space-y-1 min-w-0">
-                    <div class="flex items-center gap-2 flex-wrap">
-                      <span class="font-mono font-bold text-sm bg-[#173524] text-[#E6CA85] px-2.5 py-0.5">${c.code}</span>
-                      <span class="text-xs font-bold text-clay-700">Giảm ${valueDisplay}</span>
-                    </div>
-                    <p class="text-[11px] text-walnut-800/80">${minDisplay}</p>
-                  </div>
-                </div>
-                <button
-                  type="button"
-                  data-copy-voucher="${c.code}"
-                  class="btn-copy-voucher bg-white border border-walnut-900/20 hover:border-walnut-900 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-walnut-900 transition-colors cursor-pointer shrink-0"
-                >
-                  Sao chép
-                </button>
-              </div>`;
-          }).join('');
-
-          grid.querySelectorAll<HTMLButtonElement>('.btn-copy-voucher').forEach((btn) => {
-            btn.addEventListener('click', () => {
-              const code = btn.dataset.copyVoucher;
-              if (code) {
-                navigator.clipboard.writeText(code);
-                const originalText = btn.textContent;
-                btn.textContent = 'Đã chép! ✓';
-                btn.classList.add('bg-emerald-100', 'text-emerald-800', 'border-emerald-300');
-                setTimeout(() => {
-                  btn.textContent = originalText;
-                  btn.classList.remove('bg-emerald-100', 'text-emerald-800', 'border-emerald-300');
-                }, 1800);
-              }
-            });
-          });
+        if (json.success && Array.isArray(json.data)) {
+          allVouchers = json.data;
+          currentVouchersPage = 1;
+          renderVouchersList();
         } else {
-          grid.classList.remove('hidden');
-          grid.innerHTML = '<p class="col-span-2 text-center py-8 text-xs text-walnut-800/70">Hiện chưa có mã giảm giá nào đang áp dụng.</p>';
+          allVouchers = [];
+          renderVouchersList();
         }
       } catch (e) {
         loading.textContent = 'Không thể tải danh sách ưu đãi. Vui lòng thử lại sau.';
@@ -2400,8 +2925,7 @@ import { provinces } from '../../data/provinces';
       const startIndex = (currentWishlistPage - 1) * WISHLIST_ITEMS_PER_PAGE;
       const pageItems = filtered.slice(startIndex, startIndex + WISHLIST_ITEMS_PER_PAGE);
 
-      contentEl.className = 'space-y-3';
-      contentEl.innerHTML = pageItems.map((item) => {
+      let cardsHtml = pageItems.map((item) => {
         const isOutOfStock = typeof item.stockQuantity === 'number' && item.stockQuantity <= 0;
         const isChecked = selectedWishlistSlugs.has(item.slug);
 
@@ -2491,14 +3015,45 @@ import { provinces } from '../../data/provinces';
         `;
       }).join('');
 
+      // Khi có nhiều hơn 1 trang và trang hiện tại không đủ số lượng tối đa (ví dụ 3/4 sản phẩm),
+      // chèn các slot giữ chỗ tàng hình (dummy slot) có kích thước layout chuẩn xác
+      // để khoảng trống tự nhiên nằm bên dưới danh sách sản phẩm,
+      // giúp thanh ngang và cụm phân trang luôn cố định tuyệt đối ở vị trí chuẩn, không bao giờ bị nhảy lên nhảy xuống.
+      if (totalPages > 1 && pageItems.length < WISHLIST_ITEMS_PER_PAGE) {
+        const emptySlotsCount = WISHLIST_ITEMS_PER_PAGE - pageItems.length;
+        const dummySlotHtml = `
+          <div
+            class="rounded-none border border-transparent p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 invisible select-none pointer-events-none"
+            aria-hidden="true"
+          >
+            <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+              <div class="shrink-0 w-20 h-20 sm:w-24 sm:h-24"></div>
+              <div class="min-w-0 space-y-1">
+                <span class="text-[9.5px] block">&nbsp;</span>
+                <div class="text-xs sm:text-sm font-bold">&nbsp;</div>
+                <div class="text-xs sm:text-sm">&nbsp;</div>
+              </div>
+            </div>
+            <div class="h-8 shrink-0"></div>
+          </div>
+        `;
+        for (let i = 0; i < emptySlotsCount; i++) {
+          cardsHtml += dummySlotHtml;
+        }
+      }
+
+      contentEl.className = 'space-y-3';
+      contentEl.innerHTML = cardsHtml;
+
       renderPagination(filtered.length, totalPages, startIndex);
       attachWishlistCardEvents();
+      alignCardBottoms();
     };
 
     const renderPagination = (totalFiltered: number, totalPages: number, startIndex: number) => {
       if (!paginationContainer) return;
 
-      if (totalFiltered <= WISHLIST_ITEMS_PER_PAGE || totalPages <= 1) {
+      if (totalFiltered === 0) {
         paginationContainer.classList.add('hidden');
         paginationContainer.innerHTML = '';
         return;
@@ -2516,7 +3071,7 @@ import { provinces } from '../../data/provinces';
             <button
               type="button"
               id="btn-wishlist-prev-page"
-              ${currentWishlistPage === 1 ? 'disabled' : ''}
+              ${currentWishlistPage <= 1 ? 'disabled' : ''}
               class="px-3 py-1.5 border border-walnut-900/15 bg-white text-walnut-800 hover:bg-sand-100 disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed font-medium transition-colors cursor-pointer"
             >
               ‹ Trước
@@ -2539,7 +3094,7 @@ import { provinces } from '../../data/provinces';
             <button
               type="button"
               id="btn-wishlist-next-page"
-              ${currentWishlistPage === totalPages ? 'disabled' : ''}
+              ${currentWishlistPage >= totalPages ? 'disabled' : ''}
               class="px-3 py-1.5 border border-walnut-900/15 bg-white text-walnut-800 hover:bg-sand-100 disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed font-medium transition-colors cursor-pointer"
             >
               Sau ›
@@ -3120,11 +3675,19 @@ import { provinces } from '../../data/provinces';
       if (e.target === addrModalOverlay) closeAddressModal();
     });
 
+    let currentAddressesPage = 1;
+    const ADDRESSES_PER_PAGE = 4; // 2 hàng x 2 cột = 4 địa chỉ/trang
+
     const renderAddresses = () => {
       if (!addrContainer) return;
       if (addrBadge) addrBadge.textContent = String(userAddresses.length);
+      const countBadge = document.getElementById('addresses-count-badge');
+      if (countBadge) countBadge.textContent = `${userAddresses.length} địa chỉ`;
+
+      const paginationContainer = document.getElementById('addresses-pagination-container');
 
       if (userAddresses.length === 0) {
+        addrContainer.className = 'block';
         addrContainer.innerHTML = `
           <div class="p-8 text-center border border-dashed border-walnut-900/20 bg-sand-50/50">
             <div class="w-10 h-10 mx-auto mb-2 rounded-full bg-sand-100 flex items-center justify-center text-[#173524]">
@@ -3141,31 +3704,64 @@ import { provinces } from '../../data/provinces';
           </div>
         `;
         addrContainer.querySelector('.btn-quick-add-addr')?.addEventListener('click', () => openAddressModal('add'));
+        if (paginationContainer) {
+          paginationContainer.classList.add('hidden');
+          paginationContainer.innerHTML = '';
+        }
+        alignCardBottoms();
         return;
       }
 
-      addrContainer.innerHTML = userAddresses.map((addr) => `
-        <div class="rounded-none border ${addr.isDefault ? 'border-2 border-[#173524] bg-[#FAF8F5]' : 'border border-walnut-900/15 bg-white'} p-4 sm:p-5 relative space-y-2 hover:shadow-xs transition-shadow">
-          <div class="flex items-start justify-between gap-3 flex-wrap">
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="font-bold text-xs uppercase tracking-wider text-walnut-900 flex items-center gap-1.5">
-                ${addr.isDefault ? '<span class="w-2 h-2 rounded-full bg-emerald-600 shrink-0"></span>' : ''}
-                <span>${addr.receiverName}</span>
-              </span>
-              <span class="text-xs text-walnut-800/40">|</span>
-              <span class="text-xs font-mono font-semibold text-walnut-800">${addr.receiverPhone}</span>
-              ${addr.isDefault ? '<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">Mặc định</span>' : ''}
+      addrContainer.className = 'grid grid-cols-1 md:grid-cols-2 gap-3.5 items-start';
+
+      const totalPages = Math.ceil(userAddresses.length / ADDRESSES_PER_PAGE) || 1;
+      if (currentAddressesPage > totalPages) currentAddressesPage = totalPages;
+      if (currentAddressesPage < 1) currentAddressesPage = 1;
+
+      const startIndex = (currentAddressesPage - 1) * ADDRESSES_PER_PAGE;
+      const endIndex = Math.min(startIndex + ADDRESSES_PER_PAGE, userAddresses.length);
+      const pageAddresses = userAddresses.slice(startIndex, endIndex);
+
+      addrContainer.innerHTML = pageAddresses.map((addr) => `
+        <div class="rounded-none border ${addr.isDefault ? 'border-2 border-[#173524] bg-[#FAF8F5]' : 'border border-walnut-900/15 bg-white'} p-4 flex flex-col justify-between gap-3 relative hover:shadow-xs transition-shadow h-full">
+          <div class="space-y-2">
+            <div class="flex items-start justify-between gap-2">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-bold text-xs uppercase tracking-wider text-walnut-900 flex items-center gap-1.5">
+                  ${addr.isDefault ? '<span class="w-2 h-2 rounded-full bg-emerald-600 shrink-0"></span>' : ''}
+                  <span>${addr.receiverName}</span>
+                </span>
+                <span class="text-xs text-walnut-800/40">|</span>
+                <span class="text-xs font-mono font-semibold text-walnut-800">${addr.receiverPhone}</span>
+              </div>
+              ${addr.isDefault ? '<span class="bg-emerald-100 text-emerald-800 px-2 py-0.5 text-[9.5px] font-bold uppercase tracking-wider shrink-0 border border-emerald-200">Mặc định</span>' : ''}
+            </div>
+
+            <p class="text-xs text-walnut-800/90 leading-relaxed font-sans line-clamp-2" title="${addr.fullAddress}">
+              ${addr.fullAddress}
+            </p>
+          </div>
+
+          <div class="pt-2.5 border-t border-walnut-900/8 flex items-center justify-between gap-2 mt-auto flex-wrap">
+            <div>
+              ${!addr.isDefault ? `
+                <button type="button" data-set-default="${addr.id}" class="text-[11px] text-[#173524] hover:underline font-semibold cursor-pointer">
+                  Đặt làm mặc định
+                </button>
+              ` : `
+                <span class="text-[10.5px] text-emerald-800 font-medium italic">Địa chỉ giao hàng chính</span>
+              `}
             </div>
             <div class="flex items-center gap-2 text-xs">
-              ${!addr.isDefault ? `<button type="button" data-set-default="${addr.id}" class="text-xs text-[#173524] hover:underline font-semibold cursor-pointer">Thiết lập mặc định</button><span class="text-walnut-900/20">|</span>` : ''}
-              <button type="button" data-edit-addr="${addr.id}" class="text-xs text-amber-700 hover:text-amber-900 font-semibold cursor-pointer">Sửa</button>
+              <button type="button" data-edit-addr="${addr.id}" class="text-xs text-amber-700 hover:text-amber-900 font-semibold cursor-pointer hover:underline">
+                Sửa
+              </button>
               <span class="text-walnut-900/20">|</span>
-              <button type="button" data-delete-addr="${addr.id}" class="text-xs text-rose-600 hover:text-rose-800 font-semibold cursor-pointer">Xóa</button>
+              <button type="button" data-delete-addr="${addr.id}" class="text-xs text-rose-600 hover:text-rose-800 font-semibold cursor-pointer hover:underline">
+                Xóa
+              </button>
             </div>
           </div>
-          <p class="text-xs text-walnut-800/90 leading-relaxed font-medium">
-            ${addr.fullAddress}
-          </p>
         </div>
       `).join('');
 
@@ -3219,6 +3815,77 @@ import { provinces } from '../../data/provinces';
           }
         });
       });
+
+      if (paginationContainer) {
+        if (userAddresses.length === 0) {
+          paginationContainer.classList.add('hidden');
+          paginationContainer.innerHTML = '';
+        } else {
+          paginationContainer.classList.remove('hidden');
+          paginationContainer.innerHTML = `
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3.5 border-t border-walnut-900/10 text-xs">
+              <div class="text-walnut-800/70">
+                Hiển thị <span class="font-bold text-walnut-900">${startIndex + 1}</span> - <span class="font-bold text-walnut-900">${endIndex}</span> trong số <span class="font-bold text-walnut-900">${userAddresses.length}</span> địa chỉ
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  id="btn-addresses-prev-page"
+                  ${currentAddressesPage <= 1 ? 'disabled' : ''}
+                  class="px-3 py-1.5 border border-walnut-900/15 bg-white text-walnut-800 hover:bg-sand-100 disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed font-medium transition-colors cursor-pointer"
+                >
+                  ‹ Trước
+                </button>
+                ${Array.from({ length: totalPages }, (_, idx) => idx + 1).map((p) => `
+                  <button
+                    type="button"
+                    data-addresses-page="${p}"
+                    class="w-8 h-8 flex items-center justify-center font-bold text-xs border transition-colors cursor-pointer ${
+                      p === currentAddressesPage
+                        ? 'bg-[#173524] text-[#D8B670] border-[#173524] shadow-xs'
+                        : 'bg-white hover:bg-sand-100 text-walnut-800 border-walnut-900/15'
+                    }"
+                  >
+                    ${p}
+                  </button>
+                `).join('')}
+                <button
+                  type="button"
+                  id="btn-addresses-next-page"
+                  ${currentAddressesPage === totalPages ? 'disabled' : ''}
+                  class="px-3 py-1.5 border border-walnut-900/15 bg-white text-walnut-800 hover:bg-sand-100 disabled:opacity-40 disabled:hover:bg-white disabled:cursor-not-allowed font-medium transition-colors cursor-pointer"
+                >
+                  Sau ›
+                </button>
+              </div>
+            </div>
+          `;
+
+          document.getElementById('btn-addresses-prev-page')?.addEventListener('click', () => {
+            if (currentAddressesPage > 1) {
+              currentAddressesPage--;
+              renderAddresses();
+            }
+          });
+          document.getElementById('btn-addresses-next-page')?.addEventListener('click', () => {
+            if (currentAddressesPage < totalPages) {
+              currentAddressesPage++;
+              renderAddresses();
+            }
+          });
+          paginationContainer.querySelectorAll<HTMLButtonElement>('[data-addresses-page]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+              const p = Number(btn.dataset.addressesPage);
+              if (p && p !== currentAddressesPage) {
+                currentAddressesPage = p;
+                renderAddresses();
+              }
+            });
+          });
+        }
+      }
+
+      alignCardBottoms();
     };
 
     const loadAddresses = async () => {
@@ -3338,6 +4005,7 @@ import { provinces } from '../../data/provinces';
         if (inputEditTier) inputEditTier.value = fullUser.tier || tier || '';
         inputEditName?.focus();
       }
+      setTimeout(alignCardBottoms, 60);
     };
 
     btnToggleEdit?.addEventListener('click', () => {
@@ -3419,12 +4087,9 @@ import { provinces } from '../../data/provinces';
             if (infoName) infoName.textContent = data.user.full_name;
             if (infoPhone) infoPhone.textContent = data.user.phone;
 
-            // Cập nhật DOM Sidebar
+            // Cập nhật DOM Sidebar & Avatar
             if (elName) elName.textContent = data.user.full_name;
-            if (elAvatar && !fullUser.avatar) {
-              const initials = data.user.full_name.split(' ').map((n: string) => n[0]).slice(-2).join('');
-              elAvatar.textContent = initials || 'KH';
-            }
+            renderUserAvatar(fullUser.avatar, data.user.full_name);
 
             // Cập nhật DOM Tab Địa chỉ
             if (addrName) addrName.textContent = data.user.full_name;
@@ -3453,6 +4118,164 @@ import { provinces } from '../../data/provinces';
         }
       });
     }
+
+    // =========================================================
+    // XỬ LÝ SỰ KIỆN QUẢN LÝ AVATAR (CHỌN ẢNH, LƯU ẢNH, XÓA ẢNH)
+    // =========================================================
+    btnChooseAvatar?.addEventListener('click', () => {
+      inputAvatarFile?.click();
+    });
+
+    inputAvatarFile?.addEventListener('change', () => {
+      const file = inputAvatarFile.files?.[0];
+      if (!file) return;
+
+      if (file.size > 5 * 1024 * 1024) {
+        showAvatarMsg('Dung lượng tệp vượt quá 5MB. Quý khách vui lòng chọn ảnh nhẹ hơn.', true);
+        inputAvatarFile.value = '';
+        return;
+      }
+
+      if (!file.type.startsWith('image/')) {
+        showAvatarMsg('Định dạng tệp không được hỗ trợ. Vui lòng chọn ảnh JPG, PNG hoặc WEBP.', true);
+        inputAvatarFile.value = '';
+        return;
+      }
+
+      selectedAvatarFile = file;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const previewUrl = e.target?.result as string;
+        if (profileAvatarContainer) {
+          profileAvatarContainer.innerHTML = `<img src="${previewUrl}" alt="Preview" class="h-full w-full object-cover object-center" />`;
+        }
+        if (profileAvatarBadge) {
+          profileAvatarBadge.textContent = 'Ảnh xem trước';
+          profileAvatarBadge.className = 'inline-flex items-center gap-1 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider rounded-full bg-blue-50 text-blue-800 border border-blue-200';
+        }
+        if (btnSaveAvatar) btnSaveAvatar.disabled = false;
+        showAvatarMsg('Đã nạp ảnh xem trước! Bấm "Lưu ảnh đại diện" để lưu lên hệ thống.', false);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    btnSaveAvatar?.addEventListener('click', async () => {
+      if (!selectedAvatarFile) return;
+
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        showAvatarMsg('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', true);
+        return;
+      }
+
+      btnSaveAvatar.disabled = true;
+      btnSaveAvatar.innerHTML = `
+        <svg class="animate-spin w-3.5 h-3.5 mr-1" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
+        <span>Đang lưu ảnh...</span>
+      `;
+
+      try {
+        const formData = new FormData();
+        formData.append('avatar', selectedAvatarFile);
+
+        const res = await fetch('http://localhost:4000/api/auth/profile/avatar', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          },
+          body: formData
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success && data.avatar_url) {
+          fullUser.avatar = data.avatar_url;
+          localStorage.setItem('current_user', JSON.stringify(fullUser));
+
+          try {
+            const adminRaw = localStorage.getItem('admin_user');
+            if (adminRaw) {
+              const au = JSON.parse(adminRaw);
+              au.avatar = data.avatar_url;
+              localStorage.setItem('admin_user', JSON.stringify(au));
+            }
+          } catch {}
+
+          selectedAvatarFile = null;
+          if (inputAvatarFile) inputAvatarFile.value = '';
+          btnSaveAvatar.disabled = true;
+
+          renderUserAvatar(data.avatar_url, fullUser.name);
+          showAvatarMsg('Cập nhật ảnh đại diện thành công!', false);
+
+          window.dispatchEvent(new Event('auth:changed'));
+        } else {
+          showAvatarMsg(data.message || 'Không thể lưu ảnh đại diện. Vui lòng thử lại.', true);
+          btnSaveAvatar.disabled = false;
+        }
+      } catch (err: any) {
+        showAvatarMsg('Lỗi kết nối máy chủ khi lưu ảnh đại diện.', true);
+        btnSaveAvatar.disabled = false;
+      } finally {
+        btnSaveAvatar.innerHTML = `
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+          </svg>
+          <span>Lưu ảnh đại diện</span>
+        `;
+      }
+    });
+
+    btnDeleteAvatar?.addEventListener('click', async () => {
+      if (!confirm('Quý khách có chắc chắn muốn xóa ảnh đại diện và quay về ký tự viết tắt mặc định?')) {
+        return;
+      }
+
+      const token = localStorage.getItem('auth_token');
+      if (!token) {
+        showAvatarMsg('Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.', true);
+        return;
+      }
+
+      btnDeleteAvatar.disabled = true;
+      try {
+        const res = await fetch('http://localhost:4000/api/auth/profile/avatar', {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const data = await res.json();
+        if (res.ok && data.success) {
+          fullUser.avatar = null;
+          localStorage.setItem('current_user', JSON.stringify(fullUser));
+
+          try {
+            const adminRaw = localStorage.getItem('admin_user');
+            if (adminRaw) {
+              const au = JSON.parse(adminRaw);
+              au.avatar = null;
+              localStorage.setItem('admin_user', JSON.stringify(au));
+            }
+          } catch {}
+
+          selectedAvatarFile = null;
+          if (inputAvatarFile) inputAvatarFile.value = '';
+          if (btnSaveAvatar) btnSaveAvatar.disabled = true;
+
+          renderUserAvatar(null, fullUser.name);
+          showAvatarMsg('Đã xóa ảnh đại diện. Hệ thống hiển thị ký tự viết tắt mặc định.', false);
+
+          window.dispatchEvent(new Event('auth:changed'));
+        } else {
+          showAvatarMsg(data.message || 'Không thể xóa ảnh đại diện.', true);
+        }
+      } catch (err: any) {
+        showAvatarMsg('Lỗi kết nối máy chủ khi xóa ảnh đại diện.', true);
+      } finally {
+        btnDeleteAvatar.disabled = false;
+      }
+    });
 
     // =========================================================
     // XỬ LÝ ĐỔI MẬT KHẨU
@@ -3490,12 +4313,7 @@ import { provinces } from '../../data/provinces';
         const confirmPass = (document.getElementById('input-confirm-password') as HTMLInputElement | null)?.value || '';
 
         const showMsg = (text: string, isError: boolean) => {
-          if (!msgEl) return;
-          msgEl.textContent = text;
-          msgEl.className = isError 
-            ? 'text-xs py-2.5 px-3.5 rounded-none font-medium bg-red-50 text-red-700 border border-red-200' 
-            : 'text-xs py-2.5 px-3.5 rounded-none font-medium bg-emerald-50 text-emerald-700 border border-emerald-200';
-          msgEl.classList.remove('hidden');
+          showCartToast(text, isError ? 'error' : 'success');
         };
 
         if (!newPass || newPass.length < 6) {
@@ -3554,6 +4372,55 @@ import { provinces } from '../../data/provinces';
     }
 
     // =========================================================
+    // ĐỒNG BỘ CHIỀU CAO 2 CỘT CỐ ĐỊNH QUA MỌI TAB (CSS FLEX/GRID TỰ CÂN ĐÁY 0PX SAI LỆCH)
+    // =========================================================
+    let fixedDashboardHeight = 0;
+
+    const alignCardBottoms = () => {
+      const dashboardGrid = document.getElementById('account-dashboard-grid');
+      const mainEl = document.getElementById('account-dashboard-main');
+      const supportCard = document.getElementById('sidebar-support-card');
+      if (!dashboardGrid || !mainEl) return;
+
+      // Xóa mọi inline height cũ để CSS Grid + Flex (lg:flex-1) tự căng đáy chính xác tuyệt đối
+      if (supportCard) supportCard.style.height = '';
+      ['orders-table-wrapper', 'orders-empty', 'wishlist-main-card', 'vouchers-main-card', 'addresses-main-card'].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.style.height = '';
+      });
+
+      // Trên màn hình di động/tablet (< 1024px), để chiều cao tự nhiên theo dòng nội dung
+      if (window.innerWidth < 1024) {
+        mainEl.style.minHeight = '';
+        return;
+      }
+
+      // Đo chiều cao tự nhiên hiện tại (không bị ép bởi minHeight cũ) để khóa mốc cố định chống nhảy khi chuyển tab
+      mainEl.style.minHeight = '';
+      const naturalHeight = dashboardGrid.offsetHeight;
+      if (naturalHeight >= 680) {
+        fixedDashboardHeight = Math.max(fixedDashboardHeight, naturalHeight);
+      }
+
+      if (fixedDashboardHeight >= 680) {
+        mainEl.style.minHeight = `${fixedDashboardHeight}px`;
+      }
+    };
+
+    // Đo ban đầu khi trang tải xong ổn định (trước khi switchTab nếu vào thẳng tab khác)
+    alignCardBottoms();
+    setTimeout(alignCardBottoms, 80);
+    setTimeout(alignCardBottoms, 250);
+    setTimeout(alignCardBottoms, 500);
+
+    window.addEventListener('resize', () => {
+      fixedDashboardHeight = 0;
+      const mainEl = document.getElementById('account-dashboard-main');
+      if (mainEl) mainEl.style.minHeight = '';
+      alignCardBottoms();
+    });
+
+    // =========================================================
     // TAB SWITCHING
     // =========================================================
     const tabBtns = document.querySelectorAll<HTMLButtonElement>('[data-page-tab]');
@@ -3571,6 +4438,10 @@ import { provinces } from '../../data/provinces';
       document.querySelectorAll<HTMLElement>('.page-tab-pane').forEach((pane) => {
         pane.classList.toggle('hidden', pane.id !== `page-pane-${tabName}`);
       });
+
+      // Đồng bộ lại ngay sau khi chuyển tab để giữ nguyên mốc cạnh đáy cố định
+      alignCardBottoms();
+      requestAnimationFrame(alignCardBottoms);
     };
 
     tabBtns.forEach((btn) => {

@@ -2,6 +2,7 @@ import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
 import { verifyToken, requireAdmin } from '../middlewares/auth.middleware.js';
 import { uploadBanner } from '../middlewares/banner-upload.middleware.js'; 
+import { getCache, setCache, invalidateCachePrefix } from '../utils/cache.js';
 
 export const bannersRouter = Router();
 
@@ -9,6 +10,11 @@ export const bannersRouter = Router();
 bannersRouter.get('/', async (req: Request, res: Response) => {
   try {
     const { position, activeOnly } = req.query;
+    const cacheKey = `banners:${typeof position === 'string' ? position : 'all'}:${activeOnly === 'true' ? '1' : '0'}`;
+    const cached = getCache<any[]>(cacheKey);
+    if (cached) {
+      return res.json({ success: true, data: cached });
+    }
 
     const where: any = {};
     if (position && typeof position === 'string') {
@@ -40,6 +46,8 @@ bannersRouter.get('/', async (req: Request, res: Response) => {
       createdAt: b.created_at,
       updatedAt: b.updated_at,
     }));
+
+    setCache(cacheKey, formatted, 60);
 
     return res.json({
       success: true,
@@ -90,6 +98,8 @@ bannersRouter.post('/', verifyToken, requireAdmin, async (req: Request, res: Res
         is_active: Boolean(isActive),
       },
     });
+
+    invalidateCachePrefix('banners:');
 
     return res.status(201).json({
       success: true,
@@ -153,6 +163,8 @@ bannersRouter.put('/:id', verifyToken, requireAdmin, async (req: Request, res: R
       data,
     });
 
+    invalidateCachePrefix('banners:');
+
     return res.json({
       success: true,
       message: 'Cập nhật banner thành công!',
@@ -191,6 +203,8 @@ bannersRouter.patch('/:id/toggle', verifyToken, requireAdmin, async (req: Reques
       data: { is_active: !banner.is_active },
     });
 
+    invalidateCachePrefix('banners:');
+
     return res.json({
       success: true,
       message: `Đã ${updated.is_active ? 'bật' : 'tắt'} hiển thị banner thành công!`,
@@ -217,6 +231,8 @@ bannersRouter.delete('/:id', verifyToken, requireAdmin, async (req: Request, res
     await prisma.banners.delete({
       where: { id },
     });
+
+    invalidateCachePrefix('banners:');
 
     return res.json({
       success: true,
