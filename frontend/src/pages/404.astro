@@ -1,0 +1,68 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Trang Không Tìm Thấy | KTUFA Luxury Furniture" description="Trang bạn tìm kiếm không tồn tại.">
+  <div class="min-h-[80vh] bg-[#FAF8F5] flex flex-col items-center justify-center px-4 py-20 text-center">
+
+    <!-- Số 404 trang trí -->
+    <div class="relative mb-8 select-none">
+      <span class="text-[120px] sm:text-[180px] font-display font-bold text-[#173524]/6 leading-none tracking-tighter">404</span>
+      <div class="absolute inset-0 flex items-center justify-center">
+        <svg class="w-20 h-20 sm:w-28 sm:h-28 text-[#D8B670]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        </svg>
+      </div>
+    </div>
+
+    <!-- Đường trang trí -->
+    <div class="flex items-center gap-3 mb-6">
+      <div class="h-px w-12 bg-[#D8B670]"></div>
+      <span class="text-[10px] font-bold uppercase tracking-[0.3em] text-[#D8B670]">KTUFA Luxury Furniture</span>
+      <div class="h-px w-12 bg-[#D8B670]"></div>
+    </div>
+
+    <h1 class="font-display text-2xl sm:text-3xl font-bold text-[#173524] mb-3">
+      Trang Không Tìm Thấy
+    </h1>
+    <p class="text-sm sm:text-base text-walnut-800/60 max-w-md mb-8 leading-relaxed">
+      Trang bạn đang tìm kiếm không tồn tại hoặc đã được di chuyển. Hãy quay lại trang chủ để tiếp tục khám phá bộ sưu tập nội thất cao cấp.
+    </p>
+
+    <!-- Actions -->
+    <div class="flex flex-col sm:flex-row gap-3">
+      <a
+        href="/"
+        class="inline-flex items-center gap-2 rounded-xl bg-[#173524] px-6 py-3 text-sm font-semibold text-[#D8B670] hover:bg-[#1f4a32] transition-colors"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+        </svg>
+        Về trang chủ
+      </a>
+      <a
+        href="/san-pham"
+        class="inline-flex items-center gap-2 rounded-xl border border-[#173524]/20 px-6 py-3 text-sm font-semibold text-[#173524] hover:bg-[#173524]/5 transition-colors"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 21v-7.5a.75.75 0 01.75-.75h3a.75.75 0 01.75.75V21m-4.5 0H2.36m11.14 0H18m0 0h3.64m-1.39 0V9.349m-16.5 11.65V9.35m0 0a3.001 3.001 0 003.75-.615A2.993 2.993 0 009.75 9.75c.896 0 1.7-.393 2.25-1.016a2.993 2.993 0 002.25 1.016c.896 0 1.7-.393 2.25-1.016a3.001 3.001 0 003.75.614m-16.5 0a3.004 3.004 0 01-.621-4.72L4.318 3.44A1.5 1.5 0 015.378 3h13.243a1.5 1.5 0 011.06.44l1.19 1.189a3 3 0 01-.621 4.72m-13.5 8.65h3.75a.75.75 0 00.75-.75V13.5a.75.75 0 00-.75-.75H6.75a.75.75 0 00-.75.75v3.75c0 .415.336.75.75.75z" />
+        </svg>
+        Xem sản phẩm
+      </a>
+      <a
+        href="/tra-cuu"
+        class="inline-flex items-center gap-2 rounded-xl border border-[#173524]/20 px-6 py-3 text-sm font-semibold text-[#173524] hover:bg-[#173524]/5 transition-colors"
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803a7.5 7.5 0 0010.607 0z" />
+        </svg>
+        Tra cứu đơn hàng
+      </a>
+    </div>
+
+    <!-- Gợi ý liên hệ -->
+    <p class="text-xs text-walnut-800/40 mt-10">
+      Cần hỗ trợ? <a href="/ve-chung-toi" class="text-[#173524] hover:underline font-medium">Liên hệ với chúng tôi</a>
+    </p>
+  </div>
+</BaseLayout>

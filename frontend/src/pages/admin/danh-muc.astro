@@ -14,7 +14,7 @@ const fallbackCategories = [
 let categories = fallbackCategories;
 
 try {
-  const res = await fetch('http://localhost:4000/api/categories', { signal: AbortSignal.timeout(8000) });
+  const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/categories`, { signal: AbortSignal.timeout(8000) });
   if (res.ok) {
     const json = await res.json();
     if (json.success && Array.isArray(json.data) && json.data.length > 0) {
@@ -574,7 +574,7 @@ try {
         const catId = targetRowToDelete.dataset.id;
         if (catId) {
           try {
-            const res = await fetch(`http://localhost:4000/api/categories/${catId}`, { method: 'DELETE' });
+            const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/categories/${catId}`, { method: 'DELETE' });
             const json = await res.json();
             if (!json.success) {
               alert(json.message || 'Không thể xóa danh mục này!');
@@ -611,7 +611,7 @@ try {
       try {
         if (mode === 'edit') {
           if (id) {
-            await fetch(`http://localhost:4000/api/categories/${id}`, {
+            await fetch(`${import.meta.env.PUBLIC_API_URL}/categories/${id}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -623,7 +623,7 @@ try {
             });
           }
         } else {
-          const res = await fetch('http://localhost:4000/api/categories', {
+          const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/categories`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({

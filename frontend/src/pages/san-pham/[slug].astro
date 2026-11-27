@@ -6,9 +6,10 @@ import { formatVnd }       from '../../scripts/cart';
 import ProductCard         from '../../components/ProductCard.astro';
 
 export async function getStaticPaths() {
+  const apiUrl = import.meta.env.PUBLIC_API_URL || 'http://localhost:4000/api';
   const slugs = new Set(products.map((p) => p.slug));
   try {
-    const res = await fetch('http://localhost:4000/api/products?limit=100', {
+    const res = await fetch(`${apiUrl}/products?limit=100`, {
       signal: AbortSignal.timeout(8000),
     });
     if (res.ok) {
@@ -25,11 +26,12 @@ export async function getStaticPaths() {
 }
 
 const { slug } = Astro.params;
+const API_BASE = import.meta.env.PUBLIC_API_URL || 'http://localhost:4000/api';
 
 // Try fetching live data from backend API
 let apiProduct: any = null;
 try {
-  const res = await fetch(`http://localhost:4000/api/products/${slug}`, {
+  const res = await fetch(`${API_BASE}/products/${slug}`, {
     signal: AbortSignal.timeout(8000),
   });
   if (res.ok) {
@@ -85,6 +87,44 @@ const warranty     = detail.warranty;
 const brand        = apiProduct?.brand ?? null;
 const stock        = apiProduct?.stock !== undefined ? Number(apiProduct.stock) : (apiProduct?.variants?.[0]?.stock !== undefined ? Number(apiProduct.variants[0].stock) : ((staticProduct as any)?.stock ?? 20));
 
+// SẢN PHẨM LIÊN QUAN (CÙNG DANH MỤC)
+let relatedProducts: any[] = [];
+try {
+  const relRes = await fetch(`${API_BASE}/products?category=${encodeURIComponent(catSlug)}&limit=8`, {
+    signal: AbortSignal.timeout(6000),
+  });
+  if (relRes.ok) {
+    const relJson = await relRes.json();
+    if (relJson.success && Array.isArray(relJson.data)) {
+      relatedProducts = relJson.data
+        .filter((p: any) => p.slug !== slug)
+        .slice(0, 4)
+        .map((p: any) => ({
+          slug: p.slug,
+          name: p.name,
+          category: p.category?.slug || catSlug,
+          categoryLabel: p.category?.name || catLabel,
+          space: 'phong-khach',
+          spaceLabel: 'Phòng khách',
+          price: p.price ?? p.variants?.[0]?.price ?? 0,
+          comparePrice: p.comparePrice ?? p.variants?.[0]?.comparePrice,
+          material: p.material ?? p.variants?.[0]?.material ?? '',
+          thumbnail: p.thumbnail || p.images?.[0]?.url || null,
+          image: p.thumbnail || p.images?.[0]?.url || null,
+          stock: p.stock ?? p.variants?.[0]?.stock ?? 20,
+        }));
+    }
+  }
+} catch {}
+
+if (relatedProducts.length < 4) {
+  const existingSlugs = new Set([slug, ...relatedProducts.map((p) => p.slug)]);
+  const sameCategory = products.filter((p) => !existingSlugs.has(p.slug) && p.category === catSlug);
+  const sameSpace = products.filter((p) => !existingSlugs.has(p.slug) && p.space === product.space && p.category !== catSlug);
+  const otherProducts = products.filter((p) => !existingSlugs.has(p.slug) && p.category !== catSlug && p.space !== product.space);
+  relatedProducts = [...relatedProducts, ...sameCategory, ...sameSpace, ...otherProducts].slice(0, 4);
+}
+
 // BỘ SƯU TẬP ẢNH GÓC CHỤP (ẢNH CHÍNH + ẢNH CHI TIẾT)
 let galleryImages: string[] = [];
 if (apiProduct) {
@@ -115,14 +155,6 @@ if (apiProduct) {
 }
 
 const displayImages = galleryImages.length > 0 ? galleryImages : (thumbnail ? [thumbnail] : []);
-
-
-
-// RELATED PRODUCTS: Same category or space, excluding current product
-const sameCategory = products.filter((p) => p.slug !== slug && p.category === product.category);
-const sameSpace = products.filter((p) => p.slug !== slug && p.space === product.space && p.category !== product.category);
-const otherProducts = products.filter((p) => p.slug !== slug && p.category !== product.category && p.space !== product.space);
-const relatedProducts = [...sameCategory, ...sameSpace, ...otherProducts].slice(0, 3);
 
 // REVIEWS FROM MYSQL BACKEND
 interface ReviewItem {
@@ -659,7 +691,7 @@ const fourStarPct = totalReviews > 0 ? Math.round((fourStarCount / totalReviews)
       </div>
 
       <!-- Related Products Grid -->
-      <div class="grid grid-cols-1 gap-x-8 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
+      <div class="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-4">
         {relatedProducts.map((rp) => (
           <ProductCard product={rp} />
         ))}

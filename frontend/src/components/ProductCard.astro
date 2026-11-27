@@ -336,7 +336,7 @@ const comparePrice = (rawCompare && Number(rawCompare) > product.price)
           if (Array.isArray(guestList) && guestList.length > 0) {
             const guestSlugs = guestList.map((i: any) => i.slug).filter(Boolean);
             if (guestSlugs.length > 0) {
-              await fetch('http://localhost:4000/api/wishlist/merge', {
+              await fetch(`${import.meta.env.PUBLIC_API_URL}/wishlist/merge`, {
                 method: 'POST',
                 headers: {
                   'Content-Type': 'application/json',
@@ -349,7 +349,7 @@ const comparePrice = (rawCompare && Number(rawCompare) > product.price)
           }
         } catch {}
 
-        const res = await fetch('http://localhost:4000/api/wishlist', {
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/wishlist`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         const json = await res.json();
@@ -420,7 +420,7 @@ const comparePrice = (rawCompare && Number(rawCompare) > product.price)
 
       if (token) {
         try {
-          const res = await fetch('http://localhost:4000/api/wishlist/toggle', {
+          const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/wishlist/toggle`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

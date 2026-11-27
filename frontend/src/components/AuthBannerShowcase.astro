@@ -34,7 +34,7 @@ const {
 let banners: AuthBannerItem[] = [];
 
 try {
-  const res = await fetch(`http://localhost:4000/api/banners?position=${encodeURIComponent(position)}&activeOnly=true`, {
+  const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/banners?position=${encodeURIComponent(position)}&activeOnly=true`, {
     signal: AbortSignal.timeout(5000),
   });
   if (res.ok) {
@@ -359,7 +359,7 @@ const primaryBanner = banners[0];
 
     // Đồng bộ động từ API để phản ánh ngay thay đổi của Admin trong /admin/banner
     try {
-      const res = await fetch(`http://localhost:4000/api/banners?position=${encodeURIComponent(position)}&activeOnly=true`);
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/banners?position=${encodeURIComponent(position)}&activeOnly=true`);
       if (!res.ok) return;
       const json = await res.json();
       if (!json.success || !Array.isArray(json.data) || json.data.length === 0) return;

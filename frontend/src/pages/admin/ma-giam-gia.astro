@@ -3,7 +3,7 @@ import AdminLayout from '../../layouts/AdminLayout.astro';
 
 let coupons: any[] = [];
 try {
-  const res = await fetch('http://localhost:4000/api/coupons', { signal: AbortSignal.timeout(8000) });
+  const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/coupons`, { signal: AbortSignal.timeout(8000) });
   if (res.ok) {
     const json = await res.json();
     if (json.success && Array.isArray(json.data)) {
@@ -533,7 +533,7 @@ const activeCount = coupons.filter((c) => c.status === 'Đang áp dụng').lengt
         if (!couponId) return;
 
         try {
-          const res = await fetch(`http://localhost:4000/api/coupons/${couponId}`, {
+          const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/coupons/${couponId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: !isCurrentlyActive }),
@@ -561,7 +561,7 @@ const activeCount = coupons.filter((c) => c.status === 'Đang áp dụng').lengt
         }
 
         try {
-          const res = await fetch(`http://localhost:4000/api/coupons/${couponId}`, {
+          const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/coupons/${couponId}`, {
             method: 'DELETE',
           });
           const json = await res.json();
@@ -629,13 +629,13 @@ const activeCount = coupons.filter((c) => c.status === 'Đang áp dụng').lengt
       try {
         let res;
         if (editId) {
-          res = await fetch(`http://localhost:4000/api/coupons/${editId}`, {
+          res = await fetch(`${import.meta.env.PUBLIC_API_URL}/coupons/${editId}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),
           });
         } else {
-          res = await fetch('http://localhost:4000/api/coupons', {
+          res = await fetch(`${import.meta.env.PUBLIC_API_URL}/coupons`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload),

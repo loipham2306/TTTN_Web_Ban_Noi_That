@@ -26,7 +26,7 @@ interface ChatSessionItem {
 let sessions: ChatSessionItem[] = [];
 
 try {
-  const res = await fetch('http://localhost:4000/api/phong-thuy/chat-sessions', {
+  const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/phong-thuy/chat-sessions`, {
     signal: AbortSignal.timeout(8000),
   });
   if (res.ok) {

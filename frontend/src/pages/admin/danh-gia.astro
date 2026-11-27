@@ -15,7 +15,7 @@ interface ReviewItem {
 
 let reviews: ReviewItem[] = [];
 try {
-  const res = await fetch('http://localhost:4000/api/reviews', {
+  const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/reviews`, {
     signal: AbortSignal.timeout(8000),
   });
   if (res.ok) {
@@ -337,7 +337,7 @@ const avgRating = totalReviews > 0 ? (reviews.reduce((acc, r) => acc + r.rating,
         e.preventDefault();
         if (!id) return;
         try {
-          const res = await fetch(`http://localhost:4000/api/reviews/${id}/status`, {
+          const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/reviews/${id}/status`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: true }),
@@ -381,7 +381,7 @@ const avgRating = totalReviews > 0 ? (reviews.reduce((acc, r) => acc + r.rating,
         const targetActive = isCurrentlyHidden; // if hidden, unhide it
 
         try {
-          const res = await fetch(`http://localhost:4000/api/reviews/${id}/status`, {
+          const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/reviews/${id}/status`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status: targetActive }),
@@ -434,7 +434,7 @@ const avgRating = totalReviews > 0 ? (reviews.reduce((acc, r) => acc + r.rating,
       }
 
       try {
-        const res = await fetch(`http://localhost:4000/api/reviews/${id}/reply`, {
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/reviews/${id}/reply`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ reply: replyText }),

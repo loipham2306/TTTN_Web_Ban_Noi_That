@@ -7,8 +7,8 @@ let analyticsData: any = null;
 
 try {
   const [ordersRes, analyticsRes] = await Promise.all([
-    fetch('http://localhost:4000/api/orders', { signal: AbortSignal.timeout(8000) }),
-    fetch('http://localhost:4000/api/orders/analytics', { signal: AbortSignal.timeout(8000) }),
+    fetch(`${import.meta.env.PUBLIC_API_URL}/orders`, { signal: AbortSignal.timeout(8000) }),
+    fetch(`${import.meta.env.PUBLIC_API_URL}/orders/analytics`, { signal: AbortSignal.timeout(8000) }),
   ]);
 
   if (ordersRes.ok) {

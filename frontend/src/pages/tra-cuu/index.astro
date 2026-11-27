@@ -1,0 +1,262 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="Tra Cứu Đơn Hàng | KTUFA Luxury Furniture" description="Nhập mã đơn hàng để kiểm tra trạng thái giao hàng và thanh toán.">
+
+  <!-- HEADER -->
+  <div class="border-b border-walnut-900/10 bg-sand-100">
+    <div class="mx-auto max-w-7xl px-4 py-2.5 sm:py-3.5">
+      <nav class="text-[10px] uppercase tracking-[0.2em] text-walnut-800">
+        <a href="/" class="transition-colors hover:text-clay-600">Trang chủ</a>
+        <span class="mx-1.5">/</span>
+        <span class="text-walnut-900 font-medium">Tra Cứu Đơn Hàng</span>
+      </nav>
+      <h1 class="mt-1 font-display text-xl tracking-tight sm:text-2xl text-walnut-900">Tra Cứu Đơn Hàng</h1>
+    </div>
+  </div>
+
+  <div class="min-h-[70vh] bg-[#FAF8F5] py-10 px-4">
+    <div class="mx-auto max-w-xl">
+
+      <!-- SEARCH FORM -->
+      <div class="bg-white rounded-2xl border border-walnut-900/10 shadow-sm p-6 sm:p-8">
+        <div class="text-center mb-6">
+          <div class="inline-flex items-center justify-center w-14 h-14 rounded-full bg-[#173524]/8 mb-3">
+            <svg class="w-7 h-7 text-[#173524]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 15.803a7.5 7.5 0 0010.607 0zM10.5 7.5v6m3-3h-6" />
+            </svg>
+          </div>
+          <h2 class="font-display text-lg font-bold text-[#173524]">Kiểm Tra Trạng Thái Đơn Hàng</h2>
+          <p class="text-sm text-walnut-800/60 mt-1">Nhập mã đơn hàng để xem chi tiết và trạng thái giao hàng</p>
+        </div>
+
+        <div class="flex gap-2">
+          <input
+            id="order-code-input"
+            type="text"
+            placeholder="Nhập mã đơn hàng (vd: DH-20241127-001)"
+            class="flex-1 rounded-xl border border-walnut-900/20 px-4 py-3 text-sm text-walnut-900 placeholder:text-walnut-800/40 focus:outline-none focus:ring-2 focus:ring-[#173524]/20 focus:border-[#173524]/40 bg-sand-50"
+          />
+          <button
+            id="btn-search"
+            class="shrink-0 rounded-xl bg-[#173524] px-5 py-3 text-sm font-semibold text-[#D8B670] hover:bg-[#1f4a32] transition-colors disabled:opacity-50"
+          >
+            Tra cứu
+          </button>
+        </div>
+        <p class="text-[11px] text-walnut-800/50 mt-2">Mã đơn hàng có trong email xác nhận hoặc SMS của bạn</p>
+      </div>
+
+      <!-- RESULT AREA -->
+      <div id="result-area" class="mt-6 hidden">
+        <!-- Loading -->
+        <div id="result-loading" class="hidden text-center py-10">
+          <div class="inline-block w-8 h-8 border-2 border-[#173524]/20 border-t-[#173524] rounded-full animate-spin"></div>
+          <p class="text-sm text-walnut-800/60 mt-3">Đang tra cứu đơn hàng...</p>
+        </div>
+
+        <!-- Error -->
+        <div id="result-error" class="hidden bg-white rounded-2xl border border-red-200 p-6 text-center">
+          <svg class="w-10 h-10 text-red-400 mx-auto mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+          </svg>
+          <p id="result-error-msg" class="text-sm font-semibold text-red-700">Không tìm thấy đơn hàng</p>
+          <p class="text-xs text-walnut-800/50 mt-1">Vui lòng kiểm tra lại mã đơn hàng</p>
+        </div>
+
+        <!-- Success Card -->
+        <div id="result-card" class="hidden bg-white rounded-2xl border border-walnut-900/10 shadow-sm overflow-hidden">
+          <!-- Header -->
+          <div class="bg-[#173524] px-6 py-4 flex items-center justify-between">
+            <div>
+              <p class="text-[11px] font-bold uppercase tracking-widest text-[#D8B670]/70">Mã đơn hàng</p>
+              <p id="rc-code" class="text-lg font-bold text-white font-display mt-0.5"></p>
+            </div>
+            <span id="rc-status-badge" class="px-3 py-1 rounded-full text-xs font-bold"></span>
+          </div>
+
+          <!-- Body -->
+          <div class="p-6 space-y-4">
+
+            <!-- Trạng thái + Thanh toán -->
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-sand-50 rounded-xl p-3">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-walnut-800/50 mb-1">Trạng thái giao hàng</p>
+                <p id="rc-order-status" class="text-sm font-semibold text-[#173524]"></p>
+              </div>
+              <div class="bg-sand-50 rounded-xl p-3">
+                <p class="text-[10px] font-bold uppercase tracking-wider text-walnut-800/50 mb-1">Thanh toán</p>
+                <p id="rc-payment-status" class="text-sm font-semibold"></p>
+              </div>
+            </div>
+
+            <!-- Thông tin khách -->
+            <div class="border-t border-walnut-900/8 pt-4 space-y-2">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-walnut-800/50">Thông tin giao hàng</p>
+              <div class="text-sm space-y-1">
+                <div class="flex gap-2"><span class="text-walnut-800/50 w-24 shrink-0">Người nhận:</span><span id="rc-name" class="font-medium text-walnut-900"></span></div>
+                <div class="flex gap-2"><span class="text-walnut-800/50 w-24 shrink-0">Số điện thoại:</span><span id="rc-phone" class="font-medium text-walnut-900"></span></div>
+                <div class="flex gap-2"><span class="text-walnut-800/50 w-24 shrink-0">Địa chỉ:</span><span id="rc-address" class="font-medium text-walnut-900"></span></div>
+              </div>
+            </div>
+
+            <!-- Sản phẩm -->
+            <div class="border-t border-walnut-900/8 pt-4">
+              <p class="text-[11px] font-bold uppercase tracking-wider text-walnut-800/50 mb-3">Sản phẩm đã đặt</p>
+              <div id="rc-items" class="space-y-2"></div>
+            </div>
+
+            <!-- Tổng tiền -->
+            <div class="border-t border-walnut-900/8 pt-4 flex items-center justify-between">
+              <span class="text-sm font-bold text-walnut-900">Tổng thanh toán</span>
+              <span id="rc-total" class="text-lg font-bold text-[#173524] font-display"></span>
+            </div>
+
+            <!-- Lý do hủy -->
+            <div id="rc-cancel-block" class="hidden bg-red-50 border border-red-200 rounded-xl p-3">
+              <p class="text-[10px] font-bold uppercase tracking-wider text-red-600 mb-1">Lý do hủy đơn</p>
+              <p id="rc-cancel-reason" class="text-sm text-red-700"></p>
+            </div>
+
+            <!-- Ngày đặt -->
+            <div class="text-right">
+              <p class="text-xs text-walnut-800/40">Ngày đặt hàng: <span id="rc-date"></span></p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</BaseLayout>
+
+<script>
+  const API_BASE = import.meta.env.PUBLIC_API_URL;
+
+  const ORDER_STATUS: Record<string, { label: string; cls: string }> = {
+    'pending':        { label: 'Chờ xác nhận',    cls: 'bg-amber-100 text-amber-800' },
+    'cho-xac-nhan':   { label: 'Chờ xác nhận',    cls: 'bg-amber-100 text-amber-800' },
+    'confirmed':      { label: 'Đang chuẩn bị',   cls: 'bg-blue-100 text-blue-800' },
+    'dang-chuan-bi':  { label: 'Đang chuẩn bị',   cls: 'bg-blue-100 text-blue-800' },
+    'dang-giao':      { label: 'Đang giao hàng',  cls: 'bg-indigo-100 text-indigo-800' },
+    'hoan-thanh':     { label: 'Hoàn thành',       cls: 'bg-emerald-100 text-emerald-800' },
+    'da-huy':         { label: 'Đã hủy',           cls: 'bg-red-100 text-red-700' },
+    'cancelled':      { label: 'Đã hủy',           cls: 'bg-red-100 text-red-700' },
+  };
+
+  const PAYMENT_STATUS: Record<string, { label: string; cls: string }> = {
+    'pending': { label: 'Chưa thanh toán', cls: 'text-amber-700' },
+    'paid':    { label: 'Đã thanh toán ✓', cls: 'text-emerald-700' },
+    'failed':  { label: 'Thất bại',        cls: 'text-red-700' },
+  };
+
+  function formatVnd(n: number) {
+    return new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(n);
+  }
+
+  function formatDate(d: string) {
+    return new Date(d).toLocaleString('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  }
+
+  const input = document.getElementById('order-code-input') as HTMLInputElement;
+  const btn   = document.getElementById('btn-search') as HTMLButtonElement;
+  const area  = document.getElementById('result-area')!;
+  const loading = document.getElementById('result-loading')!;
+  const errorBox = document.getElementById('result-error')!;
+  const errorMsg = document.getElementById('result-error-msg')!;
+  const card  = document.getElementById('result-card')!;
+
+  async function search() {
+    const code = input.value.trim();
+    if (!code) { input.focus(); return; }
+
+    area.classList.remove('hidden');
+    loading.classList.remove('hidden');
+    errorBox.classList.add('hidden');
+    card.classList.add('hidden');
+    btn.disabled = true;
+
+    try {
+      const res  = await fetch(`${API_BASE}/orders/${encodeURIComponent(code)}`);
+      const json = await res.json();
+
+      loading.classList.add('hidden');
+      btn.disabled = false;
+
+      if (!json.success || !json.data) {
+        errorMsg.textContent = json.message || 'Không tìm thấy đơn hàng với mã này.';
+        errorBox.classList.remove('hidden');
+        return;
+      }
+
+      const o = json.data;
+
+      // Header
+      (document.getElementById('rc-code')!).textContent = o.orderCode || code;
+      const statusInfo = ORDER_STATUS[o.orderStatus] || { label: o.orderStatus, cls: 'bg-walnut-100 text-walnut-800' };
+      const badge = document.getElementById('rc-status-badge')!;
+      badge.textContent = statusInfo.label;
+      badge.className = `px-3 py-1 rounded-full text-xs font-bold ${statusInfo.cls}`;
+
+      // Status
+      (document.getElementById('rc-order-status')!).textContent = statusInfo.label;
+      const payInfo = PAYMENT_STATUS[o.paymentStatus] || { label: o.paymentStatus, cls: 'text-walnut-800' };
+      const payEl = document.getElementById('rc-payment-status')!;
+      payEl.textContent = payInfo.label;
+      payEl.className = `text-sm font-semibold ${payInfo.cls}`;
+
+      // Customer info (có thể bị mask)
+      (document.getElementById('rc-name')!).textContent    = o.customerName    || o.shippingName    || '--';
+      (document.getElementById('rc-phone')!).textContent   = o.customerPhone   || o.phone           || '--';
+      (document.getElementById('rc-address')!).textContent = o.shippingAddress || o.customerAddress || '--';
+
+      // Items
+      const itemsEl = document.getElementById('rc-items')!;
+      const items: any[] = o.items || o.orderItems || [];
+      itemsEl.innerHTML = items.length > 0
+        ? items.map((it: any) => `
+            <div class="flex items-center gap-3 py-2 border-b border-walnut-900/5 last:border-0">
+              ${it.imageUrl || it.image ? `<img src="${it.imageUrl || it.image}" alt="${it.name}" class="w-10 h-10 rounded-lg object-cover border border-walnut-900/10 shrink-0" />` : '<div class="w-10 h-10 rounded-lg bg-sand-100 shrink-0"></div>'}
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-walnut-900 truncate">${it.name || it.productName || 'Sản phẩm'}</p>
+                <p class="text-xs text-walnut-800/50">x${it.quantity || it.qty || 1} &nbsp;·&nbsp; ${formatVnd(Number(it.price || 0))}</p>
+              </div>
+              <p class="text-sm font-semibold text-[#173524] shrink-0">${formatVnd(Number(it.price || 0) * Number(it.quantity || it.qty || 1))}</p>
+            </div>
+          `).join('')
+        : '<p class="text-sm text-walnut-800/40 italic">Không có thông tin sản phẩm</p>';
+
+      // Total
+      (document.getElementById('rc-total')!).textContent = formatVnd(Number(o.totalAmount || o.total || 0));
+
+      // Cancel reason
+      const cancelBlock = document.getElementById('rc-cancel-block')!;
+      if (o.cancelReason || o.cancel_reason) {
+        cancelBlock.classList.remove('hidden');
+        (document.getElementById('rc-cancel-reason')!).textContent = o.cancelReason || o.cancel_reason;
+      } else {
+        cancelBlock.classList.add('hidden');
+      }
+
+      // Date
+      (document.getElementById('rc-date')!).textContent = o.createdAt ? formatDate(o.createdAt) : '--';
+
+      card.classList.remove('hidden');
+
+    } catch {
+      loading.classList.add('hidden');
+      btn.disabled = false;
+      errorMsg.textContent = 'Lỗi kết nối. Vui lòng thử lại sau.';
+      errorBox.classList.remove('hidden');
+    }
+  }
+
+  btn.addEventListener('click', search);
+  input.addEventListener('keydown', (e) => { if (e.key === 'Enter') search(); });
+
+  // Auto-search nếu có query param ?code=...
+  const urlCode = new URLSearchParams(location.search).get('code');
+  if (urlCode) { input.value = urlCode; search(); }
+</script>

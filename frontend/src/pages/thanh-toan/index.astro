@@ -987,7 +987,7 @@ const provinces = [
       if (!token) return;
 
       try {
-        const res = await fetch('http://localhost:4000/api/user-addresses', {
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/user-addresses`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -1112,7 +1112,7 @@ const provinces = [
 
       try {
         const token = localStorage.getItem('auth_token');
-        const res = await fetch('http://localhost:4000/api/coupons/validate', {
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/coupons/validate`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -1619,7 +1619,7 @@ ${value('phone')}`,
       };
 
       try {
-        const confRes = await fetch('http://localhost:4000/api/sepay/config');
+        const confRes = await fetch(`${import.meta.env.PUBLIC_API_URL}/sepay/config`);
         const confJson = await confRes.json();
         if (confJson.success && confJson.data) {
           config = confJson.data;
@@ -1681,7 +1681,7 @@ ${value('phone')}`,
       if (pollInterval) clearInterval(pollInterval);
       pollInterval = setInterval(async () => {
         try {
-          const res = await fetch(`http://localhost:4000/api/orders/${orderCode}`);
+          const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/orders/${orderCode}`);
           const json = await res.json();
 
           if (json.success && json.data && json.data.paymentStatus === 'paid') {
@@ -1775,7 +1775,7 @@ ${value('phone')}`,
           'Authorization': `Bearer ${token}`,
         };
 
-        const res = await fetch('http://localhost:4000/api/orders', {
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/orders`, {
           method: 'POST',
           headers,
           body: JSON.stringify(payload),
@@ -2068,7 +2068,7 @@ ${value('phone')}`,
     };
 
     // Tải danh sách tất cả voucher từ máy chủ
-    fetch('http://localhost:4000/api/coupons')
+    fetch(`${import.meta.env.PUBLIC_API_URL}/coupons`)
       .then((r) => r.json())
       .then((json) => {
         if (json.success && Array.isArray(json.data)) {

@@ -30,7 +30,7 @@ let audienceOptions: any[] = [];
 
 // 1. Tải danh sách chiến dịch & KPIs từ Backend API
 try {
-  const res = await fetch('http://localhost:4000/api/campaigns', { signal: AbortSignal.timeout(8000) });
+  const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/campaigns`, { signal: AbortSignal.timeout(8000) });
   if (res.ok) {
     const json = await res.json();
     if (json.success && Array.isArray(json.data)) {
@@ -46,7 +46,7 @@ try {
 
 // 2. Tải số lượng khách hàng thực tế theo phân khúc
 try {
-  const audRes = await fetch('http://localhost:4000/api/campaigns/audiences', { signal: AbortSignal.timeout(8000) });
+  const audRes = await fetch(`${import.meta.env.PUBLIC_API_URL}/campaigns/audiences`, { signal: AbortSignal.timeout(8000) });
   if (audRes.ok) {
     const json = await audRes.json();
     if (json.success && json.data) {
@@ -411,7 +411,7 @@ if (audienceOptions.length === 0) {
 
 <script>
   const initCampaignPage = () => {
-    const API_BASE = 'http://localhost:4000/api/campaigns';
+    const API_BASE = `${import.meta.env.PUBLIC_API_URL}/campaigns`;
 
     const tableBody = document.getElementById('campaign-table-body') as HTMLElement;
     const totalSentEl = document.getElementById('stat-total-sent') as HTMLElement;

@@ -623,7 +623,7 @@ const isLogin = initialMode === 'login';
       };
 
       try {
-        const res = await fetch('http://localhost:4000/api/auth/google', {
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/auth/google`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -794,7 +794,7 @@ const isLogin = initialMode === 'login';
       }
 
       try {
-        const res = await fetch('http://localhost:4000/api/auth/login', {
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/auth/login`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ email, password }),
@@ -1031,7 +1031,7 @@ const isLogin = initialMode === 'login';
       }
 
       try {
-        const res = await fetch('http://localhost:4000/api/auth/register', {
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/auth/register`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ fullname, email, phone: cleanPhone, password }),

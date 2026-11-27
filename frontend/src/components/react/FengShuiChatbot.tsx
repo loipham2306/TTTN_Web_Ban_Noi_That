@@ -200,7 +200,7 @@ export default function FengShuiChatbot() {
 
         const storedSessionId = sessionStorage.getItem('ktufa_chat_session_id');
 
-        fetch('http://localhost:4000/api/phong-thuy/chat-log', {
+        fetch(`${import.meta.env.PUBLIC_API_URL}/phong-thuy/chat-log`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

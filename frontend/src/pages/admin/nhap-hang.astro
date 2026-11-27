@@ -16,9 +16,9 @@ let productList: any[] = [];
 
 try {
   const [slipsRes, suppRes, prodRes] = await Promise.all([
-    fetch('http://localhost:4000/api/import-slips', { signal: AbortSignal.timeout(8000) }),
-    fetch('http://localhost:4000/api/suppliers', { signal: AbortSignal.timeout(8000) }),
-    fetch('http://localhost:4000/api/products?limit=100', { signal: AbortSignal.timeout(8000) }),
+    fetch(`${import.meta.env.PUBLIC_API_URL}/import-slips`, { signal: AbortSignal.timeout(8000) }),
+    fetch(`${import.meta.env.PUBLIC_API_URL}/suppliers`, { signal: AbortSignal.timeout(8000) }),
+    fetch(`${import.meta.env.PUBLIC_API_URL}/products?limit=100`, { signal: AbortSignal.timeout(8000) }),
   ]);
 
   if (slipsRes.ok) {
@@ -1503,7 +1503,7 @@ try {
             submitBtn.textContent = 'Đang lưu...';
           }
 
-          const res = await fetch('http://localhost:4000/api/import-slips', {
+          const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/import-slips`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -1549,7 +1549,7 @@ try {
 
         // Fetch API chi tiết để luôn lấy dữ liệu mới nhất
         try {
-          const res = await fetch(`http://localhost:4000/api/import-slips/${code}`);
+          const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/import-slips/${code}`);
           if (res.ok) {
             const resData = await res.json();
             if (resData.success && resData.data) {
@@ -1765,7 +1765,7 @@ try {
 
         try {
           const token = localStorage.getItem('admin_token') || localStorage.getItem('auth_token');
-          const res = await fetch(`http://localhost:4000/api/import-slips/${code}/pay`, {
+          const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/import-slips/${code}/pay`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -1797,7 +1797,7 @@ try {
 
         try {
           const token = localStorage.getItem('admin_token') || localStorage.getItem('auth_token');
-          const res = await fetch('http://localhost:4000/api/suppliers', {
+          const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/suppliers`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -1864,7 +1864,7 @@ try {
 
         try {
           const token = localStorage.getItem('admin_token') || localStorage.getItem('auth_token');
-          const res = await fetch(`http://localhost:4000/api/suppliers/${id}`, {
+          const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/suppliers/${id}`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -1900,7 +1900,7 @@ try {
 
           try {
             const token = localStorage.getItem('admin_token') || localStorage.getItem('auth_token');
-            const res = await fetch(`http://localhost:4000/api/suppliers/${id}`, {
+            const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/suppliers/${id}`, {
               method: 'DELETE',
               headers: {
                 'Authorization': `Bearer ${token}`

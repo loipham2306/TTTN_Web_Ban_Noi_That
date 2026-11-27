@@ -2,6 +2,7 @@ export interface ProductDetail {
   description: string;
   dimensions: string;
   warranty: string;
+  gallery?: string[];
 }
 
 export const productDetails: Record<string, ProductDetail> = {

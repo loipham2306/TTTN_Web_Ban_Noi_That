@@ -6,7 +6,7 @@ import { productDetails } from '../../data/product-details';
 // Lấy danh mục từ MySQL (kèm fallback)
 let categories = initialCategories;
 try {
-  const catRes = await fetch('http://localhost:4000/api/categories', { signal: AbortSignal.timeout(8000) });
+  const catRes = await fetch(`${import.meta.env.PUBLIC_API_URL}/categories`, { signal: AbortSignal.timeout(8000) });
   if (catRes.ok) {
     const catJson = await catRes.json();
     if (catJson.success && Array.isArray(catJson.data) && catJson.data.length > 0) {
@@ -28,7 +28,7 @@ const tonKhoDefault: Record<string, string> = {
 // Lấy sản phẩm từ MySQL (kèm fallback)
 let rows: any[] = [];
 try {
-  const prodRes = await fetch('http://localhost:4000/api/products?limit=100', { signal: AbortSignal.timeout(8000) });
+  const prodRes = await fetch(`${import.meta.env.PUBLIC_API_URL}/products?limit=100`, { signal: AbortSignal.timeout(8000) });
   if (prodRes.ok) {
     const prodJson = await prodRes.json();
     if (prodJson.success && Array.isArray(prodJson.data) && prodJson.data.length > 0) {
@@ -727,7 +727,7 @@ const stats = [
         const formData = new FormData();
         formData.append('image', file);
         const token = localStorage.getItem('admin_token') || localStorage.getItem('auth_token') || '';
-        const res = await fetch('http://localhost:4000/api/upload', {
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/upload`, {
           method: 'POST',
           headers: token ? { 'Authorization': `Bearer ${token}` } : {},
           body: formData,
@@ -804,7 +804,7 @@ const stats = [
             formData.append('images', files[i]);
           }
           const token = localStorage.getItem('admin_token') || localStorage.getItem('auth_token') || '';
-          const res = await fetch('http://localhost:4000/api/upload/multiple', {
+          const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/upload/multiple`, {
             method: 'POST',
             headers: token ? { 'Authorization': `Bearer ${token}` } : {},
             body: formData,
@@ -996,7 +996,7 @@ const stats = [
       const desc = (document.getElementById('prod-desc') as HTMLTextAreaElement).value.trim();
       const mainImgSrc = currentUploadedMainUrl || '';
       const CAT_MAP: Record<string, number> = { 'sofa': 1, 'ban-an': 2, 'ghe': 3, 'giuong': 4, 'tu-ke': 5, 'den': 6, 'trang-tri': 7 };
-      const API = 'http://localhost:4000/api';
+      const API = (import.meta.env.PUBLIC_API_URL || 'http://localhost:4000/api');
 
       let newIdFromApi = '';
 
@@ -1227,7 +1227,7 @@ const stats = [
         const productId = rowEl.dataset.id;
         if (productId) {
           try {
-            await fetch(`http://localhost:4000/api/products/${productId}`, {
+            await fetch(`${import.meta.env.PUBLIC_API_URL}/products/${productId}`, {
               method: 'PUT',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({
@@ -1294,7 +1294,7 @@ const stats = [
             </div>
           `;
           try {
-            const res = await fetch(`http://localhost:4000/api/products/${editSlug}`);
+            const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/products/${editSlug}`);
             if (res.ok) {
               const json = await res.json();
               if (json.success && json.data) {
@@ -1367,7 +1367,7 @@ const stats = [
         const productId = removed.dataset.id;
         if (productId) {
           try {
-            const res = await fetch(`http://localhost:4000/api/products/${productId}`, {
+            const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/products/${productId}`, {
               method: 'DELETE',
               headers: getAuthHeaders(),
             });

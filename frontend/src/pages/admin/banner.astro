@@ -18,7 +18,7 @@ interface BannerItem {
 
 let banners: BannerItem[] = [];
 try {
-  const res = await fetch('http://localhost:4000/api/banners', {
+  const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/banners`, {
     signal: AbortSignal.timeout(8000),
   });
   if (res.ok) {
@@ -774,7 +774,7 @@ const authBanners = banners.filter((b) => b.position === 'auth').length;
 
     try {
       showToast('Đang tải ảnh lên hệ thống...');
-      const res = await fetch('http://localhost:4000/api/banners/upload-image', {
+      const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/banners/upload-image`, {
         method: 'POST',
         headers: token ? { 'Authorization': `Bearer ${token}` } : {},
         body: formData,
@@ -809,7 +809,7 @@ const authBanners = banners.filter((b) => b.position === 'auth').length;
 
     try {
       const isEdit = Boolean(id);
-      const url = isEdit ? `http://localhost:4000/api/banners/${id}` : 'http://localhost:4000/api/banners';
+      const url = isEdit ? `${import.meta.env.PUBLIC_API_URL}/banners/${id}` : `${import.meta.env.PUBLIC_API_URL}/banners`;
       const method = isEdit ? 'PUT' : 'POST';
 
       const res = await fetch(url, {
@@ -840,7 +840,7 @@ const authBanners = banners.filter((b) => b.position === 'auth').length;
 
     if (target.closest('[data-btn-toggle-active]')) {
       try {
-        const res = await fetch(`http://localhost:4000/api/banners/${id}/toggle`, {
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/banners/${id}/toggle`, {
           method: 'PATCH',
           headers: getAuthHeaders(),
         });
@@ -881,7 +881,7 @@ const authBanners = banners.filter((b) => b.position === 'auth').length;
     if (target.closest('[data-btn-delete-banner]')) {
       if (!confirm('Bạn có chắc chắn muốn xóa mục này không?')) return;
       try {
-        const res = await fetch(`http://localhost:4000/api/banners/${id}`, {
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/banners/${id}`, {
           method: 'DELETE',
           headers: getAuthHeaders(),
         });

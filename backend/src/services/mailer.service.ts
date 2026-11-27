@@ -65,6 +65,21 @@ export interface PaymentSuccessMailData {
   totalAmount: number;
 }
 
+export interface OrderCancelMailData {
+  orderCode: string;
+  customerName: string;
+  customerEmail: string;
+  customerPhone: string;
+  shippingAddress?: string | null;
+  cancelReason: string;
+  cancelledBy: 'customer' | 'admin' | 'system';
+  cancelledAt?: Date | string;
+  paymentMethod: string;
+  paymentStatus?: string | null;
+  items: OrderMailItem[];
+  totalAmount: number;
+}
+
 const formatVND = (num: number): string => {
   return Number(num || 0).toLocaleString('vi-VN') + ' ₫';
 };
@@ -1127,6 +1142,277 @@ export class MailerService {
       console.log(`🖼️ Đính kèm Logo KTUFA: ${hasLogo ? '✅ Có file logo CID' : '⚠️ Dùng chữ thương hiệu'}`);
       console.log(`📎 Tổng số file đính kèm CID: ${mailAttachments.length}`);
       console.log(`💡 Chế độ: DEV MODE (Điền SMTP_USER & SMTP_PASS vào backend/.env để gửi thư thật tới Gmail)`);
+      console.log('================================================================================\n');
+
+      return {
+        success: true,
+        messageId,
+        recipientCount: 1,
+        deliveryTime,
+        provider: 'KTUFA Smart Mailer (DEV MODE)',
+      };
+    }
+  }
+
+  /**
+   * Tạo template HTML cho Email Thông báo Hủy đơn hàng
+   */
+  static formatOrderCancellationTemplate(data: OrderCancelMailData, hasEmbeddedLogo: boolean = false): string {
+    const year = new Date().getFullYear();
+    const cancelTime = data.cancelledAt
+      ? new Date(data.cancelledAt).toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh', hour: '2-digit', minute: '2-digit', day: '2-digit', month: '2-digit', year: 'numeric' })
+      : new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+
+    const actorLabel =
+      data.cancelledBy === 'customer'
+        ? 'Theo yêu cầu của Quý khách'
+        : data.cancelledBy === 'admin'
+          ? 'Bởi Quản trị viên hệ thống'
+          : 'Tự động hủy do quá thời hạn thanh toán';
+
+    const productRows = data.items
+      .map((item, index) => {
+        const itemImageHtml = item.image
+          ? `<img src="${item.image}" alt="${item.name}" width="48" height="48" style="width: 48px; height: 48px; object-fit: cover; border-radius: 4px; border: 1px solid #ECE7DE; display: block;" />`
+          : `<div style="width: 48px; height: 48px; background-color: #EDE8DE; border-radius: 4px; border: 1px solid #DFD9CE; text-align: center; line-height: 48px; color: #7B6E65; font-size: 18px;">🛋️</div>`;
+
+        return `
+        <tr style="border-bottom: 1px solid #F1ECE1; background-color: ${index % 2 === 0 ? '#FFFFFF' : '#FAFAFA'};">
+          <td style="padding: 8px 12px; vertical-align: middle;">
+            <table cellpadding="0" cellspacing="0" border="0" style="width: 100%;">
+              <tr>
+                <td style="width: 56px; vertical-align: middle;">
+                  ${itemImageHtml}
+                </td>
+                <td style="vertical-align: middle; padding-left: 8px;">
+                  <div style="font-size: 13px; font-weight: 700; color: #2D241E;">${item.name}</div>
+                  ${item.sku ? `<div style="font-size: 10px; color: #8A7E75; margin-top: 2px;">SKU: ${item.sku}</div>` : ''}
+                </td>
+              </tr>
+            </table>
+          </td>
+          <td style="padding: 8px 10px; text-align: center; font-size: 13px; color: #5C4E43; font-weight: 600;">
+            x${item.qty}
+          </td>
+          <td style="padding: 8px 12px; text-align: right; font-size: 13px; font-weight: 700; color: #5C4E43;">
+            ${formatVND(item.total)}
+          </td>
+        </tr>
+        `;
+      })
+      .join('');
+
+    const logoBlock = hasEmbeddedLogo
+      ? `<img src="cid:ktufa-logo@ktufa.vn" alt="KTUFA Luxury Furniture" width="130" style="display: block; margin: 0 auto; max-height: 48px; object-fit: contain;" />`
+      : `<div style="font-family: Georgia, serif; font-size: 26px; font-weight: bold; color: #D8B670; letter-spacing: 0.25em;">KTUFA</div>
+         <div style="font-size: 10px; color: #EFE6D5; text-transform: uppercase; letter-spacing: 0.3em; margin-top: 4px;">Luxury Furniture</div>`;
+
+    const paidRefundBlock =
+      data.paymentStatus === 'paid'
+        ? `
+          <div style="background-color: #FEF3C7; border: 1px solid #F59E0B; border-radius: 6px; padding: 12px 14px; margin-bottom: 18px; font-size: 12px; color: #92400E; line-height: 1.55;">
+            <strong>💳 Thông tin hoàn tiền:</strong> Đơn hàng này đã ghi nhận thanh toán. Bộ phận CSKH KTUFA sẽ liên hệ và hoàn tiền lại cho Quý khách trong vòng <strong>1–3 ngày làm việc</strong>. Hotline hỗ trợ: <strong>1900 636 884</strong>.
+          </div>
+        `
+        : '';
+
+    return `
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thông báo hủy đơn hàng #${data.orderCode}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #F4EFE6; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+  <table width="100%" cellpadding="0" cellspacing="0" border="0" style="background-color: #F4EFE6; padding: 24px 12px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" border="0" style="max-width: 600px; width: 100%; background-color: #FFFFFF; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 20px rgba(45, 36, 30, 0.08); border: 1px solid #E5DEC9;">
+          <!-- Header -->
+          <tr>
+            <td style="background-color: #173524; padding: 22px 24px; text-align: center; border-bottom: 3px solid #D8B670;">
+              ${logoBlock}
+            </td>
+          </tr>
+
+          <!-- Banner Hủy Đơn -->
+          <tr>
+            <td style="padding: 26px 28px 16px 28px; text-align: center;">
+              <div style="display: inline-block; background-color: #FEE2E2; color: #991B1B; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; padding: 6px 14px; border-radius: 20px; border: 1px solid #FCA5A5;">
+                ✕ ĐƠN HÀNG ĐÃ BỊ HỦY
+              </div>
+              <h1 style="font-size: 20px; color: #2D241E; margin: 14px 0 6px 0; font-weight: 700;">
+                Thông báo hủy đơn hàng #${data.orderCode}
+              </h1>
+              <p style="font-size: 13px; color: #6E6259; margin: 0; line-height: 1.5;">
+                Kính chào <strong>${data.customerName}</strong>, đơn hàng của Quý khách đã được cập nhật sang trạng thái <strong>Đã hủy</strong> lúc ${cancelTime}.
+              </p>
+            </td>
+          </tr>
+
+          <!-- Lý do hủy & Chi tiết -->
+          <tr>
+            <td style="padding: 8px 28px 18px 28px;">
+              <div style="background-color: #FEF2F2; border-left: 4px solid #DC2626; border-radius: 4px; padding: 12px 14px; margin-bottom: 16px;">
+                <div style="font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #991B1B; margin-bottom: 4px;">
+                  Lý do hủy đơn (${actorLabel})
+                </div>
+                <div style="font-size: 13px; color: #7F1D1D; line-height: 1.5;">
+                  ${data.cancelReason}
+                </div>
+              </div>
+
+              ${paidRefundBlock}
+
+              <table width="100%" cellpadding="0" cellspacing="0" border="0" style="border: 1px solid #ECE7DE; border-radius: 6px; overflow: hidden;">
+                <thead>
+                  <tr style="background-color: #F8F6F2;">
+                    <th style="padding: 9px 12px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #7B6E65;">Sản phẩm</th>
+                    <th style="padding: 9px 10px; text-align: center; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #7B6E65;">SL</th>
+                    <th style="padding: 9px 12px; text-align: right; font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: #7B6E65;">Thành tiền</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${productRows}
+                </tbody>
+              </table>
+
+              <div style="margin-top: 12px; padding: 10px 14px; background-color: #F8F6F2; border-radius: 6px;">
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                  <tr>
+                    <td style="font-size: 12px; color: #6E6259;">Phương thức thanh toán:</td>
+                    <td style="font-size: 12px; font-weight: 600; color: #2D241E; text-align: right;">${mapPaymentMethodTitle(data.paymentMethod)}</td>
+                  </tr>
+                  <tr>
+                    <td style="font-size: 13px; font-weight: 700; color: #2D241E; padding-top: 6px;">Tổng giá trị đơn đã hủy:</td>
+                    <td style="font-size: 15px; font-weight: 800; color: #991B1B; text-align: right; padding-top: 6px;">${formatVND(data.totalAmount)}</td>
+                  </tr>
+                </table>
+              </div>
+            </td>
+          </tr>
+
+          <!-- Nút Hành động -->
+          <tr>
+            <td style="padding: 4px 28px 24px 28px; text-align: center;">
+              <a href="${ENV.CORS_ORIGIN}/san-pham" style="display: inline-block; background: linear-gradient(90deg, #D8B670 0%, #C49E52 100%); color: #173524; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.14em; padding: 11px 28px; text-decoration: none; border-radius: 4px;">
+                Tiếp tục mua sắm
+              </a>
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td style="background-color: #F8F6F2; padding: 14px 24px; border-top: 1px solid #ECE7DE; text-align: center; font-size: 11px; color: #7B6E65;">
+              <div>Hotline VIP: <strong>1900 636 884</strong> • Showroom: <strong>615 Âu Cơ, TP. HCM</strong></div>
+              <div style="font-size: 10px; color: #9B9188; margin-top: 3px;">© ${year} KTUFA Luxury Furniture. Nếu có thắc mắc, vui lòng liên hệ CSKH để được hỗ trợ.</div>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+    `;
+  }
+
+  /**
+   * Gửi email Thông báo Hủy đơn hàng (Đính kèm Logo CID & Ảnh Sản phẩm)
+   */
+  static async sendOrderCancellationMail(cancelData: OrderCancelMailData): Promise<MailResult> {
+    const recipientEmail = cancelData.customerEmail;
+    if (!recipientEmail || !recipientEmail.includes('@')) {
+      console.warn(`[MAILER SERVICE] Không thể gửi email hủy đơn #${cancelData.orderCode}: Email không hợp lệ (${recipientEmail})`);
+      return {
+        success: false,
+        messageId: '',
+        recipientCount: 0,
+        deliveryTime: new Date().toLocaleString('vi-VN'),
+        provider: 'N/A',
+      };
+    }
+
+    const subject = `[Nội Thất KTUFA] Thông báo hủy đơn hàng #${cancelData.orderCode}`;
+    const logoAttachment = this.getLogoAttachment();
+    const hasLogo = Boolean(logoAttachment);
+
+    const mailAttachments: any[] = [];
+    if (logoAttachment) {
+      mailAttachments.push(logoAttachment);
+    }
+
+    const fileToCidMap = new Map<string, string>();
+    let imgCounter = 0;
+
+    const processedItems: OrderMailItem[] = (cancelData.items || []).map((item) => {
+      let imageToResolve = item.image;
+      if (!imageToResolve && (item.name || '').toLowerCase().includes('charm')) {
+        imageToResolve = 'prod-mohinh-1792641014106-54374.jpg';
+      }
+      const localPath = this.resolveLocalProductImagePath(imageToResolve);
+      if (localPath) {
+        let cid = fileToCidMap.get(localPath);
+        if (!cid) {
+          cid = `cancel-prod-${imgCounter++}@ktufa.vn`;
+          fileToCidMap.set(localPath, cid);
+          const ext = path.extname(localPath).toLowerCase();
+          const contentType = ext === '.png' ? 'image/png' : ext === '.webp' ? 'image/webp' : 'image/jpeg';
+          mailAttachments.push({
+            filename: path.basename(localPath),
+            path: localPath,
+            cid: cid,
+            contentType,
+            contentDisposition: 'inline',
+          });
+        }
+        return { ...item, image: `cid:${cid}` };
+      }
+      return item;
+    });
+
+    const html = this.formatOrderCancellationTemplate({ ...cancelData, items: processedItems }, hasLogo);
+    const messageId = `cancel_${cancelData.orderCode}_${Date.now()}`;
+    const deliveryTime = new Date().toLocaleString('vi-VN');
+
+    const transporter = this.getTransporter();
+    const isDevMode = ENV.OTP_DEV_MODE || !transporter;
+
+    if (!isDevMode && transporter) {
+      try {
+        const info = await transporter.sendMail({
+          from: ENV.SMTP_FROM,
+          to: recipientEmail,
+          subject,
+          html,
+          attachments: mailAttachments,
+        });
+
+        console.log(`📧 [MAILER SERVICE] Đã gửi email thông báo hủy đơn #${cancelData.orderCode} tới ${recipientEmail} qua SMTP (ID: ${info.messageId})`);
+
+        return {
+          success: true,
+          messageId: info.messageId || messageId,
+          recipientCount: 1,
+          deliveryTime,
+          provider: `Nodemailer SMTP (${ENV.SMTP_HOST})`,
+        };
+      } catch (err: any) {
+        console.error(`❌ [MAILER SERVICE] Lỗi gửi email hủy đơn #${cancelData.orderCode}:`, err.message);
+        return {
+          success: false,
+          messageId,
+          recipientCount: 0,
+          deliveryTime,
+          provider: 'SMTP Error',
+        };
+      }
+    } else {
+      console.log('\n================================================================================');
+      console.log(`❌ [MAILER SERVICE - DEV MODE] THÔNG BÁO HỦY ĐƠN HÀNG`);
+      console.log(`📧 Gửi tới: ${recipientEmail} (Khách hàng: ${cancelData.customerName})`);
+      console.log(`🏷️ MÃ ĐƠN HÀNG: #${cancelData.orderCode} | Lý do: ${cancelData.cancelReason}`);
       console.log('================================================================================\n');
 
       return {

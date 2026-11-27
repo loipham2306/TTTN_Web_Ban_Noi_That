@@ -1554,7 +1554,7 @@ import { provinces } from '../../data/provinces';
       const token = localStorage.getItem('auth_token');
       if (token) {
         try {
-          const meRes = await fetch('http://localhost:4000/api/auth/me', {
+          const meRes = await fetch(`${import.meta.env.PUBLIC_API_URL}/auth/me`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           const meData = await meRes.json();
@@ -1827,7 +1827,7 @@ import { provinces } from '../../data/provinces';
       openPanel();
 
       try {
-        const res = await fetch(`http://localhost:4000/api/orders/${encodeURIComponent(orderCode)}`);
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/orders/${encodeURIComponent(orderCode)}`);
         const json = await res.json();
         if (!json.success || !json.data) {
           panelBody.innerHTML = `<p class="text-center py-16 text-red-600 font-medium">Không thể tải thông tin đơn hàng #${orderCode}. Vui lòng thử lại.</p>`;
@@ -2349,7 +2349,7 @@ import { provinces } from '../../data/provinces';
 
       if (token) {
         try {
-          const res = await fetch('http://localhost:4000/api/orders/my-orders', {
+          const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/orders/my-orders`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           const json = await res.json();
@@ -2370,7 +2370,7 @@ import { provinces } from '../../data/provinces';
       for (const code of recentCodes) {
         if (!userOrders.some((o: any) => o.orderCode === code)) {
           try {
-            const res = await fetch(`http://localhost:4000/api/orders/${encodeURIComponent(code)}`);
+            const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/orders/${encodeURIComponent(code)}`);
             const json = await res.json();
             if (json.success && json.data) {
               const order = json.data;
@@ -2593,7 +2593,7 @@ import { provinces } from '../../data/provinces';
       if (!loading) return;
 
       try {
-        const res = await fetch('http://localhost:4000/api/coupons');
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/coupons`);
         const json = await res.json();
         loading.classList.add('hidden');
 
@@ -3157,7 +3157,7 @@ import { provinces } from '../../data/provinces';
           const token = localStorage.getItem('auth_token');
           if (token) {
             try {
-              await fetch(`http://localhost:4000/api/wishlist/${slug}`, {
+              await fetch(`${import.meta.env.PUBLIC_API_URL}/wishlist/${slug}`, {
                 method: 'DELETE',
                 headers: { Authorization: `Bearer ${token}` },
               });
@@ -3264,7 +3264,7 @@ import { provinces } from '../../data/provinces';
         // Xóa toàn bộ
         if (token) {
           try {
-            await fetch('http://localhost:4000/api/wishlist', {
+            await fetch(`${import.meta.env.PUBLIC_API_URL}/wishlist`, {
               method: 'DELETE',
               headers: { Authorization: `Bearer ${token}` },
             });
@@ -3282,7 +3282,7 @@ import { provinces } from '../../data/provinces';
           try {
             await Promise.all(
               itemsToDelete.map((slug) =>
-                fetch(`http://localhost:4000/api/wishlist/${slug}`, {
+                fetch(`${import.meta.env.PUBLIC_API_URL}/wishlist/${slug}`, {
                   method: 'DELETE',
                   headers: { Authorization: `Bearer ${token}` },
                 })
@@ -3337,7 +3337,7 @@ import { provinces } from '../../data/provinces';
 
       if (token) {
         try {
-          const res = await fetch('http://localhost:4000/api/wishlist', {
+          const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/wishlist`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           const json = await res.json();
@@ -3500,7 +3500,7 @@ import { provinces } from '../../data/provinces';
 
       try {
         const token = localStorage.getItem('auth_token');
-        const res = await fetch(`http://localhost:4000/api/orders/${encodeURIComponent(orderId)}/cancel`, {
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/orders/${encodeURIComponent(orderId)}/cancel`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -3709,7 +3709,7 @@ import { provinces } from '../../data/provinces';
           if (!confirm('Bạn có chắc chắn muốn xóa địa chỉ nhận hàng này?')) return;
           try {
             const token = localStorage.getItem('auth_token');
-            const res = await fetch(`http://localhost:4000/api/user-addresses/${id}`, {
+            const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/user-addresses/${id}`, {
               method: 'DELETE',
               headers: { Authorization: `Bearer ${token}` },
             });
@@ -3730,7 +3730,7 @@ import { provinces } from '../../data/provinces';
           const id = Number(btn.dataset.setDefault);
           try {
             const token = localStorage.getItem('auth_token');
-            const res = await fetch(`http://localhost:4000/api/user-addresses/${id}/default`, {
+            const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/user-addresses/${id}/default`, {
               method: 'PATCH',
               headers: { Authorization: `Bearer ${token}` },
             });
@@ -3822,7 +3822,7 @@ import { provinces } from '../../data/provinces';
       const token = localStorage.getItem('auth_token');
       if (!token) return;
       try {
-        const res = await fetch('http://localhost:4000/api/user-addresses', {
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/user-addresses`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         if (res.ok) {
@@ -3860,8 +3860,8 @@ import { provinces } from '../../data/provinces';
 
       try {
         const url = id
-          ? `http://localhost:4000/api/user-addresses/${id}`
-          : 'http://localhost:4000/api/user-addresses';
+          ? `${import.meta.env.PUBLIC_API_URL}/user-addresses/${id}`
+          : `${import.meta.env.PUBLIC_API_URL}/user-addresses`;
         const method = id ? 'PUT' : 'POST';
 
         const res = await fetch(url, {
@@ -3981,7 +3981,7 @@ import { provinces } from '../../data/provinces';
         }
 
         try {
-          const res = await fetch('http://localhost:4000/api/auth/profile', {
+          const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/auth/profile`, {
             method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
@@ -4108,7 +4108,7 @@ import { provinces } from '../../data/provinces';
         const formData = new FormData();
         formData.append('avatar', selectedAvatarFile);
 
-        const res = await fetch('http://localhost:4000/api/auth/profile/avatar', {
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/auth/profile/avatar`, {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -4168,7 +4168,7 @@ import { provinces } from '../../data/provinces';
 
       btnDeleteAvatar.disabled = true;
       try {
-        const res = await fetch('http://localhost:4000/api/auth/profile/avatar', {
+        const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/auth/profile/avatar`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Bearer ${token}`
@@ -4265,7 +4265,7 @@ import { provinces } from '../../data/provinces';
         }
 
         try {
-          const res = await fetch('http://localhost:4000/api/auth/change-password', {
+          const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/auth/change-password`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

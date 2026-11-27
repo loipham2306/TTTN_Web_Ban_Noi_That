@@ -19,8 +19,8 @@ let pendingCodOrders: any[] = [];
 
 try {
   const [cashbookRes, codRes] = await Promise.all([
-    fetch('http://localhost:4000/api/cashbook', { signal: AbortSignal.timeout(8000) }),
-    fetch('http://localhost:4000/api/cashbook/pending-cod', { signal: AbortSignal.timeout(8000) }),
+    fetch(`${import.meta.env.PUBLIC_API_URL}/cashbook`, { signal: AbortSignal.timeout(8000) }),
+    fetch(`${import.meta.env.PUBLIC_API_URL}/cashbook/pending-cod`, { signal: AbortSignal.timeout(8000) }),
   ]);
 
   if (cashbookRes.ok) {
@@ -715,7 +715,7 @@ try {
             btn.textContent = 'Đang xử lý...';
             const token = localStorage.getItem('admin_token') || localStorage.getItem('auth_token');
 
-            const res = await fetch('http://localhost:4000/api/cashbook/reconcile-cod', {
+            const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/cashbook/reconcile-cod`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -789,7 +789,7 @@ try {
             submitBtn.textContent = 'Đang lưu...';
           }
 
-          const res = await fetch('http://localhost:4000/api/cashbook', {
+          const res = await fetch(`${import.meta.env.PUBLIC_API_URL}/cashbook`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

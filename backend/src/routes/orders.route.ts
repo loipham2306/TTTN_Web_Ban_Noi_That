@@ -23,6 +23,72 @@ export function extractCancelReason(order: { order_status?: string | null; selle
   return 'Đơn hàng đã được hủy theo yêu cầu.';
 }
 
+/**
+ * Gửi email thông báo hủy đơn hàng (chạy bất đồng bộ, không chặn response)
+ */
+async function triggerOrderCancellationMail(
+  orderId: bigint,
+  cancelReason: string,
+  cancelledBy: 'customer' | 'admin' | 'system'
+): Promise<void> {
+  const fullOrder = await prisma.orders.findUnique({
+    where: { id: orderId },
+    include: {
+      users: true,
+      order_items: {
+        include: {
+          products: {
+            include: { product_images: true },
+          },
+        },
+      },
+    },
+  });
+
+  if (!fullOrder) return;
+
+  let recipientEmail = fullOrder.users?.email || '';
+  if (fullOrder.seller_note) {
+    const match = fullOrder.seller_note.match(/\[NOTIFY_EMAIL:\s*([^\]\s]+)\]/i);
+    if (match && match[1] && match[1].includes('@')) {
+      recipientEmail = match[1].trim();
+    }
+  }
+
+  if (!recipientEmail || !recipientEmail.includes('@')) return;
+
+  const items = fullOrder.order_items.map((item) => {
+    let imgUrl: string | null = null;
+    if (item.products?.product_images && item.products.product_images.length > 0) {
+      const thumb = item.products.product_images.find((i) => i.is_thumbnail) || item.products.product_images[0];
+      imgUrl = thumb.image_url;
+    }
+    return {
+      name: item.product_name,
+      qty: item.quantity,
+      price: Number(item.unit_price),
+      total: Number(item.total_price),
+      sku: item.sku || undefined,
+      image: imgUrl,
+    };
+  });
+
+  await MailerService.sendOrderCancellationMail({
+    orderCode: fullOrder.order_code,
+    customerName: fullOrder.users?.full_name || 'Quý khách',
+    customerEmail: recipientEmail,
+    customerPhone: fullOrder.users?.phone || 'Chưa cập nhật',
+    shippingAddress: fullOrder.shipping_address,
+    cancelReason,
+    cancelledBy,
+    cancelledAt: new Date(),
+    paymentMethod: fullOrder.payment_method,
+    paymentStatus: fullOrder.payment_status,
+    items,
+    totalAmount: Number(fullOrder.total_amount),
+  });
+}
+
 // POST /api/orders - Tạo đơn hàng mới
 ordersRouter.post('/', async (req: Request, res: Response) => {
   try {
@@ -115,19 +181,30 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
           slug.replace(/^cham-/, 'charm-'),
         ] : [];
 
-        const product = await prisma.products.findFirst({
-          where: {
-            deleted_at: null,
-            OR: [
-              ...(candidateSlugs.length > 0 ? [{ slug: { in: candidateSlugs } }] : []),
-              ...(item.name ? [{ name: { equals: String(item.name).trim(), mode: 'insensitive' as const } }] : []),
-            ],
-          },
-          include: {
-            product_variants: true,
-            product_images: { orderBy: [{ is_thumbnail: 'desc' }, { sort_order: 'asc' }] },
-          },
-        });
+        // Tìm sản phẩm theo slug hoặc tên (case-insensitive với PostgreSQL)
+        let product = candidateSlugs.length > 0
+          ? await prisma.products.findFirst({
+              where: { deleted_at: null, slug: { in: candidateSlugs } },
+              include: {
+                product_variants: true,
+                product_images: { orderBy: [{ is_thumbnail: 'desc' }, { sort_order: 'asc' }] },
+              },
+            })
+          : null;
+
+        if (!product && item.name) {
+          const nameStr = String(item.name).trim();
+          product = await prisma.products.findFirst({
+            where: {
+              deleted_at: null,
+              name: nameStr,
+            },
+            include: {
+              product_variants: true,
+              product_images: { orderBy: [{ is_thumbnail: 'desc' }, { sort_order: 'asc' }] },
+            },
+          });
+        }
 
         if (product) {
           productId = product.id;
@@ -668,6 +745,10 @@ ordersRouter.post('/:idOrCode/cancel', verifyToken, async (req: Request, res: Re
     });
 
     console.log(`[UserCancel] Khách hàng ${req.user.email || req.user.id} đã hủy thành công đơn hàng #${existingOrder.order_code}. Lý do: ${cancelReason}`);
+
+    triggerOrderCancellationMail(existingOrder.id, cancelReason, isAdmin ? 'admin' : 'customer').catch((err) => {
+      console.warn('[UserCancel] Không thể gửi email thông báo hủy đơn:', err.message);
+    });
 
     return res.json({
       success: true,
@@ -1319,6 +1400,17 @@ ordersRouter.patch('/:id/status', verifyToken, requireAdmin, async (req: Request
       data: updateData,
     });
 
+    // Tự động gửi email Thông báo Hủy đơn nếu đơn vừa chuyển sang 'cancelled'
+    if (targetOrderStatus === 'cancelled' && prevStatus !== 'cancelled') {
+      const reasonForMail =
+        (typeof cancelReason === 'string' && cancelReason.trim()) ||
+        extractCancelReason(updatedOrder) ||
+        'Đơn hàng đã được hủy bởi Quản trị viên.';
+      triggerOrderCancellationMail(orderId, reasonForMail, 'admin').catch((err) => {
+        console.warn('[ORDERS ROUTE] Không thể gửi email thông báo hủy đơn:', err.message);
+      });
+    }
+
     // Tự động kích hoạt gửi email Xác nhận Thanh toán Thành công nếu đơn được chuyển sang "Đã thanh toán" (paid)
     if (existingOrder.payment_status !== 'paid' && updateData.payment_status === 'paid') {
       const fullOrder = await prisma.orders.findUnique({
@@ -1554,6 +1646,14 @@ export async function autoCancelExpiredOrders(hoursThreshold = 24): Promise<{ ca
             order_status: 'cancelled',
             seller_note: currentNote,
           },
+        });
+
+        triggerOrderCancellationMail(
+          order.id,
+          `Đơn hàng tự động hủy do quá thời hạn thanh toán ${hoursThreshold} giờ (chưa thanh toán).`,
+          'system'
+        ).catch((err) => {
+          console.warn(`[AutoCancel] Không thể gửi email hủy đơn ${order.order_code}:`, err.message);
         });
 
         cancelledCodes.push(order.order_code);

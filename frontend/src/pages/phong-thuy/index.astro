@@ -547,7 +547,7 @@ const namHienTai = new Date().getFullYear();
 
       const userMessage = `[Studio Bát Trạch] Gia chủ ${gioiTinh === 'nam' ? 'Nam mạng' : 'Nữ mạng'} sinh năm ${namSinh} · Không gian: ${loaiPhongLabel} · Cung ${result.cung} (${result.nguHanh})`;
 
-      fetch('http://localhost:4000/api/phong-thuy/chat-log', {
+      fetch(`${import.meta.env.PUBLIC_API_URL}/phong-thuy/chat-log`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
