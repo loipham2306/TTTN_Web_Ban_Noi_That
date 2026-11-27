@@ -1,0 +1,85 @@
+---
+import PolicyPageLayout from '../components/PolicyPageLayout.astro';
+---
+
+<PolicyPageLayout
+  position="chinh-sach-van-chuyen"
+  title="Vận Chuyển & Lắp Đặt | KTUFA"
+  description="Chính sách vận chuyển theo khu vực: miễn phí TP. HCM từ 2 triệu, tỉnh lân cận từ 10 triệu và toàn quốc từ 20 triệu."
+  breadcrumbLabel="Vận chuyển & Lắp đặt"
+  eyebrow="White-Glove Delivery"
+  heroHeadingLines={['VẬN CHUYỂN AN TOÀN', 'LẮP ĐẶT TẬN PHÒNG']}
+  heroSubtitle="Cước phí minh bạch theo 3 vùng giao nhận. Đội ngũ KTUFA bọc lót 3 lớp chuyên nghiệp và lắp đặt hoàn thiện ngay tại nhà."
+  heroImage="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1920&q=85"
+  heroCtaText="Xem biểu phí & quy trình"
+>
+  <!-- 3 Điểm nổi bật phẳng -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 pb-10 border-b border-walnut-900/15">
+    <div>
+      <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-[#997734]">TP. Hồ Chí Minh</p>
+      <p class="mt-1.5 font-display text-2xl font-medium text-[#173524]">Miễn Phí Từ 2Tr</p>
+      <p class="mt-1 text-xs leading-relaxed text-walnut-800/75">Đơn dưới 2.000.000 ₫ phụ thu 50.000 ₫. Giao lắp trong 1–2 ngày.</p>
+    </div>
+    <div>
+      <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-[#997734]">Các tỉnh lân cận</p>
+      <p class="mt-1.5 font-display text-2xl font-medium text-[#173524]">Miễn Phí Từ 10Tr</p>
+      <p class="mt-1 text-xs leading-relaxed text-walnut-800/75">Đơn dưới 10.000.000 ₫ phí 150.000 ₫. Giao trong 2–4 ngày.</p>
+    </div>
+    <div>
+      <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-[#997734]">Tỉnh / thành khác</p>
+      <p class="mt-1.5 font-display text-2xl font-medium text-[#173524]">Miễn Phí Từ 20Tr</p>
+      <p class="mt-1 text-xs leading-relaxed text-walnut-800/75">Đơn dưới 20.000.000 ₫ hỗ trợ đồng giá 300.000 ₫ toàn quốc.</p>
+    </div>
+  </div>
+
+  <!-- 1. Bảng khu vực & chi phí -->
+  <div class="space-y-4">
+    <h2 class="font-display text-2xl font-medium text-walnut-900">1. Khu vực, thời gian &amp; chi phí giao nhận</h2>
+    <div class="overflow-x-auto bg-white border border-walnut-900/15">
+      <table class="w-full text-left text-xs sm:text-sm">
+        <thead class="bg-[#F0EBE3] text-walnut-900 text-[11px] uppercase tracking-wider">
+          <tr>
+            <th class="px-5 py-3.5 font-bold border-b border-walnut-900/15">Khu vực giao nhận</th>
+            <th class="px-5 py-3.5 font-bold border-b border-walnut-900/15">Thời gian dự kiến</th>
+            <th class="px-5 py-3.5 font-bold border-b border-walnut-900/15">Ngưỡng miễn phí</th>
+            <th class="px-5 py-3.5 font-bold border-b border-walnut-900/15">Phí nếu chưa đạt ngưỡng</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-walnut-900/10 text-walnut-800">
+          <tr>
+            <td class="px-5 py-3.5 font-semibold text-walnut-900">Nội thành TP. Hồ Chí Minh</td>
+            <td class="px-5 py-3.5">1 – 2 ngày làm việc</td>
+            <td class="px-5 py-3.5 font-bold text-emerald-700">Đơn từ 2.000.000 ₫</td>
+            <td class="px-5 py-3.5 font-semibold">50.000 ₫</td>
+          </tr>
+          <tr>
+            <td class="px-5 py-3.5 font-semibold text-walnut-900">Tỉnh lân cận (Bình Dương, Đồng Nai, Long An, Tây Ninh, BR-VT)</td>
+            <td class="px-5 py-3.5">2 – 4 ngày làm việc</td>
+            <td class="px-5 py-3.5 font-bold text-emerald-700">Đơn từ 10.000.000 ₫</td>
+            <td class="px-5 py-3.5 font-semibold">150.000 ₫</td>
+          </tr>
+          <tr>
+            <td class="px-5 py-3.5 font-semibold text-walnut-900">Các tỉnh thành khác trên toàn quốc</td>
+            <td class="px-5 py-3.5">3 – 7 ngày làm việc</td>
+            <td class="px-5 py-3.5 font-bold text-emerald-700">Đơn từ 20.000.000 ₫</td>
+            <td class="px-5 py-3.5 font-semibold">300.000 ₫ (mức hỗ trợ)</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 2. Quy trình giao nhận -->
+  <div class="space-y-3 pt-4 border-t border-walnut-900/15">
+    <h2 class="font-display text-2xl font-medium text-walnut-900">2. Quy trình giao nhận &amp; lắp đặt tận nơi</h2>
+    <ul class="list-disc pl-5 space-y-2 text-sm text-walnut-800/85 leading-relaxed">
+      <li><strong>Hẹn lịch trước:</strong> Nhân viên điều phối gọi điện xác nhận khung giờ thuận tiện tối thiểu 2 giờ trước khi giao.</li>
+      <li><strong>Bọc lót 3 lớp:</strong> Sản phẩm được bọc màng PE chống ẩm, xốp nổ giảm chấn và gia cố góc cạnh an toàn.</li>
+      <li><strong>Lắp đặt &amp; cân chỉnh:</strong> Đưa sản phẩm vào đúng vị trí phòng, lắp ráp hoàn chỉnh và cân chỉnh chân đế, bản lề.</li>
+      <li><strong>Đồng kiểm nghiệm thu:</strong> Quý khách kiểm tra ngoại quan, chất liệu và ký xác nhận hài lòng khi bàn giao.</li>
+    </ul>
+    <div class="mt-4 bg-[#F0EBE3]/75 border-l-4 border-[#D8B670] px-5 py-3.5 text-xs sm:text-sm text-walnut-900 leading-relaxed">
+      <strong class="text-[#173524]">Lưu ý với căn hộ chung cư:</strong> Quý khách vui lòng thông báo trước quy định đăng ký thang máy hàng của Ban Quản Lý để đội ngũ KTUFA sắp xếp thuận tiện nhất.
+    </div>
+  </div>
+</PolicyPageLayout>

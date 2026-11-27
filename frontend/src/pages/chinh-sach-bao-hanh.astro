@@ -1,0 +1,103 @@
+---
+import PolicyPageLayout from '../components/PolicyPageLayout.astro';
+---
+
+<PolicyPageLayout
+  position="chinh-sach-bao-hanh"
+  title="Chính Sách Bảo Hành & Bảo Trì | KTUFA"
+  description="Cam kết bảo hành 24 tháng và hỗ trợ bảo trì trọn đời cho mọi sản phẩm nội thất cao cấp tại KTUFA."
+  breadcrumbLabel="Chính sách bảo hành"
+  eyebrow="KTUFA Care & Warranty"
+  heroHeadingLines={['BẢO HÀNH 24 THÁNG', 'BẢO TRÌ TRỌN ĐỜI']}
+  heroSubtitle="Mỗi tuyệt tác nội thất KTUFA đều được cam kết đồng hành dài lâu, giữ trọn vẻ đẹp nguyên bản và sự an tâm cho gia chủ."
+  heroImage="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=1920&q=85"
+  heroCtaText="Xem điều khoản bảo hành"
+>
+  <!-- Cam kết cốt lõi (dạng dải ngang tối giản, không lồng card) -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 pb-10 border-b border-walnut-900/15">
+    <div>
+      <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-[#997734]">01 / Thời hạn</p>
+      <p class="mt-1.5 font-display text-2xl font-medium text-[#173524]">24 Tháng</p>
+      <p class="mt-1 text-xs leading-relaxed text-walnut-800/75">Bảo hành chính hãng cho kết cấu khung gỗ và lỗi kỹ thuật.</p>
+    </div>
+    <div>
+      <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-[#997734]">02 / Dài lâu</p>
+      <p class="mt-1.5 font-display text-2xl font-medium text-[#173524]">Trọn Đời</p>
+      <p class="mt-1 text-xs leading-relaxed text-walnut-800/75">Hỗ trợ bảo trì bề mặt gỗ, da bò Ý và phụ kiện trọn vòng đời.</p>
+    </div>
+    <div>
+      <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-[#997734]">03 / Phản hồi</p>
+      <p class="mt-1.5 font-display text-2xl font-medium text-[#173524]">Trong 48 Giờ</p>
+      <p class="mt-1 text-xs leading-relaxed text-walnut-800/75">Kỹ thuật viên trực tiếp kiểm tra và xử lý tận nhà.</p>
+    </div>
+  </div>
+
+  <!-- 1. Phạm vi & Thời hạn -->
+  <div class="space-y-4">
+    <h2 class="font-display text-2xl font-medium text-walnut-900">1. Phạm vi &amp; thời hạn bảo hành</h2>
+    <div class="overflow-x-auto bg-white border border-walnut-900/15">
+      <table class="w-full text-left text-xs sm:text-sm">
+        <thead class="bg-[#F0EBE3] text-walnut-900 text-[11px] uppercase tracking-wider">
+          <tr>
+            <th class="px-5 py-3.5 font-bold border-b border-walnut-900/15">Hạng mục sản phẩm</th>
+            <th class="px-5 py-3.5 font-bold border-b border-walnut-900/15">Thời hạn</th>
+            <th class="px-5 py-3.5 font-bold border-b border-walnut-900/15">Nội dung áp dụng</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-walnut-900/10 text-walnut-800">
+          <tr>
+            <td class="px-5 py-3.5 font-semibold text-walnut-900">Khung gỗ tự nhiên (Sồi, Óc chó, Teak)</td>
+            <td class="px-5 py-3.5 font-bold text-[#173524]">24 tháng</td>
+            <td class="px-5 py-3.5">Nứt tét kết cấu, cong vênh, mối mọt do lỗi xử lý kỹ thuật.</td>
+          </tr>
+          <tr>
+            <td class="px-5 py-3.5 font-semibold text-walnut-900">Sofa da bò Ý, vải nỉ &amp; đệm mút</td>
+            <td class="px-5 py-3.5 font-bold text-[#173524]">12 – 24 tháng</td>
+            <td class="px-5 py-3.5">Bung chỉ may, xẹp lún bất thường, gãy khung lò xo.</td>
+          </tr>
+          <tr>
+            <td class="px-5 py-3.5 font-semibold text-walnut-900">Mặt đá Marble, kính &amp; phụ kiện kim loại</td>
+            <td class="px-5 py-3.5 font-bold text-[#173524]">12 tháng</td>
+            <td class="px-5 py-3.5">Lỗi liên kết keo, bong tróc lớp phủ kỹ thuật, bản lề &amp; ray trượt.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- 2. Trường hợp miễn trừ -->
+  <div class="space-y-3 pt-4 border-t border-walnut-900/15">
+    <h2 class="font-display text-2xl font-medium text-walnut-900">2. Trường hợp không bảo hành miễn phí</h2>
+    <ul class="list-disc pl-5 space-y-2 text-sm text-walnut-800/85 leading-relaxed">
+      <li>Hư hỏng do va đập mạnh, trầy xước, vật sắc nhọn hoặc sử dụng quá tải trọng khuyến nghị.</li>
+      <li>Sử dụng hóa chất tẩy rửa có tính axit/kiềm mạnh làm phai màu, ăn mòn bề mặt da hoặc gỗ.</li>
+      <li>Sản phẩm bị ngập nước kéo dài, đặt nơi ẩm mốc nặng hoặc tiếp xúc nguồn nhiệt cao trực tiếp.</li>
+      <li>Khách hàng tự ý tháo lắp, sửa chữa hoặc thay đổi kết cấu nguyên bản của sản phẩm.</li>
+    </ul>
+    <div class="mt-4 bg-[#F0EBE3]/75 border-l-4 border-[#D8B670] px-5 py-3.5 text-xs sm:text-sm text-walnut-900 leading-relaxed">
+      <strong class="text-[#173524]">Lưu ý:</strong> Với các trường hợp ngoài phạm vi bảo hành, KTUFA vẫn hỗ trợ <strong>bảo trì, phục hồi với chi phí ưu đãi</strong> dành riêng cho khách hàng.
+    </div>
+  </div>
+
+  <!-- 3. Quy trình 3 bước -->
+  <div class="space-y-4 pt-4 border-t border-walnut-900/15">
+    <h2 class="font-display text-2xl font-medium text-walnut-900">3. Quy trình tiếp nhận bảo hành</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 text-sm">
+      <div>
+        <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#997734]">Bước 01</span>
+        <p class="mt-1 font-semibold text-walnut-900">Gửi yêu cầu</p>
+        <p class="mt-1 text-xs text-walnut-800/75 leading-relaxed">Liên hệ Hotline 1900 636 884 hoặc Zalo kèm mã đơn hàng và ảnh chụp sản phẩm.</p>
+      </div>
+      <div>
+        <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#997734]">Bước 02</span>
+        <p class="mt-1 font-semibold text-walnut-900">Kiểm tra trong 48h</p>
+        <p class="mt-1 text-xs text-walnut-800/75 leading-relaxed">Kỹ thuật viên xác nhận tình trạng và hẹn lịch đến kiểm tra trực tiếp tại nhà.</p>
+      </div>
+      <div>
+        <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-[#997734]">Bước 03</span>
+        <p class="mt-1 font-semibold text-walnut-900">Xử lý hoàn thiện</p>
+        <p class="mt-1 text-xs text-walnut-800/75 leading-relaxed">Sửa chữa hoặc thay thế linh kiện chính hãng, bàn giao sạch sẽ cho gia chủ.</p>
+      </div>
+    </div>
+  </div>
+</PolicyPageLayout>

@@ -1,17 +1,13 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 
-const provinces = [
-  'Hà Nội',
-  'TP. Hồ Chí Minh',
-  'Đà Nẵng',
-  'Hải Phòng',
-  'Cần Thơ',
+const hcmProvince = 'TP. Hồ Chí Minh';
+const nearbyProvinces = [
   'Bình Dương',
   'Đồng Nai',
-  'Khánh Hòa',
-  'Quảng Ninh',
-  'Tỉnh/thành khác',
+  'Long An',
+  'Tây Ninh',
+  'Bà Rịa - Vũng Tàu',
 ];
 ---
 
@@ -156,10 +152,23 @@ const provinces = [
 
               <div>
                 <label for="ck-province" class="text-[11px] uppercase tracking-[0.2em] text-walnut-800">Tỉnh / Thành phố <span class="text-red-500">*</span></label>
-                <select id="ck-province" name="province" required class="mt-2 w-full border border-walnut-900/20 bg-white px-4 py-3 text-sm text-walnut-900 rounded outline-none transition-colors focus:border-clay-600">
-                  <option value="">-- Chọn tỉnh/thành --</option>
-                  {provinces.map((province) => <option value={province}>{province}</option>)}
+                <select id="ck-province" name="province" required class="mt-2 w-full border border-walnut-900/20 bg-white px-4 py-3 text-sm text-walnut-900 rounded outline-none transition-colors focus:border-clay-600 cursor-pointer">
+                  <option value="">-- Chọn tỉnh/thành phố --</option>
+                  <option value={hcmProvince}>{hcmProvince}</option>
+                  <optgroup label="Các tỉnh lân cận">
+                    {nearbyProvinces.map((province) => <option value={province}>{province}</option>)}
+                  </optgroup>
+                  <option value="__OTHER__">Tỉnh / thành khác</option>
                 </select>
+                <div id="ck-other-province-wrap" class="mt-2 hidden">
+                  <input
+                    id="ck-other-province"
+                    name="other_province"
+                    type="text"
+                    placeholder="Nhập tên tỉnh / thành phố..."
+                    class="w-full border border-walnut-900/20 bg-white px-4 py-3 text-sm rounded outline-none transition-colors placeholder:text-walnut-800/50 focus:border-clay-600"
+                  />
+                </div>
                 <p data-error-for="province" class="mt-1.5 hidden text-xs text-red-600"></p>
               </div>
 
@@ -837,25 +846,53 @@ const provinces = [
       document.body.appendChild(chooseModalOverlay);
     }
 
+    const provSelectEl = form?.querySelector<HTMLSelectElement>('#ck-province') || null;
+    const otherProvWrapEl = form?.querySelector<HTMLElement>('#ck-other-province-wrap') || null;
+    const otherProvInputEl = form?.querySelector<HTMLInputElement>('#ck-other-province') || null;
+
+    const syncOtherProvinceVisibility = (focusInput = false) => {
+      const isOther = provSelectEl?.value === '__OTHER__';
+      otherProvWrapEl?.classList.toggle('hidden', !isOther);
+      if (isOther && focusInput) {
+        otherProvInputEl?.focus();
+      } else if (!isOther && otherProvInputEl) {
+        otherProvInputEl.value = '';
+      }
+    };
+
+    const getEffectiveProvince = () => {
+      const sel = provSelectEl?.value?.trim() || '';
+      if (sel === '__OTHER__') {
+        return otherProvInputEl?.value?.trim() || 'Tỉnh/thành khác';
+      }
+      return sel;
+    };
+
     const fillAddressForm = (addr: any) => {
       if (!form || !addr) return;
       const nameInput = form.querySelector<HTMLInputElement>('#ck-name');
       const phoneInput = form.querySelector<HTMLInputElement>('#ck-phone');
-      const provSelect = form.querySelector<HTMLSelectElement>('#ck-province');
       const distInput = form.querySelector<HTMLInputElement>('#ck-district');
       const addrInput = form.querySelector<HTMLInputElement>('#ck-address');
 
       if (nameInput && addr.receiverName) nameInput.value = addr.receiverName;
       if (phoneInput && addr.receiverPhone) phoneInput.value = addr.receiverPhone;
-      if (provSelect && addr.province) {
-        provSelect.value = addr.province;
-        if (!provSelect.value) {
-          const matchOpt = Array.from(provSelect.options).find(
-            (opt) => opt.value.trim().toLowerCase() === addr.province.trim().toLowerCase()
-          );
-          if (matchOpt) provSelect.value = matchOpt.value;
+      if (provSelectEl && addr.province) {
+        const targetProv = addr.province.trim().toLowerCase();
+        const matchOpt = Array.from(provSelectEl.options).find(
+          (opt) => opt.value && opt.value !== '__OTHER__' && opt.value.trim().toLowerCase() === targetProv
+        );
+        if (matchOpt) {
+          provSelectEl.value = matchOpt.value;
+          syncOtherProvinceVisibility(false);
+        } else {
+          provSelectEl.value = '__OTHER__';
+          syncOtherProvinceVisibility(false);
+          if (otherProvInputEl) {
+            otherProvInputEl.value = addr.province === 'Tỉnh/thành khác' ? '' : addr.province;
+          }
         }
-        provSelect.dispatchEvent(new Event('change', { bubbles: true }));
+        provSelectEl.dispatchEvent(new Event('change', { bubbles: true }));
       }
       if (distInput && addr.district) distInput.value = addr.district;
       if (addrInput && addr.specificAddress) addrInput.value = addr.specificAddress;
@@ -1103,6 +1140,7 @@ const provinces = [
 
       const items = readCart();
       const subtotal = totalPrice(items);
+      const selectedProvince = getEffectiveProvince();
 
       if (applyCouponBtn) {
         applyCouponBtn.disabled = true;
@@ -1118,7 +1156,7 @@ const provinces = [
             'Content-Type': 'application/json',
             ...(token ? { 'Authorization': `Bearer ${token}` } : {}),
           },
-          body: JSON.stringify({ code, subtotal }),
+          body: JSON.stringify({ code, subtotal, province: selectedProvince }),
         });
 
         const json = await res.json();
@@ -1230,6 +1268,53 @@ const provinces = [
       return row;
     };
 
+    const getShippingRuleByProvince = (provinceName: string) => {
+      const normalized = (provinceName || '').trim().toLowerCase();
+      if (!normalized) {
+        return null;
+      }
+      if (
+        normalized.includes('hồ chí minh') ||
+        normalized.includes('ho chi minh') ||
+        normalized === 'tphcm' ||
+        normalized === 'tp.hcm' ||
+        normalized === 'hcm'
+      ) {
+        return {
+          zone: 'hcm' as const,
+          label: 'TP. Hồ Chí Minh',
+          freeThreshold: 2_000_000,
+          baseFee: 50_000,
+        };
+      }
+      const nearbyKeywords = [
+        'bình dương',
+        'binh duong',
+        'đồng nai',
+        'dong nai',
+        'long an',
+        'tây ninh',
+        'tay ninh',
+        'bà rịa',
+        'vũng tàu',
+        'vung tau',
+      ];
+      if (nearbyKeywords.some((kw) => normalized.includes(kw))) {
+        return {
+          zone: 'nearby' as const,
+          label: 'Tỉnh lân cận',
+          freeThreshold: 10_000_000,
+          baseFee: 150_000,
+        };
+      }
+      return {
+        zone: 'other' as const,
+        label: 'Tỉnh/thành khác',
+        freeThreshold: 20_000_000,
+        baseFee: 300_000,
+      };
+    };
+
     const renderSummary = () => {
       const items = readCart();
 
@@ -1245,7 +1330,18 @@ const provinces = [
       }
 
       const subtotal = totalPrice(items);
-      const standardShipping = subtotal >= 2000000 ? 0 : (items.length > 0 ? 50000 : 0);
+      const selectedProvince = getEffectiveProvince();
+      const shippingRule = getShippingRuleByProvince(selectedProvince);
+
+      let standardShipping = 0;
+      if (items.length > 0) {
+        if (shippingRule) {
+          standardShipping = subtotal >= shippingRule.freeThreshold ? 0 : shippingRule.baseFee;
+        } else {
+          standardShipping = 0;
+        }
+      }
+
       let shippingFee = standardShipping;
       let discountAmount = 0;
 
@@ -1261,7 +1357,11 @@ const provinces = [
             discountAmount = shipDiscount;
             shippingFee = Math.max(0, standardShipping - shipDiscount);
             currentCoupon.discountAmount = discountAmount;
-            if (appliedDiscountText) appliedDiscountText.textContent = `Miễn phí ship (${formatVnd(discountAmount)})`;
+            if (appliedDiscountText) {
+              appliedDiscountText.textContent = standardShipping > 0
+                ? `Miễn phí ship (${formatVnd(discountAmount)})`
+                : 'Đơn đã đạt Freeship';
+            }
             if (discountAmountEl) discountAmountEl.textContent = '-' + formatVnd(discountAmount);
           } else if (currentCoupon.discountType === 'percent' || currentCoupon.discountType === 'percentage') {
             discountAmount = Math.round((subtotal * currentCoupon.discountValue) / 100);
@@ -1269,12 +1369,12 @@ const provinces = [
               discountAmount = currentCoupon.maxDiscountAmount;
             }
             currentCoupon.discountAmount = discountAmount;
-            if (appliedDiscountText) appliedDiscountText.textContent = formatVnd(discountAmount);
+            if (appliedDiscountText) appliedDiscountText.textContent = '-' + formatVnd(discountAmount);
             if (discountAmountEl) discountAmountEl.textContent = '-' + formatVnd(discountAmount);
           } else {
             discountAmount = Math.min(subtotal, currentCoupon.discountValue);
             currentCoupon.discountAmount = discountAmount;
-            if (appliedDiscountText) appliedDiscountText.textContent = formatVnd(discountAmount);
+            if (appliedDiscountText) appliedDiscountText.textContent = '-' + formatVnd(discountAmount);
             if (discountAmountEl) discountAmountEl.textContent = '-' + formatVnd(discountAmount);
           }
         }
@@ -1286,9 +1386,14 @@ const provinces = [
 
       if (subtotalEl) subtotalEl.textContent = formatVnd(subtotal);
       if (shippingEl) {
-        if (currentCoupon?.discountType === 'free_shipping' && standardShipping > 0) {
+        if (!shippingRule && subtotal < 20_000_000) {
+          shippingEl.textContent = 'Chọn tỉnh/thành';
+          shippingEl.className = 'text-walnut-800/70 font-medium text-xs';
+        } else if (currentCoupon?.discountType === 'free_shipping' && standardShipping > 0) {
+          shippingEl.className = 'text-walnut-900 font-bold';
           shippingEl.innerHTML = `<span class="line-through text-walnut-800/60 mr-1.5 text-xs font-normal">${formatVnd(standardShipping)}</span><span class="text-emerald-700 font-bold">${shippingFee === 0 ? 'Miễn phí' : formatVnd(shippingFee)}</span>`;
         } else {
+          shippingEl.className = shippingFee === 0 ? 'text-emerald-700 font-bold' : 'text-walnut-900 font-bold';
           shippingEl.textContent = shippingFee === 0 ? 'Miễn phí' : formatVnd(shippingFee);
         }
       }
@@ -1307,7 +1412,7 @@ const provinces = [
           `Người nhận: ${value('fullname')}
 ${value('phone')}`,
           value('email') ? `Email: ${value('email')}` : '',
-          `Địa chỉ: ${[value('address'), value('district'), value('province')].filter(Boolean).join(', ')}`,
+          `Địa chỉ: ${[value('address'), value('district'), getEffectiveProvince()].filter(Boolean).join(', ')}`,
         ];
         const note = value('note');
         if (note) lines.push(`Ghi chú: ${note}`);
@@ -1739,7 +1844,7 @@ ${value('phone')}`,
           fullname: value('fullname'),
           phone: value('phone'),
           email: value('email') || undefined,
-          province: value('province'),
+          province: getEffectiveProvince(),
           district: value('district'),
           address: value('address'),
           note: value('note') || undefined,
@@ -1792,7 +1897,7 @@ ${value('phone')}`,
             orderCode: code,
             customerName: value('fullname'),
             customerPhone: value('phone'),
-            customerAddress: [value('address'), value('district'), value('province')].filter(Boolean).join(', '),
+            customerAddress: [value('address'), value('district'), getEffectiveProvince()].filter(Boolean).join(', '),
             method: payment,
             paymentMethod: payment,
             items: [...items],
@@ -2105,7 +2210,15 @@ ${value('phone')}`,
         {
           fullname: [required('Vui lòng nhập họ và tên.'), minLength(2, 'Họ và tên cần ít nhất 2 ký tự.')],
           phone: [required('Vui lòng nhập số điện thoại.'), phone('Số điện thoại chưa hợp lệ (ví dụ: 0912345678).')],
-          province: [required('Vui lòng chọn tỉnh/thành.')],
+          province: [
+            required('Vui lòng chọn tỉnh/thành.'),
+            (val) => {
+              if (val.trim() === '__OTHER__' && !otherProvInputEl?.value?.trim()) {
+                return 'Vui lòng nhập tên tỉnh/thành phố.';
+              }
+              return null;
+            },
+          ],
           district: [required('Vui lòng nhập quận/huyện.')],
           address: [required('Vui lòng nhập địa chỉ chi tiết.')],
         },
@@ -2128,6 +2241,16 @@ ${value('phone')}`,
     });
 
     placeOrderBtn?.addEventListener('click', placeOrder);
+
+    provSelectEl?.addEventListener('change', (e) => {
+      syncOtherProvinceVisibility(e.isTrusted);
+      renderSummary();
+    });
+
+    otherProvInputEl?.addEventListener('input', () => {
+      provSelectEl?.dispatchEvent(new Event('input', { bubbles: true }));
+      renderSummary();
+    });
 
     refresh();
     goTo(0);

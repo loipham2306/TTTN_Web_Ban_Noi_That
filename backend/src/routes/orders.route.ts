@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import { ENV } from '../config/env.js';
 import { MailerService } from '../services/mailer.service.js';
 import { invalidateCachePrefix } from '../utils/cache.js';
+import { calculateShippingFee } from '../utils/shipping.js';
 
 export const ordersRouter = Router();
 
@@ -227,7 +228,7 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
                 discountAmount = Number(coupon.max_discount_amount);
               }
             } else if (coupon.discount_type === 'free_shipping') {
-              const stdShip = subtotalAmount >= 2000000 ? 0 : 50000;
+              const stdShip = calculateShippingFee(subtotalAmount, province);
               discountAmount = (val === 0 || val >= stdShip) ? stdShip : val;
             } else {
               discountAmount = Math.min(subtotalAmount, val);
@@ -242,9 +243,9 @@ ordersRouter.post('/', async (req: Request, res: Response) => {
         }
       }
 
-      // 2. Tính toán cước phí và tổng tiền
+      // 2. Tính toán cước phí theo khu vực & tổng tiền
       const isFreeShipping = appliedCoupon?.discount_type === 'free_shipping';
-      const baseShippingFee = subtotalAmount >= 2000000 ? 0 : 50000;
+      const baseShippingFee = calculateShippingFee(subtotalAmount, province);
       let actualShippingFee = baseShippingFee;
 
       if (isFreeShipping) {

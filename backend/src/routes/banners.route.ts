@@ -3,12 +3,15 @@ import { prisma } from '../config/prisma.js';
 import { verifyToken, requireAdmin } from '../middlewares/auth.middleware.js';
 import { uploadBanner } from '../middlewares/banner-upload.middleware.js'; 
 import { getCache, setCache, invalidateCachePrefix } from '../utils/cache.js';
+import { ensurePolicyBannersSeeded } from '../utils/policy-banners.js';
 
 export const bannersRouter = Router();
 
 // GET /api/banners - Lấy danh sách banner
 bannersRouter.get('/', async (req: Request, res: Response) => {
   try {
+    await ensurePolicyBannersSeeded();
+
     const { position, activeOnly } = req.query;
     const cacheKey = `banners:${typeof position === 'string' ? position : 'all'}:${activeOnly === 'true' ? '1' : '0'}`;
     const cached = getCache<any[]>(cacheKey);

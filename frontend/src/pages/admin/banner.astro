@@ -56,6 +56,10 @@ const sanPhamBanners = banners.filter((b) => b.position === 'san-pham').length;
 const phongThuyBanners = banners.filter((b) => b.position === 'phong-thuy').length;
 const veChungToiBanners = banners.filter((b) => b.position === 've-chung-toi').length;
 const authBanners = banners.filter((b) => b.position === 'auth').length;
+const baoHanhBanners = banners.filter((b) => b.position === 'chinh-sach-bao-hanh').length;
+const vanChuyenBanners = banners.filter((b) => b.position === 'chinh-sach-van-chuyen').length;
+const thanhToanBanners = banners.filter((b) => b.position === 'huong-dan-thanh-toan').length;
+const policyBanners = baoHanhBanners + vanChuyenBanners + thanhToanBanners;
 ---
 
 <AdminLayout title="Quản Lý Banner & Hình Ảnh Quảng Cáo - Nội Thất">
@@ -114,7 +118,7 @@ const authBanners = banners.filter((b) => b.position === 'auth').length;
     </div>
 
     <!-- Stats -->
-    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
       <div class="rounded border border-walnut-900/10 bg-sand-50 p-3.5 shadow-2xs">
         <p class="text-[11px] uppercase text-walnut-800/70 font-semibold">Tổng số lượng</p>
         <p id="stat-total" class="text-xl font-bold text-walnut-900 mt-1">{totalBanners} mục</p>
@@ -136,6 +140,13 @@ const authBanners = banners.filter((b) => b.position === 'auth').length;
           <span class="text-[10px] text-amber-700 font-bold">✦</span>
         </div>
         <p id="stat-auth" class="text-xl font-bold text-[#173524] mt-1">{authBanners} banner</p>
+      </div>
+      <div class="rounded border border-amber-800/25 bg-amber-50/60 p-3.5 shadow-2xs cursor-pointer hover:bg-amber-100/60 transition-all border-l-4 border-l-[#B88E28]" data-stat-pill="policy" title="Nhấp để lọc 3 Banner Trang Chính Sách">
+        <div class="flex items-center justify-between">
+          <p class="text-[11px] uppercase text-[#173524] font-bold">Trang Chính Sách</p>
+          <span class="text-[10px] text-[#997734] font-bold">✦</span>
+        </div>
+        <p id="stat-policy" class="text-xl font-bold text-[#173524] mt-1">{policyBanners} banner</p>
       </div>
       <div class="rounded border border-amber-900/15 bg-amber-50/40 p-3.5 shadow-2xs cursor-pointer hover:bg-amber-100/50 transition-all" data-stat-pill="hero" title="Nhấp để lọc Hero Trang Chủ">
         <p class="text-[11px] uppercase text-amber-900/80 font-semibold">Hero Trang Chủ</p>
@@ -214,6 +225,27 @@ const authBanners = banners.filter((b) => b.position === 'auth').length;
       >
         Đăng Nhập & Đăng Ký ({authBanners})
       </button>
+      <button 
+        type="button" 
+        data-position-pill="chinh-sach-bao-hanh"
+        class="tab-pill shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer bg-sand-50 text-walnut-900 border border-walnut-900/15 hover:bg-walnut-900 hover:text-sand-50 shadow-2xs"
+      >
+        Bảo Hành ({baoHanhBanners})
+      </button>
+      <button 
+        type="button" 
+        data-position-pill="chinh-sach-van-chuyen"
+        class="tab-pill shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer bg-sand-50 text-walnut-900 border border-walnut-900/15 hover:bg-walnut-900 hover:text-sand-50 shadow-2xs"
+      >
+        Vận Chuyển ({vanChuyenBanners})
+      </button>
+      <button 
+        type="button" 
+        data-position-pill="huong-dan-thanh-toan"
+        class="tab-pill shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer bg-sand-50 text-walnut-900 border border-walnut-900/15 hover:bg-walnut-900 hover:text-sand-50 shadow-2xs"
+      >
+        Thanh Toán ({thanhToanBanners})
+      </button>
     </div>
 
     <!-- Filter & Controls -->
@@ -242,6 +274,9 @@ const authBanners = banners.filter((b) => b.position === 'auth').length;
         <option value="phong-thuy">Banner Menu Phong Thủy</option>
         <option value="ve-chung-toi">Banner Về Chúng Tôi</option>
         <option value="auth">Banner Đăng Nhập & Đăng Ký</option>
+        <option value="chinh-sach-bao-hanh">Banner Chính Sách Bảo Hành</option>
+        <option value="chinh-sach-van-chuyen">Banner Vận Chuyển & Lắp Đặt</option>
+        <option value="huong-dan-thanh-toan">Banner Hình Thức Thanh Toán</option>
         <option value="promo">Khuyến mãi</option>
       </select>
 
@@ -332,7 +367,22 @@ const authBanners = banners.filter((b) => b.position === 'auth').length;
                   Đăng Nhập & Đăng Ký
                 </span>
               )}
-              {b.position !== 'hero' && b.position !== 'space' && b.position !== 'showcase' && b.position !== 'san-pham' && b.position !== 'phong-thuy' && b.position !== 've-chung-toi' && b.position !== 'auth' && (
+              {b.position === 'chinh-sach-bao-hanh' && (
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#173524] text-[#D8B670] border border-[#D8B670]/40 shadow-xs">
+                  Chính Sách Bảo Hành
+                </span>
+              )}
+              {b.position === 'chinh-sach-van-chuyen' && (
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#173524] text-[#D8B670] border border-[#D8B670]/40 shadow-xs">
+                  Vận Chuyển & Lắp Đặt
+                </span>
+              )}
+              {b.position === 'huong-dan-thanh-toan' && (
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#173524] text-[#D8B670] border border-[#D8B670]/40 shadow-xs">
+                  Hình Thức Thanh Toán
+                </span>
+              )}
+              {b.position !== 'hero' && b.position !== 'space' && b.position !== 'showcase' && b.position !== 'san-pham' && b.position !== 'phong-thuy' && b.position !== 've-chung-toi' && b.position !== 'auth' && b.position !== 'chinh-sach-bao-hanh' && b.position !== 'chinh-sach-van-chuyen' && b.position !== 'huong-dan-thanh-toan' && (
                 <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-walnut-900 text-sand-50 shadow-xs">
                   {b.position === 'promo' ? 'Khuyến Mãi' : b.position}
                 </span>
@@ -514,6 +564,9 @@ const authBanners = banners.filter((b) => b.position === 'auth').length;
                 <option value="phong-thuy">Banner Menu Phong Thủy (/phong-thuy)</option>
                 <option value="ve-chung-toi">Banner Về Chúng Tôi (/ve-chung-toi)</option>
                 <option value="auth">Banner Đăng Nhập & Đăng Ký (/dang-nhap, /dang-ky)</option>
+                <option value="chinh-sach-bao-hanh">Banner Chính Sách Bảo Hành (/chinh-sach-bao-hanh)</option>
+                <option value="chinh-sach-van-chuyen">Banner Vận Chuyển & Lắp Đặt (/chinh-sach-van-chuyen)</option>
+                <option value="huong-dan-thanh-toan">Banner Hình Thức Thanh Toán (/huong-dan-thanh-toan)</option>
                 <option value="promo">Quảng cáo / Khuyến mãi giữa trang</option>
               </select>
             </div>
@@ -744,6 +797,21 @@ const authBanners = banners.filter((b) => b.position === 'auth').length;
       if (!formTitle.value) formTitle.value = 'Không gian sống đẳng cấp bắt đầu từ những lựa chọn chỉn chu.';
       if (!formSubtitle.value) formSubtitle.value = 'NỘI THẤT CAO CẤP KTUFA';
       if (!formLink.value || formLink.value.startsWith('/ve-chung-toi')) formLink.value = '/san-pham';
+    } else if (formPosition.value === 'chinh-sach-bao-hanh') {
+      if (!formTitle.value) formTitle.value = 'BẢO HÀNH 24 THÁNG | BẢO TRÌ TRỌN ĐỜI';
+      if (!formSubtitle.value) formSubtitle.value = 'KTUFA Care & Warranty';
+      formLink.value = '/chinh-sach-bao-hanh#noi-dung';
+      if (!formBtnText.value || formBtnText.value === 'Khám phá ngay') formBtnText.value = 'Xem điều khoản bảo hành';
+    } else if (formPosition.value === 'chinh-sach-van-chuyen') {
+      if (!formTitle.value) formTitle.value = 'VẬN CHUYỂN AN TOÀN | LẮP ĐẶT TẬN PHÒNG';
+      if (!formSubtitle.value) formSubtitle.value = 'White-Glove Delivery';
+      formLink.value = '/chinh-sach-van-chuyen#noi-dung';
+      if (!formBtnText.value || formBtnText.value === 'Khám phá ngay') formBtnText.value = 'Xem biểu phí & quy trình';
+    } else if (formPosition.value === 'huong-dan-thanh-toan') {
+      if (!formTitle.value) formTitle.value = 'THANH TOÁN LINH HOẠT | TRẢ GÓP 0% LÃI SUẤT';
+      if (!formSubtitle.value) formSubtitle.value = 'Flexible & Secure Payment';
+      formLink.value = '/huong-dan-thanh-toan#noi-dung';
+      if (!formBtnText.value || formBtnText.value === 'Khám phá ngay') formBtnText.value = 'Xem hình thức thanh toán';
     }
   });
 
@@ -906,9 +974,12 @@ const authBanners = banners.filter((b) => b.position === 'auth').length;
   const btnReset = document.getElementById('btn-reset-filters');
   const countBadge = document.getElementById('banner-count-badge');
 
+  const POLICY_POSITIONS = ['chinh-sach-bao-hanh', 'chinh-sach-van-chuyen', 'huong-dan-thanh-toan'];
+  let activePositionGroup = '';
+
   const filterCards = () => {
     const query = (searchInput?.value || '').toLowerCase().trim();
-    const pos = positionFilter?.value || '';
+    const pos = activePositionGroup || (positionFilter?.value || '');
     const stat = statusFilter?.value || '';
 
     const cards = document.querySelectorAll<HTMLElement>('[data-banner-card]');
@@ -920,7 +991,7 @@ const authBanners = banners.filter((b) => b.position === 'auth').length;
       const cActive = c.dataset.active === 'true' ? 'active' : 'hidden';
 
       const matchQuery = !query || title.includes(query);
-      const matchPos = !pos || cPos === pos;
+      const matchPos = !pos || (pos === 'policy' ? POLICY_POSITIONS.includes(cPos) : cPos === pos);
       const matchStat = !stat || cActive === stat;
 
       if (matchQuery && matchPos && matchStat) {
@@ -938,6 +1009,7 @@ const authBanners = banners.filter((b) => b.position === 'auth').length;
   const statPills = document.querySelectorAll<HTMLElement>('[data-stat-pill]');
 
   const activateTab = (pos: string) => {
+    activePositionGroup = pos === 'policy' ? 'policy' : '';
     tabPills.forEach((p) => {
       const pPos = p.dataset.positionPill ?? '';
       if (pPos === pos) {
@@ -955,7 +1027,7 @@ const authBanners = banners.filter((b) => b.position === 'auth').length;
     });
 
     if (positionFilter) {
-      positionFilter.value = pos;
+      positionFilter.value = pos === 'policy' ? '' : pos;
     }
     filterCards();
   };
@@ -976,6 +1048,7 @@ const authBanners = banners.filter((b) => b.position === 'auth').length;
 
   searchInput?.addEventListener('input', filterCards);
   positionFilter?.addEventListener('change', () => {
+    activePositionGroup = '';
     const pos = positionFilter.value;
     tabPills.forEach((p) => {
       const pPos = p.dataset.positionPill ?? '';
@@ -996,19 +1069,10 @@ const authBanners = banners.filter((b) => b.position === 'auth').length;
   });
   statusFilter?.addEventListener('change', filterCards);
   btnReset?.addEventListener('click', () => {
+    activePositionGroup = '';
     if (searchInput) searchInput.value = '';
     if (positionFilter) positionFilter.value = '';
     if (statusFilter) statusFilter.value = '';
-    tabPills.forEach((p) => {
-      const pPos = p.dataset.positionPill ?? '';
-      if (pPos === '') {
-        p.classList.add('bg-[#173524]', 'text-[#D8B670]');
-        p.classList.remove('bg-sand-50', 'text-walnut-900');
-      } else {
-        p.classList.remove('bg-[#173524]', 'text-[#D8B670]');
-        p.classList.add('bg-sand-50');
-      }
-    });
-    filterCards();
+    activateTab('');
   });
 </script>

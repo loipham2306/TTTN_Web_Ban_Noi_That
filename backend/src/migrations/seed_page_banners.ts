@@ -1,4 +1,5 @@
 import { prisma } from '../config/prisma.js';
+import { DEFAULT_POLICY_BANNERS } from '../utils/policy-banners.js';
 
 async function seedBanners() {
   console.log('Seeding page header banners...');
@@ -93,6 +94,18 @@ async function seedBanners() {
     console.log('Created banner for auth');
   } else {
     console.log('Banner for auth already exists');
+  }
+
+  for (const policyBanner of DEFAULT_POLICY_BANNERS) {
+    const existingPolicy = await prisma.banners.findFirst({
+      where: { position: policyBanner.position }
+    });
+    if (!existingPolicy) {
+      await prisma.banners.create({ data: policyBanner });
+      console.log(`Created banner for ${policyBanner.position}`);
+    } else {
+      console.log(`Banner for ${policyBanner.position} already exists`);
+    }
   }
 
   process.exit(0);

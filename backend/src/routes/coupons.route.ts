@@ -1,6 +1,7 @@
 import { Router, Request, Response } from 'express';
 import { prisma } from '../config/prisma.js';
 import { optionalToken, verifyToken, requireAdmin } from '../middlewares/auth.middleware.js';
+import { calculateShippingFee } from '../utils/shipping.js';
 
 export const couponsRouter = Router();
 
@@ -39,7 +40,7 @@ couponsRouter.get('/', async (_req: Request, res: Response) => {
 // ================================================================
 couponsRouter.post('/validate', optionalToken, async (req: Request, res: Response) => {
   try {
-    const { code, subtotal } = req.body;
+    const { code, subtotal, province } = req.body;
     if (!code) {
       return res.status(400).json({ success: false, message: 'Vui lòng nhập mã giảm giá.' });
     }
@@ -106,10 +107,7 @@ couponsRouter.post('/validate', optionalToken, async (req: Request, res: Respons
         discountAmount = Number(coupon.max_discount_amount);
       }
     } else if (coupon.discount_type === 'free_shipping') {
-      // Phí vận chuyển tiêu chuẩn 50.000đ (cho đơn dưới 2 triệu)
-      // Nếu discount_value = 0 hoặc >= 50.000đ -> Miễn phí hoàn toàn 50.000đ
-      // Nếu discount_value > 0 -> Giảm tối đa discount_value
-      const stdShip = 50000;
+      const stdShip = calculateShippingFee(orderSubtotal, province);
       discountAmount = (discountVal === 0 || discountVal >= stdShip) ? stdShip : discountVal;
     } else {
       discountAmount = Math.min(orderSubtotal, discountVal);
